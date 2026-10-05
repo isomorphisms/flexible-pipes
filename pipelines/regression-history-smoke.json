@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "regression-history-smoke",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "validate-corpus",
+      "argv": [
+        "python3",
+        "scripts/check-regression-cases",
+        "regressions/history.json"
+      ]
+    }
+  ]
+}
