@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+REQUIRED = (
+    "id",
+    "date",
+    "project",
+    "instruction",
+    "wrong_behavior",
+    "oracle",
+    "evidence",
+)
+EVIDENCE = {"direct-and-retrieved", "retrieved-history", "user-reported"}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", type=Path)
+    args = parser.parse_args()
+
+    try:
+        doc = json.loads(args.path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"cannot load regression corpus: {exc}", file=sys.stderr)
+        return 2
+
+    if doc.get("schema_version") != 1 or not isinstance(doc.get("cases"), list):
+        print("corpus must have schema_version=1 and a cases list", file=sys.stderr)
+        return 2
+
+    seen: set[str] = set()
+    errors: list[str] = []
+    for index, case in enumerate(doc["cases"], start=1):
+        if not isinstance(case, dict):
+            errors.append(f"case {index}: must be object")
+            continue
+        missing = [
+            key
+            for key in REQUIRED
+            if not isinstance(case.get(key), str) or not case[key].strip()
+        ]
+        if missing:
+            errors.append(
+                f"case {index}: missing/non-string fields: {', '.join(missing)}"
+            )
+            continue
+
+        ident = case["id"]
+        if not ID_RE.fullmatch(ident):
+            errors.append(f"case {index}: invalid id {ident!r}")
+        if ident in seen:
+            errors.append(f"case {index}: duplicate id {ident!r}")
+        seen.add(ident)
+
+        if case["evidence"] not in EVIDENCE:
+            errors.append(f"case {ident}: invalid evidence {case['evidence']!r}")
+        if not re.fullmatch(r"2026-\d{2}-\d{2}(?:–\d{2})?", case["date"]):
+            errors.append(f"case {ident}: invalid date {case['date']!r}")
+
+    if errors:
+        for error in errors:
+            print(error, file=sys.stderr)
+        return 1
+
+    print(f"regression corpus ok: {len(doc['cases'])} cases")
+    for case in doc["cases"]:
+        print(f"{case['id']}\t{case['date']}\t{case['project']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
