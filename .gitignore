@@ -1,0 +1,15 @@
+.flexible-pipes/
+.venv/
+__pycache__/
+*.pyc
+
+# Never commit model weights by accident.
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+
+# Optional local cache roots.
+models/cache/
+cache/
