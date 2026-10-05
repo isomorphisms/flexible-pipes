@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""Resolve and fetch a catalogued Hugging Face model without putting weights in Git."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+CATALOG_PATH = ROOT / "models" / "catalog.toml"
+HEX_REVISION = re.compile(r"^[0-9a-fA-F]{7,40}$")
+
+
+def load_catalog() -> dict[str, dict[str, str]]:
+    with CATALOG_PATH.open("rb") as handle:
+        document = tomllib.load(handle)
+    return document["models"]
+
+
+def run(command: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        command,
+        check=True,
+        text=True,
+        capture_output=capture,
+    )
+
+
+def resolve_revision(repo: str, requested: str) -> str:
+    remote = f"https://huggingface.co/{repo}"
+    refs = run(["git", "ls-remote", remote], capture=True).stdout.splitlines()
+    pairs = [(line.split()[0], line.split()[1]) for line in refs if len(line.split()) >= 2]
+
+    if HEX_REVISION.fullmatch(requested):
+        matches = sorted({sha for sha, _ in pairs if sha.startswith(requested.lower())})
+    else:
+        wanted = {
+            requested,
+            f"refs/heads/{requested}",
+            f"refs/tags/{requested}",
+        }
+        matches = sorted({sha for sha, ref in pairs if ref in wanted})
+        if requested == "main":
+            matches.extend(sha for sha, ref in pairs if ref == "HEAD")
+            matches = sorted(set(matches))
+
+    if len(matches) != 1:
+        raise SystemExit(
+            f"cannot resolve {repo}@{requested!r} to exactly one advertised commit; "
+            f"matches={matches}"
+        )
+    return matches[0]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("model", nargs="?", help="catalog key")
+    parser.add_argument("--list", action="store_true", help="list catalog keys")
+    parser.add_argument("--cache", help="override model cache root")
+    parser.add_argument("--resolve-only", action="store_true", help="resolve revision but do not download")
+    args = parser.parse_args()
+
+    catalog = load_catalog()
+    if args.list:
+        for name, spec in catalog.items():
+            print(f"{name}\t{spec['hf_repo']}@{spec['revision']}\t{spec['role']}")
+        return 0
+
+    if not args.model:
+        parser.error("MODEL is required unless --list is used")
+    if args.model not in catalog:
+        raise SystemExit(f"unknown model {args.model!r}; use --list")
+
+    if shutil.which("git") is None:
+        raise SystemExit("git is required to resolve immutable Hugging Face revisions")
+
+    spec = catalog[args.model]
+    resolved = resolve_revision(spec["hf_repo"], spec["revision"])
+    cache_root = Path(
+        args.cache
+        or os.environ.get("FLEXIBLE_PIPES_MODEL_CACHE", "~/.cache/flexible-pipes/models")
+    ).expanduser()
+    destination = cache_root / args.model / resolved
+
+    receipt = {
+        "schema_version": 1,
+        "catalog_key": args.model,
+        "hf_repo": spec["hf_repo"],
+        "requested_revision": spec["revision"],
+        "resolved_revision": resolved,
+        "role": spec["role"],
+        "interface": spec["interface"],
+        "destination": str(destination),
+        "downloaded": not args.resolve_only,
+    }
+
+    if not args.resolve_only:
+        hf = shutil.which("hf")
+        if hf is None:
+            raise SystemExit(
+                "the Hugging Face `hf` CLI is required for downloads; "
+                "install huggingface_hub, or run with --resolve-only"
+            )
+        destination.mkdir(parents=True, exist_ok=True)
+        run([
+            hf,
+            "download",
+            spec["hf_repo"],
+            "--revision",
+            resolved,
+            "--local-dir",
+            str(destination),
+        ])
+
+    receipt_dir = ROOT / ".flexible-pipes" / "model-receipts"
+    receipt_dir.mkdir(parents=True, exist_ok=True)
+    receipt_path = receipt_dir / f"{args.model}-{resolved}.json"
+    receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+    print(json.dumps(receipt, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
