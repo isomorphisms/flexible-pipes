@@ -10,8 +10,8 @@ Large models first:
 
 - `openai/gpt-oss-120b` — general reasoning / instruction worker.
 - `Qwen/Qwen3-Coder-480B-A35B-Instruct` — code-focused worker.
-- `EleutherAI/pythia-12b` — large Pythia research/control model.
-- `EleutherAI/pythia-6.9b` — second large Pythia point for comparisons.
+- `EleutherAI/pythia-12b-deduped` — largest Pythia research/control model.
+- `EleutherAI/pythia-6.9b-deduped` — second large Pythia point for comparisons.
 
 Pythia matters here for more than raw capability: its checkpoint series gives us a controlled family for studying where pipeline behavior comes from and how model-dependent a “flexible” stage really is.
 
@@ -45,5 +45,17 @@ scripts/fetch-model       resolve a revision and download weights outside Git
 docs/pipeline-contract.md first execution/receipt contract
 .gitignore                excludes model caches and run scratch
 ```
+
+## Model bootstrap
+
+The fetcher needs Python 3.11+, Git, and the Hugging Face `hf` CLI for actual downloads.
+
+```sh
+python3 scripts/fetch-model --list
+python3 scripts/fetch-model gpt-oss-120b --resolve-only
+python3 scripts/fetch-model pythia-12b
+```
+
+Every fetch first resolves the catalog revision to a full Hugging Face commit SHA. Actual weights default to `~/.cache/flexible-pipes/models`; local resolution/download receipts go under `.flexible-pipes/model-receipts`, which is ignored by Git.
 
 This repository is intentionally starting smaller than `kitchen`: model boundaries and receipts first, scheduler/graph machinery later.
