@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "catfood-front-room",
+      "date": "2026-08-27",
+      "project": "Cat Food",
+      "instruction": "Keep Cat Food a curated BusyBox-like front room distinct from Rusty Tool Shed, including the required curl, ICU, Grease, Idric, and IB surfaces.",
+      "wrong_behavior": "The implementation expanded acquisition to dozens of moving repositories while omitting required promoted surfaces and exposing acquisition details as product behavior.",
+      "oracle": "Compare the resulting inventory to the declared promoted menu; missing required surfaces or undeclared moving dependencies fail.",
+      "evidence": "retrieved-history"
+    },
+    {
+      "id": "grease-rejected-fixture",
+      "date": "2026-08-31",
+      "project": "Grease/Cat Food bootstrap",
+      "instruction": "Do not use the rejected 42 joke as a test value.",
+      "wrong_behavior": "The bootstrap reused 6 * 7 -> 42 after that choice had been rejected.",
+      "oracle": "The generated fixture must not contain the forbidden literal/semantic choice and must use an allowed ordinary value.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "git-fetch-ref",
+      "date": "2026-08-31",
+      "project": "Bootstrap/Grease",
+      "instruction": "Fetch and run the intended branch.",
+      "wrong_behavior": "git fetch origin branch-name populated FETCH_HEAD while later code expected origin/branch-name, so the requested bootstrap never ran.",
+      "oracle": "Verify the requested remote-tracking ref exists and equals the intended SHA before switch and execution.",
+      "evidence": "retrieved-history"
+    },
+    {
+      "id": "grease-wrapper-false-pass",
+      "date": "2026-09-03–07",
+      "project": "isomorphisms/grease",
+      "instruction": "A green receipt must prove the pinned source actually ran the focused cpp-spec tasks.",
+      "wrong_behavior": "Container Git/worktree setup failed before the required tasks but the wrapper still returned success and the run was treated as PASS.",
+      "oracle": "Require exact source identity and completion markers for every required task, and propagate the inner exit status; zero wrapper exit with skipped work fails.",
+      "evidence": "retrieved-history"
+    },
+    {
+      "id": "branch-dex-separate",
+      "date": "2026-09-06–07",
+      "project": "isomorphisms/idric-arm-thumb / IB DEX",
+      "instruction": "Put DEX on a separate branch and do not make unfinished ARM/Thumb work a dependency of the normal DEX/JNI path.",
+      "wrong_behavior": "DEX work inherited a long ARM-descended stack and mixed DEX, Wegert/JNI, and ARM/QEMU evidence.",
+      "oracle": "Assert ancestry rather than branch name; the DEX branch must not descend from the ARM backend, and ARM/QEMU receipts cannot satisfy DEX/ART acceptance.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "merge-authorization",
+      "date": "2026-09-14–16",
+      "project": "isomorphisms/catfood PR #38",
+      "instruction": "Make draft-only inventory updates and leave missing evidence unclaimed.",
+      "wrong_behavior": "Okay was treated as merge authorization; work landed on a noncanonical integration branch while exact-head smoke was red.",
+      "oracle": "Require explicit merge authorization bound to repository, PR, base, and exact head; red exact-head checks block merged/landed/clean claims.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "blocker-unknown",
+      "date": "2026-09-16",
+      "project": "Cat Food PR #48",
+      "instruction": "Isolate the Provision workbench blocker and make only the necessary correction.",
+      "wrong_behavior": "The failure was called unrelated and the PR was merged before the first failing command and cause were established.",
+      "oracle": "An unresolved blocker remains UNKNOWN until the failing command, layer, and causal exclusion are recorded; UNKNOWN cannot authorize merge.",
+      "evidence": "retrieved-history"
+    },
+    {
+      "id": "device-bundle-overclaim",
+      "date": "2026-09-17",
+      "project": "Phone/tablet acceptance bundle",
+      "instruction": "Batch all phone acceptance runs into one package and all tablet runs into one package without weakening acceptance semantics.",
+      "wrong_behavior": "The phone bundle was described as passed despite multiple failed cases, and a later replacement/regression was not current and runnable.",
+      "oracle": "Bundle PASS requires every declared case to execute from the exact packaged source; failed, skipped, or stale cases keep the bundle non-PASS.",
+      "evidence": "retrieved-history"
+    },
+    {
+      "id": "nonexistent-runner",
+      "date": "2026-09-28",
+      "project": "Android ARM / Cat Food",
+      "instruction": "Use the Cat Food workflow and provide a runnable ARMv7/Thumb-2 Android test.",
+      "wrong_behavior": "A runner/PR/artifact path was supplied without a verified checkout or execution, and Cat Food had been bypassed.",
+      "oracle": "Resolve canonical repository, exact ref, workflow, and artifact before serving the command; nonexistent locators or absent execution receipts fail.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "transfer-tests-not-run",
+      "date": "2026-09-30",
+      "project": "Kitchen repository transfer",
+      "instruction": "Provide a runnable gh transfer script and correct the recurring Kitchen/Cat Food handoff failures.",
+      "wrong_behavior": "The regression harness was written but not executed before the script was described as tested; a later user-facing invocation depended on a missing relative tasks/.../1.sh path.",
+      "oracle": "Execute the exact delivered bytes twice from fresh unrelated directories; tests-written-only cannot set tested=true and no hidden prior cwd or K variable may be required.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "handoff-wrong-context",
+      "date": "2026-10-04",
+      "project": "IB / Kitchen / Cat Food",
+      "instruction": "Use exact repository/source/file provenance, safe repeatable commands, no invented evidence, and keep baseline acceptance distinct from feature acceptance.",
+      "wrong_behavior": "Wrong-context source inference, unsafe top-level exit, non-repeatable checkout, and unavailable E2 source risked promoting baseline success to E2 acceptance.",
+      "oracle": "Bound source discovery, materialize exact origin/ref/file, keep the shell boundary rerunnable, and require distinct baseline and feature acceptance keys.",
+      "evidence": "direct-and-retrieved"
+    },
+    {
+      "id": "crystal-reinvention",
+      "date": "2026-10-05",
+      "project": "Crystal",
+      "instruction": "Use Crystal's existing infrastructure to show the crystal.",
+      "wrong_behavior": "The assistant reportedly invented a new rendering path instead of first using the project's implementation.",
+      "oracle": "Resolve the current Crystal repository/ref and maintained render/build entrypoint first; the output must identify that implementation and an unrelated renderer is forbidden.",
+      "evidence": "user-reported"
+    },
+    {
+      "id": "earth-moon-bootstrap",
+      "date": "2026-10-05",
+      "project": "Earth/Moon jobs",
+      "instruction": "Execution jobs should have the requested repository and trivial required tools such as GitHub access/scripts and Lua, or fail clearly before work starts.",
+      "wrong_behavior": "Jobs stopped because checkout, GitHub capability/scripts, or Lua were absent after the environment had been assumed rather than prepared.",
+      "oracle": "A capability preflight distinguishes executable missing, authentication missing, network denied, and checkout missing; install/fetch allowed tools in a scoped writable path or return precise BLOCKED before task execution.",
+      "evidence": "direct-and-retrieved"
+    }
+  ]
+}
