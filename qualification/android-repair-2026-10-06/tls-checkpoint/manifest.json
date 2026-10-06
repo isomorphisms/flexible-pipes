@@ -1,0 +1,58 @@
+{
+  "ai-ci": {
+    "observed_commit": "5566dfd70ceae1466cb1a30ab6b3b89352238b75",
+    "observed_tree": "ffe26532f6d5041fd1ae1726e1048bbf5c9f411b"
+  },
+  "android-NDK": {
+    "observed_commit": "996671d7b73b7151c3212409025c72b97284b35a",
+    "observed_tree": "d0632d804614d06b07ce851780a93c7d130b638b"
+  },
+  "catfood": {
+    "observed_commit": "864021c3ed4a00be9bf41f319b55c0868c4d9874",
+    "observed_tree": "e833b1743887d0f46154cad848ae0faf9dd1ff5b"
+  },
+  "crystal": {
+    "observed_commit": "0d257ef438519fcc1eb586d3206f8d977a19ab2c",
+    "observed_tree": "fb1383dc56b82f1425335951be8461772881bb0f"
+  },
+  "flexible-pipes": {
+    "observed_commit": "29f9cb9314e8b0594278d7efe42187d92d274025",
+    "observed_tree": "20c00fa04ea921f100a69e89431f54baec30dd0c"
+  },
+  "grease": {
+    "observed_commit": "f19c94c6df18cddbdc1e81463e5bd689533e3c13",
+    "observed_tree": "d1c811f22b5b373f59f5b573024944c6fdcd4792"
+  },
+  "ithon": {
+    "observed_commit": "5f116e8618eccd9c08c92143a8bcdd27f675b640",
+    "observed_tree": "a5b5f65d6cd31abf70d6f0400e32cd21ebce6542"
+  },
+  "kitchen": {
+    "observed_commit": "1c8526ab5a3aedbcf4b2186532b695d6ec1970dc",
+    "observed_tree": "59326706e6d0f9990ab16fc495d9dfd04fd7e6a7"
+  },
+  "ledgers": {
+    "acquisition.tsv": "a97d6fd30513b0591de6d40d353a3992ab95d7a0e53a786fd222d8b2894069dc",
+    "arm-native.tsv": "9af5aeb3a3cc0a643289b851b6ef1df9bb684edb14cea3356960e2568d5c3554",
+    "arm-packages.tsv": "806cb0da0e59b023df97bb095cb45cd5760f8d5477ffb47ddfb77acaa2fe83ba",
+    "capture.tsv": "19df9516a939fd07b1b870a6208ecd0284cee5ebd7566c89f1195577c4980c05",
+    "crystal-host.tsv": "6d7ea93b6bce19460aee0031b18030ff68a6e65fc9bf3d4d0acda8e45ed71b6b",
+    "emulator-apk.tsv": "eb8048dd2dc7fe4ec9d4ed02dbd952b2b5168773a77479de792a09ac074a4049",
+    "negative-replay.tsv": "787ac9ae329adb3a6134d9c77d4c114eb3a1c5b9d25fc83f6e0d350975d6deef",
+    "replay.tsv": "0534451c243f7165ad2087a65b17843df90abb65b4f08b3da0bb3cb489a00446",
+    "wiring.tsv": "cd39015b21b9947086773a5e13f6bad4caa4fdd1ce17fa48d9e9370b0d051f8a"
+  },
+  "scope": "host fixture qualification; no active release or physical device acceptance",
+  "tested_file_digests": {
+    "ai-ci/android-diagnostic/check.pi": "6f0a5d9bd49a0986f3350603083f971701b766859315c2f96470a934a52735c8",
+    "catfood/android/profile.pi": "fdcd75c5593bede7df5994b4d3a22524d378c135c47434de463ceafcde400243",
+    "flexible-pipes/scripts/run-pipeline": "f4e07a47111e80c7cf43ee8674cd3188859870665239826fa86b1d6281e4a215",
+    "flexible-pipes/scripts/run-registered-operation.pi": "4e239750abc5ba28e4880f27e6f1d7cfce04e27d6993ef7329d7f195d9ad6c7a",
+    "grease-host": "c26f5f516340629c168271501f6ea6621ad341488ee0554b62f64d182b4db021",
+    "ithon/ithon": "fd446e7d1ba4956ec5fdba1a18c6fd67dc26bc12ff967972f4a0cc3cd5613ef3",
+    "kitchen-host-runtime-qualified/android-channel-fixture": "ff06fa6f68486ae54245b1cdf04bcd491cbe07cc3f95300b98bd3fd1bf140576",
+    "kitchen-host-runtime-qualified/bounded-process": "c237aa1010a702fda2aeaddd113f62bec286e8da2481f6da42b21a3c9dcb3c7f",
+    "kitchen-host-runtime-qualified/kitchen-android-capture": "7dd9667db5f607e43c8550c55c369ad39f10ce7143e6d95e3d499ed34ed7bd83",
+    "kitchen/tasks/android-diagnostic/capture.pi": "7faa056902283fbfebba2b3bbfe5a9e59697fb9b73b799cffcd2da58e9e5afb5"
+  }
+}

@@ -15,15 +15,45 @@ permissions:
   id-token: write
 jobs:
   registered:
-    # A separately provisioned trusted supervisor. No runtime installation or
-    # authority activation is performed by a request or this workflow.
-    runs-on: [self-hosted, flexible-pipes-registered-v1]
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
-      - name: Process signed event using the installed qualified release
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          path: flexible-pipes
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 5f116e8618eccd9c08c92143a8bcdd27f675b640
+          path: ithon
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/catfood
+          ref: 0a5e9223071bcdd5a76b51c510813ddb20f6e9e0
+          path: catfood
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/grease
+          ref: f19c94c6df18cddbdc1e81463e5bd689533e3c13
+          submodules: recursive
+          path: runtime/grease
+          persist-credentials: false
+      - name: Existing Cat Food runtime bootstrap
+        env:
+          CATFOOD_ROOT: ${{ github.workspace }}/runtime
+          CATFOOD_JOBS: '2'
+        run: /bin/sh catfood/build-tools.sh
+      - name: Prepare fixed transport client
+        shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
+        run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/scripts/install-client.pi '${{ github.workspace }}' '${{ github.workspace }}/runtime/.build/grease/bin/grease'
+      - name: Submit signed event to separate supervisor
         shell: /opt/catfood/bin/grease {0}
-        run: python3 /opt/flexible-pipes/current/scripts/run-pipeline github-event "$GITHUB_EVENT_PATH"
-      - name: Export only supervisor-owned verified results
+        run: python3 /opt/flexible-pipes/current/scripts/run-pipeline github-event "$[ENV.GITHUB_EVENT_PATH]"
+      - name: Export verified service result and bytes
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

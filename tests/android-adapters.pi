@@ -1,0 +1,84 @@
+"""Execute actual immutable dispatch adapter and Android bridge in qualification."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list, ValueError
+import json
+import subprocess
+import hashlib
+
+def write(path ∈ Path, value ∈ dict[str, object]) → None:
+    path.write_text(json.dumps(value))
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["fixture-case", "python", "ithon-root", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    fixture ∈ str ← args.fixture_case
+    python ∈ str ← args.python
+    ithon_root ∈ str ← args.ithon_root
+    output ∈ str ← args.output
+    root ∈ Path ← Path(output).resolve()
+    root.mkdir(mode=448, exist_ok=False)
+    script ∈ str ← __file__
+    fp ∈ Path ← Path(script).resolve().parents.__getitem__(1)
+    environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_AUTHOR_NAME": "Qualification fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid", "GIT_COMMITTER_NAME": "Qualification fixture", "GIT_COMMITTER_EMAIL": "fixture@example.invalid"}
+    request ∈ str ← Path(fixture + "/request.json").read_text()
+    ledger ← "case\texpected\tobserved_exit\tresult\n"
+    for scenario in ["workflow_dispatch", "pipeline-requests", "wrong-repository", "old-workflow", "non-request-change"]:
+        case ∈ Path ← root.joinpath(scenario)
+        case.mkdir()
+        mirror ∈ Path ← case.joinpath("mirror")
+        for command in [["/usr/bin/git", "init", "-b", "main", str(mirror)], ["/usr/bin/git", "-C", str(mirror), "commit", "--allow-empty", "-m", "independent baseline"]]:
+            subprocess.run(command, env=environment, check=True, capture_output=True)
+        initial ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(mirror), "rev-parse", "HEAD"], env=environment, check=True, capture_output=True)
+        initial_bytes ∈ bytes ← initial.stdout
+        baseline ∈ str ← initial_bytes.decode().strip()
+        mirror.joinpath("requests").mkdir()
+        mirror.joinpath("requests/fixture.json").write_text(request)
+        if scenario == "non-request-change":
+            mirror.joinpath("executable-change").write_text("would replace trusted code")
+        for command in [["/usr/bin/git", "-C", str(mirror), "add", "."], ["/usr/bin/git", "-C", str(mirror), "commit", "-m", "data-only request"]]:
+            subprocess.run(command, env=environment, check=True, capture_output=True)
+        selected ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(mirror), "rev-parse", "HEAD"], env=environment, check=True, capture_output=True)
+        selected_bytes ∈ bytes ← selected.stdout
+        commit ∈ str ← selected_bytes.decode().strip()
+        android ∈ dict[str, object] ← json.loads(Path(fixture + "/deployment.json").read_text())
+        tools ∈ dict[str, str] ← android.get("tool_digests")
+        controller ∈ str ← str(fp.joinpath("scripts/run-registered-operation.pi"))
+        tools.__setitem__(controller, hashlib.sha256(Path(controller).read_bytes()).hexdigest())
+        write(case.joinpath("android-deployment.json"), android)
+        config ∈ dict[str, object] ← {"authority": "qualification", "ithon": [python, ithon_root + "/ithon_host.py"], "state_root": str(case), "android_qualification_deployment": str(case.joinpath("android-deployment.json")), "request_mirror": str(mirror), "request_base": baseline, "control_commit": baseline}
+        envelope ∈ dict[str, object] ← {"workflow_ref": "refs/heads/main", "workflow_sha": baseline, "repository_id": 1405888814, "request": request, "request_commit": commit}
+        route ← "workflow_dispatch"
+        expected ← "PASS"
+        if scenario in ["pipeline-requests", "non-request-change"]:
+            route ← "pipeline-requests"
+        if scenario == "wrong-repository":
+            envelope.__setitem__("repository_id", 1)
+            expected ← "WRONG_REPOSITORY"
+        elif scenario == "old-workflow":
+            envelope.__setitem__("workflow_sha", "1111111111111111111111111111111111111111")
+            expected ← "UNQUALIFIED_WORKFLOW_REF"
+        elif scenario == "non-request-change":
+            expected ← "NON_REQUEST_CHANGE"
+        write(case.joinpath("config.json"), config)
+        write(case.joinpath("envelope.json"), envelope)
+        child ∈ subprocess.CompletedProcess ← subprocess.run([python, ithon_root + "/ithon_host.py", str(fp.joinpath("scripts/registered-execution.pi")), "qualify", str(case.joinpath("config.json")), route, str(case.joinpath("envelope.json"))], env=environment, capture_output=True, timeout=120)
+        code ∈ int ← child.returncode
+        payload ∈ bytes ← child.stdout
+        case.joinpath("stdout").write_bytes(payload)
+        case.joinpath("stderr").write_bytes(child.stderr)
+        result ∈ dict[str, object] ← json.loads(payload)
+        state ∈ str ← result.get("status", "")
+        blocker ∈ str ← result.get("blocker", "")
+        if expected == "PASS":
+            if code != 0 or state != "PASS":
+                raise ValueError("ADAPTER_EXPECTED_CAPTURE:" + scenario + ":" + blocker)
+        elif code == 0 or blocker != expected:
+            raise ValueError("ADAPTER_REJECTION_MISSING:" + scenario + ":" + blocker)
+        ledger ← ledger + scenario + "\t" + expected + "\t" + str(code) + "\tPASS\n"
+    root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+
+main()

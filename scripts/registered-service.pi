@@ -1,0 +1,114 @@
+"""Separate TLS supervisor; caller workflows never receive its root authority."""
+import os
+import sys
+import json
+import ssl
+import subprocess
+import hashlib
+import base64
+import uuid
+import threading
+from pathlib import Path
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from builtins import dict, list, ValueError, Exception, open
+argv ∈ list[str] ← sys.argv
+diagnostic ∈ bool ← len(argv) > 1 and argv[1] == "qualify"
+config_path ∈ str ← argv[2] if diagnostic else "/etc/flexible-pipes/deployment.json"
+config ∈ dict[str, object] ← json.loads(Path(config_path).read_bytes())
+uid ∈ int ← os.getuid()
+if uid != 0 or not diagnostic and config["authority"] != "deployed-trusted":
+    raise ValueError("DEPLOYMENT_INACTIVE")
+private ∈ str ← str(config["state_root"]) + "/private-service"
+Path(private).mkdir(mode=448, parents=True, exist_ok=True)
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}
+
+def process(payload ∈ bytes) → bytes:
+    submission ∈ dict[str, object] ← json.loads(payload)
+    if set(submission) != set(["route", "envelope"]):
+        raise ValueError("SUBMISSION_FIELDS")
+    route ∈ str ← str(submission["route"])
+    if route != "workflow_dispatch" and route != "pipeline-requests":
+        raise ValueError("UNKNOWN_ROUTE")
+    envelope ∈ dict[str, object] ← dict(submission["envelope"])
+    name ∈ str ← private + "/" + str(uuid.uuid4())
+    Path(name).mkdir(mode=448)
+    admission ∈ str ← name + "/admission.json"
+    Path(admission).write_text(json.dumps(envelope))
+    os.chmod(admission, 384)
+    command ∈ list[str] ← list(config["ithon"])
+    if diagnostic:
+        command.extend([str(config["service_engine"]), "qualify", config_path, route, admission])
+    else:
+        command.extend(["/opt/flexible-pipes/current/scripts/registered-execution.pi", route, admission])
+    try:
+        with open(name + "/stdout.json", "xb") as out:
+            with open(name + "/stderr.bin", "xb") as err:
+                child ∈ object ← subprocess.run(command, env=environment, stdout=out, stderr=err, timeout=2250)
+        data ∈ bytes ← Path(name + "/stdout.json").read_bytes()
+        if len(data) > 8388608:
+            raise ValueError("RESULT_BOUND_EXCEEDED")
+        result ∈ dict[str, object] ← json.loads(data)
+        delivery ∈ list[dict[str, object]] ← []
+        if result["status"] == "PASS":
+            artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+            for artifact in artifacts:
+                payload ← Path(str(artifact["retrieval_locator"])).read_bytes()
+                digest ∈ str ← hashlib.sha256(payload).hexdigest()
+                if len(payload) > 2097152 or digest != artifact["sha256"]:
+                    raise ValueError("EXPORT_CHANGED_AFTER_ACCEPTANCE")
+                encoded ∈ bytes ← base64.b64encode(payload)
+                delivery.append({"name": artifact["name"], "sha256": digest, "bytes_base64": encoded.decode()})
+        response ∈ str ← json.dumps({"result": result, "delivery": delivery}, sort_keys=True)
+        return response.encode()
+    finally:
+        Path(admission).unlink()
+
+class Handler(BaseHTTPRequestHandler):
+    def setup(self ∈ object) → None:
+        BaseHTTPRequestHandler.setup(self)
+        self.connection.settimeout(5)
+
+    def do_POST(self ∈ object) → None:
+        try:
+            length ∈ int ← int(self.headers.get("Content-Length", "0"))
+            path ∈ str ← self.path
+            if path != "/v1/execute" or length < 1 or length > 49152:
+                raise ValueError("REQUEST_BOUND_OR_PATH")
+            payload ∈ bytes ← self.rfile.read(length)
+            if len(payload) != length:
+                raise ValueError("INCOMPLETE_REQUEST")
+            answer ∈ bytes ← process(payload)
+        except Exception as failure:
+            empty ∈ list[dict[str, object]] ← []
+            record ∈ dict[str, object] ← {"result": {"status": "BLOCKED", "blocker": str(failure), "artifacts": empty}, "delivery": empty}
+            response ∈ str ← json.dumps(record)
+            answer ← response.encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(answer)))
+        self.end_headers()
+        self.wfile.write(answer)
+
+slots ∈ object ← threading.BoundedSemaphore(4)
+class LimitedServer(ThreadingHTTPServer):
+    def process_request(self ∈ object, request ∈ object, address ∈ object) → None:
+        available ∈ bool ← slots.acquire(blocking=False)
+        if not available:
+            request.close()
+            return None
+        ThreadingHTTPServer.process_request(self, request, address)
+
+    def process_request_thread(self ∈ object, request ∈ object, address ∈ object) → None:
+        try:
+            ThreadingHTTPServer.process_request_thread(self, request, address)
+        finally:
+            slots.release()
+
+server ∈ object ← LimitedServer((str(config["listen_host"]), int(config["listen_port"])), Handler)
+server.__setattr__("daemon_threads", True)
+context ∈ object ← ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain(str(config["tls_certificate"]), str(config["tls_private_key"]))
+server.__setattr__("socket", context.wrap_socket(server.socket, server_side=True))
+address ∈ tuple[str, int] ← server.server_address
+Path(str(config["service_ready"])).write_text(json.dumps({"port": address[1], "diagnostic": diagnostic}))
+server.serve_forever(poll_interval=0.1)

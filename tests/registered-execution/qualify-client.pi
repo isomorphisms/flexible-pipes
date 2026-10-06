@@ -1,0 +1,23 @@
+"""Execute the installed Grease entry; inactive authority must fail closed."""
+import os
+import sys
+import json
+import subprocess
+from pathlib import Path
+from builtins import dict, list, ValueError
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+output ∈ str ← argv[2]
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "GITHUB_REF": "refs/heads/main", "GITHUB_SHA": "fixture", "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_RUN_ID": "qualification", "GITHUB_RUN_ATTEMPT": "1", "ACTIONS_ID_TOKEN_REQUEST_URL": "unused", "ACTIONS_ID_TOKEN_REQUEST_TOKEN": "unused"}
+installed ∈ object ← subprocess.run(["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", workspace, argv[3]], env=environment, capture_output=True, timeout=30)
+code ∈ int ← installed.returncode
+if code != 0:
+    detail ∈ str ← installed.stderr.decode(errors="replace")
+    raise ValueError("CLIENT_INSTALL_FAILED: " + detail)
+entry ∈ object ← subprocess.run(["/opt/flexible-pipes/current/scripts/run-pipeline", "github-event", "/nonexistent-event"], env=environment, capture_output=True, timeout=15)
+code ← entry.returncode
+result ∈ dict[str, object] ← json.loads(entry.stdout)
+if code != 2 or result["blocker"] != "DEPLOYMENT_INACTIVE":
+    raise ValueError("INACTIVE_PUBLIC_ENTRY_FAILED")
+Path(output + "/installed-client.json").write_text(json.dumps({"status": "PASS", "public_entry_exit": code, "result": result, "deployment": "inactive"}, sort_keys=True))
+print("installed public client qualified; deployment remains inactive")

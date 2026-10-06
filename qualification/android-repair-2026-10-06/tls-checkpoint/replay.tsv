@@ -1,0 +1,5 @@
+suite	required_cases	observed_cases	result
+aici-diagnostic	11	11	PASS
+kitchen-capture	44	44	PASS
+catfood-receipt	1	1	PASS
+dispatch	15	15	PASS

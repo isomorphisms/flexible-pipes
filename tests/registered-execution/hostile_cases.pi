@@ -147,6 +147,21 @@ def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], env
         second ∈ dict[str, object] ← two.result()
     if first["worker_uid"] == second["worker_uid"] or first["run_id"] == second["run_id"]:
         raise ValueError("concurrent attempts shared ownership")
+    victim ∈ str ← str(config["state_root"]) + "/" + str(first["run_id"])
+    protected ∈ list[str] ← [str(config["worker"]), str(config["contract"]), str(config["qualification"]), victim + "/result.json", victim + "/fixture-personal/io/request", victim + "/fixture-personal/io/observations.json", victim + "/accepted/transfer-sample-from-source-to-destination.sh"]
+    plan ∈ str ← root + "/protected-write-probe.json"
+    Path(plan).write_bytes(encode({"paths": protected}))
+    probe ∈ list[str] ← list(ithon)
+    probe.extend([str(Path(str(config["worker"])).parent.parent) + "/tests/registered-execution/probe-worker-access.pi", plan])
+    stranger ∈ int ← int(first["worker_uid"]) + 100000
+    empty_groups ∈ list[int] ← []
+    probed ∈ object ← subprocess.run(probe, env=environment, capture_output=True, timeout=10, user=stranger, group=stranger, extra_groups=empty_groups)
+    probe_code ∈ int ← probed.returncode
+    Path(root + "/protected-write-probe.stdout.bin").write_bytes(probed.stdout)
+    Path(root + "/protected-write-probe.stderr.bin").write_bytes(probed.stderr)
+    if probe_code != 0:
+        raise ValueError("protected write or cross-worker API channel was accessible")
+    checks.append({"case": "protected-writes-and-cross-worker-api", "status": "PASS", "kernel_errno": 13})
     rerun_envelope ∈ dict[str, object] ← copy_object(envelope)
     rerun_envelope["retry"] ← True
     rerun ∈ dict[str, object] ← run("explicit-rerun", config, rerun_envelope, "PASS", "")

@@ -1,0 +1,7 @@
+case	expected	observed_exit	result
+stable	PASS	0	PASS
+inventory	PASS	0	PASS
+absent	PROFILE_ABSENT	1	PASS
+conflict	PROFILE_CONFLICT:physical instance	1	PASS
+firmware	PROFILE_FRESHNESS	1	PASS
+current-missing	PROFILE_FRESHNESS	1	PASS

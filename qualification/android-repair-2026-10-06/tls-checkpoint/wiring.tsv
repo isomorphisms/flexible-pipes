@@ -1,0 +1,4 @@
+case	expected	observed_exit	result
+historical-crystal	UNGUARDED	1	PASS
+green-unguarded	UNGUARDED	1	PASS
+current-crystal	WIRED_SOURCE_ONLY	0	PASS

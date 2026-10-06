@@ -27,4 +27,6 @@ else:
     os.execv(sys.executable, [sys.executable, str(root / "run-pipeline-legacy.py"), *sys.argv[1:]])
 if not runtime or not Path(runtime).is_absolute() or not Path(runtime).is_file():
     sys.exit("MISSING_RUNTIME: independently delivered checked Ithon; no compilation fallback")
+if not Path(controller).is_file():
+    sys.exit("MISSING_RUNTIME: this installation does not contain the registered operation controller")
 os.execv(runtime, [runtime, controller, *arguments])

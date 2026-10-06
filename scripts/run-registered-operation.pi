@@ -246,6 +246,9 @@ def main() → None:
     receipt.__setitem__("github_sha_declared", os.environ.get("GITHUB_SHA", "UNKNOWN"))
     receipt.__setitem__("acceptance_scope", "qualification-only; no publication authority")
     receipt.__setitem__("status", "RUNNING")
+    artifacts ∈ list[dict[str, object]] ← []
+    receipt.__setitem__("artifacts", artifacts)
+    receipt.__setitem__("private_run", str(run))
     stages ∈ list[dict[str, object]] ← []
     receipt.__setitem__("stages", stages)
     ithon ∈ str ← field(deployment, "ithon")
@@ -311,6 +314,15 @@ def main() → None:
             if stage == "deliver":
                 receipt.__setitem__("status", "PASS")
                 receipt.__setitem__("acceptance_scope", "authenticated package; install, replacement, visual and physical NOT_RUN")
+                payload ∈ Path ← run.joinpath("verified-delivery/payload.apk")
+                artifact ∈ dict[str, object] ← dict()
+                artifact.__setitem__("name", "crystal-halite-verified.apk")
+                artifact.__setitem__("type", "android-apk")
+                artifact.__setitem__("state", "accepted")
+                artifact.__setitem__("scope", "authenticated android-native-package")
+                artifact.__setitem__("sha256", sha(payload))
+                artifact.__setitem__("retrieval_locator", str(payload))
+                artifacts.append(artifact)
         if code != 0:
             receipt.__setitem__("status", "FAIL")
             receipt.__setitem__("failed_stage", stage)
