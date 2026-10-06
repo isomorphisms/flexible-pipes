@@ -103,5 +103,15 @@ with open(output + "/dispatch.stdout.json", "xb") as out:
     with open(output + "/dispatch.stderr.bin", "xb") as err:
         process ∈ object ← subprocess.run(command, env=environment, stdout=out, stderr=err, timeout=130)
 code ∈ int ← process.returncode
+result ∈ dict[str, object] ← json.loads(Path(output + "/dispatch.stdout.json").read_bytes())
+print(json.dumps({"status": result.get("status"), "first_failure": result.get("first_failure"), "blocker": result.get("blocker")}))
+failure_logs ∈ list[Path] ← list(Path(output).rglob("stderr.bin"))
+for failure_log in failure_logs:
+    message ∈ bytes ← failure_log.read_bytes()
+    if len(message) > 0:
+        print(str(failure_log), message[:32768].decode(errors="replace"))
+archive ∈ str ← output + ".tar.gz"
+packaged ∈ object ← subprocess.run(["/usr/bin/tar", "-czf", archive, "-C", output, "."], env=environment, timeout=20)
+os.chmod(archive, 420)
 print(json.dumps({"exit_code": code, "output": output, "result": output + "/dispatch.stdout.json"}))
 sys.exit(code)

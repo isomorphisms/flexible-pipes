@@ -225,7 +225,8 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     server ∈ object ← subprocess.Popen(server_command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=server_log, start_new_session=True)
     codes ∈ list[int] ← []
     try:
-        for index in range(2):
+        executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" else 1
+        for index in range(executions):
             work ∈ str ← base + "/unrelated directory '" + str(index)
             home ∈ str ← base + "/fresh home \"" + str(index)
             Path(work).mkdir(mode=448)
@@ -240,8 +241,10 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
             grease.append(artifact)
             code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config)
             codes.append(code)
+        if len(codes) == 1:
+            codes.append(-125)
         execution ∈ str ← base + "/execution.json"
-        atomic(execution, {"first_exit": codes[0], "second_exit": codes[1]})
+        atomic(execution, {"first_exit": codes[0], "second_exit": codes[1], "second_state": "NOT_RUN" if executions == 1 else "EXECUTED"})
         validator ∈ list[str] ← list(ithon)
         decision ∈ str ← base + "/decision.json"
         validator.extend([str(config["api_validator"]), specification, io + "/observations.json", execution, artifact, decision])
@@ -400,6 +403,19 @@ configuration ∈ dict[str, object] ← read(configuration_path)
 envelope ∈ dict[str, object] ← read(argv[4] if diagnostic else argv[2])
 route ∈ str ← argv[3] if diagnostic else argv[1]
 try:
+    if not diagnostic:
+        admission_root ∈ str ← str(configuration["state_root"]) + "/admissions"
+        Path(admission_root).mkdir(mode=448, parents=True, exist_ok=True)
+        admission ∈ str ← admission_root + "/" + str(uuid.uuid4())
+        admission_command ∈ list[str] ← list(configuration["ithon"])
+        decision ∈ str ← admission + ".json"
+        admission_command.extend(["/opt/flexible-pipes/current/scripts/verify-admission.pi", configuration_path, argv[2], decision])
+        verified ∈ int ← bounded(admission_command, admission_root, clean_environment(), admission, 0, configuration)
+        if verified != 0:
+            raise ValueError("SIGNED_ADMISSION_REJECTED")
+        provider ∈ dict[str, object] ← read(decision)
+        if provider["status"] != "PASS":
+            raise ValueError("SIGNED_ADMISSION_REJECTED")
     raw ∈ bytes ← adapter(configuration, route, envelope)
     retry ∈ bool ← bool(envelope.get("retry", False))
     outcome ∈ dict[str, object] ← execute(configuration, raw, route, retry, diagnostic)

@@ -1,0 +1,63 @@
+"""Trusted transport adapter; never checks out or executes request source."""
+import os
+import sys
+import json
+import urllib.request
+import subprocess
+from pathlib import Path
+from builtins import dict, list, ValueError
+argv ∈ list[str] ← sys.argv
+environment ∈ dict[str, str] ← os.environ
+config ∈ dict[str, object] ← json.loads(Path("/etc/flexible-pipes/deployment.json").read_bytes())
+event ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+job_request ∈ str ← environment["ACTIONS_ID_TOKEN_REQUEST_URL"]
+if not job_request.startswith("https://"):
+    raise ValueError("ADMISSION_TRANSPORT")
+job_request ← job_request + "&audience=flexible-pipes-registered-v1"
+authorization ∈ str ← "Bearer " + environment["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]
+query ∈ object ← urllib.request.Request(job_request, headers={"Authorization": authorization})
+with urllib.request.urlopen(query, timeout=15) as response:
+    token_payload ∈ bytes ← response.read(32769)
+if len(token_payload) > 32768:
+    raise ValueError("ADMISSION_SIZE")
+token_record ∈ dict[str, object] ← json.loads(token_payload)
+envelope ∈ dict[str, object] ← {"provider_token": token_record["value"], "workflow_ref": environment["GITHUB_REF"], "workflow_sha": environment["GITHUB_SHA"], "repository_id": 1405888814, "retry": int(environment["GITHUB_RUN_ATTEMPT"]) > 1}
+route ∈ str ← "workflow_dispatch"
+if environment["GITHUB_EVENT_NAME"] == "workflow_dispatch":
+    inputs ∈ dict[str, object] ← dict(event["inputs"])
+    envelope["request"] ← inputs["request"]
+elif environment["GITHUB_EVENT_NAME"] == "workflow_run":
+    notice ∈ dict[str, object] ← dict(event["workflow_run"])
+    if notice["head_branch"] != "pipeline-requests":
+        raise ValueError("REQUEST_BRANCH")
+    route ← "pipeline-requests"
+    envelope["request_commit"] ← notice["head_sha"]
+else:
+    raise ValueError("UNSUPPORTED_EVENT")
+directory ∈ str ← "/var/lib/flexible-pipes/export/" + environment["GITHUB_RUN_ID"] + "-" + environment["GITHUB_RUN_ATTEMPT"]
+Path(directory).mkdir(mode=448, parents=True, exist_ok=False)
+private_directory ∈ str ← "/var/lib/flexible-pipes/private"
+Path(private_directory).mkdir(mode=448, parents=True, exist_ok=True)
+envelope_path ∈ str ← private_directory + "/admission-" + environment["GITHUB_RUN_ID"] + "-" + environment["GITHUB_RUN_ATTEMPT"] + ".json"
+Path(envelope_path).write_text(json.dumps(envelope))
+os.chmod(envelope_path, 384)
+command ∈ list[str] ← list(config["ithon"])
+command.extend(["/opt/flexible-pipes/current/scripts/registered-execution.pi", route, envelope_path])
+child ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}, capture_output=True, timeout=130)
+result_bytes ∈ bytes ← child.stdout
+Path(directory + "/result.json").write_bytes(result_bytes)
+Path(directory + "/stderr.bin").write_bytes(child.stderr)
+# Provider bearer tokens are never exported as artifacts.
+Path(envelope_path).unlink()
+result ∈ dict[str, object] ← json.loads(result_bytes)
+empty_artifacts ∈ list[dict[str, object]] ← []
+artifacts ∈ list[dict[str, object]] ← list(result.get("artifacts", empty_artifacts))
+for artifact in artifacts:
+    locator ∈ str ← str(artifact["retrieval_locator"])
+    payload ∈ bytes ← Path(locator).read_bytes()
+    import hashlib
+    digest ∈ str ← hashlib.sha256(payload).hexdigest()
+    if digest != artifact["sha256"] or result["status"] != "PASS":
+        raise ValueError("EXPORT_CHANGED")
+    Path(directory + "/" + str(artifact["name"])).write_bytes(payload)
+sys.exit(child.returncode)
