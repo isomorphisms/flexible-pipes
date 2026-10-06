@@ -32,6 +32,16 @@ links, altered/truncated assignments, swapped captures and wrong dispatches
 are rejected. These are bounded supported response forms, not a general
 Markdown renderer or screenshot-based proof of human perception.
 
+Binary outputs use the same stage and handoff identity with version 2 and
+`transport=attachment`. The attachment contract binds the source bytes,
+delivered bytes, names, MIME type and connector provenance. A direct attachment
+must preserve the source name and digest. A ZIP member names one canonical,
+unique member whose basename is the delivered filename; extraction is bounded
+and its bytes must match the declared digest. The trusted sink receives those
+bytes and returns the bytes, file ID, filename, MIME type and surface it actually
+accepted. A link, temporary signed URL, success flag, renamed file, changed MIME
+type or mutated payload is not an observed attachment.
+
 `recover(stage, correction)` retains the same payload/contract identity and
 records `delivery-failed`. A new delivery follows that event. Accepted dispatch
 is not repeated. “Where’s the text?” without recovered context is rejected by
@@ -47,7 +57,8 @@ response artifact and returns nonzero `AWAITING_HANDOFF_DELIVERY`. Later stages
 cannot execute. Neither that response file nor stdout is a visible receipt.
 The trusted transport controller completes the same stage using `deliver`.
 There is currently no deployed ChatGPT visible-sink adapter in this repository.
-No platform delivery is inferred from local fixtures. The active registered
+The attachment contract makes that adapter implementable and independently
+checkable, but no platform delivery is inferred from local fixtures. The active registered
 Kitchen/Android runtime work is separate; this change does not activate it or
 qualify its existing deployment blockers. Its controllers can consume the
 same captured-stage extension when they gain model-job operations.

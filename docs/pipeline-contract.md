@@ -50,6 +50,13 @@ also carries [handoff metadata](job-delivery.md). Composition never grants
 visible-delivery or dispatch acceptance. The exact captured output remains
 authoritative across both surfaces.
 
+For a binary attachment, the same receipt additionally binds the source object
+and the exact delivered file. The source may be the file itself or a ZIP whose
+single named member is materialized. Provider, resource, immutable revision,
+reference, source name and digest, delivered name and digest, byte count and
+MIME type are contract inputs. A trusted surface must return an accepted file
+identity and the exact bytes; a URL or prose pointer is not delivery evidence.
+
 ## Pythia's role
 
 Pythia is both a usable worker and a measurement family. Its checkpoint series lets the same pipeline be evaluated across training time and model size. That gives us a way to ask which apparent pipeline properties are structural and which are accidents of one strong model.
