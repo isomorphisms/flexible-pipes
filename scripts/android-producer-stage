@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+fail() {
+    printf 'flexible-pipes Android producer stage failed: %s\n' "$*" >&2
+    exit 1
+}
+
+for name in \
+    AICI_CHECKOUT \
+    ANDROID_NDK_CHECKOUT \
+    ANDROID_APP_ROOT \
+    ANDROID_APK \
+    ANDROID_PACKAGER_RECEIPT \
+    ANDROID_EXPECTED_ABI
+do
+    [[ -n ${!name:-} ]] || fail "required environment value is unset: $name"
+done
+
+for checkout in "$AICI_CHECKOUT" "$ANDROID_NDK_CHECKOUT" "$ANDROID_APP_ROOT"; do
+    [[ -d "$checkout" ]] || fail "checkout directory is missing: $checkout"
+done
+[[ -f "$ANDROID_APK" ]] || fail "APK is missing: $ANDROID_APK"
+[[ -f "$ANDROID_PACKAGER_RECEIPT" ]] || fail "packager receipt is missing: $ANDROID_PACKAGER_RECEIPT"
+[[ -f "$AICI_CHECKOUT/android-producer/check.sh" ]] ||
+    fail "AICI Android producer gate is missing from checkout"
+
+policy_ref=$(git -C "$AICI_CHECKOUT" rev-parse HEAD) ||
+    fail "cannot observe AICI checkout HEAD"
+
+for path in \
+    android-producer/check.sh \
+    android-producer/action.yml \
+    android-signing/identities.tsv \
+    contracts/build-toolchain-v0.contract.tsv \
+    src/aici.c \
+    src/aici_android_signing.c
+do
+    git -C "$AICI_CHECKOUT" diff --quiet -- "$path" ||
+        fail "AICI checkout has local modification: $path"
+    git -C "$AICI_CHECKOUT" diff --cached --quiet -- "$path" ||
+        fail "AICI checkout has staged modification: $path"
+done
+
+export AICI_POLICY_REF="$policy_ref"
+export AICI_APK="$ANDROID_APK"
+export AICI_ROOT="$ANDROID_APP_ROOT"
+export AICI_PACKAGER_RECEIPT="$ANDROID_PACKAGER_RECEIPT"
+export AICI_PACKAGER_ROOT="$ANDROID_NDK_CHECKOUT"
+export AICI_EXPECTED_ABI="$ANDROID_EXPECTED_ABI"
+export AICI_SIGNING_LANE="${ANDROID_SIGNING_LANE:-test}"
+export AICI_REQUIRE_NO_DEX="${ANDROID_REQUIRE_NO_DEX:-true}"
+export AICI_RECEIPT_OUTPUT="${ANDROID_PRODUCER_RECEIPT_OUTPUT:-aici-android-producer.receipt.tsv}"
+
+if [[ -n ${ANDROID_PRIOR_PRODUCER_RECEIPT:-} ]]; then
+    export AICI_PRIOR_RECEIPT="$ANDROID_PRIOR_PRODUCER_RECEIPT"
+else
+    unset AICI_PRIOR_RECEIPT || true
+fi
+
+exec bash "$AICI_CHECKOUT/android-producer/check.sh"
