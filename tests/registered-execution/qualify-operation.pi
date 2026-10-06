@@ -106,11 +106,11 @@ def request_commit(mirror ∈ str, base ∈ str, request ∈ dict[str, object], 
 
 materials ∈ list[dict[str, object]] ← []
 repositories ∈ list[dict[str, object]] ← [
-    {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "registry/kitchen-transfer-script.contract.json"], "ref": "origin/implement/fp2-runtime-qualification"},
+    {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "registry/kitchen-transfer-script.contract.json", "tests/registered-execution/qualify-operation.pi"], "ref": "origin/implement/fp2-runtime-qualification"},
     {"checkout": kitchen, "files": ["tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "tasks/github-repository-transfer/2.sh", "tasks/github-repository-transfer/fixture-api.pi", "tasks/github-repository-transfer/fixture-gh.pi"], "ref": "origin/fp2/qualified-transfer-generator"},
     {"checkout": aici, "files": ["validators/kitchen-transfer-script.pi"], "ref": "origin/fp2/transfer-observation-validator"},
     {"checkout": catfood, "files": ["acceptance/sealed-script.pi"], "ref": "origin/fp2/sealed-script-validation"},
-    {"checkout": ithon, "files": ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"], "ref": "origin/fp2/control-interface-support"},
+    {"checkout": ithon, "files": ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py", "tests/qualify-host-control.pi", "Lib/test/test_ithon_static.py", "Lib/test/test_ithon_static_unicode.py", "Lib/test/test_ithon_run.py", "Lib/test/test_ithon_control.py"], "ref": "origin/fp2/control-interface-support"},
 ]
 for repository in repositories:
     checkout ∈ str ← str(repository["checkout"])
@@ -192,7 +192,23 @@ contract ∈ dict[str, object] ← json.loads(Path(contract_path).read_bytes())
 encoded_materials ∈ str ← json.dumps(materials, sort_keys=True, separators=(",", ":"))
 closure ∈ str ← hashlib.sha256(encoded_materials.encode()).hexdigest()
 qualification_path ∈ str ← output + "/runtime-interface-qualification.json"
-write(qualification_path, {"schema_version": 1, "status": "PASS", "scope": "local-qualification", "materials_sha256": closure, "evidence": "Ithon control tests plus verified Grease interface probes", "excluded_claims": ["operation-qualified-before-this-run", "deployment"]})
+host_command ∈ list[str] ← [python, ithon + "/ithon_host.py", ithon + "/tests/qualify-host-control.pi", output + "/ithon-interface.json"]
+with open(output + "/ithon-interface.stderr.bin", "xb") as host_log:
+    host_process ∈ object ← subprocess.run(host_command, env=environment, stderr=host_log, stdout=subprocess.DEVNULL, timeout=30)
+host_result ∈ dict[str, object] ← json.loads(Path(output + "/ithon-interface.json").read_bytes())
+host_exit ∈ int ← host_process.returncode
+if host_exit != 0 or host_result["status"] != "PASS" or host_result["skipped"] != 0:
+    raise ValueError("ITHON_INTERFACE_UNQUALIFIED")
+smoke ∈ list[str] ← list(grease)
+smoke.extend(["-c", 'var answer = 6 * 7; write -- "grease=$answer"; false ∨ echo canonical-grease'])
+smoke_process ∈ object ← subprocess.run(smoke, env=grease_environment, capture_output=True, timeout=15)
+smoke_bytes ∈ bytes ← smoke_process.stdout
+smoke_exit ∈ int ← smoke_process.returncode
+if smoke_exit != 0 or smoke_bytes != b"grease=42\ncanonical-grease\n":
+    raise ValueError("GREASE_INTERFACE_UNQUALIFIED")
+Path(output + "/grease-interface.stdout.bin").write_bytes(smoke_bytes)
+Path(output + "/grease-interface.stderr.bin").write_bytes(smoke_process.stderr)
+write(qualification_path, {"schema_version": 1, "status": "PASS", "scope": "local-qualification", "materials_sha256": closure, "ithon_evidence_sha256": digest(output + "/ithon-interface.json"), "grease_evidence_sha256": digest(output + "/grease-interface.stdout.bin"), "excluded_claims": ["operation-qualified-before-this-run", "deployment"]})
 config ∈ dict[str, object] ← {"schema_version": 1, "operation": "kitchen-transfer-script", "operation_version": "2", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": digest(contract_path), "qualification": qualification_path, "qualification_sha256": digest(qualification_path), "control_commit": git(fp, ["rev-parse", "HEAD"]), "state_root": output + "/state", "request_mirror": fp, "request_base": git(fp, ["rev-parse", "HEAD"]), "ithon": ithon_command, "grease": grease, "grease_environment": grease_environment, "worker": release + "/scripts/registered-worker.pi", "generator": release + "/tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "fixture_server": kitchen + "/tasks/github-repository-transfer/fixture-api.pi", "fixture_bin": bin_dir, "api_validator": aici + "/validators/kitchen-transfer-script.pi", "seal_validator": catfood + "/acceptance/sealed-script.pi"}
 config_path ∈ str ← output + "/candidate-deployment.json"
 write(config_path, config)

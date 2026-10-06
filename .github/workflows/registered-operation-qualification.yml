@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: dilapidated-shed/ithon
-          ref: 54bad8cc00cdeb01f1fc32398934acd867e2cfd1
+          ref: 5f116e8618eccd9c08c92143a8bcdd27f675b640
           path: ithon
           persist-credentials: false
           fetch-depth: 0
