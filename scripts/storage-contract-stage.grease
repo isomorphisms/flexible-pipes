@@ -1,0 +1,34 @@
+#!/usr/bin/env grease
+set -eu
+umask 077
+cloud=${CLOUD_STORAGE_CHECKOUT:?explicit cloud-storage checkout required}
+ib=${IB_CHECKOUT:?explicit IB checkout required}
+aici=${AICI_CHECKOUT:?explicit AICI checkout required}
+runner=${GREASE:?verified Grease runtime required}
+helper=${GOOGLE_DRIVE_UPLOAD_STATE:?prebuilt upload-state fixture helper required}
+receipt=${STORAGE_CONTRACT_RECEIPT:?private receipt path required}
+for pair in cloud ib aici; do
+  case $pair in
+    cloud) directory=$cloud; expected=${CLOUD_STORAGE_REVISION:?exact cloud revision required} ;;
+    ib) directory=$ib; expected=${IB_REVISION:?exact IB revision required} ;;
+    aici) directory=$aici; expected=${AICI_REVISION:?exact AICI revision required} ;;
+  esac
+  test "$(git -C "$directory" rev-parse HEAD)" = "$expected"
+  test -z "$(git -C "$directory" status --porcelain --untracked-files=no)"
+done
+test -x "$helper" && test -x "$runner"
+# All suites create disposable sources; no real source/account is accepted here.
+"$runner" "$ib/tests/test_retained_source.grease"
+sh "$cloud/tests/google-drive-upload-stream.sh"
+sh "$cloud/tests/sdf-mailbox-stream-upload.sh"
+temporary=$receipt.tmp.$$
+{
+  printf 'evidence_kind\tsynthetic-contract\n'
+  printf 'cloud_source\t%s\nib_source\t%s\n' "$CLOUD_STORAGE_REVISION" "$IB_REVISION"
+  printf 'upload_state_sha256\t%s\ngrease_launcher_sha256\t%s\n' \
+    "$(sha256sum "$helper" | awk '{print $1}')" "$(sha256sum "$runner" | awk '{print $1}')"
+  printf 'source_intake\tPASS\nraw_url_projection\tPASS\nupload_stream\tPASS\nsdf_generation\tPASS\n'
+  printf 'live_source\tNOT_RUN\nphysical_device\tNOT_RUN\nprivate_source_inspection\tNOT_RUN\n'
+} > "$temporary"
+"$runner" "$aici/ingestion/retained-source-evidence.grease" "$temporary"
+mv "$temporary" "$receipt"
