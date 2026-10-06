@@ -28,7 +28,7 @@ cat > "$root/pipelines/test-prevalidation.json" <<JSON
 }
 JSON
 
-if python3 "$root/scripts/run-pipeline" test-prevalidation --runs-root "$work/runs-a"     >"$work/prevalidation.out" 2>"$work/prevalidation.err"
+if python3 "$root/scripts/run-pipeline-legacy.py" test-prevalidation --runs-root "$work/runs-a"     >"$work/prevalidation.out" 2>"$work/prevalidation.err"
 then
   echo "invalid later stage unexpectedly passed" >&2
   exit 1
@@ -52,7 +52,7 @@ cat > "$root/pipelines/test-required.json" <<JSON
 }
 JSON
 
-if python3 "$root/scripts/run-pipeline" test-required --runs-root "$work/runs-b"     >"$work/required.out" 2>"$work/required.err"
+if python3 "$root/scripts/run-pipeline-legacy.py" test-required --runs-root "$work/runs-b"     >"$work/required.out" 2>"$work/required.err"
 then
   echo "pipeline missing required gate unexpectedly passed" >&2
   exit 1
@@ -62,7 +62,7 @@ test ! -e "$marker"
 
 fake_sha=1111111111111111111111111111111111111111
 head=$(git -C "$root" rev-parse HEAD)
-GITHUB_SHA="$fake_sha" python3 "$root/scripts/run-pipeline" regression-history-smoke     --runs-root "$work/runs-c" > "$work/identity.out"
+GITHUB_SHA="$fake_sha" python3 "$root/scripts/run-pipeline-legacy.py" regression-history-smoke     --runs-root "$work/runs-c" > "$work/identity.out"
 
 grep -Fq "\"repository_commit\": \"$head\"" "$work/identity.out"
 grep -Fq "\"github_sha_declared\": \"$fake_sha\"" "$work/identity.out"

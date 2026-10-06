@@ -62,7 +62,7 @@ jobs:
           CATFOOD_JOBS: '2'
         run: /bin/sh catfood/build-tools.sh
       - name: Qualify the checked operation in disposable fixtures
-        shell: ${{ github.workspace }}/runtime/.build/grease/bin/grease {0}
+        shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
         run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-operation.pi '${{ github.workspace }}' '${{ runner.temp }}/fp2-qualification' '${{ github.workspace }}/runtime/grease/source' '${{ github.workspace }}/runtime/.build/grease/bin/grease' /usr/bin/python3 '${{ github.workspace }}/runtime/.build/grease/python2/python'
       - name: Preserve every qualification attempt
         if: always()
