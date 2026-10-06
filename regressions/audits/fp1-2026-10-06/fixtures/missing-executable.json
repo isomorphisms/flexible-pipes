@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "missing-executable",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "absent",
+      "argv": [
+        "/definitely-unavailable-fp1-command"
+      ]
+    }
+  ]
+}

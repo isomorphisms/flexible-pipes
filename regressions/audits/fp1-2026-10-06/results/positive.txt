@@ -1,0 +1,36 @@
+case: positive
+evidence: executed-local-linux-x86_64
+exit_code: 0
+
+{
+  "finished_at": "2026-10-06T01:46:43.058470+00:00",
+  "pipeline": "positive",
+  "pipeline_path": "pipelines/positive.json",
+  "pipeline_sha256": "6aeca0488b440101db93a1f744e12f6bf8cbcd9986b660f785d3e162d5e5c42f",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/true"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T01:46:43.058454+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "control",
+      "started_at": "2026-10-06T01:46:43.056941+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.056784+00:00",
+  "status": "PASS"
+}

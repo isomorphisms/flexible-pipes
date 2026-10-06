@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "omitted-check",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "pretend-build",
+      "argv": [
+        "/usr/bin/true"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "export-marker",
+      "argv": [
+        "/usr/bin/touch",
+        "export-marker"
+      ]
+    }
+  ]
+}
