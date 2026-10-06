@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+for name in \
+    AICI_CHECKOUT \
+    ANDROID_NDK_CHECKOUT \
+    ANDROID_APP_ROOT \
+    ANDROID_APK \
+    ANDROID_PACKAGER_RECEIPT \
+    ANDROID_EXPECTED_ABI
+do
+    if [[ -z ${!name:-} ]]; then
+        printf 'android-apk-preflight: required environment value is unset: %s\n' "$name" >&2
+        exit 2
+    fi
+done
+
+exec python3 "$root/scripts/run-pipeline" android-apk-preflight "$@"
