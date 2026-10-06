@@ -1,0 +1,113 @@
+#!/bin/sh
+set -eu
+
+fail() {
+    printf '%s\n' "$*" >&2
+    exit 2
+}
+
+: "${KITCHEN_ROOT:?set KITCHEN_ROOT to an isomorphisms/kitchen checkout}"
+: "${SPINOR_ROOT:?set SPINOR_ROOT to a functorial-games/spinor checkout}"
+
+verify_origin() {
+    root=$1
+    expected=$2
+    origin=$(git -C "$root" remote get-url origin 2>/dev/null || true)
+
+    case "$expected:$origin" in
+        isomorphisms/kitchen:https://github.com/isomorphisms/kitchen|\
+        isomorphisms/kitchen:https://github.com/isomorphisms/kitchen.git|\
+        isomorphisms/kitchen:git@github.com:isomorphisms/kitchen.git|\
+        isomorphisms/kitchen:ssh://git@github.com/isomorphisms/kitchen.git|\
+        functorial-games/spinor:https://github.com/functorial-games/spinor|\
+        functorial-games/spinor:https://github.com/functorial-games/spinor.git|\
+        functorial-games/spinor:git@github.com:functorial-games/spinor.git|\
+        functorial-games/spinor:ssh://git@github.com/functorial-games/spinor.git)
+            ;;
+        *)
+            fail "wrong $expected origin: $origin"
+            ;;
+    esac
+}
+
+verify_blob() {
+    root=$1
+    relative=$2
+    expected_blob=$3
+    file=$root/$relative
+
+    [ -f "$file" ] || fail "missing pinned file: $file"
+
+    head_blob=$(
+        git -C "$root" \
+            rev-parse "HEAD:$relative" \
+            2>/dev/null ||
+        true
+    )
+    [ "$head_blob" = "$expected_blob" ] ||
+        fail "HEAD blob mismatch for $relative: expected $expected_blob got $head_blob"
+
+    work_blob=$(git -C "$root" hash-object -- "$file")
+    [ "$work_blob" = "$expected_blob" ] ||
+        fail "working bytes differ from pinned blob for $relative"
+}
+
+verify_origin "$KITCHEN_ROOT" isomorphisms/kitchen
+verify_origin "$SPINOR_ROOT" functorial-games/spinor
+
+verify_blob "$KITCHEN_ROOT" \
+    tasks/spinor-demo-movie/build.sh \
+    a61d2ff25c5fada56432fb0b1a5ab84dbd3ebea2
+verify_blob "$KITCHEN_ROOT" \
+    tasks/movie-from-stills/build.sh \
+    132e00b2a2f196854e1efb006f23ea524a402a63
+verify_blob "$KITCHEN_ROOT" \
+    tasks/movie-from-stills/1.sh \
+    3fee8ce7bf0110fea5ffc9ca94d57fe061704a08
+
+verify_blob "$SPINOR_ROOT" \
+    movie/render-frames.sh \
+    a910d8072317d3962f18f7d016747941ac8fd0ab
+verify_blob "$SPINOR_ROOT" \
+    movie/render_frames.c \
+    24009aa3c0e21a4b09cc189550d2a009eff7373c
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_core.c \
+    909bf609c1ad255e94239ab927e107083e91b832
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_core.h \
+    ecb60e6177a35d41ef039dbe8759fdea423584c3
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_field.c \
+    7a7b954b0c458d99c1a1fa8e69b5105595f16fc1
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_field.h \
+    f9c46ec228fc17c3118d650396f21322361fb1f3
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_ribbons.c \
+    675f12f0205fff7dcd9d68d82fdaf8aba2d19db8
+verify_blob "$SPINOR_ROOT" \
+    native/spinor_ribbons.h \
+    1abb56993bac228b56f9aee17958141d257af470
+
+command -v cc >/dev/null 2>&1 || fail "cc is required"
+command -v ffmpeg >/dev/null 2>&1 || fail "ffmpeg is required"
+command -v ffprobe >/dev/null 2>&1 || fail "ffprobe is required"
+command -v sha256sum >/dev/null 2>&1 || fail "sha256sum is required"
+
+printf '%s\n' "=== spinor movie tool identities ==="
+cc --version | sed -n '1p'
+ffmpeg -version | sed -n '1p'
+ffprobe -version | sed -n '1p'
+printf 'spinor_head\t%s\n' "$(git -C "$SPINOR_ROOT" rev-parse HEAD)"
+printf 'kitchen_head\t%s\n' "$(git -C "$KITCHEN_ROOT" rev-parse HEAD)"
+
+if [ -n "${SPINOR_MOVIE_OUTPUT:-}" ]; then
+    set -- "$SPINOR_MOVIE_OUTPUT"
+else
+    set --
+fi
+
+exec /bin/sh \
+    "$KITCHEN_ROOT/tasks/spinor-demo-movie/build.sh" \
+    "$@"
