@@ -1,0 +1,28 @@
+"""Create a caller-owned HOST_FIXTURE replay configuration, never authority."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict
+import hashlib
+import json
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["workspace", "python", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    workspace ∈ str ← args.workspace
+    host_python ∈ str ← args.python
+    output ∈ str ← args.output
+    root ∈ Path ← Path(workspace).resolve()
+    config ∈ dict[str, object] ← dict()
+    for pair in [["aici_root", "ai-ci"], ["kitchen_root", "kitchen"], ["catfood_root", "catfood"], ["packager_root", "android-NDK"], ["source_root", "crystal"], ["ithon", "ithon/ithon"], ["bounded_process", "kitchen-host-runtime-qualified/bounded-process"], ["channel_fixture", "kitchen-host-runtime-qualified/android-channel-fixture"], ["grease", "grease-host"]]:
+        config.__setitem__(pair.__getitem__(0), str(root.joinpath(pair.__getitem__(1))))
+    config.__setitem__("python", host_python)
+    digests ∈ dict[str, str] ← dict()
+    for path in [str(root.joinpath("ithon/ithon")), host_python, str(root.joinpath("kitchen-host-runtime-qualified/bounded-process")), str(root.joinpath("kitchen-host-runtime-qualified/android-channel-fixture")), str(root.joinpath("grease-host")), str(root.joinpath("ai-ci/android-diagnostic/tests.pi")), str(root.joinpath("kitchen/tests/android-diagnostic.pi")), str(root.joinpath("catfood/android/receipt-regression.pi")), str(root.joinpath("flexible-pipes/tests/registered-android.pi")), str(root.joinpath("flexible-pipes/scripts/run-regressions.pi"))]:
+        digests.__setitem__(path, hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    config.__setitem__("tool_digests", digests)
+    encoded ∈ str ← json.dumps(config, indent=2)
+    Path(output).write_text(encoded + "\n")
+
+main()

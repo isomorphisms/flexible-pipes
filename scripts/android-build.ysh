@@ -1,0 +1,37 @@
+#!/usr/bin/env grease
+set -eu -o pipefail
+# Finite adapter, not a new producer. The signed owner release supplies source,
+# signer, recipes, seven child checks, issuer and isolation boundary.
+test "$#" = 4 || { echo 'expected STAGE SOURCE_REF TARGET PRIVATE_RUN' >&2; exit 2; }
+var stage = "$1"
+var ref = "$2"
+var target = "$3"
+var run = "$4"
+var release = '/opt/aici/android-producer/current'
+var GREASE = "$release/runtime/grease"
+var CATFOOD = '/opt/catfood/current/android/deliver-apk.ysh'
+test "$target" = miro-a1 || { echo 'UNREGISTERED_TARGET' >&2; exit 2; }
+# Validate every dependent prerequisite before the first producer side effect.
+test -x "$GREASE" && test -f "$CATFOOD" || { echo 'MISSING_RUNTIME: independently qualified AICI producer and Cat Food delivery are not deployed' >&2; exit 2; }
+"$GREASE" "$release/policy/android-producer/preflight.ysh"
+var source = $(/usr/bin/awk -F '\t' '$1=="source_commit" {n++;v=$2} END{if(n!=1)exit 1;print v}' "$release/release.tsv")
+test "$source" = "$ref" || { echo 'AUTHORIZED_SOURCE_MISMATCH: request cannot select verifier source' >&2; exit 2; }
+var context = $(/usr/bin/awk -F '\t' '$1=="identity_context" {n++;v=$2} END{if(n!=1)exit 1;print v}' "$release/release.tsv")
+test "$context" = existing-miro-a1-report || { echo 'PRIOR_ACCEPTED_IDENTITY_REQUIRED: this operation addresses the existing A1 Halite report' >&2; exit 2; }
+case "$stage" in
+  prepare) echo 'PREPARED: no candidate APK bytes have been certified' ;;
+  aici-producer)
+    "$GREASE" "$release/policy/android-producer/supervise.ysh" > "$run/producer-storage.tsv"
+    ;;
+  catfood-delivery)
+    var storage = $(/usr/bin/awk -F '\t' '$1=="verified_storage" {n++;v=$2} END{if(n!=1)exit 1;print v}' "$run/producer-storage.tsv")
+    case "$storage" in /var/lib/aici/android-producer/run.*/sealed/packages) ;; *) echo 'INVALID_PRODUCER_STORAGE' >&2; exit 2 ;; esac
+    var apk = "$storage/crystal-halite-miro-armeabi-v7a.apk"
+    "$GREASE" "$CATFOOD" "$storage/halite.decision.tsv" "$apk" "$ref" "$target" "$run/verified-delivery"
+    ;;
+  deliver)
+    test -f "$run/verified-delivery/delivery.tsv" && test -f "$run/verified-delivery/payload.apk" || exit 2
+    echo 'VERIFIED_PACKAGE: installation, replacement, visual and physical NOT_RUN'
+    ;;
+  *) echo 'UNREGISTERED_STAGE' >&2; exit 2 ;;
+esac

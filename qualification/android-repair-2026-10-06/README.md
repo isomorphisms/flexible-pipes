@@ -1,0 +1,15 @@
+# Scope of these executed results
+
+Public entrypoint: `python3 scripts/run-pipeline regression-history-smoke --deployment ABS_CONFIG --runs-root NEW_PRIVATE_ROOT`, with delivered checked Ithon selected explicitly for HOST_FIXTURE qualification. Replay executes 71 independently expected cases, not corpus formatting. `negative-replay.tsv` retains omitted and zero-suite rejection; `wiring.tsv` retains Crystal 021fbe6b4e2d66d2b58bcd9d6954f248542b2057's unguarded workflow and a green unguarded counterpart, versus the currently wired workflow.
+
+The manifest records observed checkout/tree identities and tested file hashes at collection time. Test/receipt source identities remain their own. In particular `arm-native.tsv` identifies Crystal 3a6ac5eae755b670fccb6170461e3c725e844bf3; its Halite APK digest is 1be235b941662b73f125560d437965049499431a624a2d2c23ec6de7b7f101ad. `emulator-apk.tsv` identifies different x86_64 APK bytes dfa4dc6ed10fcadbcb14836022f213994bd1aeed79491c2aa49cc0c1f0e5d250. Neither is accepted delivery or proof of the new published head.
+
+Producer fixture suite at AICI tree ffe26532f6d5041fd1ae1726e1048bbf5c9f411b passed a real canonical APK/authentic **fixture** issuer and rejected eleven malformed/forged/stale/missing/skipped/no-op/swapped cases. Fixture issuer keys are removed; no APK signer was generated. Process witness fixtures are not observed isolated compiler/Gradle execution. Actual supervised producer execution remains blocked by unavailable independent release/issuer/signing authority and denied isolation.
+
+Cat Food public consumer was exercised with real canonical ARM APK bytes: missing authenticated deployment denied verification and delivery with no output. Positive authenticated delivery remains BLOCKED. Fresh acquisition was also re-executed at published Kitchen 1c8526ab5a3aedbcf4b2186532b695d6ec1970dc, twice, with the same command/task hashes as acquisition.tsv; task metadata was checked against committed bytes. Host success does not establish phone installation.
+
+Host gesture/geometry tests used pinned NDK r27c Clang/LLD and existing C code. Native host and ARM diagnostic launchers/helpers compiled. ARM runtime execution, archive publication, installation, current Shizuku operation and physical-device acceptance are NOT_RUN. This work changed no phone configuration or rish pair.
+
+Earlier failed attempts are retained privately: missing borrowed runtime materials; a non-executable scratch Grease wrapper; missing explicit CRYSTAL_ROOT; a dirty source correctly rejected before diagnostic effects; and an incomplete host Lua include path. Corrected counterparts passed. These environment/preparation errors are not relabeled validator policy defects.
+
+Controlled repository paths contain no unverified APK artifact upload. The scanner cannot control arbitrary external workflows/upload channels. Existing self-hosted runner authoring remains outside AICI's maintained Linux runner policy; no candidate branch approves that exception. All PRs remain draft and promotion requires independent approval/qualification.

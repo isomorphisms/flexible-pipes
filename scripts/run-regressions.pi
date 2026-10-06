@@ -1,0 +1,90 @@
+"""Mandatory behavioral replay; corpus-format checking is not coverage."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, len
+import hashlib
+import json
+import subprocess
+import sys
+import uuid
+
+def field(record ∈ dict[str, object], key ∈ str) → str:
+    value ∈ str ← record.get(key, "")
+    if value == "":
+        sys.exit("MISSING_REPLAY_INPUT:" + key)
+    return value
+
+def sha(path ∈ Path) → str:
+    answer ∈ str ← hashlib.sha256(path.read_bytes()).hexdigest()
+    return answer
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    parser.add_argument("--deployment", required=True)
+    parser.add_argument("--runs-root", required=True)
+    args ∈ object ← parser.parse_args()
+    deployment_name ∈ str ← args.deployment
+    runs_name ∈ str ← args.runs_root
+    deployment ∈ dict[str, object] ← json.loads(Path(deployment_name).read_text())
+    aici ∈ str ← field(deployment, "aici_root")
+    kitchen ∈ str ← field(deployment, "kitchen_root")
+    catfood ∈ str ← field(deployment, "catfood_root")
+    packager ∈ str ← field(deployment, "packager_root")
+    source ∈ str ← field(deployment, "source_root")
+    ithon ∈ str ← field(deployment, "ithon")
+    host_python ∈ str ← field(deployment, "python")
+    bound ∈ str ← field(deployment, "bounded_process")
+    fixture ∈ str ← field(deployment, "channel_fixture")
+    program_name ∈ str ← sys._getframe().f_code.co_filename
+    fp ∈ Path ← Path(program_name).resolve().parents.__getitem__(1)
+    tools ∈ dict[str, str] ← deployment.get("tool_digests")
+    for tool in [ithon, host_python, bound, fixture, aici + "/android-diagnostic/tests.pi", kitchen + "/tests/android-diagnostic.pi", catfood + "/android/receipt-regression.pi", str(fp.joinpath("tests/registered-android.pi")), str(Path(program_name).resolve())]:
+        expected ∈ str ← tools.get(tool, "")
+        if expected != sha(Path(tool)):
+            sys.exit("UNBOUND_REPLAY_DEPENDENCY:" + tool)
+    token ∈ str ← uuid.uuid4().hex
+    root ∈ Path ← Path(runs_name).resolve().joinpath("regression-history-" + token)
+    root.mkdir(mode=448, parents=True, exist_ok=False)
+    environment ∈ dict[str, str] ← dict()
+    environment.__setitem__("PATH", "/usr/bin:/bin")
+    environment.__setitem__("ITHON_PYTHON", host_python)
+    environment.__setitem__("HOME", str(root))
+    ledger ← "suite\trequired_cases\tobserved_cases\tresult\n"
+    for suite in ["aici-diagnostic", "kitchen-capture", "catfood-receipt", "dispatch"]:
+        output ∈ Path ← root.joinpath(suite)
+        expected_count ← 11
+        argv ∈ list[str] ← [ithon, aici + "/android-diagnostic/tests.pi", "--ithon", ithon, "--python", host_python, "--output", str(output)]
+        if suite == "kitchen-capture":
+            expected_count ← 44
+            argv ← [ithon, kitchen + "/tests/android-diagnostic.pi", "--ithon", ithon, "--python", host_python, "--bounded-process", bound, "--fixture", fixture, "--aici", aici, "--output", str(output)]
+        elif suite == "catfood-receipt":
+            expected_count ← 1
+            argv ← [ithon, catfood + "/android/receipt-regression.pi", "--output", str(output)]
+        elif suite == "dispatch":
+            expected_count ← 15
+            argv ← [ithon, str(fp.joinpath("tests/registered-android.pi")), "--ithon", ithon, "--python", host_python, "--bounded-process", bound, "--fixture", fixture, "--source", source, "--aici", aici, "--catfood", catfood, "--kitchen", kitchen, "--packager", packager, "--grease", field(deployment, "grease"), "--output", str(output)]
+        command ∈ list[str] ← [bound, "300", "16777216", str(root.joinpath(suite + ".stdout")), str(root.joinpath(suite + ".stderr")), str(root.joinpath(suite + ".process.tsv")), "--"]
+        command.extend(argv)
+        child ∈ subprocess.CompletedProcess ← subprocess.run(command, env=environment, cwd="/")
+        code ∈ int ← child.returncode
+        if code != 0:
+            sys.exit("BEHAVIORAL_REPLAY_FAILED:" + suite + ":" + str(code))
+        present ∈ bool ← output.joinpath("results.tsv").is_file()
+        if present == False:
+            sys.exit("EMPTY_OMITTED_OR_NOOP_COVERAGE:" + suite + ":missing ledger")
+        rows ∈ list[str] ← output.joinpath("results.tsv").read_text().splitlines()
+        total ∈ int ← len(rows)
+        count ← total - 1
+        if count != expected_count:
+            sys.exit("EMPTY_OMITTED_OR_NOOP_COVERAGE:" + suite)
+        header ∈ str ← rows.__getitem__(0)
+        for row in rows:
+            if row != header:
+                passed ∈ bool ← row.endswith("\tPASS")
+                if passed == False:
+                    sys.exit("FAILED_CASE:" + row)
+        ledger ← ledger + suite + "\t" + str(expected_count) + "\t" + str(count) + "\tPASS\n"
+        root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+
+main()

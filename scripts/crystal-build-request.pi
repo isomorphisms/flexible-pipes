@@ -1,0 +1,43 @@
+"""Materialize the established Halite build request using observed source HEAD."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict
+import json
+import subprocess
+import sys
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    parser.add_argument("--source", default="")
+    parser.add_argument("--ref", default="")
+    parser.add_argument("--output", required=True)
+    args ∈ object ← parser.parse_args()
+    source ∈ str ← args.source
+    ref ∈ str ← args.ref
+    output_name ∈ str ← args.output
+    if ref == "":
+        if source == "":
+            sys.exit("MISSING_INPUT:repository ref or observed source checkout")
+        identity ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", source, "rev-parse", "HEAD"], capture_output=True)
+        code ∈ int ← identity.returncode
+        if code != 0:
+            sys.exit("SOURCE_IDENTITY_UNAVAILABLE")
+        data ∈ bytes ← identity.stdout
+        ref ← data.decode().strip()
+    import re
+    if not re.fullmatch("[0-9a-f]{40}", ref):
+        sys.exit("MISSING_INPUT:immutable source ref")
+    request ∈ dict[str, str] ← dict()
+    request.__setitem__("pipeline", "android-native-apk")
+    request.__setitem__("request_id", "crystal-halite-required-producer")
+    request.__setitem__("repository", "functorial-games/crystal")
+    request.__setitem__("ref", ref)
+    request.__setitem__("target", "miro-a1")
+    request.__setitem__("application", "halite")
+    request.__setitem__("permitted_actions", "build,package,verify")
+    request.__setitem__("requested_result", "verified-apk")
+    rendered ∈ str ← json.dumps(request, sort_keys=True, indent=2)
+    output ∈ Path ← Path(output_name)
+    output.write_text(rendered + "\n")
+
+main()

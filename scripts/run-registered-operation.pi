@@ -1,0 +1,325 @@
+"""Finite Android adapters through the existing pipeline-name interface."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list, isinstance
+from subprocess import CompletedProcess
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import uuid
+
+def unique(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
+    answer ∈ dict[str, object] ← dict()
+    for pair in pairs:
+        key ∈ str ← pair[0]
+        if answer.__contains__(key):
+            sys.exit("DUPLICATE_JSON_KEY:" + key)
+        answer.__setitem__(key, pair[1])
+    return answer
+
+def field(record ∈ dict[str, object], key ∈ str) → str:
+    value ∈ str ← record.get(key, "")
+    is_text ∈ bool ← isinstance(value, str)
+    if is_text == False:
+        sys.exit("MISSING_INPUT:" + key)
+    if value == "":
+        sys.exit("MISSING_INPUT:" + key)
+    return value
+
+def sha(path ∈ Path) → str:
+    answer ∈ str ← hashlib.sha256(path.read_bytes()).hexdigest()
+    return answer
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser(description="Registered Android build and diagnostic operations v2")
+    parser.add_argument("pipeline")
+    parser.add_argument("--request", required=True)
+    parser.add_argument("--deployment", default="/etc/flexible-pipes/android-deployment.json")
+    parser.add_argument("--runs-root", required=True)
+    args ∈ object ← parser.parse_args()
+    operation ∈ str ← args.pipeline
+    request_name ∈ str ← args.request
+    deployment_name ∈ str ← args.deployment
+    runs_name ∈ str ← args.runs_root
+    if operation != "android-native-apk":
+        if operation != "android-diagnostic-capture":
+            sys.exit("UNREGISTERED_OPERATION:" + operation)
+    request_path ∈ Path ← Path(request_name).resolve()
+    deployment_path ∈ Path ← Path(deployment_name).resolve()
+    request ∈ dict[str, object] ← json.loads(request_path.read_text(), object_pairs_hook=unique)
+    deployment ∈ dict[str, object] ← json.loads(deployment_path.read_text())
+    keys ∈ list[str] ← list(request.keys())
+    allowed ∈ list[str] ← ["pipeline", "request_id", "repository", "ref", "target", "application", "permitted_actions", "requested_result", "diagnostic_plan"]
+    for key in keys:
+        admitted ∈ bool ← allowed.__contains__(key)
+        if admitted == False:
+            sys.exit("REQUEST_FIELD_NOT_PERMITTED:" + key)
+    for key in ["pipeline", "request_id", "repository", "ref", "target", "application", "permitted_actions", "requested_result"]:
+        field(request, key)
+    if field(request, "pipeline") != operation:
+        sys.exit("OPERATION_MISMATCH")
+    if field(request, "repository") != "functorial-games/crystal":
+        sys.exit("UNREGISTERED_APPLICATION_REPOSITORY")
+    if field(request, "application") != "halite":
+        sys.exit("UNREGISTERED_APPLICATION:Halite is the qualified consumer candidate")
+    if field(request, "target") != "miro-a1":
+        sys.exit("UNREGISTERED_TARGET")
+    ref ∈ str ← field(request, "ref")
+    immutable ∈ bool ← bool(re.fullmatch(r"[0-9a-f]{40}", ref))
+    if immutable == False:
+        sys.exit("MISSING_INPUT:immutable repository ref")
+    expected_actions ← "build,package,verify"
+    required ∈ list[str] ← ["prepare", "aici-producer", "catfood-delivery", "deliver"]
+    if operation == "android-diagnostic-capture":
+        expected_actions ← "observe"
+        required ← ["prepare", "catfood-profile", "aici-prepare", "kitchen-capture", "aici-evidence", "deliver"]
+    if field(request, "permitted_actions") != expected_actions:
+        sys.exit("ACTION_NOT_ADMITTED")
+    requested_result ∈ str ← field(request, "requested_result")
+    if operation == "android-native-apk":
+        if requested_result != "verified-apk":
+            sys.exit("UNSUPPORTED_RESULT")
+    else:
+        if requested_result != "private-capture":
+            sys.exit("UNSUPPORTED_RESULT")
+    # Required stage inventory is code-owned. No optional worker check list.
+    definition ∈ dict[str, object] ← deployment.get(operation)
+    if not isinstance(definition, dict):
+        sys.exit("MISSING_INPUT:registered operation deployment")
+    supplied_stages ∈ list[str] ← definition.get("stages")
+    if supplied_stages != required:
+        sys.exit("MANDATORY_STAGE_MISMATCH")
+    for key in ["ithon", "python", "bounded_process", "source_root", "aici_root", "catfood_root", "kitchen_root", "packager_root", "git"]:
+        field(deployment, key)
+    tools ∈ dict[str, str] ← deployment.get("tool_digests")
+    paths ∈ list[str] ← list(tools.keys())
+    for tool in paths:
+        tool_path ∈ Path ← Path(tool)
+        absolute ∈ bool ← tool_path.is_absolute()
+        if absolute == False:
+            sys.exit("MISSING_INPUT:absolute trusted tool")
+        expected ∈ str ← tools.get(tool)
+        if sha(tool_path) != expected:
+            sys.exit("TRUSTED_TOOL_IDENTITY_MISMATCH:" + tool)
+    environment ∈ dict[str, str] ← dict()
+    environment.__setitem__("PATH", "/usr/bin:/bin")
+    environment.__setitem__("GIT_CONFIG_NOSYSTEM", "1")
+    environment.__setitem__("GIT_CONFIG_GLOBAL", "/dev/null")
+    environment.__setitem__("GIT_NO_REPLACE_OBJECTS", "1")
+    environment.__setitem__("ITHON_PYTHON", field(deployment, "python"))
+    # Network configuration belongs to the execution host, never request data.
+    # Preserve required managed-host proxy routing without exporting its values.
+    for network_key in ["HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "NO_PROXY", "https_proxy", "http_proxy", "all_proxy", "no_proxy"]:
+        network_value ∈ str ← os.environ.get(network_key, "")
+        if network_value:
+            environment.__setitem__(network_key, network_value)
+    source ∈ Path ← Path(field(deployment, "source_root")).resolve()
+    git ∈ str ← field(deployment, "git")
+    identity ∈ CompletedProcess ← subprocess.run([git, "-C", str(source), "rev-parse", "HEAD"], env=environment, capture_output=True)
+    identity_bytes ∈ bytes ← identity.stdout
+    observed_ref ∈ str ← identity_bytes.decode().strip()
+    if observed_ref != ref:
+        sys.exit("OBSERVED_SOURCE_MISMATCH:declared SHA is not execution evidence")
+    origin ∈ CompletedProcess ← subprocess.run([git, "-C", str(source), "remote", "get-url", "origin"], env=environment, capture_output=True)
+    origin_bytes ∈ bytes ← origin.stdout
+    observed_origin ∈ str ← origin_bytes.decode().strip()
+    if observed_origin != "https://github.com/functorial-games/crystal.git":
+        sys.exit("OBSERVED_REPOSITORY_MISMATCH")
+    dirty ∈ CompletedProcess ← subprocess.run([git, "-C", str(source), "diff", "--exit-code", "HEAD"], env=environment, capture_output=True)
+    dirty_code ∈ int ← dirty.returncode
+    if dirty_code != 0:
+        sys.exit("SOURCE_CHANGED_AFTER_ADMISSION")
+    source_name ∈ str ← sys._getframe().f_code.co_filename
+    controller ∈ Path ← Path(source_name).resolve()
+    expected_controller ∈ str ← tools.get(str(controller), "")
+    if expected_controller != sha(controller):
+        sys.exit("UNBOUND_CONTROLLER")
+    dependencies ∈ list[str] ← [field(deployment, "ithon"), field(deployment, "python"), field(deployment, "git"), field(deployment, "bounded_process"), field(deployment, "catfood_root") + "/android/profile.pi", field(deployment, "aici_root") + "/android-diagnostic/check.pi", field(deployment, "kitchen_root") + "/tasks/android-diagnostic/capture.pi"]
+    if operation == "android-native-apk":
+        dependencies ← [field(deployment, "ithon"), field(deployment, "python"), field(deployment, "git"), field(deployment, "bounded_process"), field(deployment, "grease"), str(controller.parent.joinpath("android-build.ysh"))]
+    for dependency in dependencies:
+        recorded ∈ str ← tools.get(dependency, "")
+        if recorded != sha(Path(dependency)):
+            sys.exit("UNBOUND_DEPENDENCY:" + dependency)
+    # Explicit deployment arguments are qualification only. They never activate
+    # a verifier, signer, runtime release or publication authority.
+    authority ∈ str ← field(deployment, "authority_kind")
+    observed_deployment ∈ str ← str(deployment_path)
+    if observed_deployment != "/etc/flexible-pipes/android-deployment.json":
+        if authority != "qualification":
+            sys.exit("SELF_APPROVED_DEPLOYMENT")
+    else:
+        information ∈ object ← deployment_path.stat()
+        owner ∈ int ← information.st_uid
+        permissions ∈ int ← information.st_mode
+        if owner != 0:
+            sys.exit("UNTRUSTED_DEPLOYMENT_OWNER")
+        writable ∈ int ← permissions & 18
+        if writable != 0:
+            sys.exit("WRITABLE_DEPLOYMENT")
+        if field(definition, "availability") != "QUALIFIED":
+            sys.exit("UNQUALIFIED_OPERATION")
+        if authority != "trusted-deployment":
+            sys.exit("DEPLOYMENT_INACTIVE")
+    plan ← ""
+    if operation == "android-diagnostic-capture":
+        plan ← field(request, "diagnostic_plan")
+        proposed ∈ dict[str, object] ← json.loads(Path(plan).read_text())
+        artifact_bound ∈ bool ← bool(re.fullmatch(r"[0-9a-f]{64}", field(proposed, "apk_sha256")))
+        if artifact_bound == False:
+            sys.exit("MISSING_INPUT:exact installed APK digest or explicit identity discovery required")
+        if field(proposed, "source_commit") != ref:
+            sys.exit("DIAGNOSTIC_PLAN_SOURCE_MISMATCH")
+        if field(proposed, "repository") != field(request, "repository"):
+            sys.exit("DIAGNOSTIC_PLAN_REPOSITORY_MISMATCH")
+        if field(proposed, "permitted_actions") != "observe":
+            sys.exit("DIAGNOSTIC_ACTION_NOT_ADMITTED")
+        field(definition, "profile")
+        field(definition, "capture_runtime")
+        profile_input ∈ dict[str, object] ← json.loads(Path(field(definition, "profile")).read_text())
+        capture_input ∈ dict[str, object] ← json.loads(Path(field(definition, "capture_runtime")).read_text())
+        for binding in ["target", "device_instance"]:
+            if field(profile_input, binding) != field(proposed, binding):
+                sys.exit("PROFILE_CONFLICT:" + binding)
+        for binding in ["channel", "launcher", "launcher_sha256", "bounded_process", "bounded_process_sha256"]:
+            field(capture_input, binding)
+        if field(proposed, "task_sha256") != sha(Path(field(deployment, "kitchen_root") + "/tasks/android-diagnostic/capture.pi")):
+            sys.exit("TASK_DIGEST_MISMATCH")
+        channel ∈ str ← field(capture_input, "channel")
+        if channel != "rish":
+            if channel != "adb":
+                sys.exit("WRONG_CONTEXT:unsupported capture authority")
+        for capture_file in ["launcher", "bounded_process"]:
+            file_path ∈ Path ← Path(field(capture_input, capture_file))
+            absolute_path ∈ bool ← file_path.is_absolute()
+            if absolute_path == False:
+                sys.exit("MISSING_INPUT:absolute capture runtime")
+            if sha(file_path) != field(capture_input, capture_file + "_sha256"):
+                sys.exit("CAPTURE_RUNTIME_DIGEST_MISMATCH:" + capture_file)
+        if channel == "rish":
+            if sha(Path(field(capture_input, "dex"))) != field(capture_input, "dex_sha256"):
+                sys.exit("RISH_DEX_DIGEST_MISMATCH")
+        else:
+            serial_valid ∈ bool ← bool(re.fullmatch(r"[A-Za-z0-9_.:-]+", field(capture_input, "serial")))
+            if serial_valid == False:
+                sys.exit("INVALID_ADB_SERIAL")
+        validation ∈ CompletedProcess ← subprocess.run([field(deployment, "ithon"), field(deployment, "aici_root") + "/android-diagnostic/check.pi", "--plan", plan], env=environment, capture_output=True, timeout=10)
+        validation_code ∈ int ← validation.returncode
+        if validation_code != 0:
+            validation_error ∈ bytes ← validation.stderr
+            sys.stderr.write(validation_error.decode(errors="replace"))
+            sys.exit("PREPARATION_INVALID")
+    else:
+        # Owner supervisor owns native compilation, canonical packaging and all
+        # seven mandatory child checks. No request-built witness or caller key.
+        field(deployment, "grease")
+        if authority == "qualification":
+            # Execute the real deployed prerequisite denial without compiling,
+            # packaging or delivering unverified application bytes.
+            prerequisites ∈ list[str] ← [field(deployment, "grease"), str(controller.parent.joinpath("android-build.ysh")), "prepare", ref, field(request, "target"), "/nonexistent"]
+        else:
+            prerequisites ← ["/opt/aici/android-producer/current/runtime/grease", "/opt/flexible-pipes/current/scripts/android-build.ysh", "prepare", ref, field(request, "target"), "/nonexistent"]
+        ready ∈ CompletedProcess ← subprocess.run(prerequisites, env=environment, capture_output=True, timeout=15)
+        readiness ∈ int ← ready.returncode
+        if readiness != 0:
+            readiness_error ∈ bytes ← ready.stderr
+            sys.stderr.write(readiness_error.decode(errors="replace"))
+            sys.exit("PRODUCER_PREPARATION_BLOCKED")
+    # No task effects occur above. Whole plan and dependency closure are checked.
+    token ∈ str ← uuid.uuid4().hex
+    run ∈ Path ← Path(runs_name).resolve().joinpath(operation + "-" + token)
+    run.mkdir(mode=448, parents=True, exist_ok=False)
+    environment.__setitem__("HOME", str(run))
+    environment.__setitem__("TMPDIR", str(run))
+    environment.__setitem__("ITHON_CHECK_RECEIPT", str(run.joinpath("checked.jsonl")))
+    receipt ∈ dict[str, object] ← dict()
+    receipt.__setitem__("schema", "flexible-pipes-registered-android-v2")
+    receipt.__setitem__("operation", operation)
+    receipt.__setitem__("request_sha256", sha(request_path))
+    receipt.__setitem__("deployment_sha256", sha(deployment_path))
+    receipt.__setitem__("controller_sha256", sha(controller))
+    receipt.__setitem__("declared_source_ref", ref)
+    receipt.__setitem__("observed_source_ref", observed_ref)
+    receipt.__setitem__("github_sha_declared", os.environ.get("GITHUB_SHA", "UNKNOWN"))
+    receipt.__setitem__("acceptance_scope", "qualification-only; no publication authority")
+    receipt.__setitem__("status", "RUNNING")
+    stages ∈ list[dict[str, object]] ← []
+    receipt.__setitem__("stages", stages)
+    ithon ∈ str ← field(deployment, "ithon")
+    bound ∈ str ← field(deployment, "bounded_process")
+    aici ∈ str ← field(deployment, "aici_root")
+    kitchen ∈ str ← field(deployment, "kitchen_root")
+    catfood ∈ str ← field(deployment, "catfood_root")
+    # Commands belong to the implementation, never to request data.
+    for stage in required:
+        record ∈ dict[str, object] ← dict()
+        record.__setitem__("name", stage)
+        record.__setitem__("required", True)
+        record.__setitem__("state", "NOT_RUN")
+        stages.append(record)
+    for stage in required:
+        argv ∈ list[str] ← []
+        if operation == "android-native-apk":
+            argv ← [field(deployment, "grease"), str(controller.parent.joinpath("android-build.ysh")), stage, ref, field(request, "target"), str(run)]
+        elif stage == "prepare":
+            argv ← [git, "-C", str(source), "rev-parse", "HEAD"]
+        elif stage == "catfood-profile":
+            # Profile is produced by Cat Food before this run. Retain its bytes
+            # and provenance, and validate material target/instance in Kitchen.
+            profile_path ∈ Path ← Path(field(definition, "profile"))
+            profile_payload ∈ bytes ← profile_path.read_bytes()
+            run.joinpath("profile.json").write_bytes(profile_payload)
+            argv ← [ithon, catfood + "/android/profile.pi", "--model", "miro-a1", "--instance", field(proposed, "device_instance"), "--output", str(run.joinpath("stable-profile.json"))]
+        elif stage == "aici-prepare":
+            argv ← [ithon, aici + "/android-diagnostic/check.pi", "--plan", plan, "--output", str(run.joinpath("prepared.json"))]
+        elif stage == "kitchen-capture":
+            argv ← [ithon, kitchen + "/tasks/android-diagnostic/capture.pi", "--plan", plan, "--profile", str(run.joinpath("profile.json")), "--runtime", field(definition, "capture_runtime"), "--output", str(run.joinpath("capture"))]
+        elif stage == "aici-evidence":
+            argv ← [ithon, aici + "/android-diagnostic/check.pi", "--plan", plan, "--capture", str(run.joinpath("capture/capture.json")), "--output", str(run.joinpath("diagnostic-decision.json"))]
+        elif stage == "deliver":
+            for item in stages:
+                item_name ∈ str ← item.get("name")
+                if item_name == "deliver":
+                    item.__setitem__("state", "PASS")
+            receipt.__setitem__("status", "PASS")
+            receipt.__setitem__("acceptance_scope", "private bounded observation; visual/physical correctness NOT_VERIFIED")
+            final_text ∈ str ← json.dumps(receipt, sort_keys=True, indent=2)
+            run.joinpath("receipt.json").write_text(final_text + "\n")
+            print(final_text)
+            sys.exit(0)
+        stdout ∈ Path ← run.joinpath(stage + ".stdout")
+        stderr ∈ Path ← run.joinpath(stage + ".stderr")
+        native_status ∈ Path ← run.joinpath(stage + ".process.tsv")
+        command ∈ list[str] ← [bound, "1800", "16777216", str(stdout), str(stderr), str(native_status), "--"]
+        command.extend(argv)
+        child ∈ CompletedProcess ← subprocess.run(command, env=environment, cwd=str(source))
+        code ∈ int ← child.returncode
+        for item in stages:
+            item_name ∈ str ← item.get("name")
+            if item_name == stage:
+                item.__setitem__("state", "PASS")
+                item.__setitem__("exit_code", code)
+                item.__setitem__("stdout_sha256", sha(stdout))
+                item.__setitem__("stderr_sha256", sha(stderr))
+                if code != 0:
+                    item.__setitem__("state", "FAIL")
+        receipt.__setitem__("status", "RUNNING")
+        if operation == "android-native-apk":
+            if stage == "deliver":
+                receipt.__setitem__("status", "PASS")
+                receipt.__setitem__("acceptance_scope", "authenticated package; install, replacement, visual and physical NOT_RUN")
+        if code != 0:
+            receipt.__setitem__("status", "FAIL")
+            receipt.__setitem__("failed_stage", stage)
+        receipt_text ∈ str ← json.dumps(receipt, sort_keys=True, indent=2)
+        run.joinpath("receipt.json").write_text(receipt_text + "\n")
+        if code != 0:
+            print(receipt_text)
+            sys.exit(1)
+
+    print(receipt_text)
+
+main()

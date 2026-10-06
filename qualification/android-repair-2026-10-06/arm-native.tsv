@@ -1,0 +1,8 @@
+schema	crystal-native-candidate-v1
+source_commit	3a6ac5eae755b670fccb6170461e3c725e844bf3
+source_blob_sha256	d443737b81ade8bb116ad1cf24a862bf5a6f0dfccd818218b8c3983ebe809ac8
+raylib_commit	dbc56a87da87d973a9c5baa4e7438a9d20121d28
+lua_archive_sha256	4f18ddae154e793e46eeab727c59ef1c0c0c2b744e7b94219710d76f530629ae
+ndk_revision	27.2.12479018
+abi	armeabi-v7a
+producer_authentication	NOT_VERIFIED

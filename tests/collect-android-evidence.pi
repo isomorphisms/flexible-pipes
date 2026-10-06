@@ -1,0 +1,49 @@
+"""Collect scoped host qualification ledgers; raw captures remain private."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list
+import hashlib
+import json
+import subprocess
+import shutil
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["workspace", "replay", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    workspace ∈ str ← args.workspace
+    replay ∈ str ← args.replay
+    output ∈ str ← args.output
+    root ∈ Path ← Path(workspace).resolve()
+    destination ∈ Path ← Path(output).resolve()
+    destination.mkdir(mode=448, parents=True, exist_ok=False)
+    material ∈ dict[str, object] ← dict()
+    for repository in ["ai-ci", "android-NDK", "kitchen", "catfood", "flexible-pipes", "crystal", "ithon", "grease"]:
+        commit ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(root.joinpath(repository)), "rev-parse", "HEAD"], capture_output=True, check=True)
+        tree ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(root.joinpath(repository)), "rev-parse", "HEAD^{tree}"], capture_output=True, check=True)
+        commit_bytes ∈ bytes ← commit.stdout
+        tree_bytes ∈ bytes ← tree.stdout
+        identity ∈ dict[str, str] ← dict()
+        identity.__setitem__("observed_commit", commit_bytes.decode().strip())
+        identity.__setitem__("observed_tree", tree_bytes.decode().strip())
+        material.__setitem__(repository, identity)
+    ledgers ∈ dict[str, str] ← dict()
+    for entry in [["replay.tsv", replay + "/results.tsv"], ["negative-replay.tsv", "replay-final-negative/results.tsv"], ["acquisition.tsv", "acquisition-qualified-b/results.tsv"], ["capture.tsv", "capture-context-qualified/results.tsv"], ["wiring.tsv", "wiring-qualified/results.tsv"], ["crystal-host.tsv", "crystal-host-qualified-b/results.tsv"], ["arm-native.tsv", "crystal-native-merged-a/materials.tsv"], ["arm-packages.tsv", "crystal-apks-merged-a/packages.tsv"], ["emulator-apk.tsv", "crystal-emulator-candidate/halite.apk.receipt.tsv"]]:
+        name ∈ str ← entry.__getitem__(0)
+        relative ∈ str ← entry.__getitem__(1)
+        path ∈ Path ← root.joinpath(relative)
+        payload ∈ bytes ← path.read_bytes()
+        destination.joinpath(name).write_bytes(payload)
+        ledgers.__setitem__(name, hashlib.sha256(payload).hexdigest())
+    material.__setitem__("ledgers", ledgers)
+    material.__setitem__("scope", "host fixture qualification; no active release or physical device acceptance")
+    tools ∈ dict[str, str] ← dict()
+    for name in ["flexible-pipes/scripts/run-pipeline", "flexible-pipes/scripts/run-registered-operation.pi", "ai-ci/android-diagnostic/check.pi", "kitchen/tasks/android-diagnostic/capture.pi", "catfood/android/profile.pi", "ithon/ithon", "kitchen-host-runtime-qualified/bounded-process", "kitchen-host-runtime-qualified/kitchen-android-capture", "kitchen-host-runtime-qualified/android-channel-fixture", "grease-host"]:
+        tools.__setitem__(name, hashlib.sha256(root.joinpath(name).read_bytes()).hexdigest())
+    material.__setitem__("tested_file_digests", tools)
+    encoded ∈ str ← json.dumps(material, indent=2, sort_keys=True)
+    destination.joinpath("manifest.json").write_text(encoded + "\n")
+    print(str(destination))
+
+main()

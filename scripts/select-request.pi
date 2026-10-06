@@ -1,0 +1,50 @@
+"""Resolve exactly one data request without selecting candidate runner code."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, len
+import json
+import os
+import re
+import subprocess
+import sys
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    parser.add_argument("--request-root", required=True)
+    parser.add_argument("--request-path", default="")
+    parser.add_argument("--pipeline", default="")
+    parser.add_argument("--github-output", required=True)
+    args ∈ object ← parser.parse_args()
+    root_name ∈ str ← args.request_root
+    selected ∈ str ← args.request_path
+    expected_pipeline ∈ str ← args.pipeline
+    output_name ∈ str ← args.github_output
+    root ∈ Path ← Path(root_name).resolve()
+    if selected == "":
+        child ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(root), "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD", "--", "requests/*.json"], capture_output=True)
+        payload ∈ bytes ← child.stdout
+        rows ∈ list[str] ← payload.decode().splitlines()
+        count ∈ int ← len(rows)
+        if count != 1:
+            sys.exit("REQUEST_AMBIGUOUS:exactly one changed request required")
+        selected ∈ str ← rows.__getitem__(0)
+    valid ∈ bool ← bool(re.fullmatch(r"requests/[A-Za-z0-9._-]+\.json", selected))
+    if valid == False:
+        sys.exit("UNSAFE_REQUEST_PATH")
+    path ∈ Path ← root.joinpath(selected).resolve()
+    contained ∈ bool ← path.is_relative_to(root)
+    if contained == False:
+        sys.exit("REQUEST_PATH_ESCAPE")
+    data ∈ dict[str, object] ← json.loads(path.read_text())
+    operation ∈ str ← data.get("pipeline", "")
+    if operation != "android-native-apk":
+        if operation != "android-diagnostic-capture":
+            sys.exit("UNREGISTERED_OPERATION")
+    if expected_pipeline:
+        if operation != expected_pipeline:
+            sys.exit("OPERATION_MISMATCH")
+    # Values above cannot contain workflow-output injection newlines.
+    output ∈ Path ← Path(output_name)
+    output.write_text("pipeline=" + operation + "\nrequest=" + str(path) + "\n")
+
+main()

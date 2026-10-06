@@ -1,0 +1,38 @@
+"""Data-only request selection for terminal and workflow dispatch."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, isinstance
+import json
+import re
+import subprocess
+import sys
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser(description="Dispatch a data-only registered Android request")
+    parser.add_argument("--request", required=True)
+    parser.add_argument("--deployment", required=True)
+    parser.add_argument("--python", required=True)
+    parser.add_argument("--runs-root", required=True)
+    args ∈ object ← parser.parse_args()
+    request_name ∈ str ← args.request
+    deployment_name ∈ str ← args.deployment
+    host_python ∈ str ← args.python
+    runs_name ∈ str ← args.runs_root
+    request ∈ dict[str, object] ← json.loads(Path(request_name).read_text())
+    operation ∈ str ← request.get("pipeline", "")
+    is_text ∈ bool ← isinstance(operation, str)
+    if is_text == False:
+        sys.exit("MISSING_INPUT:pipeline")
+    registered ← False
+    for name in ["android-native-apk", "android-diagnostic-capture"]:
+        if name == operation:
+            registered ← True
+    if registered == False:
+        sys.exit("UNREGISTERED_OPERATION:" + operation)
+    program_name ∈ str ← sys._getframe().f_code.co_filename
+    runner ∈ Path ← Path(program_name).resolve().parent.joinpath("run-pipeline")
+    child ∈ subprocess.CompletedProcess ← subprocess.run([host_python, str(runner), operation, "--request", request_name, "--deployment", deployment_name, "--runs-root", runs_name])
+    code ∈ int ← child.returncode
+    sys.exit(code)
+
+main()

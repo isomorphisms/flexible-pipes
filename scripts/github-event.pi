@@ -43,7 +43,7 @@ Path(envelope_path).write_text(json.dumps(envelope))
 os.chmod(envelope_path, 384)
 command ∈ list[str] ← list(config["ithon"])
 command.extend(["/opt/flexible-pipes/current/scripts/registered-execution.pi", route, envelope_path])
-child ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}, capture_output=True, timeout=130)
+child ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}, capture_output=True, timeout=2250)
 result_bytes ∈ bytes ← child.stdout
 Path(directory + "/result.json").write_bytes(result_bytes)
 Path(directory + "/stderr.bin").write_bytes(child.stderr)

@@ -18,11 +18,11 @@ jobs:
     # A separately provisioned trusted supervisor. No runtime installation or
     # authority activation is performed by a request or this workflow.
     runs-on: [self-hosted, flexible-pipes-registered-v1]
-    timeout-minutes: 5
+    timeout-minutes: 40
     steps:
       - name: Process signed event using the installed qualified release
         shell: /opt/catfood/bin/grease {0}
-        run: /opt/flexible-pipes/current/scripts/run-pipeline github-event "$GITHUB_EVENT_PATH"
+        run: python3 /opt/flexible-pipes/current/scripts/run-pipeline github-event "$GITHUB_EVENT_PATH"
       - name: Export only supervisor-owned verified results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

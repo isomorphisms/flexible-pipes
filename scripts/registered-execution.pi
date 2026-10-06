@@ -557,6 +557,21 @@ try:
         if provider["status"] != "PASS":
             raise ValueError("SIGNED_ADMISSION_REJECTED")
     raw ∈ bytes ← adapter(configuration, route, envelope)
+    # Android uses the same signed admission and immutable data-only intake.
+    # Its finite adapter owns its required stages and fixed producer boundary.
+    selected ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
+    if selected.get("pipeline", "") in ["android-native-apk", "android-diagnostic-capture"]:
+        if diagnostic:
+            raise ValueError("ANDROID_QUALIFICATION_USE_PIPELINE_INTERFACE")
+        admitted ∈ str ← "/var/lib/flexible-pipes/private/android-" + str(uuid.uuid4()) + ".json"
+        atomic(admitted, selected)
+        os.chmod(admitted, 384)
+        invocation ∈ list[str] ← list(configuration["ithon"])
+        invocation.extend(["/opt/flexible-pipes/current/scripts/run-registered-operation.pi", str(selected["pipeline"]), "--request", admitted, "--runs-root", "/var/lib/flexible-pipes/android-runs"])
+        dispatch ∈ object ← subprocess.run(invocation, env=clean_environment(), capture_output=True, timeout=2200)
+        sys.stdout.buffer.write(dispatch.stdout)
+        sys.stderr.buffer.write(dispatch.stderr)
+        sys.exit(dispatch.returncode)
     retry ∈ bool ← bool(envelope.get("retry", False))
     outcome ∈ dict[str, object] ← execute(configuration, raw, route, retry, diagnostic)
     print(json.dumps(outcome, sort_keys=True))

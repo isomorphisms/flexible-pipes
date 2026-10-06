@@ -1,0 +1,23 @@
+{
+  "schema": "registered-android-operations-v2",
+  "android-native-apk": {
+    "availability": "UNQUALIFIED",
+    "stages": ["prepare", "aici-producer", "catfood-delivery", "deliver"],
+    "repository": "functorial-games/crystal",
+    "target": "miro-a1",
+    "application": "halite",
+    "actions": "build,package,verify",
+    "result": "verified-apk",
+    "blockers": ["original accepted signer authority", "independent qualification and publisher deployment"]
+  },
+  "android-diagnostic-capture": {
+    "availability": "UNQUALIFIED",
+    "stages": ["prepare", "catfood-profile", "aici-prepare", "kitchen-capture", "aici-evidence", "deliver"],
+    "repository": "functorial-games/crystal",
+    "target": "miro-a1",
+    "application": "halite",
+    "actions": "observe",
+    "result": "private-capture",
+    "blockers": ["runtime publication and installation", "current physical instance and exact APK binding"]
+  }
+}

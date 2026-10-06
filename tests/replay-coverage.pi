@@ -1,0 +1,56 @@
+"""Public replay entrypoint rejects successful no-op and omitted suites."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list, ValueError
+import hashlib
+import json
+import os
+import subprocess
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["deployment", "ithon", "python", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    deployment_name ∈ str ← args.deployment
+    ithon ∈ str ← args.ithon
+    host_python ∈ str ← args.python
+    output_name ∈ str ← args.output
+    root ∈ Path ← Path(output_name).resolve()
+    root.mkdir(mode=448, exist_ok=False)
+    script ∈ str ← __file__
+    runner ∈ Path ← Path(script).resolve().parents.__getitem__(1).joinpath("scripts/run-pipeline")
+    ledger ← "case\texpected\tobserved\tresult\n"
+    for name in ["omitted", "zero"]:
+        case ∈ Path ← root.joinpath(name)
+        case.joinpath("aici/android-diagnostic").mkdir(parents=True)
+        fake ∈ Path ← case.joinpath("aici/android-diagnostic/tests.pi")
+        code ← "print('successful no-op')\n"
+        if name == "zero":
+            code ← "from argparse import ArgumentParser\nfrom pathlib import Path\np ∈ ArgumentParser ← ArgumentParser()\np.add_argument('--output', required=True)\np.add_argument('--ithon')\np.add_argument('--python')\na ∈ object ← p.parse_args()\ns ∈ str ← a.output\nd ∈ Path ← Path(s)\nd.mkdir()\nd.joinpath('results.tsv').write_text('case\\tresult\\n')\n"
+        if name == "zero":
+            code ← Path(script).resolve().parent.joinpath("fixtures/zero-replay.pi").read_text()
+        fake.write_text(code)
+        deployment ∈ dict[str, object] ← json.loads(Path(deployment_name).read_text())
+        deployment.__setitem__("aici_root", str(case.joinpath("aici")))
+        tools ∈ dict[str, str] ← deployment.get("tool_digests")
+        tools.__setitem__(str(fake), hashlib.sha256(fake.read_bytes()).hexdigest())
+        case.joinpath("deployment.json").write_text(json.dumps(deployment))
+        environment ∈ dict[str, str] ← dict()
+        environment.__setitem__("PATH", "/usr/bin:/bin")
+        environment.__setitem__("HOME", "/nonexistent")
+        environment.__setitem__("ITHON_PYTHON", host_python)
+        environment.__setitem__("FLEXIBLE_PIPES_ITHON", ithon)
+        child ∈ subprocess.CompletedProcess ← subprocess.run([host_python, str(runner), "regression-history-smoke", "--deployment", str(case.joinpath("deployment.json")), "--runs-root", str(case.joinpath("runs"))], env=environment, capture_output=True, timeout=30)
+        exit_code ∈ int ← child.returncode
+        error ∈ bytes ← child.stderr
+        observed ∈ str ← error.decode(errors="replace")
+        case.joinpath("stderr").write_bytes(error)
+        matched ∈ bool ← observed.__contains__("EMPTY_OMITTED_OR_NOOP_COVERAGE:aici-diagnostic")
+        if exit_code == 0 or matched == False:
+            raise ValueError("EXPECTED_COVERAGE_REJECTION:" + name + ":" + observed)
+        ledger ← ledger + name + "\tEMPTY_OMITTED_OR_NOOP_COVERAGE\t" + str(exit_code) + "\tPASS\n"
+    root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+
+main()

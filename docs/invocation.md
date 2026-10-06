@@ -1,4 +1,6 @@
-# Stable pipeline invocation
+# Historical v1 pipeline invocation — superseded
+
+The forms below describe the historical interface and are not current Android dispatch instructions. Use [registered-android.md](registered-android.md). The maintained Python pipeline-name interface is preserved; workflow dispatch now requires a complete data-only `request`, not an optional `pipeline` input.
 
 A pipeline name refers to a checked-in `pipelines/<name>.json` file. The runner resolves that file in the repository checkout; neither the user nor an assistant should reconstruct its steps from memory.
 

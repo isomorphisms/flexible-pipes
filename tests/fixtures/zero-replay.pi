@@ -1,0 +1,12 @@
+"""Deliberate zero-coverage mutant; expected rejection, never a real suite."""
+from argparse import ArgumentParser
+from pathlib import Path
+parser ∈ ArgumentParser ← ArgumentParser()
+parser.add_argument("--output", required=True)
+parser.add_argument("--ithon")
+parser.add_argument("--python")
+args ∈ object ← parser.parse_args()
+output ∈ str ← args.output
+root ∈ Path ← Path(output)
+root.mkdir()
+root.joinpath("results.tsv").write_text("case\tresult\n")

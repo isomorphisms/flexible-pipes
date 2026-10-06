@@ -1,4 +1,30 @@
-#!/opt/catfood/bin/grease
-# Fixed installed release; no caller runtime, environment, or policy selection.
-if (len(ARGV) !== 2 or ARGV[0] !== 'github-event') { echo 'registered entry requires a GitHub event' >&2; exit 2 }
-exec /usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 LC_ALL=C.UTF-8 GITHUB_REF="$GITHUB_REF" GITHUB_SHA="$GITHUB_SHA" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" ACTIONS_ID_TOKEN_REQUEST_URL="$ACTIONS_ID_TOKEN_REQUEST_URL" ACTIONS_ID_TOKEN_REQUEST_TOKEN="$ACTIONS_ID_TOKEN_REQUEST_TOKEN" /opt/catfood/bin/ithon /opt/flexible-pipes/current/scripts/github-event.pi "$[ARGV[1]]"
+#!/usr/bin/env python3
+"""Compatibility launcher; maintained operation logic is checked Ithon."""
+import os
+import sys
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+if len(sys.argv) < 2:
+    sys.exit("MISSING_INPUT:pipeline name")
+operation = sys.argv[1]
+if operation == "github-event":
+    if len(sys.argv) != 3:
+        sys.exit("MISSING_INPUT:GitHub event file")
+    runtime = "/opt/catfood/bin/ithon"
+    controller = "/opt/flexible-pipes/current/scripts/github-event.pi"
+    arguments = sys.argv[2:]
+elif operation in {"android-native-apk", "android-diagnostic-capture", "regression-history-smoke"}:
+    qualification = "--deployment" in sys.argv
+    runtime = os.environ.get("FLEXIBLE_PIPES_ITHON", "") if qualification else "/opt/catfood/bin/ithon"
+    directory = root if qualification else Path("/opt/flexible-pipes/current/scripts")
+    controller = str(directory / ("run-regressions.pi" if operation == "regression-history-smoke" else "run-registered-operation.pi"))
+    arguments = sys.argv[2:] if operation == "regression-history-smoke" else sys.argv[1:]
+elif operation == "android-apk-preflight":
+    sys.exit("OPERATION_VERSION_REQUIRED: use android-native-apk with an explicit request")
+else:
+    print("LEGACY_UNGUARDED_COMMANDS: no Android delivery acceptance", file=sys.stderr)
+    os.execv(sys.executable, [sys.executable, str(root / "run-pipeline-legacy.py"), *sys.argv[1:]])
+if not runtime or not Path(runtime).is_absolute() or not Path(runtime).is_file():
+    sys.exit("MISSING_RUNTIME: independently delivered checked Ithon; no compilation fallback")
+os.execv(runtime, [runtime, controller, *arguments])

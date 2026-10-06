@@ -1,0 +1,216 @@
+"""Exercise the public pipeline-name entrypoint with independent expectations."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list
+import hashlib
+import json
+import subprocess
+import sys
+
+def sha(path ∈ Path) → str:
+    value ∈ str ← hashlib.sha256(path.read_bytes()).hexdigest()
+    return value
+
+def write(path ∈ Path, value ∈ dict[str, object]) → None:
+    rendered ∈ str ← json.dumps(value, sort_keys=True, indent=2)
+    path.write_text(rendered + "\n")
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["ithon", "python", "bounded-process", "fixture", "source", "aici", "catfood", "kitchen", "packager", "grease", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    ithon ∈ str ← args.ithon
+    host_python ∈ str ← args.python
+    bound ∈ str ← args.bounded_process
+    fixture ∈ str ← args.fixture
+    source_name ∈ str ← args.source
+    aici ∈ str ← args.aici
+    catfood ∈ str ← args.catfood
+    kitchen ∈ str ← args.kitchen
+    packager ∈ str ← args.packager
+    grease ∈ str ← args.grease
+    output_name ∈ str ← args.output
+    root ∈ Path ← Path(output_name).resolve()
+    root.mkdir(mode=448, exist_ok=False)
+    program_name ∈ str ← sys._getframe().f_code.co_filename
+    fp ∈ Path ← Path(program_name).resolve().parents.__getitem__(1)
+    identity ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/local/bin/git", "-C", source_name, "rev-parse", "HEAD"], capture_output=True)
+    identity_bytes ∈ bytes ← identity.stdout
+    ref ∈ str ← identity_bytes.decode().strip()
+    ledger ← "case\texpected\tobserved_exit\tresult\n"
+    failures ← 0
+    for scenario in ["valid", "valid-terminal", "omitted-stage", "worker-stages", "declared-sha", "swapped-controller", "invalid-later-runtime", "wrong-package", "multiple-pid", "failed-producer", "changed-pid", "self-approved", "build-blocked", "build-omitted", "missing-application"]:
+        case ∈ Path ← root.joinpath(scenario)
+        case.mkdir(mode=448)
+        channel ∈ Path ← case.joinpath("rish")
+        import shutil
+        shutil.copyfile(fixture, channel)
+        channel.chmod(448)
+        fixture_scenario ← "valid"
+        if scenario == "wrong-package":
+            fixture_scenario ← "wrong-package"
+        elif scenario == "multiple-pid":
+            fixture_scenario ← "multiple-pid"
+        elif scenario == "failed-producer":
+            fixture_scenario ← "failed-producer"
+        elif scenario == "changed-pid":
+            fixture_scenario ← "changed-pid"
+        case.joinpath("scenario.txt").write_text(fixture_scenario)
+        dex ∈ Path ← case.joinpath("rish_shizuku.dex")
+        dex.write_bytes(b"fixture-readonly-dex")
+        dex.chmod(256)
+        plan ∈ dict[str, object] ← dict()
+        for key in ["observed_symptom", "candidate_explanation", "experiment"]:
+            plan.__setitem__(key, "fixture observation, not physical acceptance")
+        plan.__setitem__("source_commit", ref)
+        plan.__setitem__("repository", "functorial-games/crystal")
+        plan.__setitem__("target", "phone")
+        plan.__setitem__("device_instance", "a1-fixture-one")
+        plan.__setitem__("package", "org.isomorphisms.crystal.halite")
+        plan.__setitem__("claim", "crash-observation")
+        plan.__setitem__("permitted_actions", "observe")
+        plan.__setitem__("task_sha256", sha(Path(kitchen + "/tasks/android-diagnostic/capture.pi")))
+        plan.__setitem__("apk_sha256", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        plan.__setitem__("required_observable", "bounded-log")
+        plan.__setitem__("observable_producer", "CrystalProducer")
+        plan.__setitem__("producer_scope", "application-context")
+        write(case.joinpath("plan.json"), plan)
+        profile ∈ dict[str, object] ← dict()
+        profile.__setitem__("target", "phone")
+        profile.__setitem__("device_instance", "a1-fixture-one")
+        write(case.joinpath("profile.json"), profile)
+        runtime ∈ dict[str, object] ← dict()
+        runtime.__setitem__("channel", "rish")
+        runtime.__setitem__("launcher", str(channel))
+        runtime.__setitem__("launcher_sha256", sha(channel))
+        runtime.__setitem__("dex", str(dex))
+        runtime.__setitem__("dex_sha256", sha(dex))
+        runtime.__setitem__("bounded_process", bound)
+        runtime.__setitem__("bounded_process_sha256", sha(Path(bound)))
+        if scenario == "invalid-later-runtime":
+            runtime ∈ dict[str, object] ← dict()
+        write(case.joinpath("runtime.json"), runtime)
+        definition ∈ dict[str, object] ← dict()
+        stages ∈ list[str] ← ["prepare", "catfood-profile", "aici-prepare", "kitchen-capture", "aici-evidence", "deliver"]
+        if scenario == "omitted-stage":
+            stages ← ["prepare", "deliver"]
+        definition.__setitem__("stages", stages)
+        definition.__setitem__("profile", str(case.joinpath("profile.json")))
+        definition.__setitem__("capture_runtime", str(case.joinpath("runtime.json")))
+        deployment ∈ dict[str, object] ← dict()
+        deployment.__setitem__("android-diagnostic-capture", definition)
+        deployment.__setitem__("authority_kind", "qualification")
+        deployment.__setitem__("ithon", ithon)
+        deployment.__setitem__("python", host_python)
+        deployment.__setitem__("bounded_process", bound)
+        deployment.__setitem__("git", "/usr/local/bin/git")
+        deployment.__setitem__("source_root", source_name)
+        deployment.__setitem__("aici_root", aici)
+        deployment.__setitem__("catfood_root", catfood)
+        deployment.__setitem__("kitchen_root", kitchen)
+        deployment.__setitem__("packager_root", packager)
+        deployment.__setitem__("grease", grease)
+        if scenario == "self-approved":
+            deployment.__setitem__("authority_kind", "trusted-deployment")
+        tools ∈ dict[str, object] ← dict()
+        for path in [ithon, host_python, bound, grease, "/usr/local/bin/git", str(fp.joinpath("scripts/android-build.ysh")), str(fp.joinpath("scripts/run-registered-operation.pi")), catfood + "/android/profile.pi", aici + "/android-diagnostic/check.pi", kitchen + "/tasks/android-diagnostic/capture.pi"]:
+            tools.__setitem__(path, sha(Path(path)))
+        if scenario == "swapped-controller":
+            tools.__setitem__(str(fp.joinpath("scripts/run-registered-operation.pi")), "0")
+        deployment.__setitem__("tool_digests", tools)
+        write(case.joinpath("deployment.json"), deployment)
+        request ∈ dict[str, object] ← dict()
+        request.__setitem__("pipeline", "android-diagnostic-capture")
+        request.__setitem__("request_id", scenario)
+        request.__setitem__("repository", "functorial-games/crystal")
+        request.__setitem__("ref", ref)
+        request.__setitem__("target", "miro-a1")
+        request.__setitem__("application", "halite")
+        request.__setitem__("permitted_actions", "observe")
+        request.__setitem__("requested_result", "private-capture")
+        request.__setitem__("diagnostic_plan", str(case.joinpath("plan.json")))
+        if scenario == "worker-stages":
+            request.__setitem__("stages", ["deliver"])
+        if scenario == "declared-sha":
+            request.__setitem__("ref", "1111111111111111111111111111111111111111")
+        if scenario.startswith("build-"):
+            request.__setitem__("pipeline", "android-native-apk")
+            request.__setitem__("permitted_actions", "build,package,verify")
+            request.__setitem__("requested_result", "verified-apk")
+            build ∈ dict[str, object] ← dict()
+            build.__setitem__("stages", ["prepare", "aici-producer", "catfood-delivery", "deliver"])
+            if scenario == "build-omitted":
+                build.__setitem__("stages", ["prepare", "deliver"])
+            deployment.__setitem__("android-native-apk", build)
+            write(case.joinpath("deployment.json"), deployment)
+        if scenario == "missing-application":
+            request.__setitem__("application", "")
+        write(case.joinpath("request.json"), request)
+        environment ∈ dict[str, str] ← dict()
+        environment.__setitem__("PATH", "/usr/bin:/bin")
+        environment.__setitem__("ITHON_PYTHON", host_python)
+        environment.__setitem__("FLEXIBLE_PIPES_ITHON", ithon)
+        environment.__setitem__("GITHUB_SHA", "1111111111111111111111111111111111111111")
+        invocation ∈ list[str] ← [ithon, str(fp.joinpath("scripts/request.pi")), "--python", host_python, "--request", str(case.joinpath("request.json")), "--deployment", str(case.joinpath("deployment.json")), "--runs-root", str(case.joinpath("runs"))]
+        if scenario == "valid-terminal":
+            invocation ← [host_python, str(fp.joinpath("scripts/run-pipeline")), "android-diagnostic-capture", "--request", str(case.joinpath("request.json")), "--deployment", str(case.joinpath("deployment.json")), "--runs-root", str(case.joinpath("runs"))]
+        child ∈ subprocess.CompletedProcess ← subprocess.run(invocation, env=environment, cwd="/", capture_output=True)
+        code ∈ int ← child.returncode
+        stdout ∈ bytes ← child.stdout
+        stderr ∈ bytes ← child.stderr
+        case.joinpath("stdout").write_bytes(stdout)
+        case.joinpath("stderr").write_bytes(stderr)
+        expected ← "PASS"
+        if scenario == "omitted-stage":
+            expected ← "MANDATORY_STAGE_MISMATCH"
+        elif scenario == "worker-stages":
+            expected ← "REQUEST_FIELD_NOT_PERMITTED:stages"
+        elif scenario == "declared-sha":
+            expected ← "OBSERVED_SOURCE_MISMATCH"
+        elif scenario == "swapped-controller":
+            expected ← "TRUSTED_TOOL_IDENTITY_MISMATCH"
+        elif scenario == "invalid-later-runtime":
+            expected ← "MISSING_INPUT:channel"
+        elif scenario == "self-approved":
+            expected ← "SELF_APPROVED_DEPLOYMENT"
+        elif scenario == "build-blocked":
+            expected ← "PRODUCER_PREPARATION_BLOCKED"
+        elif scenario == "build-omitted":
+            expected ← "MANDATORY_STAGE_MISMATCH"
+        elif scenario == "missing-application":
+            expected ← "MISSING_INPUT:application"
+        elif scenario != "valid":
+            if scenario != "valid-terminal":
+                expected ← "kitchen-capture"
+        matched ← False
+        if expected == "PASS":
+            if code == 0:
+                body ∈ dict[str, object] ← json.loads(stdout.decode())
+                state ∈ str ← body.get("status")
+                if state == "PASS":
+                    records ∈ list[dict[str, object]] ← body.get("stages")
+                    matched ← True
+                    for record in records:
+                        result ∈ str ← record.get("state")
+                        if result != "PASS":
+                            matched ← False
+        else:
+            if code != 0:
+                output ∈ bytes ← stdout + stderr
+                matched ∈ bool ← output.__contains__(expected.encode())
+                if expected != "kitchen-capture":
+                    effects ∈ bool ← case.joinpath("runs").exists()
+                    if effects:
+                        matched ← False
+        verdict ← "PASS"
+        if matched == False:
+            verdict ← "FAIL"
+            failures ← failures + 1
+        ledger ← ledger + scenario + "\t" + expected + "\t" + str(code) + "\t" + verdict + "\n"
+        root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+    if failures != 0:
+        sys.exit(1)
+
+main()
