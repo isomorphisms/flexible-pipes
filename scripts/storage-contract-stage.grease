@@ -22,8 +22,10 @@ done
 test -x "$helper" && test -x "$runner"
 # All suites create disposable sources; no real source/account is accepted here.
 "$runner" "$ib/tests/test_retained_source.grease"
+"$runner" "$ib/tests/retained-source.grease"
 sh "$cloud/tests/google-drive-upload-stream.sh"
 sh "$cloud/tests/sdf-mailbox-stream-upload.sh"
+"$runner" "$cloud/tests/sdf-completed-receipt.grease"
 temporary=$receipt.tmp.$$
 {
   printf 'evidence_kind\tsynthetic-contract\n'
@@ -32,6 +34,7 @@ temporary=$receipt.tmp.$$
   printf 'upload_state_sha256\t%s\ngrease_launcher_sha256\t%s\n' \
     "$(sha256sum "$helper" | awk '{print $1}')" "$(sha256sum "$runner" | awk '{print $1}')"
   printf 'source_intake\tPASS\nraw_url_projection\tPASS\nupload_stream\tPASS\nsdf_generation\tPASS\n'
+  printf 'conversation_projection\tPASS\nsdf_completed_receipt\tPASS\n'
   printf 'live_source\tNOT_RUN\nphysical_device\tNOT_RUN\nprivate_source_inspection\tNOT_RUN\n'
 } > "$temporary"
 "$runner" "$aici/ingestion/retained-source-evidence.grease" "$temporary"
