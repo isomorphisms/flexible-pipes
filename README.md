@@ -65,4 +65,10 @@ python3 scripts/fetch-model pythia-12b
 
 Every fetch first resolves the catalog revision to a full Hugging Face commit SHA. Actual weights default to `~/.cache/flexible-pipes/models`; local resolution/download receipts go under `.flexible-pipes/model-receipts`, which is ignored by Git.
 
+## Book lookup
+
+[Book lookup](docs/book-lookup.md) invokes exact, pinned Kitchen provider scripts
+for AbeBooks and Internet Archive. Flexible Pipes owns repeatable invocation and
+receipts; Kitchen owns the provider URLs and search semantics.
+
 This repository is intentionally starting smaller than `kitchen`: model boundaries and receipts first, scheduler/graph machinery later.
