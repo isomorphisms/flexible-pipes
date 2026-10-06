@@ -19,7 +19,7 @@ destination ∈ str ← "/opt/flexible-pipes/current"
 exists ∈ bool ← Path(destination).exists()
 if exists:
     raise ValueError("EXISTING_CLIENT_PRESERVED")
-files ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi"]
+files ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi"]
 for relative in files:
     payload ∈ bytes ← Path(fp + "/" + relative).read_bytes()
     if relative.endswith(".pi"):
@@ -42,4 +42,6 @@ Path("/etc/flexible-pipes").mkdir(mode=493, exist_ok=True)
 Path("/etc/flexible-pipes/client.json").write_text(json.dumps(client, sort_keys=True))
 os.chmod("/etc/flexible-pipes/client.json", 292)
 Path("/var/lib/flexible-pipes/export").mkdir(mode=493, parents=True, exist_ok=False)
+# Untrusted delivery copies; the separate supervisor owns accepted storage.
+os.chmod("/var/lib/flexible-pipes/export", 1023)
 print(json.dumps({"state": client["state"], "authority": "unprivileged-transport-only", "client_sha256": hashlib.sha256(Path(destination + "/scripts/github-event.pi").read_bytes()).hexdigest()}))

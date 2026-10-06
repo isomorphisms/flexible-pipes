@@ -122,13 +122,13 @@ def request_commit(mirror ∈ str, base ∈ str, request ∈ dict[str, object], 
 materials ∈ list[dict[str, object]] ← []
 repositories ∈ list[dict[str, object]] ← [
     {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi", "scripts/run-pipeline", "scripts/github-event.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-service.pi", "scripts/delivery.pi", "scripts/install-client.pi", "registry/kitchen-transfer-script.contract.json", "tests/registered-execution/qualify-operation.pi", "tests/registered-execution/hostile_cases.pi", "tests/registered-execution/mutant-generator.sh", "tests/registered-execution/probe-worker-access.pi", "tests/registered-execution/qualify-service.pi", "tests/registered-execution/qualify-admission.pi"], "ref": "origin/implement/fp2-runtime-qualification"},
-    {"checkout": kitchen, "files": ["tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "tasks/github-repository-transfer/8.sh", "tasks/github-repository-transfer/fixture-api.pi", "tasks/github-repository-transfer/fixture-gh.pi", "tests/qualify-transfer-artifact.pi", "tests/qualify-gh-interface.pi", "tests/transfer-parent.grease"], "ref": "origin/fp2/qualified-transfer-generator"},
+    {"checkout": kitchen, "files": ["tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "tasks/github-repository-transfer/9.sh", "tasks/github-repository-transfer/fixture-api.pi", "tasks/github-repository-transfer/fixture-gh.pi", "tests/qualify-transfer-artifact.pi", "tests/qualify-gh-interface.pi", "tests/transfer-parent.grease"], "ref": "origin/fp2/qualified-transfer-generator"},
     {"checkout": aici, "files": ["validators/kitchen-transfer-script.pi"], "ref": "origin/fp2/transfer-observation-validator"},
     {"checkout": catfood, "files": ["acceptance/sealed-script.pi"], "ref": "origin/fp2/sealed-script-validation"},
     {"checkout": ithon, "files": ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py", "tests/qualify-host-control.pi", "Lib/test/test_ithon_static.py", "Lib/test/test_ithon_static_unicode.py", "Lib/test/test_ithon_run.py", "Lib/test/test_ithon_control.py"], "ref": "origin/fp2/control-interface-support"},
 ]
 fp_files ∈ list[str] ← list(repositories[0]["files"])
-fp_files.extend(["tests/registered-execution/check-boundary-sources.pi", "tests/registered-execution/qualify-client.pi"])
+fp_files.extend(["scripts/event_adapter.pi", "tests/registered-execution/check-boundary-sources.pi", "tests/registered-execution/qualify-client.pi"])
 repositories[0]["files"] ← fp_files
 for repository in repositories:
     checkout ∈ str ← str(repository["checkout"])

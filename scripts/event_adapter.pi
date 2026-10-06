@@ -1,0 +1,18 @@
+"""Data-only GitHub event mapping shared by the public client and fixtures."""
+from builtins import dict, ValueError
+def envelope(event ∈ dict[str, object], environment ∈ dict[str, str], token ∈ str) → dict[str, object]:
+    value ∈ dict[str, object] ← {"provider_token": token, "workflow_ref": environment["GITHUB_REF"], "workflow_sha": environment["GITHUB_SHA"], "repository_id": 1405888814, "run_id": environment["GITHUB_RUN_ID"], "run_attempt": environment["GITHUB_RUN_ATTEMPT"]}
+    route ∈ str ← "workflow_dispatch"
+    if environment["GITHUB_EVENT_NAME"] == "workflow_dispatch":
+        inputs ∈ dict[str, object] ← dict(event["inputs"])
+        value["request"] ← inputs["request"]
+    elif environment["GITHUB_EVENT_NAME"] == "workflow_run":
+        notice ∈ dict[str, object] ← dict(event["workflow_run"])
+        repository ∈ dict[str, object] ← dict(notice["head_repository"])
+        if notice["head_branch"] != "pipeline-requests" or repository["id"] != 1405888814:
+            raise ValueError("REQUEST_BRANCH_IDENTITY")
+        route ← "pipeline-requests"
+        value["request_commit"] ← notice["head_sha"]
+    else:
+        raise ValueError("UNSUPPORTED_EVENT")
+    return {"route": route, "envelope": value}
