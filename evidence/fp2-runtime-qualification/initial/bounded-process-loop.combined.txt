@@ -1,0 +1,4 @@
+  File "/workspace/scratch/138441f5100a/flexible-pipes/tests/registered-execution/probes/bounded-process-loop.pi", line 5
+    while running:
+    ^
+ithon_static.StaticTypeError: static typing for While is not implemented

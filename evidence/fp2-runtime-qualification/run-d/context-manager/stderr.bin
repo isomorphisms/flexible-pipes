@@ -1,0 +1,4 @@
+  File "/workspace/scratch/138441f5100a/flexible-pipes/tests/registered-execution/probes/context-manager.pi", line 3
+    with Path(__file__).open("rb") as stream:
+    ^
+ithon_static.StaticTypeError: static typing for With is not implemented
