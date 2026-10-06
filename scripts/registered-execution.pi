@@ -17,11 +17,39 @@ import stat
 import platform
 import ithon_frontend
 from pathlib import Path
+from typing import Iterable
 from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt
 
 REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
 MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network"]
+
+def interrupt(number ∈ int, frame ∈ object) → None:
+    raise KeyboardInterrupt("supervisor interrupted")
+
+signal.signal(signal.SIGTERM, interrupt)
+
+def record_process(path ∈ str, child ∈ object) → None:
+    pid ∈ int ← child.pid
+    process_state ∈ str ← Path("/proc/" + str(pid) + "/stat").read_text()
+    fields ∈ list[str] ← process_state.split()
+    atomic(path, {"pid": pid, "start_time": fields[21], "state": "RUNNING"})
+
+def reap_interrupted(run ∈ str) → None:
+    records ∈ list[Path] ← list(Path(run).rglob("process.json"))
+    for path in records:
+        record ∈ dict[str, object] ← read(str(path))
+        if record["state"] == "RUNNING":
+            pid ∈ int ← int(record["pid"])
+            process_file ∈ str ← "/proc/" + str(pid) + "/stat"
+            exists ∈ bool ← Path(process_file).exists()
+            if exists:
+                state ∈ str ← Path(process_file).read_text()
+                fields ∈ list[str] ← state.split()
+                if fields[21] == record["start_time"]:
+                    os.killpg(pid, signal.SIGKILL)
+            record["state"] ← "INTERRUPTED"
+            atomic(str(path), record)
 
 def digest(data ∈ bytes) → str:
     answer ∈ str ← hashlib.sha256(data).hexdigest()
@@ -117,8 +145,10 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
     if len(mappings) == 3 and mappings[2] == "1":
         raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace")
     materials ∈ list[dict[str, object]] ← list(config["materials"])
+    bound_paths ∈ list[str] ← []
     for material in materials:
         path ∈ str ← str(material["path"])
+        bound_paths.append(path)
         actual ∈ bytes ← Path(path).read_bytes()
         if digest(actual) != material["sha256"]:
             raise ValueError("MATERIAL_CHANGED: " + path)
@@ -138,13 +168,24 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
         # Publication ancestry is an availability check, not promotion.
         git(repo, ["merge-base", "--is-ancestor", commit, str(material["published_ref"])])
     tools ∈ list[dict[str, object]] ← list(config["tools"])
+    tool_paths ∈ list[str] ← []
     for tool in tools:
         executable ∈ str ← str(tool["path"])
+        tool_paths.append(executable)
         exists ∈ bool ← os.path.isfile(executable)
         if not exists:
             raise ValueError("MISSING_EXECUTABLE: " + executable)
         if digest(Path(executable).read_bytes()) != tool["sha256"]:
             raise ValueError("TOOL_CHANGED")
+    for role in ["worker", "generator", "fixture_server", "api_validator", "seal_validator"]:
+        selected ∈ str ← str(config[role])
+        if not bound_paths.__contains__(selected):
+            raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
+    commands ∈ list[str] ← list(config["ithon"])
+    commands.extend(list(config["grease"])[:2])
+    for selected in commands:
+        if not tool_paths.__contains__(selected) and not bound_paths.__contains__(selected):
+            raise ValueError("UNBOUND_RUNTIME")
     contract ∈ dict[str, object] ← read(str(config["contract"]))
     if contract["required_checks"] != REQUIRED or contract["operation"] != "kitchen-transfer-script":
         raise ValueError("CONTRACT_CHANGED")
@@ -200,6 +241,8 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
             else:
                 child ∈ object ← subprocess.Popen(command, cwd=cwd, env=environment, stdout=out, stderr=err, start_new_session=True)
             start ∈ float ← time.monotonic()
+            process_record ∈ str ← directory + "/process.json"
+            record_process(process_record, child)
             try:
                 while True:
                     code ∈ object ← child.poll()
@@ -208,7 +251,17 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                     now ∈ float ← time.monotonic()
                     output_size ∈ int ← Path(stdout_path).stat().st_size
                     error_size ∈ int ← Path(stderr_path).stat().st_size
-                    if now - start > 60.0 or output_size > 1048576 or error_size > 1048576:
+                    scratch_files ∈ Iterable[Path] ← Path(cwd).rglob("*")
+                    scratch_size ∈ int ← 0
+                    scratch_count ∈ int ← 0
+                    for scratch_file in scratch_files:
+                        scratch_count ← scratch_count + 1
+                        if scratch_count > 8192:
+                            raise RuntimeError("SCRATCH_ENTRY_BOUND_EXCEEDED")
+                        info ∈ object ← scratch_file.lstat()
+                        size ∈ int ← info.st_size
+                        scratch_size ← scratch_size + size
+                    if now - start > 60.0 or output_size > 1048576 or error_size > 1048576 or scratch_size > 67108864:
                         raise RuntimeError("EXECUTION_BOUND_EXCEEDED")
                     time.sleep(0.02)
             finally:
@@ -216,6 +269,8 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                 if running == None:
                     os.killpg(child.pid, signal.SIGKILL)
                     child.wait()
+                final_code ∈ int ← child.returncode
+                atomic(process_record, {"pid": child.pid, "state": "FINISHED", "exit_code": final_code})
     return 125
 
 def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact ∈ str, mode ∈ str, run ∈ str, uid ∈ int) → dict[str, object]:
@@ -234,6 +289,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     server_command.extend([str(config["fixture_server"]), io, specification])
     server_log ∈ object ← open(base + "/server.stderr.bin", "xb")
     server ∈ object ← subprocess.Popen(server_command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=server_log, start_new_session=True)
+    record_process(base + "/process.json", server)
     codes ∈ list[int] ← []
     try:
         executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" else 1
@@ -270,6 +326,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
         os.killpg(server.pid, signal.SIGKILL)
         server.wait()
         server_log.close()
+        atomic(base + "/process.json", {"pid": server.pid, "state": "FINISHED"})
 
 def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry ∈ bool, diagnostic ∈ bool) → dict[str, object]:
     request ∈ dict[str, object] ← checked_request(raw)
@@ -291,10 +348,19 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
             if not retry:
                 existing_result ∈ dict[str, object] ← read(str(previous["result"]))
                 if existing_result["status"] == "RUNNING":
+                    prior_run ∈ str ← str(Path(str(previous["result"])).parent)
+                    reap_interrupted(prior_run)
                     existing_result["status"] ← "INTERRUPTED"
                     existing_result["first_failure"] ← "SUPERVISOR_INTERRUPTED"
                     atomic(str(previous["result"]), existing_result)
                 return existing_result
+            existing_result ∈ dict[str, object] ← read(str(previous["result"]))
+            if existing_result["status"] == "RUNNING":
+                prior_run ∈ str ← str(Path(str(previous["result"])).parent)
+                reap_interrupted(prior_run)
+                existing_result["status"] ← "INTERRUPTED"
+                existing_result["first_failure"] ← "SUPERVISOR_INTERRUPTED"
+                atomic(str(previous["result"]), existing_result)
             attempt ← int(previous["attempt"]) + 1
         run_id ∈ str ← request_id + "-" + str(attempt) + "-" + str(uuid.uuid4())
         run ∈ str ← state + "/" + run_id
