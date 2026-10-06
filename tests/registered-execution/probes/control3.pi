@@ -1,0 +1,26 @@
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import sys
+
+# The host frame supplies the currently executing source filename.
+source_filename ∈ str ← sys._getframe().f_code.co_filename
+
+def double(value ∈ int) → int:
+    return value × 2
+
+source ∈ bytes ← Path(source_filename).read_bytes()
+digest ∈ str ← hashlib.sha256(source).hexdigest()
+record ∈ dict[str, str] ← json.loads('{"kind":"qualification-control"}')
+kind ∈ str ← record.get("kind")
+command ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/printf", "actual-child"], capture_output=True, timeout=5)
+exit_code ∈ int ← command.returncode
+output ∈ bytes ← command.stdout
+if exit_code != 0:
+    print("CONTROL_FAILED")
+if output != b"actual-child":
+    print("CONTROL_FAILED")
+print(kind)
+print(digest)
+print(double(19))

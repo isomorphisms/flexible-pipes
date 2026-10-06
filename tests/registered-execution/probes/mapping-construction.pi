@@ -1,0 +1,3 @@
+print("EFFECT_BEFORE_CHECK")
+result ∈ dict[str, str] ← {"status": "BLOCKED"}
+print(result)

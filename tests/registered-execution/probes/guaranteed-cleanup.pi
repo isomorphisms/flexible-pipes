@@ -1,0 +1,5 @@
+print("EFFECT_BEFORE_CHECK")
+try:
+    print("worker lifetime")
+finally:
+    print("cleanup")
