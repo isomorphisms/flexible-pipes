@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "nonzero",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "failed",
+      "argv": [
+        "/usr/bin/false"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "not-reached",
+      "argv": [
+        "/usr/bin/touch",
+        "should-not-exist"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "late-invalid",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "first-effect",
+      "argv": [
+        "/usr/bin/touch",
+        "early-marker"
+      ]
+    },
+    {
+      "kind": "unsupported",
+      "name": "invalid",
+      "argv": [
+        "/usr/bin/true"
+      ]
+    }
+  ]
+}
