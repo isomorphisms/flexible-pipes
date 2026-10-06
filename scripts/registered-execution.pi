@@ -224,7 +224,7 @@ def adapter(config ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, 
         raise ValueError("NON_REQUEST_BLOB")
     return git(repo, ["show", resolved + ":" + path])
 
-def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], directory ∈ str, worker_uid ∈ int, config ∈ dict[str, object], peer ∈ object = None) → int:
+def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], directory ∈ str, worker_uid ∈ int, config ∈ dict[str, object], peer ∈ object) → int:
     Path(directory).mkdir(mode=448)
     stdout_path ∈ str ← directory + "/stdout.bin"
     stderr_path ∈ str ← directory + "/stderr.bin"
@@ -320,7 +320,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
         validator ∈ list[str] ← list(ithon)
         decision ∈ str ← base + "/decision.json"
         validator.extend([str(config["api_validator"]), specification, io + "/observations.json", execution, artifact, decision])
-        code ← bounded(validator, base, clean_environment(), base + "/validation", 0, config)
+        code ← bounded(validator, base, clean_environment(), base + "/validation", 0, config, None)
         if code != 0:
             raise ValueError("FIXTURE_VALIDATION_FAILED: " + mode)
         result ∈ dict[str, object] ← read(decision)
@@ -417,7 +417,7 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                     command.append(str(config["generator"]))
                     for field in FIELDS:
                         command.append(str(inputs[field]))
-                    code ∈ int ← bounded(command, work, environment, run + "/" + check_id + "-logs", uid, config)
+                    code ∈ int ← bounded(command, work, environment, run + "/" + check_id + "-logs", uid, config, None)
                     stage["exit_code"] ← code
                     if code != 0:
                         raise ValueError("GENERATOR_FAILED")
@@ -437,7 +437,7 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                     artifact ∈ str ← run + "/" + filename
                     seal_command ∈ list[str] ← list(config["ithon"])
                     seal_command.extend([str(config["seal_validator"]), candidate, artifact_digest, artifact])
-                    code ← bounded(seal_command, run, clean_environment(), run + "/seal-logs", 0, config)
+                    code ← bounded(seal_command, run, clean_environment(), run + "/seal-logs", 0, config, None)
                     if code != 0:
                         raise ValueError("SEAL_FAILED")
                     stage["state"] ← "PASS"
@@ -495,7 +495,7 @@ try:
         admission_command ∈ list[str] ← list(configuration["ithon"])
         decision ∈ str ← admission + ".json"
         admission_command.extend(["/opt/flexible-pipes/current/scripts/verify-admission.pi", configuration_path, argv[2], decision])
-        verified ∈ int ← bounded(admission_command, admission_root, clean_environment(), admission, 0, configuration)
+        verified ∈ int ← bounded(admission_command, admission_root, clean_environment(), admission, 0, configuration, None)
         if verified != 0:
             raise ValueError("SIGNED_ADMISSION_REJECTED")
         provider ∈ dict[str, object] ← read(decision)
