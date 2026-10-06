@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "book-lookup-abebooks",
+  "required_stages": ["abebooks"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "abebooks",
+      "argv": ["/bin/sh", "scripts/book-lookup-abebooks"],
+      "cwd": "."
+    }
+  ]
+}
