@@ -5,6 +5,7 @@ from builtins import dict, list, ValueError
 import json
 import subprocess
 import hashlib
+import sys
 
 def write(path ∈ Path, value ∈ dict[str, object]) → None:
     path.write_text(json.dumps(value))
@@ -22,6 +23,8 @@ def main() → None:
     root.mkdir(mode=448, exist_ok=False)
     script ∈ str ← __file__
     fp ∈ Path ← Path(script).resolve().parents.__getitem__(1)
+    sys.path.insert(0, str(fp.joinpath("scripts")))
+    from event_adapter import envelope as event_envelope
     environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_AUTHOR_NAME": "Qualification fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid", "GIT_COMMITTER_NAME": "Qualification fixture", "GIT_COMMITTER_EMAIL": "fixture@example.invalid"}
     request ∈ str ← Path(fixture + "/request.json").read_text()
     ledger ← "case\texpected\tobserved_exit\tresult\n"
@@ -49,7 +52,13 @@ def main() → None:
         tools.__setitem__(controller, hashlib.sha256(Path(controller).read_bytes()).hexdigest())
         write(case.joinpath("android-deployment.json"), android)
         config ∈ dict[str, object] ← {"authority": "qualification", "ithon": [python, ithon_root + "/ithon_host.py"], "state_root": str(case), "android_qualification_deployment": str(case.joinpath("android-deployment.json")), "request_mirror": str(mirror), "request_base": baseline, "control_commit": baseline}
-        envelope ∈ dict[str, object] ← {"workflow_ref": "refs/heads/main", "workflow_sha": baseline, "repository_id": 1405888814, "request": request, "request_commit": commit}
+        context ∈ dict[str, str] ← {"GITHUB_REF": "refs/heads/main", "GITHUB_SHA": baseline, "GITHUB_RUN_ID": "fixture", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_EVENT_NAME": "workflow_dispatch"}
+        event ∈ dict[str, object] ← {"inputs": {"request": request}}
+        if scenario in ["pipeline-requests", "non-request-change"]:
+            context.__setitem__("GITHUB_EVENT_NAME", "workflow_run")
+            event ← {"workflow_run": {"head_branch": "pipeline-requests", "head_repository": {"id": 1405888814}, "head_sha": commit}}
+        mapped ∈ dict[str, object] ← event_envelope(event, context, "disposable-non-authorizing-token")
+        envelope ∈ dict[str, object] ← dict(mapped.get("envelope"))
         route ← "workflow_dispatch"
         expected ← "PASS"
         if scenario in ["pipeline-requests", "non-request-change"]:

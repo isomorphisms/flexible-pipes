@@ -1,0 +1,54 @@
+"""Existing installed client is preserved; inactive entry exposes no authority."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list, ValueError
+import hashlib
+import subprocess
+import json
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["python", "ithon-root", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    python ∈ str ← args.python
+    ithon ∈ str ← args.ithon_root
+    output ∈ str ← args.output
+    root ∈ Path ← Path(output).resolve()
+    root.mkdir(mode=448, exist_ok=False)
+    script ∈ str ← __file__
+    installer ∈ str ← str(Path(script).resolve().parents.__getitem__(1).joinpath("scripts/install-client.pi"))
+    paths ∈ list[str] ← ["/etc/flexible-pipes/client.json", "/opt/catfood/bin/ithon", "/opt/flexible-pipes/current/scripts/run-pipeline", "/opt/flexible-pipes/current/scripts/github-event.pi", "/opt/flexible-pipes/current/scripts/event_adapter.pi"]
+    before ∈ dict[str, str] ← dict()
+    for path in paths:
+        before.__setitem__(path, hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "GITHUB_RUN_ID": "preservation-check", "GITHUB_RUN_ATTEMPT": "1"}
+    denied ∈ subprocess.CompletedProcess ← subprocess.run([python, ithon + "/ithon_host.py", installer, "/unused-workspace", "/unused-launcher"], env=environment, capture_output=True, timeout=15)
+    error ∈ bytes ← denied.stderr
+    root.joinpath("reinstall.stderr").write_bytes(error)
+    code ∈ int ← denied.returncode
+    detail ∈ str ← error.decode()
+    matched ∈ bool ← detail.__contains__("EXISTING_CLIENT_PRESERVED:/opt/flexible-pipes/current")
+    if code == 0 or matched == False:
+        raise ValueError("EXISTING_INSTALLATION_NOT_PRESERVED")
+    for path in paths:
+        current ∈ str ← hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        previous ∈ str ← before.get(path, "")
+        if current != previous:
+            raise ValueError("INSTALLER_MUTATED_EXISTING_CLIENT:" + path)
+    child ∈ subprocess.CompletedProcess ← subprocess.run(["/opt/flexible-pipes/current/scripts/run-pipeline", "github-event", "/nonexistent-event"], env=environment, capture_output=True, timeout=15)
+    payload ∈ bytes ← child.stdout
+    result ∈ dict[str, object] ← json.loads(payload)
+    code ← child.returncode
+    blocker ∈ str ← result.get("blocker", "")
+    artifacts ∈ list[object] ← result.get("artifacts")
+    empty ∈ list[object] ← []
+    if code != 2 or blocker != "DEPLOYMENT_INACTIVE" or artifacts != empty:
+        raise ValueError("INACTIVE_CLIENT_EXPOSED_AUTHORITY")
+    root.joinpath("installed-client.json").write_bytes(payload)
+    root.joinpath("digests.json").write_text(json.dumps(before, sort_keys=True))
+    ledger ← "case\texpected\tresult\nexisting-client\tEXISTING_CLIENT_PRESERVED before material reads\tPASS\ninactive-client\tDEPLOYMENT_INACTIVE exit 2; no artifacts\tPASS\n"
+    root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+
+main()

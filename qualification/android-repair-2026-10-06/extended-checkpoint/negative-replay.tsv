@@ -1,0 +1,3 @@
+case	expected	observed	result
+omitted	EMPTY_OMITTED_OR_NOOP_COVERAGE	1	PASS
+zero	EMPTY_OMITTED_OR_NOOP_COVERAGE	1	PASS

@@ -55,7 +55,7 @@ def main() → None:
         expected_count ← 11
         argv ∈ list[str] ← [ithon, aici + "/android-diagnostic/tests.pi", "--ithon", ithon, "--python", host_python, "--output", str(output)]
         if suite == "kitchen-capture":
-            expected_count ← 44
+            expected_count ← 50
             argv ← [ithon, kitchen + "/tests/android-diagnostic.pi", "--ithon", ithon, "--python", host_python, "--bounded-process", bound, "--fixture", fixture, "--aici", aici, "--output", str(output)]
         elif suite == "catfood-receipt":
             expected_count ← 1

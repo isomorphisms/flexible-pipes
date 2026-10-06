@@ -14,7 +14,8 @@ code ∈ int ← installed.returncode
 if code != 0:
     detail ∈ str ← installed.stderr.decode(errors="replace")
     raise ValueError("CLIENT_INSTALL_FAILED: " + detail)
-entry ∈ object ← subprocess.run(["/opt/flexible-pipes/current/scripts/run-pipeline", "github-event", "/nonexistent-event"], env=environment, capture_output=True, timeout=15)
+groups ∈ list[int] ← []
+entry ∈ object ← subprocess.run(["/opt/flexible-pipes/current/scripts/run-pipeline", "github-event", "/nonexistent-event"], env=environment, capture_output=True, timeout=15, user=1001, group=1001, extra_groups=groups)
 code ← entry.returncode
 result ∈ dict[str, object] ← json.loads(entry.stdout)
 if code != 2 or result["blocker"] != "DEPLOYMENT_INACTIVE":

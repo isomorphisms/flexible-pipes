@@ -1,0 +1,3 @@
+case	expected	result
+diagnostic_state	independent assertions	PASS
+geometry	independent assertions	PASS

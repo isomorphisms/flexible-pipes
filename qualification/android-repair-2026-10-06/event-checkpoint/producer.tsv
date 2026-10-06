@@ -1,0 +1,13 @@
+case	expected	result
+positive	qualification-only decision inspection: PASS	PASS
+forged-receipt	unauthenticated producer object	PASS
+historical-policy	field mismatch: registry_generation	PASS
+stale-source	field mismatch: source_commit	PASS
+stale-target	field mismatch: target	PASS
+wrong-signer	SIGNER_MISMATCH	PASS
+scope-overclaim	field mismatch: acceptance_scope	PASS
+missing-stage	missing, duplicate or malformed field: compile.result	PASS
+skipped-packaging	field mismatch: package.result	PASS
+NDK-then-unapproved-packager	field mismatch: package.executable_sha256	PASS
+no-op-check	field mismatch: build-toolchain.started	PASS
+changed-artifact	field mismatch: apk_sha256	PASS

@@ -13,6 +13,7 @@ workspace ∈ str ← argv[1]
 output ∈ str ← argv[2]
 sys.path.insert(0, workspace + "/flexible-pipes/scripts")
 from delivery import submit
+from event_adapter import envelope as event_envelope
 base ∈ str ← output + "/tls-service"
 Path(base).mkdir(mode=448)
 config ∈ dict[str, object] ← json.loads(Path(argv[3]).read_bytes())
@@ -51,10 +52,16 @@ with open(base + "/server.stderr.bin", "xb") as server_log:
         request ∈ dict[str, object] ← json.loads(str(envelope["request"]))
         request["request_id"] ← "tls-dispatch"
         envelope["request"] ← json.dumps(request, sort_keys=True)
+        context ∈ dict[str, str] ← {"GITHUB_REF": "refs/heads/main", "GITHUB_SHA": str(config["control_commit"]), "GITHUB_RUN_ID": "fixture", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_EVENT_NAME": "workflow_dispatch"}
+        mapped ∈ dict[str, object] ← event_envelope({"inputs": {"request": envelope["request"]}}, context, "disposable-non-authorizing-token")
+        envelope ← dict(mapped["envelope"])
         first ∈ dict[str, object] ← submit(url, str(config["tls_certificate"]), "workflow_dispatch", envelope, base + "/dispatch")
         if first["status"] != "PASS":
             raise ValueError("TLS_DISPATCH_FAILED: " + str(first.get("first_failure", first.get("blocker"))))
         branch_envelope ∈ dict[str, object] ← json.loads(Path(argv[5]).read_bytes())
+        context["GITHUB_EVENT_NAME"] ← "workflow_run"
+        mapped ← event_envelope({"workflow_run": {"head_branch": "pipeline-requests", "head_repository": {"id": 1405888814}, "head_sha": branch_envelope["request_commit"]}}, context, "disposable-non-authorizing-token")
+        branch_envelope ← dict(mapped["envelope"])
         second ∈ dict[str, object] ← submit(url, str(config["tls_certificate"]), "pipeline-requests", branch_envelope, base + "/request-branch")
         if second["status"] != "PASS":
             raise ValueError("TLS_REQUEST_BRANCH_FAILED")

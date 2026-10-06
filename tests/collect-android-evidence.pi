@@ -29,7 +29,7 @@ def main() → None:
         identity.__setitem__("observed_tree", tree_bytes.decode().strip())
         material.__setitem__(repository, identity)
     ledgers ∈ dict[str, str] ← dict()
-    for entry in [["replay.tsv", replay + "/results.tsv"], ["negative-replay.tsv", "replay-final-negative/results.tsv"], ["acquisition.tsv", "acquisition-qualified-b/results.tsv"], ["capture.tsv", "capture-context-qualified/results.tsv"], ["wiring.tsv", "wiring-qualified/results.tsv"], ["crystal-host.tsv", "crystal-host-qualified-b/results.tsv"], ["arm-native.tsv", "crystal-native-merged-a/materials.tsv"], ["arm-packages.tsv", "crystal-apks-merged-a/packages.tsv"], ["emulator-apk.tsv", "crystal-emulator-candidate/halite.apk.receipt.tsv"]]:
+    for entry in [["replay.tsv", replay + "/results.tsv"], ["negative-replay.tsv", "replay-negative-extended/results.tsv"], ["adapters.tsv", "adapters-final-event/results.tsv"], ["producer.tsv", "producer-qualified-ledger-b/results.tsv"], ["client-preservation.tsv", "client-preservation-final/results.tsv"], ["profile.tsv", "profile-final-published/results.tsv"], ["acquisition.tsv", "acquisition-published/results.tsv"], ["capture.tsv", "capture-extended-qualified/results.tsv"], ["wiring.tsv", "wiring-qualified/results.tsv"], ["crystal-host.tsv", "crystal-host-published/results.tsv"], ["arm-native.tsv", "crystal-native-published-arm/materials.tsv"], ["arm-packages.tsv", "crystal-apks-published-arm/packages.tsv"], ["emulator-apk.tsv", "crystal-emulator-candidate/halite.apk.receipt.tsv"]]:
         name ∈ str ← entry.__getitem__(0)
         relative ∈ str ← entry.__getitem__(1)
         path ∈ Path ← root.joinpath(relative)
@@ -37,9 +37,11 @@ def main() → None:
         destination.joinpath(name).write_bytes(payload)
         ledgers.__setitem__(name, hashlib.sha256(payload).hexdigest())
     material.__setitem__("ledgers", ledgers)
+    request ∈ dict[str, object] ← json.loads(root.joinpath(replay + "/dispatch/valid/request.json").read_text())
+    material.__setitem__("replay_execution_source_ref", request.get("ref"))
     material.__setitem__("scope", "host fixture qualification; no active release or physical device acceptance")
     tools ∈ dict[str, str] ← dict()
-    for name in ["flexible-pipes/scripts/run-pipeline", "flexible-pipes/scripts/run-registered-operation.pi", "ai-ci/android-diagnostic/check.pi", "kitchen/tasks/android-diagnostic/capture.pi", "catfood/android/profile.pi", "ithon/ithon", "kitchen-host-runtime-qualified/bounded-process", "kitchen-host-runtime-qualified/kitchen-android-capture", "kitchen-host-runtime-qualified/android-channel-fixture", "grease-host"]:
+    for name in ["flexible-pipes/scripts/run-pipeline", "flexible-pipes/scripts/run-registered-operation.pi", "flexible-pipes/scripts/run-regressions.pi", "flexible-pipes/scripts/registered-execution.pi", "flexible-pipes/scripts/event_adapter.pi", "flexible-pipes/scripts/install-client.pi", "flexible-pipes/tests/client-preservation.pi", "flexible-pipes/tests/android-adapters.pi", "flexible-pipes/tests/registered-android.pi", "ai-ci/android-producer/decision.ysh", "ai-ci/android-producer/tests/run.ysh", "ai-ci/android-diagnostic/check.pi", "ai-ci/android-diagnostic/tests.pi", "kitchen/tasks/android-diagnostic/capture.pi", "kitchen/tests/android-diagnostic.pi", "catfood/android/profile.pi", "catfood/android/receipt-regression.pi", "ithon/ithon", "kitchen-host-final/bounded-process", "kitchen-host-final/kitchen-android-capture", "kitchen-host-final/android-channel-fixture", "grease-host"]:
         tools.__setitem__(name, hashlib.sha256(root.joinpath(name).read_bytes()).hexdigest())
     material.__setitem__("tested_file_digests", tools)
     encoded ∈ str ← json.dumps(material, indent=2, sort_keys=True)
