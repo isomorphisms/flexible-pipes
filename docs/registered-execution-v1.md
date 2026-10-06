@@ -1,6 +1,8 @@
 # Registered execution boundary, version 1 decision
 
-Status: design selected; implementation and qualification pending. This is a source/evidence decision, not a deployed security boundary or a job prompt. Primary owners: [#24](https://github.com/isomorphisms/flexible-pipes/issues/24), [#26](https://github.com/isomorphisms/flexible-pipes/issues/26), [#2](https://github.com/isomorphisms/flexible-pipes/issues/2), [#28](https://github.com/isomorphisms/flexible-pipes/issues/28). Historical coverage: [#18](https://github.com/isomorphisms/flexible-pipes/issues/18).
+Audit snapshot: 2026-10-06, before the FP2/FP3 implementation candidates. Status at that snapshot: design selected; implementation and qualification pending. This is a source/evidence decision, not a deployed security boundary or a job prompt. Primary owners: [#24](https://github.com/isomorphisms/flexible-pipes/issues/24), [#26](https://github.com/isomorphisms/flexible-pipes/issues/26), [#2](https://github.com/isomorphisms/flexible-pipes/issues/2), [#28](https://github.com/isomorphisms/flexible-pipes/issues/28). Historical coverage: [#18](https://github.com/isomorphisms/flexible-pipes/issues/18).
+
+Subsequent work: [isomorphisms/flexible-pipes PR #31, “Implement registered Kitchen script execution and preserve FP2 qualification attempts”](https://github.com/isomorphisms/flexible-pipes/pull/31) and [isomorphisms/flexible-pipes PR #33, “Register Android producer and diagnostic operations with actual behavioral replay”](https://github.com/isomorphisms/flexible-pipes/pull/33) retain their own current qualification and deployment status. The source findings and local results below concern the recorded revisions, including findings repaired in later candidates. Landing this historical record does not promote an operation, activate a deployment, or accept a candidate's artifacts.
 
 ## Decision
 
