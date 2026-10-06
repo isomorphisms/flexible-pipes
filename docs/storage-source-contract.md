@@ -3,7 +3,8 @@
 `storage-source-contract` uses the existing checked-in pipeline runner. Supply
 explicit clean cloud-storage-api, IB Pensieve and AICI checkouts and their exact
 revisions, the verified GREASE executable (also installed as `grease` in PATH),
-a prebuilt GOOGLE_DRIVE_UPLOAD_STATE fixture helper, and a private
+a prebuilt GOOGLE_DRIVE_UPLOAD_STATE fixture helper, its verified
+GREASE_SOURCE_REVISION, and a private
 STORAGE_CONTRACT_RECEIPT path. The stage invokes each owner's real entrypoint
 tests and AICI's typed evidence verifier. No source body, credentials or live
 account enters this operation. The runner hashes output and records actual exits.
