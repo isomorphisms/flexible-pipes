@@ -16,6 +16,7 @@ argv ∈ list[str] ← sys.argv
 workspace ∈ str ← argv[1]
 output ∈ str ← argv[2]
 Path(output).mkdir(mode=493, parents=True, exist_ok=False)
+Path(output + "/attempt.txt").write_text("qualification started; no deployment authority\n")
 fp ∈ str ← workspace + "/flexible-pipes"
 ithon ∈ str ← workspace + "/ithon"
 kitchen ∈ str ← workspace + "/kitchen"
@@ -41,7 +42,7 @@ def write(path ∈ str, value ∈ object) → None:
     Path(path).write_text(text)
 
 def git(repo ∈ str, args ∈ list[str]) → str:
-    command ∈ list[str] ← ["/usr/bin/git", "--no-replace-objects", "-C", repo]
+    command ∈ list[str] ← ["/usr/bin/git", "--no-replace-objects", "-c", "safe.directory=" + repo, "-C", repo]
     command.extend(args)
     process ∈ object ← subprocess.run(command, env=environment, capture_output=True, check=True, timeout=15)
     result ∈ bytes ← process.stdout
