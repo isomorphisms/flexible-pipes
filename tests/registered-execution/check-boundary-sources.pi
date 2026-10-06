@@ -1,0 +1,22 @@
+"""Check maintained boundary sources without executing their entry effects."""
+import sys
+import json
+import hashlib
+import ithon_frontend
+from pathlib import Path
+from builtins import list, dict
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+files ∈ list[Path] ← list(Path(workspace + "/flexible-pipes/scripts").glob("*.pi"))
+files.extend(list(Path(workspace + "/flexible-pipes/tests/registered-execution").glob("*.pi")))
+files.extend(list(Path(workspace + "/kitchen/tasks/github-repository-transfer").glob("*.pi")))
+files.extend(list(Path(workspace + "/kitchen/tests").glob("qualify-*.pi")))
+files.append(Path(workspace + "/ai-ci/validators/kitchen-transfer-script.pi"))
+files.append(Path(workspace + "/catfood/acceptance/sealed-script.pi"))
+checks ∈ list[dict[str, object]] ← []
+for path in files:
+    source ∈ bytes ← path.read_bytes()
+    checked ∈ object ← ithon_frontend.check_source(source.decode(), str(path))
+    checks.append({"path": str(path), "sha256": hashlib.sha256(source).hexdigest(), "status": "PASS"})
+Path(argv[2]).write_text(json.dumps({"status": "PASS", "checks": checks}, sort_keys=True))
+print("all maintained boundary sources checked")

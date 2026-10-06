@@ -7,10 +7,12 @@ from builtins import dict, list, OSError, ValueError
 argv ∈ list[str] ← sys.argv
 plan ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
 paths ∈ list[str] ← list(plan["paths"])
+write_only ∈ int ← os.O_WRONLY
+nonblocking ∈ int ← os.O_NONBLOCK
 for path in paths:
     denied ∈ bool ← False
     try:
-        descriptor ∈ int ← os.open(path, os.O_WRONLY | os.O_NONBLOCK)
+        descriptor ∈ int ← os.open(path, write_only | nonblocking)
         os.close(descriptor)
     except OSError as failure:
         number ∈ int ← failure.errno
