@@ -1,0 +1,34 @@
+"""Trusted worker bootstrap: limits and irreversible network denial before exec."""
+import ctypes
+import resource
+import os
+import sys
+import json
+from pathlib import Path
+from builtins import RuntimeError, dict, list
+
+argv ∈ list[str] ← sys.argv
+plan ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+lib ∈ object ← ctypes.CDLL("/lib/x86_64-linux-gnu/libseccomp.so.2")
+# Explicit FFI signatures prevent pointer truncation on x86-64.
+lib.seccomp_init.__setattr__("restype", ctypes.c_void_p)
+lib.seccomp_init.__setattr__("argtypes", [ctypes.c_uint32])
+lib.seccomp_rule_add.__setattr__("argtypes", [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_int, ctypes.c_uint])
+lib.seccomp_load.__setattr__("argtypes", [ctypes.c_void_p])
+lib.seccomp_release.__setattr__("argtypes", [ctypes.c_void_p])
+context ∈ object ← lib.seccomp_init(2147418112)
+for name in ["socket", "connect", "ptrace", "mount", "unshare", "setns", "bpf"]:
+    number ∈ int ← lib.seccomp_syscall_resolve_name(name.encode())
+    outcome ∈ int ← lib.seccomp_rule_add(context, 327681, number, 0)
+    if outcome != 0:
+        raise RuntimeError("SECURITY_BOUNDARY_UNAVAILABLE")
+loaded ∈ int ← lib.seccomp_load(context)
+lib.seccomp_release(context)
+if loaded != 0:
+    raise RuntimeError("SECURITY_BOUNDARY_UNAVAILABLE")
+resource.setrlimit(resource.RLIMIT_CPU, (60, 60))
+resource.setrlimit(resource.RLIMIT_FSIZE, (67108864, 67108864))
+resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+command ∈ list[str] ← list(plan["argv"])
+environment ∈ dict[str, str] ← dict(plan["environment"])
+os.execve(command[0], command, environment)
