@@ -49,7 +49,7 @@ def clean_environment() → dict[str, str]:
     return {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_NO_REPLACE_OBJECTS": "1", "GIT_TERMINAL_PROMPT": "0", "HOME": "/nonexistent"}
 
 def git(repo ∈ str, args ∈ list[str]) → bytes:
-    command ∈ list[str] ← ["/usr/local/bin/git", "--no-replace-objects", "-C", repo]
+    command ∈ list[str] ← ["/usr/bin/git", "--no-replace-objects", "-C", repo]
     command.extend(args)
     child ∈ object ← subprocess.run(command, env=clean_environment(), capture_output=True, timeout=15)
     code ∈ int ← child.returncode
@@ -100,6 +100,11 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
     uid ∈ int ← os.getuid()
     if uid != 0:
         raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: distinct worker UID required")
+    # Namespace root can map only UID 0. Report this before generator effects.
+    uid_map ∈ str ← Path("/proc/self/uid_map").read_text()
+    mappings ∈ list[str] ← uid_map.split()
+    if len(mappings) == 3 and mappings[2] == "1":
+        raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace")
     materials ∈ list[dict[str, object]] ← list(config["materials"])
     for material in materials:
         path ∈ str ← str(material["path"])

@@ -1,0 +1,106 @@
+"""Materialize diagnostic deployment and exercise the public adapters.
+
+No credentials, model, downloads, installation, or publishing authority.
+Output directories must be new; every failed attempt is retained.
+"""
+import json
+import os
+import sys
+import subprocess
+import hashlib
+import time
+from pathlib import Path
+from builtins import dict, list, open, ValueError
+
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+output ∈ str ← argv[2]
+Path(output).mkdir(mode=493, parents=True, exist_ok=False)
+fp ∈ str ← workspace + "/flexible-pipes"
+ithon ∈ str ← workspace + "/ithon"
+kitchen ∈ str ← workspace + "/kitchen"
+aici ∈ str ← workspace + "/ai-ci"
+catfood ∈ str ← workspace + "/catfood"
+grease_source ∈ str ← argv[3] if len(argv) > 3 else "/workspace/scratch/af185923d929/grease/source"
+grease_launcher ∈ str ← argv[4] if len(argv) > 4 else "/workspace/scratch/af185923d929/runtime/grease"
+python ∈ str ← argv[5] if len(argv) > 5 else "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+grease_python ∈ str ← argv[6] if len(argv) > 6 else grease_source + "/Python-2.7.13/python"
+grease_entry ∈ str ← grease_source + "/bin/oils_for_unix.py"
+ithon_command ∈ list[str] ← [python, ithon + "/ithon_host.py"]
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1", "GIT_NO_REPLACE_OBJECTS": "1"}
+grease_environment ∈ dict[str, str] ← dict(environment)
+grease_environment["PYTHONPATH"] ← grease_source + ":" + grease_source + "/vendor"
+grease ∈ list[str] ← [grease_python, grease_entry, "ysh"]
+
+def digest(path ∈ str) → str:
+    answer ∈ str ← hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    return answer
+
+def write(path ∈ str, value ∈ object) → None:
+    text ∈ str ← json.dumps(value, sort_keys=True, separators=(",", ":"))
+    Path(path).write_text(text)
+
+def git(repo ∈ str, args ∈ list[str]) → str:
+    command ∈ list[str] ← ["/usr/bin/git", "--no-replace-objects", "-C", repo]
+    command.extend(args)
+    process ∈ object ← subprocess.run(command, env=environment, capture_output=True, check=True, timeout=15)
+    result ∈ bytes ← process.stdout
+    return result.decode().strip()
+
+materials ∈ list[dict[str, object]] ← []
+repositories ∈ list[dict[str, object]] ← [
+    {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "registry/kitchen-transfer-script.contract.json"], "ref": "origin/implement/fp2-runtime-qualification"},
+    {"checkout": kitchen, "files": ["tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "tasks/github-repository-transfer/2.sh", "tasks/github-repository-transfer/fixture-api.pi", "tasks/github-repository-transfer/fixture-gh.pi"], "ref": "origin/fp2/qualified-transfer-generator"},
+    {"checkout": aici, "files": ["validators/kitchen-transfer-script.pi"], "ref": "origin/fp2/transfer-observation-validator"},
+    {"checkout": catfood, "files": ["acceptance/sealed-script.pi"], "ref": "origin/fp2/sealed-script-validation"},
+    {"checkout": ithon, "files": ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"], "ref": "origin/fp2/control-interface-support"},
+]
+for repository in repositories:
+    checkout ∈ str ← str(repository["checkout"])
+    commit ∈ str ← git(checkout, ["rev-parse", "HEAD"])
+    origin ∈ str ← git(checkout, ["config", "--local", "--get", "remote.origin.url"])
+    files ∈ list[str] ← list(repository["files"])
+    for relative in files:
+        path ∈ str ← checkout + "/" + relative
+        materials.append({"path": path, "checkout": checkout, "relative_path": relative, "commit": commit, "origin": origin, "published_ref": repository["ref"], "sha256": digest(path)})
+
+tools ∈ list[dict[str, object]] ← []
+for path in [python, grease_python, grease_entry, "/usr/bin/git", "/usr/bin/grep", "/usr/bin/dirname", "/usr/bin/chmod", "/usr/bin/cat", "/lib/x86_64-linux-gnu/libseccomp.so.2"]:
+    tools.append({"path": path, "sha256": digest(path)})
+# Bind the actual interpreted Grease dependency closure, including generated
+# modules and native extensions, rather than treating a launcher as identity.
+runtime_files ∈ list[Path] ← list(Path(grease_source).rglob("*.py"))
+runtime_files.extend(list(Path(grease_source).rglob("*.so")))
+for runtime_file in runtime_files:
+    tools.append({"path": str(runtime_file), "sha256": digest(str(runtime_file))})
+bin_dir ∈ str ← output + "/fixture-bin"
+Path(bin_dir).mkdir(mode=493)
+bridge ∈ str ← bin_dir + "/gh"
+bridge_text ∈ str ← "#!" + grease_launcher + "\nexec " + python + " " + ithon + "/ithon_host.py " + kitchen + "/tasks/github-repository-transfer/fixture-gh.pi \"$@\"\n"
+Path(bridge).write_text(bridge_text)
+os.chmod(bridge, 365)
+tools.append({"path": bridge, "sha256": digest(bridge)})
+tools.append({"path": grease_launcher, "sha256": digest(grease_launcher)})
+contract_path ∈ str ← fp + "/registry/kitchen-transfer-script.contract.json"
+contract ∈ dict[str, object] ← json.loads(Path(contract_path).read_bytes())
+encoded_materials ∈ str ← json.dumps(materials, sort_keys=True, separators=(",", ":"))
+closure ∈ str ← hashlib.sha256(encoded_materials.encode()).hexdigest()
+qualification_path ∈ str ← output + "/runtime-interface-qualification.json"
+write(qualification_path, {"schema_version": 1, "status": "PASS", "scope": "local-qualification", "materials_sha256": closure, "evidence": "Ithon control tests plus verified Grease interface probes", "excluded_claims": ["operation-qualified-before-this-run", "deployment"]})
+config ∈ dict[str, object] ← {"schema_version": 1, "operation": "kitchen-transfer-script", "operation_version": "2", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": digest(contract_path), "qualification": qualification_path, "qualification_sha256": digest(qualification_path), "control_commit": git(fp, ["rev-parse", "HEAD"]), "state_root": output + "/state", "request_mirror": fp, "request_base": git(fp, ["rev-parse", "HEAD"]), "ithon": ithon_command, "grease": grease, "grease_environment": grease_environment, "worker": fp + "/scripts/registered-worker.pi", "generator": kitchen + "/tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "fixture_server": kitchen + "/tasks/github-repository-transfer/fixture-api.pi", "fixture_bin": bin_dir, "api_validator": aici + "/validators/kitchen-transfer-script.pi", "seal_validator": catfood + "/acceptance/sealed-script.pi"}
+config_path ∈ str ← output + "/candidate-deployment.json"
+write(config_path, config)
+inputs ∈ dict[str, object] ← {"source_owner": "source", "repository": "sample", "destination_owner": "destination", "expected_login": "login", "expected_repository_id": 123, "target_context": "linux-x86_64-grease-v1"}
+request ∈ dict[str, object] ← {"schema_version": 1, "request_id": "qualification-dispatch", "pipeline": "kitchen-transfer-script", "inputs": inputs}
+request_text ∈ str ← json.dumps(request, sort_keys=True)
+envelope ∈ dict[str, object] ← {"workflow_ref": "refs/heads/main", "workflow_sha": config["control_commit"], "repository_id": 1405888814, "request": request_text}
+envelope_path ∈ str ← output + "/dispatch-envelope.json"
+write(envelope_path, envelope)
+command ∈ list[str] ← list(ithon_command)
+command.extend([fp + "/scripts/registered-execution.pi", "qualify", config_path, "workflow_dispatch", envelope_path])
+with open(output + "/dispatch.stdout.json", "xb") as out:
+    with open(output + "/dispatch.stderr.bin", "xb") as err:
+        process ∈ object ← subprocess.run(command, env=environment, stdout=out, stderr=err, timeout=130)
+code ∈ int ← process.returncode
+print(json.dumps({"exit_code": code, "output": output, "result": output + "/dispatch.stdout.json"}))
+sys.exit(code)

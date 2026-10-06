@@ -1,0 +1,73 @@
+name: Registered Kitchen operation qualification
+on:
+  pull_request:
+    paths:
+      - scripts/registered-*.pi
+      - tests/registered-execution/**
+      - registry/**
+      - .github/workflows/registered-operation-qualification.yml
+permissions:
+  contents: read
+jobs:
+  qualification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: flexible-pipes
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 54bad8cc00cdeb01f1fc32398934acd867e2cfd1
+          path: ithon
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/kitchen
+          ref: 09686bae44dacd26972f66e3b0e441df547c242e
+          path: kitchen
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 21cf9cd43244dbdeed649e791536f040833f5a08
+          path: ai-ci
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/catfood
+          ref: 0a5e9223071bcdd5a76b51c510813ddb20f6e9e0
+          path: catfood
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/grease
+          ref: f19c94c6df18cddbdc1e81463e5bd689533e3c13
+          submodules: recursive
+          path: runtime/grease
+          persist-credentials: false
+      - name: Existing Cat Food Grease bootstrap recipe only
+        # Reuse the maintained runtime recipe; this is not the Kitchen POSIX
+        # source-test exception and introduces no new bootstrap shell program.
+        env:
+          CATFOOD_ROOT: ${{ github.workspace }}/runtime
+          CATFOOD_JOBS: '2'
+        run: /bin/sh catfood/build-tools.sh
+      - name: Qualify the checked operation in disposable fixtures
+        shell: ${{ github.workspace }}/runtime/.build/grease/bin/grease {0}
+        run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-operation.pi '${{ github.workspace }}' '${{ runner.temp }}/fp2-qualification' '${{ github.workspace }}/runtime/grease/source' '${{ github.workspace }}/runtime/.build/grease/bin/grease' /usr/bin/python3 '${{ github.workspace }}/runtime/.build/grease/python2/python'
+      - name: Preserve every qualification attempt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fp2-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/fp2-qualification
+          if-no-files-found: error
