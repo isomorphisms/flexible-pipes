@@ -261,7 +261,7 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
     request ∈ dict[str, object] ← checked_request(raw)
     verify_deployment(config, diagnostic)
     state ∈ str ← str(config["state_root"])
-    Path(state).mkdir(mode=448, parents=True, exist_ok=True)
+    Path(state).mkdir(mode=457, parents=True, exist_ok=True)
     request_id ∈ str ← str(request["request_id"])
     index_path ∈ str ← state + "/" + request_id + ".json"
     lock ∈ object ← open(state + "/" + request_id + ".lock", "ab")
@@ -293,7 +293,21 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
         result ∈ dict[str, object] ← {"schema_version": 2, "request_id": request_id, "request_sha256": digest(raw), "run_id": run_id, "attempt": attempt, "operation_id": "kitchen-transfer-script", "operation_version": config["operation_version"], "registry_generation": config["registry_generation"], "control": {"repository_id": 1405888814, "commit": config["control_commit"], "executable_sha256": digest(Path(__file__).read_bytes()), "deployment_identity": config["authority"]}, "qualification_sha256": config["qualification_sha256"], "contract_sha256": config["contract_sha256"], "source": config["materials"], "dependencies": config["tools"], "observed_build_host": {"system": platform.system(), "machine": platform.machine()}, "route": route, "stages": stages, "artifacts": [], "status": "RUNNING", "first_failure": None, "blockers": [], "acceptance_scope": "local-fixture-qualification" if diagnostic else "generated-script", "excluded_claims": ["live-transfer", "physical-device", "deployed-trusted-execution"] if diagnostic else ["live-transfer", "physical-device"], "promotion": {"state": "candidate" if diagnostic else "pending"}, "started_at": time.time(), "prior_attempt": previous}
         atomic(result_path, result)
         atomic(index_path, {"request_sha256": digest(raw), "attempt": attempt, "result": result_path})
-        uid ∈ int ← 60000 + attempt
+        # A different UID for every attempt prevents concurrent workers from
+        # reading/writing another attempt's private scratch, even if located.
+        with open(state + "/worker-uid.lock", "ab") as uid_lock:
+            fcntl.flock(uid_lock.fileno(), fcntl.LOCK_EX)
+            uid_path ∈ str ← state + "/worker-uid.json"
+            uid ∈ int ← 60000
+            uid_exists ∈ bool ← Path(uid_path).exists()
+            if uid_exists:
+                uid_record ∈ dict[str, object] ← read(uid_path)
+                uid ← int(uid_record["last_uid"])
+            uid ← uid + 1
+            if uid > 600000:
+                raise ValueError("WORKER_UID_POOL_EXHAUSTED")
+            atomic(uid_path, {"last_uid": uid})
+        result["worker_uid"] ← uid
         started ∈ float ← time.monotonic()
         try:
             for stage in stages:
