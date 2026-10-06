@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "book-lookup-internet-archive",
+  "required_stages": ["internet-archive"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "internet-archive",
+      "argv": ["/bin/sh", "scripts/book-lookup-internet-archive"],
+      "cwd": "."
+    }
+  ]
+}
