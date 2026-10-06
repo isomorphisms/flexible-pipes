@@ -35,6 +35,17 @@ def record_process(path ∈ str, child ∈ object) → None:
     fields ∈ list[str] ← process_state.split()
     atomic(path, {"pid": pid, "start_time": fields[21], "state": "RUNNING"})
 
+def watch_process(directory ∈ str, child ∈ object, config ∈ dict[str, object], seconds ∈ int) → object:
+    parent ∈ int ← os.getpid()
+    parent_fields ∈ list[str] ← Path("/proc/" + str(parent) + "/stat").read_text().split()
+    target_fields ∈ list[str] ← Path("/proc/" + str(child.pid) + "/stat").read_text().split()
+    plan ∈ str ← directory + "/guard-plan.json"
+    atomic(plan, {"parent_pid": parent, "parent_start": parent_fields[21], "target_pid": child.pid, "target_start": target_fields[21], "seconds": seconds})
+    command ∈ list[str] ← list(config["ithon"])
+    command.extend([str(config["watchdog"]), plan, directory + "/guard-result.json"])
+    guard ∈ object ← subprocess.Popen(command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    return guard
+
 def reap_interrupted(run ∈ str) → None:
     records ∈ list[Path] ← list(Path(run).rglob("process.json"))
     for path in records:
@@ -177,7 +188,7 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
             raise ValueError("MISSING_EXECUTABLE: " + executable)
         if digest(Path(executable).read_bytes()) != tool["sha256"]:
             raise ValueError("TOOL_CHANGED")
-    for role in ["worker", "generator", "fixture_server", "api_validator", "seal_validator"]:
+    for role in ["worker", "watchdog", "generator", "fixture_server", "api_validator", "seal_validator"]:
         selected ∈ str ← str(config[role])
         if not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
@@ -246,6 +257,7 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
             start ∈ float ← time.monotonic()
             process_record ∈ str ← directory + "/process.json"
             record_process(process_record, child)
+            guard ∈ object ← watch_process(directory, child, config, 62)
             try:
                 while True:
                     if peer != None:
@@ -277,6 +289,7 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                     os.killpg(child.pid, signal.SIGKILL)
                     child.wait()
                 final_code ∈ int ← child.returncode
+                guard.wait(timeout=5)
                 atomic(process_record, {"pid": child.pid, "state": "FINISHED", "exit_code": final_code, "argv": command, "executable_sha256": digest(Path(command[0]).read_bytes()), "stdout_sha256": digest(Path(stdout_path).read_bytes()), "stderr_sha256": digest(Path(stderr_path).read_bytes()), "stdout_bytes": Path(stdout_path).stat().st_size, "stderr_bytes": Path(stderr_path).stat().st_size})
     return 125
 
@@ -297,6 +310,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     server_log ∈ object ← open(base + "/server.stderr.bin", "xb")
     server ∈ object ← subprocess.Popen(server_command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=server_log, start_new_session=True)
     record_process(base + "/process.json", server)
+    guard ∈ object ← watch_process(base, server, config, 125)
     codes ∈ list[int] ← []
     try:
         executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" else 1
@@ -335,6 +349,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
         except ProcessLookupError:
             pass
         server.wait()
+        guard.wait(timeout=5)
         server_log.close()
         atomic(base + "/process.json", {"pid": server.pid, "state": "FINISHED"})
 

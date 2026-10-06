@@ -106,7 +106,7 @@ def request_commit(mirror ∈ str, base ∈ str, request ∈ dict[str, object], 
 
 materials ∈ list[dict[str, object]] ← []
 repositories ∈ list[dict[str, object]] ← [
-    {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "registry/kitchen-transfer-script.contract.json", "tests/registered-execution/qualify-operation.pi"], "ref": "origin/implement/fp2-runtime-qualification"},
+    {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi", "registry/kitchen-transfer-script.contract.json", "tests/registered-execution/qualify-operation.pi", "tests/registered-execution/hostile_cases.pi"], "ref": "origin/implement/fp2-runtime-qualification"},
     {"checkout": kitchen, "files": ["tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "tasks/github-repository-transfer/5.sh", "tasks/github-repository-transfer/fixture-api.pi", "tasks/github-repository-transfer/fixture-gh.pi", "tests/qualify-transfer-artifact.pi"], "ref": "origin/fp2/qualified-transfer-generator"},
     {"checkout": aici, "files": ["validators/kitchen-transfer-script.pi"], "ref": "origin/fp2/transfer-observation-validator"},
     {"checkout": catfood, "files": ["acceptance/sealed-script.pi"], "ref": "origin/fp2/sealed-script-validation"},
@@ -211,6 +211,7 @@ Path(output + "/grease-interface.stderr.bin").write_bytes(smoke_process.stderr)
 write(qualification_path, {"schema_version": 1, "status": "PASS", "scope": "local-qualification", "materials_sha256": closure, "tools_sha256": hashlib.sha256(json.dumps(tools, sort_keys=True, separators=(",", ":")).encode()).hexdigest(), "environment_sha256": hashlib.sha256(json.dumps(grease_environment, sort_keys=True, separators=(",", ":")).encode()).hexdigest(), "ithon_evidence_sha256": digest(output + "/ithon-interface.json"), "grease_evidence_sha256": digest(output + "/grease-interface.stdout.bin"), "excluded_claims": ["operation-qualified-before-this-run", "deployment"]})
 config ∈ dict[str, object] ← {"schema_version": 1, "operation": "kitchen-transfer-script", "operation_version": "2", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": digest(contract_path), "qualification": qualification_path, "qualification_sha256": digest(qualification_path), "control_commit": git(fp, ["rev-parse", "HEAD"]), "state_root": output + "/state", "request_mirror": fp, "request_base": git(fp, ["rev-parse", "HEAD"]), "ithon": ithon_command, "grease": grease, "grease_environment": grease_environment, "worker": release + "/scripts/registered-worker.pi", "generator": release + "/tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "fixture_server": kitchen + "/tasks/github-repository-transfer/fixture-api.pi", "fixture_bin": bin_dir, "api_validator": aici + "/validators/kitchen-transfer-script.pi", "seal_validator": catfood + "/acceptance/sealed-script.pi"}
 config_path ∈ str ← output + "/candidate-deployment.json"
+config["watchdog"] ← release + "/scripts/registered-watchdog.pi"
 write(config_path, config)
 inputs ∈ dict[str, object] ← {"source_owner": "source", "repository": "sample", "destination_owner": "destination", "expected_login": "login", "expected_repository_id": 123, "target_context": "linux-x86_64-grease-v1"}
 request ∈ dict[str, object] ← {"schema_version": 1, "request_id": "qualification-dispatch", "pipeline": "kitchen-transfer-script", "inputs": inputs}
@@ -267,7 +268,9 @@ if code == 0:
     bad_envelope["request"] ← json.dumps(changed_request, sort_keys=True)
     run_case("duplicate-different-bytes", config, "workflow_dispatch", bad_envelope, "BLOCKED", "DUPLICATE_ID_DIFFERENT_BYTES")
     mirror ∈ str ← output + "/request-mirror.git"
-    git(fp, ["clone", "--bare", "--no-hardlinks", fp, mirror])
+    bundle ∈ str ← output + "/request-source.bundle"
+    git(fp, ["bundle", "create", bundle, "HEAD"])
+    git(fp, ["clone", "--bare", bundle, mirror])
     branch_config ∈ dict[str, object] ← copy_object(config)
     branch_config["request_mirror"] ← mirror
     branch_request ∈ dict[str, object] ← copy_object(request)
@@ -289,6 +292,8 @@ if code == 0:
     if dispatch_artifacts[0]["sha256"] != branch_artifacts[0]["sha256"]:
         raise ValueError("route artifact mismatch")
     write(output + "/both-routes.json", {"status": "PASS", "dispatch_run": result["run_id"], "request_branch_run": branch_result["run_id"], "artifact_sha256": dispatch_artifacts[0]["sha256"], "scope": "hosted-candidate-adapter-qualification", "deployment": "inactive"})
+    from hostile_cases import qualify
+    qualify(workspace, output, config, envelope, result, ithon_command)
 failure_logs ∈ list[Path] ← list(Path(output).rglob("*stderr.bin"))
 for failure_log in failure_logs:
     message ∈ bytes ← failure_log.read_bytes()

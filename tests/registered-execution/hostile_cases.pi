@@ -1,0 +1,183 @@
+"""Public-engine regressions, with expectations outside worker write access."""
+import json
+import os
+import sys
+import time
+import signal
+import hashlib
+import subprocess
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+from builtins import dict, list, open, ValueError
+
+def copy_object(value ∈ dict[str, object]) → dict[str, object]:
+    answer ∈ dict[str, object] ← json.loads(json.dumps(value))
+    return answer
+
+def encode(value ∈ object) → bytes:
+    payload ∈ str ← json.dumps(value, sort_keys=True, separators=(",", ":"))
+    return payload.encode()
+
+def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], envelope ∈ dict[str, object], original ∈ dict[str, object], ithon ∈ list[str]) → None:
+    environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}
+    engine ∈ str ← workspace + "/flexible-pipes/scripts/registered-execution.pi"
+    root ∈ str ← output + "/hostile-cases"
+    Path(root).mkdir(mode=493)
+    checks ∈ list[dict[str, object]] ← []
+
+    def admit(name ∈ str) → dict[str, object]:
+        result ∈ dict[str, object] ← copy_object(envelope)
+        request ∈ dict[str, object] ← json.loads(str(envelope["request"]))
+        request["request_id"] ← "case-" + name
+        result["request"] ← json.dumps(request, sort_keys=True)
+        return result
+
+    def run(name ∈ str, candidate ∈ dict[str, object], admission ∈ dict[str, object], expected ∈ str, prefix ∈ str) → dict[str, object]:
+        base ∈ str ← root + "/" + name
+        Path(base).mkdir(mode=493)
+        Path(base + "/deployment.json").write_bytes(encode(candidate))
+        Path(base + "/envelope.json").write_bytes(encode(admission))
+        command ∈ list[str] ← list(ithon)
+        command.extend([engine, "qualify", base + "/deployment.json", "workflow_dispatch", base + "/envelope.json"])
+        with open(base + "/stdout.json", "xb") as out:
+            with open(base + "/stderr.bin", "xb") as err:
+                child ∈ object ← subprocess.run(command, env=environment, stdout=out, stderr=err, timeout=135)
+        result ∈ dict[str, object] ← json.loads(Path(base + "/stdout.json").read_bytes())
+        detail ∈ str ← str(result.get("blocker", result.get("first_failure", "")))
+        if result["status"] != expected or prefix != "" and not detail.startswith(prefix):
+            result_text ∈ str ← json.dumps(result)
+            raise ValueError("case failed: " + name + ": " + result_text)
+        check ∈ dict[str, object] ← {"case": name, "status": "PASS", "actual_status": expected, "failure": detail}
+        Path(base + "/check.json").write_bytes(encode(check))
+        checks.append(check)
+        return result
+
+    candidate ∈ dict[str, object] ← copy_object(config)
+    materials ∈ list[dict[str, object]] ← list(candidate["materials"])
+    materials[0]["commit"] ← "6a72e6bec36f0021e5ee87fb23be99b7ff133ad7"
+    candidate["materials"] ← materials
+    run("wrong-source", candidate, envelope, "BLOCKED", "WRONG_SOURCE")
+    candidate ← copy_object(config)
+    materials ← list(candidate["materials"])
+    materials[0]["origin"] ← "https://github.com/example/foreign"
+    candidate["materials"] ← materials
+    run("wrong-origin", candidate, envelope, "BLOCKED", "WRONG_ORIGIN")
+    candidate ← copy_object(config)
+    materials ← list(candidate["materials"])
+    new_path ∈ str ← root + "/unpublished-source.pi"
+    Path(new_path).write_text('print("PASS")\n')
+    materials[0]["path"] ← new_path
+    materials[0]["sha256"] ← hashlib.sha256(Path(new_path).read_bytes()).hexdigest()
+    candidate["materials"] ← materials
+    run("unpublished-source", candidate, envelope, "BLOCKED", "UNPUBLISHED_SOURCE")
+    candidate ← copy_object(config)
+    missing ∈ str ← root + "/missing-runtime"
+    tools ∈ list[dict[str, object]] ← list(candidate["tools"])
+    tools.append({"path": missing, "sha256": "0"})
+    candidate["tools"] ← tools
+    run("missing-executable", candidate, envelope, "BLOCKED", "MISSING_EXECUTABLE")
+    for role in ["generator", "worker", "api_validator", "seal_validator"]:
+        candidate ← copy_object(config)
+        candidate[role] ← new_path
+        run("unqualified-" + role, candidate, envelope, "BLOCKED", "UNBOUND_IMPLEMENTATION")
+    for mutation in ["scope", "status", "materials_sha256", "tools_sha256", "environment_sha256"]:
+        candidate ← copy_object(config)
+        qualification ∈ dict[str, object] ← json.loads(Path(str(config["qualification"])).read_bytes())
+        qualification[mutation] ← "STALE"
+        path ∈ str ← root + "/stale-" + mutation + ".json"
+        Path(path).write_bytes(encode(qualification))
+        candidate["qualification"] ← path
+        candidate["qualification_sha256"] ← hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        run("stale-" + mutation, candidate, envelope, "BLOCKED", "STALE_")
+    # Recipe and contract changed after the original successful run. Use owned
+    # copies, retaining the trusted expected bytes; never edit a user checkout.
+    for mutation in ["recipe", "contract"]:
+        candidate ← copy_object(config)
+        if mutation == "recipe":
+            materials ← list(candidate["materials"])
+            path ← root + "/changed-recipe.pi"
+            Path(path).write_text('print("PASS")\n')
+            materials[0]["path"] ← path
+            candidate["materials"] ← materials
+        else:
+            path ← root + "/changed-contract.json"
+            contract ∈ dict[str, object] ← json.loads(Path(str(config["contract"])).read_bytes())
+            contract["operation"] ← "different"
+            Path(path).write_bytes(encode(contract))
+            candidate["contract"] ← path
+        run("changed-after-check-" + mutation, candidate, envelope, "BLOCKED", "MATERIAL_CHANGED" if mutation == "recipe" else "CONTRACT_CHANGED")
+    # Ambient Git and PATH claims must not select source or tools. This executes
+    # the real operation under a fresh request ID, rather than returning a cache.
+    environment["GIT_DIR"] ← "/does-not-exist"
+    environment["GIT_WORK_TREE"] ← root
+    environment["GITHUB_SHA"] ← "misleading"
+    environment["GIT_CONFIG_COUNT"] ← "1"
+    environment["GIT_CONFIG_KEY_0"] ← "core.hooksPath"
+    environment["GIT_CONFIG_VALUE_0"] ← root
+    environment["PATH"] ← root
+    poison ∈ dict[str, object] ← run("misleading-environment", config, admit("misleading-environment"), "PASS", "")
+    environment ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}
+    # Concurrency must allocate distinct attempts, UIDs and scratch paths.
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        one ∈ object ← pool.submit(run, "concurrent-a", config, admit("concurrent-a"), "PASS", "")
+        two ∈ object ← pool.submit(run, "concurrent-b", config, admit("concurrent-b"), "PASS", "")
+        first ∈ dict[str, object] ← one.result()
+        second ∈ dict[str, object] ← two.result()
+    if first["worker_uid"] == second["worker_uid"] or first["run_id"] == second["run_id"]:
+        raise ValueError("concurrent attempts shared ownership")
+    rerun_envelope ∈ dict[str, object] ← copy_object(envelope)
+    rerun_envelope["retry"] ← True
+    rerun ∈ dict[str, object] ← run("explicit-rerun", config, rerun_envelope, "PASS", "")
+    if rerun["attempt"] != 2 or rerun["run_id"] == original["run_id"]:
+        raise ValueError("rerun reused an attempt")
+    # Kill the supervisor during a real fixture. The independent guard must
+    # reap its workers, and next submission must retain an interruption record.
+    admission ∈ dict[str, object] ← admit("interrupted")
+    base ∈ str ← root + "/interrupted"
+    Path(base).mkdir()
+    Path(base + "/deployment.json").write_bytes(encode(config))
+    Path(base + "/envelope.json").write_bytes(encode(admission))
+    command ∈ list[str] ← list(ithon)
+    command.extend([engine, "qualify", base + "/deployment.json", "workflow_dispatch", base + "/envelope.json"])
+    with open(base + "/stdout.bin", "xb") as out:
+        with open(base + "/stderr.bin", "xb") as err:
+            child ∈ object ← subprocess.Popen(command, env=environment, stdout=out, stderr=err)
+            limit ∈ float ← time.monotonic()
+            ready ∈ bool ← False
+            partial ∈ str ← ""
+            while not ready:
+                index ∈ str ← str(config["state_root"]) + "/case-interrupted.json"
+                exists ∈ bool ← Path(index).exists()
+                if exists:
+                    record ∈ dict[str, object] ← json.loads(Path(index).read_bytes())
+                    journal ∈ dict[str, object] ← json.loads(Path(str(record["result"])).read_bytes())
+                    stages ∈ list[dict[str, object]] ← list(journal["stages"])
+                    for stage in stages:
+                        if stage["check_id"] == "fixture-personal" and stage["state"] == "RUNNING":
+                            ready ← True
+                            partial ← str(Path(str(record["result"])).parent)
+                now ∈ float ← time.monotonic()
+                if now - limit > 25.0:
+                    child.kill()
+                    child.wait()
+                    raise ValueError("could not interrupt a running fixture")
+                time.sleep(0.005)
+            child.kill()
+            child.wait()
+    interrupted ∈ dict[str, object] ← run("interruption-record", config, admission, "INTERRUPTED", "SUPERVISOR_INTERRUPTED")
+    artifact ∈ str ← partial + "/transfer-sample-from-source-to-destination.sh"
+    partial_exists ∈ bool ← Path(artifact).is_file()
+    if not partial_exists or len(interrupted["artifacts"]) != 0:
+        raise ValueError("interrupted partial artifact was lost or accepted")
+    admission["retry"] ← True
+    resumed ∈ dict[str, object] ← run("interruption-rerun", config, admission, "PASS", "")
+    if resumed["attempt"] != 2 or resumed["run_id"] == interrupted["run_id"]:
+        raise ValueError("interruption rerun overwrote prior attempt")
+    # A finished receipt is not authority for bytes modified after validation.
+    artifacts ∈ list[dict[str, object]] ← list(poison["artifacts"])
+    accepted ∈ str ← str(artifacts[0]["retrieval_locator"])
+    saved ∈ bytes ← Path(accepted).read_bytes()
+    Path(accepted + ".original").write_bytes(saved)
+    Path(accepted).write_bytes(b"FORGED PASS\n")
+    run("artifact-changed-after-check", config, admit("misleading-environment"), "BLOCKED", "STALE_ACCEPTED_ARTIFACT")
+    Path(root + "/results.json").write_bytes(encode({"status": "PASS", "checks": checks, "scope": "hosted-candidate-public-engine", "deployment": "inactive"}))

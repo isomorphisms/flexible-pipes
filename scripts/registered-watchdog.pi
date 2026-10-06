@@ -1,0 +1,43 @@
+"""Independent root guard: reap a process group after supervisor death or bound."""
+import os
+import sys
+import signal
+import time
+import json
+from pathlib import Path
+from builtins import ProcessLookupError, ValueError
+argv ∈ list[str] ← sys.argv
+plan ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+parent ∈ int ← int(plan["parent_pid"])
+target ∈ int ← int(plan["target_pid"])
+started ∈ float ← time.monotonic()
+reason ∈ str ← "TARGET_EXITED"
+while True:
+    parent_file ∈ str ← "/proc/" + str(parent) + "/stat"
+    target_file ∈ str ← "/proc/" + str(target) + "/stat"
+    parent_exists ∈ bool ← Path(parent_file).exists()
+    target_exists ∈ bool ← Path(target_file).exists()
+    if not parent_exists:
+        reason ← "SUPERVISOR_DIED"
+        break
+    parent_fields ∈ list[str] ← Path(parent_file).read_text().split()
+    if parent_fields[21] != plan["parent_start"] or parent_fields[2] == "Z":
+        reason ← "SUPERVISOR_DIED"
+        break
+    if not target_exists:
+        break
+    target_fields ∈ list[str] ← Path(target_file).read_text().split()
+    if target_fields[21] != plan["target_start"]:
+        raise ValueError("PROCESS_IDENTITY_CHANGED")
+    if target_fields[2] == "Z":
+        break
+    now ∈ float ← time.monotonic()
+    if now - started > float(plan["seconds"]):
+        reason ← "GUARD_BOUND_EXCEEDED"
+        break
+    time.sleep(0.02)
+try:
+    os.killpg(target, signal.SIGKILL)
+except ProcessLookupError:
+    pass
+Path(argv[2]).write_text(json.dumps({"state": "FINISHED", "target_pid": target, "reason": reason}, sort_keys=True))
