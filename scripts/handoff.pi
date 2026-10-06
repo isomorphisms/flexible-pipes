@@ -130,6 +130,9 @@ def contract(record ∈ dict[str, object]) → bytes:
 
 def compose(stage ∈ dict[str, object], payload ∈ bytes, spec ∈ dict[str, object]) → dict[str, object]:
     validate_spec(spec)
+    result ∈ dict[str, object] ← dict(stage)
+    if int(stage.get("exit_code", -1)) != 0 or str(stage.get("stdout_sha256")) != digest(payload):
+        raise ValueError("HANDOFF_STAGE_IDENTITY")
     delivered ∈ bytes ← payload
     version ∈ int ← 1
     attachment ∈ dict[str, object] ← {}
@@ -145,9 +148,6 @@ def compose(stage ∈ dict[str, object], payload ∈ bytes, spec ∈ dict[str, o
             raise ValueError("HANDOFF_PAYLOAD_TEXT")
     request ∈ dict[str, object] ← dict(spec["request"])
     mode ∈ str ← validate_request(request)
-    result ∈ dict[str, object] ← dict(stage)
-    if int(stage.get("exit_code", -1)) != 0 or str(stage.get("stdout_sha256")) != digest(payload):
-        raise ValueError("HANDOFF_STAGE_IDENTITY")
     contract_digest ∈ str ← digest(contract(spec))
     payload_id ∈ str ← digest((contract_digest + "\n" + digest(delivered)).encode())
     events ∈ list[dict[str, object]] ← []

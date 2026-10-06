@@ -195,6 +195,19 @@ for bad_archive in ["missing-member", "duplicate-member", "changed-source"]:
         raise AssertionError("bad attachment archive accepted")
     passed("attachment rejects " + bad_archive)
 
+failed_source ∈ bytes ← b"not-a-zip"
+failed_attachment ∈ dict[str, object] ← {"file_name": attachment_name, "mime_type": attachment_mime, "sha256": handoff.digest(attachment_bytes), "source_name": "failed.zip", "source_sha256": handoff.digest(failed_source), "archive_member": "c67/" + attachment_name, "provenance": provenance}
+failed_stage ∈ dict[str, object] ← {"name": "failed", "kind": "command", "exit_code": 1, "stdout_sha256": handoff.digest(failed_source)}
+failed_spec ∈ dict[str, object] ← {"audience": "human", "model": "fixture", "source_context": "issue-39", "request": {"id": "failed-stage", "text": "Give me the APK in here like normal"}, "attachment": failed_attachment}
+caught_message ∈ str ← ""
+try:
+    handoff.compose(failed_stage, failed_source, failed_spec)
+except ValueError as error:
+    caught_message ← str(error)
+if caught_message != "HANDOFF_STAGE_IDENTITY":
+    raise AssertionError("failed stage reached archive materialization")
+passed("attachment rejects failed stage before archive")
+
 # Exercise the real maintained runner, not only library functions. A later
 # command would write a marker; pending delivery must prevent that effect.
 with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
