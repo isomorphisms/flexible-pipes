@@ -182,7 +182,10 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
         if origin != material["origin"]:
             raise ValueError("WRONG_ORIGIN")
         # Publication ancestry is an availability check, not promotion.
-        git(repo, ["merge-base", "--is-ancestor", commit, str(material["published_ref"])])
+        try:
+            git(repo, ["merge-base", "--is-ancestor", commit, str(material["published_ref"])])
+        except ValueError:
+            raise ValueError("SOURCE_NOT_PUBLISHED_AT_BOUND_REF:" + str(material["published_ref"]))
     tools ∈ list[dict[str, object]] ← list(config["tools"])
     tool_paths ∈ list[str] ← []
     for tool in tools:

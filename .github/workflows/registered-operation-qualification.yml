@@ -62,8 +62,10 @@ jobs:
           CATFOOD_JOBS: '2'
         run: /bin/sh catfood/build-tools.sh
       - name: Qualify the checked operation in disposable fixtures
+        env:
+          FP_QUALIFICATION_PUBLISHED_REF: refs/remotes/origin/${{ github.head_ref }}
         shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
-        run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-operation.pi '${{ github.workspace }}' /tmp/fp2-qualification '${{ github.workspace }}/runtime/grease/source' '${{ github.workspace }}/runtime/.build/grease/bin/grease' /usr/bin/python3 '${{ github.workspace }}/runtime/.build/grease/python2/python'
+        run: /usr/bin/sudo /usr/bin/env "FP_QUALIFICATION_PUBLISHED_REF=$FP_QUALIFICATION_PUBLISHED_REF" /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-operation.pi '${{ github.workspace }}' /tmp/fp2-qualification '${{ github.workspace }}/runtime/grease/source' '${{ github.workspace }}/runtime/.build/grease/bin/grease' /usr/bin/python3 '${{ github.workspace }}/runtime/.build/grease/python2/python'
       - name: Package partial qualification state
         if: always()
         shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
