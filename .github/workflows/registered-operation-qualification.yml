@@ -22,28 +22,28 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: dilapidated-shed/ithon
-          ref: 5f116e8618eccd9c08c92143a8bcdd27f675b640
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
           path: ithon
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: 8d56b2df8f3e5a08aebd0bb734859bf916d6c920
+          ref: 6e03c55fcca17bd3d698f69f0ec85ed990da0816
           path: kitchen
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 96016937b55e99d432eb84bffd8995fe2583474c
+          ref: 64b916d08c2fb4877fcdb940ca6ec219afba1467
           path: ai-ci
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/catfood
-          ref: 0a5e9223071bcdd5a76b51c510813ddb20f6e9e0
+          ref: 894e9048b1addd549e03e3972fa11f1d6ff43f52
           path: catfood
           persist-credentials: false
           fetch-depth: 0

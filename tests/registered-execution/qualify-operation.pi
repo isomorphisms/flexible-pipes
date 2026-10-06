@@ -317,6 +317,26 @@ if code == 0:
     branch_head ∈ str ← request_commit(mirror, str(config["request_base"]), branch_request, "")
     branch_envelope ∈ dict[str, object] ← {"request_commit": branch_head}
     branch_result ∈ dict[str, object] ← run_case("request-branch-positive", branch_config, "pipeline-requests", branch_envelope, "PASS", "")
+    # Exercise the same request/policy rejection through immutable branch blobs.
+    for field in ["shell", "argv", "environment", "compiler", "interpreter", "signer", "policy", "unknown-operation"]:
+        rejected_request ∈ dict[str, object] ← copy_object(branch_request)
+        expected_failure ∈ str ← "REQUEST_FIELDS"
+        if field == "unknown-operation":
+            rejected_request["pipeline"] ← "unknown"
+            expected_failure ← "UNKNOWN_OPERATION"
+        else:
+            rejected_request[field] ← "forbidden"
+        rejected_commit ∈ str ← request_commit(mirror, str(config["request_base"]), rejected_request, "")
+        run_case("request-branch-" + field, branch_config, "pipeline-requests", {"request_commit": rejected_commit}, "BLOCKED", expected_failure)
+    rejected_config ∈ dict[str, object] ← copy_object(branch_config)
+    rejected_config["qualified"] ← False
+    run_case("request-branch-unqualified", rejected_config, "pipeline-requests", branch_envelope, "BLOCKED", "UNQUALIFIED_ADAPTER")
+    for omitted in ["prepare", "fixture-personal"]:
+        rejected_config ← copy_object(branch_config)
+        requested_checks ∈ list[str] ← list(contract["required_checks"])
+        requested_checks.remove(omitted)
+        rejected_config["required_checks"] ← requested_checks
+        run_case("request-branch-omitted-" + omitted, rejected_config, "pipeline-requests", branch_envelope, "BLOCKED", "MANDATORY_CHILD_MISSING")
     dirty_file ∈ str ← output + "/preserved-dirty.txt"
     Path(dirty_file).write_text("unchanged user work\n")
     for changed_code in ["scripts/run-pipeline", "registry/kitchen-transfer-script.contract.json", "scripts/registered-execution.pi"]:
