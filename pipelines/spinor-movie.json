@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "spinor-movie",
+  "required_stages": [
+    "spinor-movie"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "spinor-movie",
+      "argv": [
+        "/bin/sh",
+        "scripts/spinor-movie"
+      ],
+      "cwd": "."
+    }
+  ]
+}

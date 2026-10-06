@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kitchen": {
+    "repository": "isomorphisms/kitchen",
+    "origin": "https://github.com/isomorphisms/kitchen.git",
+    "files": {
+      "tasks/spinor-demo-movie/build.sh": "a61d2ff25c5fada56432fb0b1a5ab84dbd3ebea2",
+      "tasks/movie-from-stills/build.sh": "132e00b2a2f196854e1efb006f23ea524a402a63",
+      "tasks/movie-from-stills/1.sh": "3fee8ce7bf0110fea5ffc9ca94d57fe061704a08"
+    }
+  },
+  "spinor": {
+    "repository": "functorial-games/spinor",
+    "origin": "https://github.com/functorial-games/spinor.git",
+    "files": {
+      "movie/render-frames.sh": "a910d8072317d3962f18f7d016747941ac8fd0ab",
+      "movie/render_frames.c": "24009aa3c0e21a4b09cc189550d2a009eff7373c",
+      "native/spinor_core.c": "909bf609c1ad255e94239ab927e107083e91b832",
+      "native/spinor_core.h": "ecb60e6177a35d41ef039dbe8759fdea423584c3",
+      "native/spinor_field.c": "7a7b954b0c458d99c1a1fa8e69b5105595f16fc1",
+      "native/spinor_field.h": "f9c46ec228fc17c3118d650396f21322361fb1f3",
+      "native/spinor_ribbons.c": "675f12f0205fff7dcd9d68d82fdaf8aba2d19db8",
+      "native/spinor_ribbons.h": "1abb56993bac228b56f9aee17958141d257af470"
+    }
+  }
+}
