@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "repository": "isomorphisms/kitchen",
+  "origin": "https://github.com/isomorphisms/kitchen.git",
+  "providers": {
+    "abebooks": {
+      "path": "tasks/book-lookup/abebooks.py",
+      "git_blob_sha": "d3886629b8bf49d93952754b96770768e9dbd9ef"
+    },
+    "internet-archive": {
+      "path": "tasks/book-lookup/internet_archive.py",
+      "git_blob_sha": "9f667fd08bd180ff563b32e21c3a80fe8f031acc"
+    }
+  }
+}
