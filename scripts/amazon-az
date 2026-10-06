@@ -1,0 +1,53 @@
+#!/bin/sh
+set -eu
+
+fail() {
+    printf '%s\n' "$*" >&2
+    exit 2
+}
+
+: "${KITCHEN_ROOT:?set KITCHEN_ROOT to a verified isomorphisms/kitchen checkout}"
+
+relative=tasks/product-lookup/amazon-az.sh
+expected_blob=d2c71bdbb64467d063b6b97c2727880a7931ad11
+script=$KITCHEN_ROOT/$relative
+
+[ -f "$script" ] || fail "missing Kitchen AZ helper: $script"
+
+origin=$(git -C "$KITCHEN_ROOT" remote get-url origin 2>/dev/null || true)
+case $origin in
+    https://github.com/isomorphisms/kitchen|https://github.com/isomorphisms/kitchen.git|git@github.com:isomorphisms/kitchen.git|ssh://git@github.com/isomorphisms/kitchen.git)
+        ;;
+    *)
+        fail "wrong Kitchen origin: $origin"
+        ;;
+esac
+
+head_blob=$(git -C "$KITCHEN_ROOT" rev-parse "HEAD:$relative" 2>/dev/null || true)
+[ "$head_blob" = "$expected_blob" ] ||
+    fail "Kitchen HEAD does not contain the pinned AZ helper"
+
+work_blob=$(git -C "$KITCHEN_ROOT" hash-object -- "$script")
+[ "$work_blob" = "$expected_blob" ] ||
+    fail "Kitchen AZ helper bytes differ from the pinned blob"
+
+command=${AZ_COMMAND:-search}
+
+case $command in
+    doctor)
+        set -- doctor
+        ;;
+    search)
+        : "${AMAZON_QUERY:?set AMAZON_QUERY for AZ search}"
+        set -- search "$AMAZON_QUERY"
+        ;;
+    price|history|link)
+        : "${AMAZON_TARGET:?set AMAZON_TARGET to an ASIN or AZ-supported Amazon target}"
+        set -- "$command" "$AMAZON_TARGET"
+        ;;
+    *)
+        fail "unsupported AZ_COMMAND: $command"
+        ;;
+esac
+
+exec /bin/sh "$script" "$@"
