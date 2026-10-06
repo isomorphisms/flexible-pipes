@@ -9,6 +9,8 @@ import sys
 import subprocess
 import hashlib
 import time
+import shutil
+import uuid
 from pathlib import Path
 from builtins import dict, list, open, ValueError
 
@@ -128,10 +130,59 @@ runtime_files ∈ list[Path] ← list(Path(grease_source).rglob("*.py"))
 runtime_files.extend(list(Path(grease_source).rglob("*.so")))
 for runtime_file in runtime_files:
     tools.append({"path": str(runtime_file), "sha256": digest(str(runtime_file))})
+# Never widen runner-home permissions to make a worker read source. Materialize
+# read-only runtime/source copies in this attempt's public, root-owned release.
+release ∈ str ← "/tmp/fp2-release-" + str(uuid.uuid4())
+Path(release).mkdir(mode=493)
+runtime_ithon ∈ str ← release + "/ithon"
+Path(runtime_ithon + "/Lib").mkdir(mode=493, parents=True)
+for relative in ["ithon_host.py", "Lib/ithon_static.py", "Lib/ithon_frontend.py", "Lib/ithon_run.py"]:
+    copied ∈ str ← runtime_ithon + "/" + relative
+    shutil.copyfile(ithon + "/" + relative, copied)
+    tools.append({"path": copied, "sha256": digest(copied)})
+ithon_command ← [python, runtime_ithon + "/ithon_host.py"]
+runtime_grease ∈ str ← release + "/grease-source"
+shutil.copytree(grease_source, runtime_grease, ignore=shutil.ignore_patterns(".git", "*.pyc", "*.o", "*.a"))
+runtime_python ∈ str ← release + "/python2"
+shutil.copyfile(grease_python, runtime_python)
+os.chmod(runtime_python, 365)
+prefix ∈ str ← release + "/python-prefix"
+shutil.copytree(grease_source + "/Python-2.7.13/Lib", prefix + "/lib/python2.7")
+extension_dirs ∈ list[Path] ← list(Path(grease_python).parent.glob("build/lib.*"))
+if len(extension_dirs) != 1:
+    raise ValueError("ambiguous Python 2 extension directory")
+shutil.copytree(str(extension_dirs[0]), prefix + "/lib/python2.7/lib-dynload")
+grease_environment["PYTHONHOME"] ← prefix
+grease_environment["PYTHONPATH"] ← runtime_grease + ":" + runtime_grease + "/vendor"
+grease ← [runtime_python, runtime_grease + "/bin/oils_for_unix.py", "ysh"]
+runtime_materials ∈ list[dict[str, object]] ← []
+for material in materials:
+    relative ∈ str ← str(material["relative_path"])
+    if relative.endswith(".pi") or relative.endswith(".sh"):
+        copied ← release + "/" + relative
+        Path(copied).parent.mkdir(mode=493, parents=True, exist_ok=True)
+        shutil.copyfile(str(material["path"]), copied)
+        record ∈ dict[str, object] ← dict(material)
+        record["path"] ← copied
+        runtime_materials.append(record)
+materials.extend(runtime_materials)
+runtime_files ← list(Path(release).rglob("*.py"))
+runtime_files.extend(list(Path(release).rglob("*.so")))
+runtime_files.append(Path(runtime_python))
+for runtime_file in runtime_files:
+    tools.append({"path": str(runtime_file), "sha256": digest(str(runtime_file))})
 bin_dir ∈ str ← output + "/fixture-bin"
 Path(bin_dir).mkdir(mode=493)
 bridge ∈ str ← bin_dir + "/gh"
-bridge_text ∈ str ← "#!" + grease_launcher + "\nexec " + python + " " + ithon + "/ithon_host.py " + kitchen + "/tasks/github-repository-transfer/fixture-gh.pi \"$@\"\n"
+runtime_launcher ∈ str ← release + "/grease"
+# Cat Food's existing source launcher is runtime plumbing. Bind its byte-for-
+# byte copy plus rewritten fixed runtime locations, never another shell.
+launcher_text ∈ str ← Path(grease_launcher).read_text()
+launcher_text ← launcher_text.replace(grease_python, runtime_python).replace(grease_source, runtime_grease)
+Path(runtime_launcher).write_text(launcher_text)
+os.chmod(runtime_launcher, 365)
+tools.append({"path": runtime_launcher, "sha256": digest(runtime_launcher)})
+bridge_text ∈ str ← "#!" + runtime_launcher + "\nexec /usr/bin/env -u PYTHONHOME -u PYTHONPATH " + python + " " + runtime_ithon + "/ithon_host.py " + release + "/tasks/github-repository-transfer/fixture-gh.pi \"$@\"\n"
 Path(bridge).write_text(bridge_text)
 os.chmod(bridge, 365)
 tools.append({"path": bridge, "sha256": digest(bridge)})
@@ -142,7 +193,7 @@ encoded_materials ∈ str ← json.dumps(materials, sort_keys=True, separators=(
 closure ∈ str ← hashlib.sha256(encoded_materials.encode()).hexdigest()
 qualification_path ∈ str ← output + "/runtime-interface-qualification.json"
 write(qualification_path, {"schema_version": 1, "status": "PASS", "scope": "local-qualification", "materials_sha256": closure, "evidence": "Ithon control tests plus verified Grease interface probes", "excluded_claims": ["operation-qualified-before-this-run", "deployment"]})
-config ∈ dict[str, object] ← {"schema_version": 1, "operation": "kitchen-transfer-script", "operation_version": "2", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": digest(contract_path), "qualification": qualification_path, "qualification_sha256": digest(qualification_path), "control_commit": git(fp, ["rev-parse", "HEAD"]), "state_root": output + "/state", "request_mirror": fp, "request_base": git(fp, ["rev-parse", "HEAD"]), "ithon": ithon_command, "grease": grease, "grease_environment": grease_environment, "worker": fp + "/scripts/registered-worker.pi", "generator": kitchen + "/tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "fixture_server": kitchen + "/tasks/github-repository-transfer/fixture-api.pi", "fixture_bin": bin_dir, "api_validator": aici + "/validators/kitchen-transfer-script.pi", "seal_validator": catfood + "/acceptance/sealed-script.pi"}
+config ∈ dict[str, object] ← {"schema_version": 1, "operation": "kitchen-transfer-script", "operation_version": "2", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": digest(contract_path), "qualification": qualification_path, "qualification_sha256": digest(qualification_path), "control_commit": git(fp, ["rev-parse", "HEAD"]), "state_root": output + "/state", "request_mirror": fp, "request_base": git(fp, ["rev-parse", "HEAD"]), "ithon": ithon_command, "grease": grease, "grease_environment": grease_environment, "worker": release + "/scripts/registered-worker.pi", "generator": release + "/tasks/github-repository-transfer/generate-transfer-github-repository-script.sh", "fixture_server": kitchen + "/tasks/github-repository-transfer/fixture-api.pi", "fixture_bin": bin_dir, "api_validator": aici + "/validators/kitchen-transfer-script.pi", "seal_validator": catfood + "/acceptance/sealed-script.pi"}
 config_path ∈ str ← output + "/candidate-deployment.json"
 write(config_path, config)
 inputs ∈ dict[str, object] ← {"source_owner": "source", "repository": "sample", "destination_owner": "destination", "expected_login": "login", "expected_repository_id": 123, "target_context": "linux-x86_64-grease-v1"}
