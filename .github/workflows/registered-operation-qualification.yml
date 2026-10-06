@@ -29,14 +29,14 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: 9f57e9cb2d67c528fd2e48ffc122f9233f3121d1
+          ref: 983bcc92c09368caea469732a2f04e3a0151e45f
           path: kitchen
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 21cf9cd43244dbdeed649e791536f040833f5a08
+          ref: 96016937b55e99d432eb84bffd8995fe2583474c
           path: ai-ci
           persist-credentials: false
           fetch-depth: 0

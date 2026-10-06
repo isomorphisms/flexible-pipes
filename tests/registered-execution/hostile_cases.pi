@@ -45,8 +45,7 @@ def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], env
         result ∈ dict[str, object] ← json.loads(Path(base + "/stdout.json").read_bytes())
         detail ∈ str ← str(result.get("blocker", result.get("first_failure", "")))
         if result["status"] != expected or prefix != "" and not detail.startswith(prefix):
-            result_text ∈ str ← json.dumps(result)
-            raise ValueError("case failed: " + name + ": " + result_text)
+            raise ValueError("case failed: " + name + ": " + str(result["status"]) + ": " + detail)
         check ∈ dict[str, object] ← {"case": name, "status": "PASS", "actual_status": expected, "failure": detail}
         Path(base + "/check.json").write_bytes(encode(check))
         checks.append(check)

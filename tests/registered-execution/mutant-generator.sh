@@ -4,6 +4,7 @@ var repository = ARGV[1]
 var source = ARGV[0]
 var destination = ARGV[2]
 var name = "transfer-${repository}-from-${source}-to-${destination}.sh"
+var FP_TEST_MUTANT = ENV.FP_TEST_MUTANT
 if test "$FP_TEST_MUTANT" = pass-printer {
   echo 'echo PASS' > "$name"
 } elif test "$FP_TEST_MUTANT" = failing-test {

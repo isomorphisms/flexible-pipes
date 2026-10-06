@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Iterable
 from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError
 
-REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
+REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
-MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network"]
+MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "accepted-still-pending", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network"]
 OPERATION_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256"]
 
 def interrupt(number ∈ int, frame ∈ object) → None:
@@ -310,6 +310,13 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     os.chmod(io + "/response", 438)
     specification ∈ str ← base + "/fixture.json"
     atomic(specification, {"mode": mode, "inputs": inputs, "artifact_sha256": digest(Path(artifact).read_bytes())})
+    artifact_name ∈ str ← Path(artifact).name
+    executed_artifact ∈ str ← base + "/" + artifact_name
+    shutil.copyfile(artifact, executed_artifact)
+    os.chmod(executed_artifact, 292)
+    private_state ∈ str ← base + "/transfer-state"
+    Path(private_state).mkdir(mode=448)
+    os.chown(private_state, uid, uid)
     ithon ∈ list[str] ← list(config["ithon"])
     server_command ∈ list[str] ← list(ithon)
     server_command.extend([str(config["fixture_server"]), io, specification])
@@ -319,7 +326,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     guard ∈ object ← watch_process(base, server, config, 125)
     codes ∈ list[int] ← []
     try:
-        executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" else 1
+        executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" or mode == "accepted-still-pending" else 1
         for index in range(executions):
             work ∈ str ← base + "/unrelated directory '" + str(index)
             home ∈ str ← base + "/fresh home \"" + str(index)
@@ -331,14 +338,19 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
             environment["PATH"] ← str(config["fixture_bin"]) + ":/usr/bin:/bin"
             environment["HOME"] ← home
             environment["FP_FIXTURE_IO"] ← io
+            environment["GH_TOKEN"] ← "disposable-fixture-token"
+            environment["GITHUB_TOKEN"] ← "disposable-fixture-token"
+            environment["GH_HOST"] ← "invalid.fixture"
             grease ∈ list[str] ← list(config["grease"])
             grease.append(str(config["parent_probe"]))
             grease.extend(list(config["grease"]))
-            grease.append(artifact)
+            grease.append(executed_artifact)
             code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config, server)
             parent_output ∈ bytes ← Path(base + "/execution-" + str(index) + "/stdout.bin").read_bytes()
             if not parent_output.endswith(b"PARENT_SURVIVED\n"):
                 raise ValueError("PARENT_SHELL_TERMINATED")
+            if digest(Path(executed_artifact).read_bytes()) != digest(Path(artifact).read_bytes()):
+                raise ValueError("EXECUTED_ARTIFACT_CHANGED")
             codes.append(code)
         if len(codes) == 1:
             codes.append(-125)
