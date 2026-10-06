@@ -182,7 +182,8 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
         if not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
     commands ∈ list[str] ← list(config["ithon"])
-    commands.extend(list(config["grease"])[:2])
+    grease_command ∈ list[str] ← list(config["grease"])
+    commands.extend(grease_command[:2])
     for selected in commands:
         if not tool_paths.__contains__(selected) and not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_RUNTIME")

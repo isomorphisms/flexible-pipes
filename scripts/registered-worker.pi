@@ -28,7 +28,9 @@ if loaded != 0:
     raise RuntimeError("SECURITY_BOUNDARY_UNAVAILABLE")
 resource.setrlimit(resource.RLIMIT_CPU, (60, 60))
 resource.setrlimit(resource.RLIMIT_FSIZE, (67108864, 67108864))
-resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+# The pinned Grease runtime reserves its internal descriptors from 100.
+resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
+resource.setrlimit(resource.RLIMIT_AS, (536870912, 536870912))
 command ∈ list[str] ← list(plan["argv"])
 environment ∈ dict[str, str] ← dict(plan["environment"])
 os.execve(command[0], command, environment)
