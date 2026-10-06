@@ -231,7 +231,13 @@ def main() -> int:
                 # Do not execute later stages (including dispatch) on this path.
                 receipt["status"] = "AWAITING_HANDOFF_DELIVERY"
                 receipt["handoff_stage"] = name
-                receipt["response_artifact"] = str(stage_path) + ".response.txt"
+                composed_handoff = receipt["stages"][-1]["handoff"]
+                if composed_handoff.get("transport") == "attachment":
+                    receipt["attachment_artifact"] = str(stage_path) + ".attachment"
+                    receipt["attachment_file_name"] = composed_handoff["attachment"]["file_name"]
+                    receipt["attachment_mime_type"] = composed_handoff["attachment"]["mime_type"]
+                else:
+                    receipt["response_artifact"] = str(stage_path) + ".response.txt"
                 break
         else:
             receipt["status"] = "PASS"

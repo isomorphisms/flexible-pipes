@@ -1,9 +1,11 @@
 """Exercise actual delivery effects, ordering, recovery and pipeline adoption."""
 import os
 import sys
+import io
 import json
 import subprocess
 import tempfile
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 from builtins import dict, list, ValueError, Exception, AssertionError
@@ -33,6 +35,13 @@ def dispatch_send(payload ∈ bytes, payload_id ∈ str) → dict[str, object]:
     actual ∈ bytes ← payload + b"changed\n" if mutation == "dispatch" else payload
     return {"bytes": actual, "dispatch_id": payload_id}
 
+def attachment_send(payload ∈ bytes, name ∈ str, mime ∈ str, provenance ∈ dict[str, object]) → dict[str, object]:
+    effects.append("visible")
+    actual ∈ bytes ← payload + b"changed" if mutation == "attachment-bytes" else payload
+    actual_name ∈ str ← "wrong.apk" if mutation == "attachment-name" else name
+    actual_mime ∈ str ← "application/zip" if mutation == "attachment-mime" else mime
+    return {"bytes": actual, "file_id": "fixture-file", "file_name": actual_name, "mime_type": actual_mime, "surface": "fixture-visible-chat"}
+
 def fresh(payload ∈ bytes, mode ∈ str) → dict[str, object]:
     request ∈ dict[str, object] ← {"id": "oct6-fixture", "text": "Make a Sun job", "delivery_mode": mode}
     if mode != "display-only":
@@ -48,9 +57,9 @@ def passed(name ∈ str) → None:
     passed_cases.append(name)
     print("PASS " + name)
 
-sink ∈ object ← SimpleNamespace(send=surface_send)
+sink ∈ object ← SimpleNamespace(send=surface_send, send_attachment=attachment_send)
 dispatcher ∈ object ← SimpleNamespace(send=dispatch_send)
-gate ∈ object ← SimpleNamespace(check=job_delivery.check)
+gate ∈ object ← SimpleNamespace(check=job_delivery.check, check_attachment=job_delivery.check_attachment)
 for fixture in ["young-tableaux", "a1-c67"]:
     payload ∈ bytes ← Path(str(root) + "/regressions/job-delivery/" + fixture + ".txt").read_bytes()
     for mode in ["display-only", "display-and-dispatch", "dispatch-only"]:
@@ -101,6 +110,91 @@ for fixture in ["young-tableaux", "a1-c67"]:
         raise AssertionError("review bypassed deterministic failure")
     passed(fixture + " review rejects hidden artifact")
 
+attachment_bytes ∈ bytes ← b"PK\x03\x04fixture-signed-apk\x00\xff"
+attachment_name ∈ str ← "young-tableaux-arm64-v8a.apk"
+attachment_mime ∈ str ← "application/vnd.android.package-archive"
+provenance ∈ dict[str, object] ← {"provider": "github-actions", "resource": "functorial-games/young-tableaux", "revision": "20e075021b743909bc5c28764f787bae20381bc4", "reference": "artifact:11429847456"}
+
+def attachment_stage(source ∈ bytes, source_name ∈ str, member ∈ str) → dict[str, object]:
+    attachment ∈ dict[str, object] ← {"file_name": attachment_name, "mime_type": attachment_mime, "sha256": handoff.digest(attachment_bytes), "source_name": source_name, "source_sha256": handoff.digest(source), "provenance": provenance}
+    if member != "":
+        attachment["archive_member"] ← member
+    stage ∈ dict[str, object] ← {"name": "apk", "kind": "command", "exit_code": 0, "stdout_sha256": handoff.digest(source)}
+    spec ∈ dict[str, object] ← {"audience": "human", "model": "selected-Sun-model", "source_context": "issue-39", "request": {"id": "apk-fixture", "text": "Give me the APK in here like normal"}, "attachment": attachment}
+    return handoff.compose(stage, source, spec)
+
+for source_kind in ["direct", "archive"]:
+    source ∈ bytes ← attachment_bytes
+    source_name ∈ str ← attachment_name
+    member ∈ str ← ""
+    if source_kind == "archive":
+        stream ∈ object ← io.BytesIO()
+        archive ∈ object ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+        archive.writestr("c67/" + attachment_name, attachment_bytes)
+        archive.close()
+        source ← stream.getvalue()
+        source_name ← "young-tableaux-apk.zip"
+        member ← "c67/" + attachment_name
+    mutation ← "none"
+    effects.clear()
+    delivered ← handoff.deliver(attachment_stage(source, source_name, member), source, sink, dispatcher, gate, "")
+    delivered_handoff ∈ dict[str, object] ← dict(delivered["handoff"])
+    if effects != ["visible"]:
+        raise AssertionError("attachment delivery effects failed")
+    if str(delivered["delivery_status"]) != "PASS":
+        raise AssertionError("attachment delivery status failed")
+    expected_sha ∈ str ← str(handoff.digest(attachment_bytes))
+    actual_sha ∈ str ← str(delivered_handoff["payload_sha256"])
+    if actual_sha != expected_sha:
+        raise AssertionError("attachment delivery failed")
+    passed("attachment " + source_kind + " exact visible bytes")
+    for bad in ["attachment-bytes", "attachment-name", "attachment-mime"]:
+        mutation ← bad
+        caught ← False
+        try:
+            handoff.deliver(attachment_stage(source, source_name, member), source, sink, dispatcher, gate, "")
+        except ValueError:
+            caught ← True
+        if not caught:
+            raise AssertionError("bad attachment reached acceptance")
+        passed("attachment " + source_kind + " rejects " + bad)
+
+mutation ← "none"
+caught ← False
+try:
+    wrong ∈ dict[str, object] ← attachment_stage(attachment_bytes, attachment_name, "")
+    record ∈ dict[str, object] ← dict(wrong["handoff"])
+    attachment ∈ dict[str, object] ← dict(record["attachment"])
+    attachment["sha256"] ← "0000000000000000000000000000000000000000000000000000000000000000"
+    record["attachment"] ← attachment
+    wrong["handoff"] ← record
+    handoff.identity(wrong, attachment_bytes)
+except ValueError:
+    caught ← True
+if not caught:
+    raise AssertionError("changed attachment digest accepted")
+passed("attachment contract rejects changed digest")
+
+for bad_archive in ["missing-member", "duplicate-member", "changed-source"]:
+    stream ← io.BytesIO()
+    archive ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+    archive.writestr("c67/" + attachment_name, attachment_bytes)
+    if bad_archive == "duplicate-member":
+        archive.writestr("c67/" + attachment_name, attachment_bytes)
+    archive.close()
+    source ← stream.getvalue()
+    caught ← False
+    try:
+        member ← "missing/" + attachment_name if bad_archive == "missing-member" else "c67/" + attachment_name
+        candidate ∈ dict[str, object] ← attachment_stage(source, "young-tableaux-apk.zip", member)
+        if bad_archive == "changed-source":
+            handoff.identity(candidate, source + b"changed")
+    except ValueError:
+        caught ← True
+    if not caught:
+        raise AssertionError("bad attachment archive accepted")
+    passed("attachment rejects " + bad_archive)
+
 # Exercise the real maintained runner, not only library functions. A later
 # command would write a marker; pending delivery must prevent that effect.
 with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
@@ -124,6 +218,38 @@ with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
         if int(child.returncode) == 0 or bool(Path(marker).exists()) or bool(Path(work + "/invalid-runs").exists()):
             raise AssertionError("invalid handoff reached effects")
         passed("real pipeline prevalidates handoff before effects")
+    finally:
+        pipeline.unlink(missing_ok=True)
+
+with tempfile.TemporaryDirectory(prefix="attachment-delivery-") as temporary:
+    work ← str(temporary)
+    marker ← work + "/should-not-run"
+    source_path ∈ Path ← Path(work + "/artifact.zip")
+    stream ← io.BytesIO()
+    archive ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+    archive.writestr("c67/" + attachment_name, attachment_bytes)
+    archive.close()
+    source ← stream.getvalue()
+    source_path.write_bytes(source)
+    pipeline ← Path(str(root) + "/pipelines/test-attachment-delivery.json")
+    attachment ← {"file_name": attachment_name, "mime_type": attachment_mime, "sha256": handoff.digest(attachment_bytes), "source_name": "artifact.zip", "source_sha256": handoff.digest(source), "archive_member": "c67/" + attachment_name, "provenance": provenance}
+    spec ← {"audience": "human", "model": "fixture", "source_context": "issue-39", "request": {"id": "runner-attachment", "text": "Give me the APK in here like normal"}, "attachment": attachment}
+    stages ← [{"name": "attachment", "kind": "command", "argv": ["cat", str(source_path)], "handoff": spec}, {"name": "later", "kind": "command", "argv": ["touch", marker]}]
+    plan ← {"schema_version": 1, "name": "test-attachment-delivery", "stages": stages}
+    try:
+        pipeline.write_text(json.dumps(plan))
+        child ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline", "test-attachment-delivery", "--ithon", ithon, "--runs-root", work + "/runs"], capture_output=True)
+        result ← json.loads(child.stdout)
+        artifact ∈ Path ← Path(str(result["attachment_artifact"]))
+        failed ∈ bool ← int(child.returncode) == 0
+        failed ← failed or str(result["status"]) != "AWAITING_HANDOFF_DELIVERY"
+        failed ← failed or str(result["attachment_file_name"]) != attachment_name
+        failed ← failed or str(result["attachment_mime_type"]) != attachment_mime
+        failed ← failed or bytes(artifact.read_bytes()) != attachment_bytes
+        failed ← failed or bool(Path(marker).exists())
+        if failed:
+            raise AssertionError("runner attachment handoff failed")
+        passed("real pipeline materializes exact archive member and holds")
     finally:
         pipeline.unlink(missing_ok=True)
 print("runtime cases PASS: " + str(len(passed_cases)))
