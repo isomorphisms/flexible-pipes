@@ -45,6 +45,15 @@ def read(path ∈ str) → dict[str, object]:
         raise ValueError("OBJECT_REQUIRED")
     return value
 
+def unique_object(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
+    result ∈ dict[str, object] ← {}
+    for pair in pairs:
+        key ∈ str ← pair[0]
+        if result.__contains__(key):
+            raise ValueError("DUPLICATE_JSON_KEY")
+        result[key] ← pair[1]
+    return result
+
 def clean_environment() → dict[str, str]:
     return {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_NO_REPLACE_OBJECTS": "1", "GIT_TERMINAL_PROMPT": "0", "HOME": "/nonexistent"}
 
@@ -61,10 +70,10 @@ def git(repo ∈ str, args ∈ list[str]) → bytes:
 def checked_request(raw ∈ bytes) → dict[str, object]:
     if len(raw) > 16384:
         raise ValueError("REQUEST_SIZE")
-    request ∈ dict[str, object] ← json.loads(raw)
+    request ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
     if not isinstance(request, dict) or set(request) != set(["schema_version", "request_id", "pipeline", "inputs"]):
         raise ValueError("REQUEST_FIELDS")
-    if request["schema_version"] != 1 or request["pipeline"] != "kitchen-transfer-script":
+    if type(request["schema_version"]) != int or request["schema_version"] != 1 or request["pipeline"] != "kitchen-transfer-script":
         raise ValueError("UNKNOWN_OPERATION")
     import re
     if not isinstance(request["request_id"], str):
@@ -72,6 +81,8 @@ def checked_request(raw ∈ bytes) → dict[str, object]:
     matched ∈ object ← re.fullmatch("[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", str(request["request_id"]))
     if matched == None:
         raise ValueError("REQUEST_ID")
+    if not isinstance(request["inputs"], dict):
+        raise ValueError("INPUT_OBJECT")
     inputs ∈ dict[str, object] ← dict(request["inputs"])
     if set(inputs) != set(FIELDS):
         raise ValueError("INPUT_FIELDS")

@@ -48,6 +48,60 @@ def git(repo ∈ str, args ∈ list[str]) → str:
     result ∈ bytes ← process.stdout
     return result.decode().strip()
 
+def run_case(name ∈ str, candidate ∈ dict[str, object], route ∈ str, admission ∈ dict[str, object], expected ∈ str, failure ∈ str) → dict[str, object]:
+    directory ∈ str ← output + "/cases/" + name
+    Path(directory).mkdir(mode=493, parents=True, exist_ok=False)
+    write(directory + "/deployment.json", candidate)
+    write(directory + "/envelope.json", admission)
+    command ∈ list[str] ← list(ithon_command)
+    command.extend([fp + "/scripts/registered-execution.pi", "qualify", directory + "/deployment.json", route, directory + "/envelope.json"])
+    with open(directory + "/stdout.json", "xb") as out:
+        with open(directory + "/stderr.bin", "xb") as err:
+            child ∈ object ← subprocess.run(command, env=environment, stdout=out, stderr=err, timeout=130)
+    result ∈ dict[str, object] ← json.loads(Path(directory + "/stdout.json").read_bytes())
+    if result["status"] != expected:
+        raise ValueError("unexpected case outcome: " + name)
+    detail ∈ str ← str(result.get("blocker", result.get("first_failure", "")))
+    if failure != "" and not detail.startswith(failure):
+        raise ValueError("wrong failure: " + name + ": " + detail)
+    write(directory + "/check.json", {"case": name, "status": "PASS", "operation_status": expected, "failure": detail})
+    return result
+
+def copy_object(value ∈ dict[str, object]) → dict[str, object]:
+    result ∈ dict[str, object] ← json.loads(json.dumps(value))
+    return result
+
+def request_commit(mirror ∈ str, base ∈ str, request ∈ dict[str, object], changed_code ∈ str) → str:
+    # An object-only fixture. No checkout, hooks, reset, clean or user edit.
+    payload ∈ str ← json.dumps(request, sort_keys=True)
+    child ∈ object ← subprocess.run(["/usr/bin/git", "-C", mirror, "hash-object", "-w", "--stdin"], input=payload.encode(), env=environment, capture_output=True, check=True)
+    blob_bytes ∈ bytes ← child.stdout
+    blob ∈ str ← blob_bytes.decode().strip()
+    request_tree ∈ str ← "100644 blob " + blob + "\tqualification.json\n"
+    child ← subprocess.run(["/usr/bin/git", "-C", mirror, "mktree"], input=request_tree.encode(), env=environment, capture_output=True, check=True)
+    tree_bytes ∈ bytes ← child.stdout
+    requests_tree ∈ str ← tree_bytes.decode().strip()
+    listing ∈ str ← git(mirror, ["ls-tree", base])
+    rows ∈ list[str] ← listing.splitlines()
+    new_listing ∈ str ← ""
+    for row in rows:
+        if not row.endswith("\trequests"):
+            new_listing ← new_listing + row + "\n"
+    new_listing ← new_listing + "040000 tree " + requests_tree + "\trequests\n"
+    if changed_code != "":
+        new_listing ← new_listing + "100644 blob " + blob + "\taltered-control-code.pi\n"
+    child ← subprocess.run(["/usr/bin/git", "-C", mirror, "mktree"], input=new_listing.encode(), env=environment, capture_output=True, check=True)
+    root_bytes ∈ bytes ← child.stdout
+    root_tree ∈ str ← root_bytes.decode().strip()
+    identity ∈ dict[str, str] ← dict(environment)
+    identity["GIT_AUTHOR_NAME"] ← "Disposable fixture"
+    identity["GIT_AUTHOR_EMAIL"] ← "fixture@example.invalid"
+    identity["GIT_COMMITTER_NAME"] ← "Disposable fixture"
+    identity["GIT_COMMITTER_EMAIL"] ← "fixture@example.invalid"
+    child ← subprocess.run(["/usr/bin/git", "-C", mirror, "commit-tree", root_tree, "-p", base, "-m", "Data-only intake fixture"], env=identity, capture_output=True, check=True)
+    commit_bytes ∈ bytes ← child.stdout
+    return commit_bytes.decode().strip()
+
 materials ∈ list[dict[str, object]] ← []
 repositories ∈ list[dict[str, object]] ← [
     {"checkout": fp, "files": ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "registry/kitchen-transfer-script.contract.json"], "ref": "origin/implement/fp2-runtime-qualification"},
@@ -105,6 +159,69 @@ with open(output + "/dispatch.stdout.json", "xb") as out:
 code ∈ int ← process.returncode
 result ∈ dict[str, object] ← json.loads(Path(output + "/dispatch.stdout.json").read_bytes())
 print(json.dumps({"status": result.get("status"), "first_failure": result.get("first_failure"), "blocker": result.get("blocker")}))
+if code == 0:
+    # Duplicate submission returns its original attempt; retries create a new
+    # one without touching the earlier journal/artifact.
+    duplicate ∈ dict[str, object] ← run_case("duplicate", config, "workflow_dispatch", envelope, "PASS", "")
+    if duplicate["run_id"] != result["run_id"]:
+        raise ValueError("duplicate created another run")
+    for field in ["shell", "argv", "environment", "compiler", "interpreter", "signer", "policy"]:
+        bad_request ∈ dict[str, object] ← copy_object(request)
+        bad_request[field] ← "forbidden"
+        bad_envelope ∈ dict[str, object] ← copy_object(envelope)
+        bad_envelope["request"] ← json.dumps(bad_request)
+        run_case("executable-" + field, config, "workflow_dispatch", bad_envelope, "BLOCKED", "REQUEST_FIELDS")
+    bad_request ← copy_object(request)
+    bad_request["pipeline"] ← "unknown"
+    bad_envelope ← copy_object(envelope)
+    bad_envelope["request"] ← json.dumps(bad_request)
+    run_case("unknown-operation", config, "workflow_dispatch", bad_envelope, "BLOCKED", "UNKNOWN_OPERATION")
+    bad_envelope ← copy_object(envelope)
+    bad_envelope["workflow_ref"] ← "refs/heads/old-workflow"
+    run_case("old-workflow", config, "workflow_dispatch", bad_envelope, "BLOCKED", "UNQUALIFIED_WORKFLOW_REF")
+    bad_config ∈ dict[str, object] ← copy_object(config)
+    bad_config["qualified"] ← False
+    run_case("unqualified", bad_config, "workflow_dispatch", envelope, "BLOCKED", "UNQUALIFIED_ADAPTER")
+    bad_config ← copy_object(config)
+    bad_checks ∈ list[str] ← list(contract["required_checks"])
+    bad_checks.remove("prepare")
+    bad_config["required_checks"] ← bad_checks
+    run_case("omitted-preparation", bad_config, "workflow_dispatch", envelope, "BLOCKED", "MANDATORY_CHILD_MISSING")
+    bad_config ← copy_object(config)
+    bad_checks ← list(contract["required_checks"])
+    bad_checks.remove("fixture-personal")
+    bad_config["required_checks"] ← bad_checks
+    run_case("omitted-child", bad_config, "workflow_dispatch", envelope, "BLOCKED", "MANDATORY_CHILD_MISSING")
+    changed_request ∈ dict[str, object] ← copy_object(request)
+    changed_inputs ∈ dict[str, object] ← dict(changed_request["inputs"])
+    changed_inputs["repository"] ← "other"
+    changed_request["inputs"] ← changed_inputs
+    bad_envelope ← copy_object(envelope)
+    bad_envelope["request"] ← json.dumps(changed_request, sort_keys=True)
+    run_case("duplicate-different-bytes", config, "workflow_dispatch", bad_envelope, "BLOCKED", "DUPLICATE_ID_DIFFERENT_BYTES")
+    mirror ∈ str ← output + "/request-mirror.git"
+    git(fp, ["clone", "--bare", "--no-hardlinks", fp, mirror])
+    branch_config ∈ dict[str, object] ← copy_object(config)
+    branch_config["request_mirror"] ← mirror
+    branch_request ∈ dict[str, object] ← copy_object(request)
+    branch_request["request_id"] ← "qualification-request-branch"
+    branch_head ∈ str ← request_commit(mirror, str(config["request_base"]), branch_request, "")
+    branch_envelope ∈ dict[str, object] ← {"request_commit": branch_head}
+    branch_result ∈ dict[str, object] ← run_case("request-branch-positive", branch_config, "pipeline-requests", branch_envelope, "PASS", "")
+    dirty_file ∈ str ← output + "/preserved-dirty.txt"
+    Path(dirty_file).write_text("unchanged user work\n")
+    altered_head ∈ str ← request_commit(mirror, str(config["request_base"]), branch_request, "altered")
+    branch_envelope["request_commit"] ← altered_head
+    run_case("request-branch-control-change", branch_config, "pipeline-requests", branch_envelope, "BLOCKED", "NON_REQUEST_CHANGE")
+    dirty_bytes ∈ bytes ← Path(dirty_file).read_bytes()
+    if dirty_bytes != b"unchanged user work\n":
+        raise ValueError("dirty state changed")
+    # Both positive routes executed the real recipe and return identical bytes.
+    dispatch_artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+    branch_artifacts ∈ list[dict[str, object]] ← list(branch_result["artifacts"])
+    if dispatch_artifacts[0]["sha256"] != branch_artifacts[0]["sha256"]:
+        raise ValueError("route artifact mismatch")
+    write(output + "/both-routes.json", {"status": "PASS", "dispatch_run": result["run_id"], "request_branch_run": branch_result["run_id"], "artifact_sha256": dispatch_artifacts[0]["sha256"], "scope": "hosted-candidate-adapter-qualification", "deployment": "inactive"})
 failure_logs ∈ list[Path] ← list(Path(output).rglob("stderr.bin"))
 for failure_log in failure_logs:
     message ∈ bytes ← failure_log.read_bytes()
