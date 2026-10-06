@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: 7d78b8ffc73069c44d6d4c440939e426afdddbbc
+          ref: c6f958345e3a4bb32a5bb32eafde94cfe32574be
           path: kitchen
           persist-credentials: false
           fetch-depth: 0
