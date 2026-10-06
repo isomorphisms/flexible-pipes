@@ -18,7 +18,7 @@ import platform
 import ithon_frontend
 from pathlib import Path
 from typing import Iterable
-from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt
+from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError
 
 REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
@@ -224,7 +224,7 @@ def adapter(config ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, 
         raise ValueError("NON_REQUEST_BLOB")
     return git(repo, ["show", resolved + ":" + path])
 
-def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], directory ∈ str, worker_uid ∈ int, config ∈ dict[str, object]) → int:
+def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], directory ∈ str, worker_uid ∈ int, config ∈ dict[str, object], peer ∈ object = None) → int:
     Path(directory).mkdir(mode=448)
     stdout_path ∈ str ← directory + "/stdout.bin"
     stderr_path ∈ str ← directory + "/stderr.bin"
@@ -246,6 +246,10 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
             record_process(process_record, child)
             try:
                 while True:
+                    if peer != None:
+                        peer_code ∈ object ← peer.poll()
+                        if peer_code != None:
+                            raise RuntimeError("FIXTURE_SERVICE_FAILED: " + str(peer_code))
                     code ∈ object ← child.poll()
                     if code != None:
                         return int(code)
@@ -307,7 +311,7 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
             environment["FP_FIXTURE_IO"] ← io
             grease ∈ list[str] ← list(config["grease"])
             grease.append(artifact)
-            code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config)
+            code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config, server)
             codes.append(code)
         if len(codes) == 1:
             codes.append(-125)
@@ -324,7 +328,10 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
             raise ValueError("VALIDATOR_RECEIPT_MISMATCH")
         return result
     finally:
-        os.killpg(server.pid, signal.SIGKILL)
+        try:
+            os.killpg(server.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
         server.wait()
         server_log.close()
         atomic(base + "/process.json", {"pid": server.pid, "state": "FINISHED"})
