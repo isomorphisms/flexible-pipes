@@ -1,0 +1,36 @@
+name: Pipeline preflight self-test
+
+on:
+  pull_request:
+    paths:
+      - "scripts/run-pipeline"
+      - "scripts/android-producer-stage"
+      - "scripts/run-android-apk-preflight"
+      - "pipelines/android-apk-preflight.json"
+      - "tests/run-pipeline-preflight.sh"
+      - ".github/workflows/pipeline-preflight-self-test.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/run-pipeline"
+      - "scripts/android-producer-stage"
+      - "scripts/run-android-apk-preflight"
+      - "pipelines/android-apk-preflight.json"
+      - "tests/run-pipeline-preflight.sh"
+      - ".github/workflows/pipeline-preflight-self-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Run hostile preflight cases
+        shell: bash
+        run: bash tests/run-pipeline-preflight.sh
