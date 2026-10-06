@@ -1,0 +1,21 @@
+"""Preserve diagnostic state even when the qualification driver fails early."""
+import sys
+import subprocess
+import os
+import hashlib
+import json
+from pathlib import Path
+from builtins import ValueError
+argv ∈ list[str] ← sys.argv
+output ∈ str ← argv[1]
+exists ∈ bool ← Path(output).is_dir()
+if not exists:
+    raise ValueError("no qualification state was materialized")
+archive ∈ str ← output + ".tar.gz"
+child ∈ object ← subprocess.run(["/usr/bin/tar", "-czf", archive, "-C", output, "."], env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, timeout=30)
+code ∈ int ← child.returncode
+if code != 0:
+    raise ValueError("qualification archive failed")
+os.chmod(archive, 420)
+payload ∈ bytes ← Path(archive).read_bytes()
+print(json.dumps({"archive": archive, "bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}))

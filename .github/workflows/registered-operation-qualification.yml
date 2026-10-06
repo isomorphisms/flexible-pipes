@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: c873924b0513e80de4eb975161455dc58f7d351b
+          ref: fc5a50d01bdabc32d4c4868ec54bbf0e0c5d5e80
           path: kitchen
           persist-credentials: false
           fetch-depth: 0
@@ -64,6 +64,10 @@ jobs:
       - name: Qualify the checked operation in disposable fixtures
         shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
         run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-operation.pi '${{ github.workspace }}' /tmp/fp2-qualification '${{ github.workspace }}/runtime/grease/source' '${{ github.workspace }}/runtime/.build/grease/bin/grease' /usr/bin/python3 '${{ github.workspace }}/runtime/.build/grease/python2/python'
+      - name: Package partial qualification state
+        if: always()
+        shell: /usr/bin/env runtime/.build/grease/bin/grease {0}
+        run: /usr/bin/sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/scripts/package-qualification.pi /tmp/fp2-qualification
       - name: Preserve every qualification attempt
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

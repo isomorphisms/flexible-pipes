@@ -31,6 +31,7 @@ resource.setrlimit(resource.RLIMIT_FSIZE, (67108864, 67108864))
 # The pinned Grease runtime reserves its internal descriptors from 100.
 resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
 resource.setrlimit(resource.RLIMIT_AS, (536870912, 536870912))
+resource.setrlimit(resource.RLIMIT_NPROC, (64, 64))
 command ∈ list[str] ← list(plan["argv"])
 environment ∈ dict[str, str] ← dict(plan["environment"])
 os.execve(command[0], command, environment)

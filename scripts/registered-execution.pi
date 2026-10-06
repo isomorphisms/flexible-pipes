@@ -195,6 +195,8 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
     qualification ∈ dict[str, object] ← read(str(config["qualification"]))
     if qualification["status"] != "PASS" or qualification["scope"] != config["authority"] or qualification["materials_sha256"] != digest(encode(materials)):
         raise ValueError("STALE_QUALIFICATION")
+    if qualification["tools_sha256"] != digest(encode(tools)) or qualification["environment_sha256"] != digest(encode(config["grease_environment"])):
+        raise ValueError("STALE_RUNTIME_QUALIFICATION")
     if digest(Path(str(config["qualification"])).read_bytes()) != config["qualification_sha256"]:
         raise ValueError("QUALIFICATION_CHANGED")
 
@@ -275,7 +277,7 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                     os.killpg(child.pid, signal.SIGKILL)
                     child.wait()
                 final_code ∈ int ← child.returncode
-                atomic(process_record, {"pid": child.pid, "state": "FINISHED", "exit_code": final_code})
+                atomic(process_record, {"pid": child.pid, "state": "FINISHED", "exit_code": final_code, "argv": command, "executable_sha256": digest(Path(command[0]).read_bytes()), "stdout_sha256": digest(Path(stdout_path).read_bytes()), "stderr_sha256": digest(Path(stderr_path).read_bytes()), "stdout_bytes": Path(stdout_path).stat().st_size, "stderr_bytes": Path(stderr_path).stat().st_size})
     return 125
 
 def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact ∈ str, mode ∈ str, run ∈ str, uid ∈ int) → dict[str, object]:
@@ -361,6 +363,12 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                     existing_result["status"] ← "INTERRUPTED"
                     existing_result["first_failure"] ← "SUPERVISOR_INTERRUPTED"
                     atomic(str(previous["result"]), existing_result)
+                if existing_result["status"] == "PASS":
+                    accepted_artifacts ∈ list[dict[str, object]] ← list(existing_result["artifacts"])
+                    for accepted_artifact in accepted_artifacts:
+                        accepted_path ∈ str ← str(accepted_artifact["retrieval_locator"])
+                        if digest(Path(accepted_path).read_bytes()) != accepted_artifact["sha256"]:
+                            raise ValueError("STALE_ACCEPTED_ARTIFACT")
                 return existing_result
             existing_result ∈ dict[str, object] ← read(str(previous["result"]))
             if existing_result["status"] == "RUNNING":
@@ -399,6 +407,10 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
         started ∈ float ← time.monotonic()
         try:
             for stage in stages:
+                now_before ∈ float ← time.monotonic()
+                elapsed_before ∈ float ← now_before - started
+                if elapsed_before > 120.0:
+                    raise RuntimeError("RUN_BOUND_EXCEEDED")
                 check_id ∈ str ← str(stage["check_id"])
                 stage["state"] ← "RUNNING"
                 stage["started_at"] ← time.time()
@@ -461,6 +473,8 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                     result["promotion"] ← {"state": "candidate-verified" if diagnostic else "accepted", "decision_sha256": digest(encode(stages)), "trusted_identity": config["authority"]}
                     stage["state"] ← "PASS"
                 stage["finished_at"] ← time.time()
+                stage["implementation_sha256"] ← digest(Path(__file__).read_bytes())
+                stage["contract_sha256"] ← config["contract_sha256"]
                 atomic(result_path, result)
                 elapsed ∈ float ← time.monotonic()
                 if elapsed - started > 120.0:
@@ -470,11 +484,14 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
             stage["state"] ← "INTERRUPTED"
             result["status"] ← "INTERRUPTED"
             result["first_failure"] ← "INTERRUPTED"
+            result["promotion"] ← {"state": "rejected", "reason": "INTERRUPTED"}
         except Exception as failure:
             stage["state"] ← "FAIL"
             result["status"] ← "FAIL"
             result["first_failure"] ← str(failure)
+            result["promotion"] ← {"state": "rejected", "reason": str(failure)}
         finally:
+            stage["finished_at"] ← time.time()
             result["finished_at"] ← time.time()
             atomic(result_path, result)
         return result
