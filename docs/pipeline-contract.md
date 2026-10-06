@@ -45,6 +45,11 @@ Do not hide deterministic policy inside a model prompt when it can be expressed 
 
 Do not hide model judgment inside an ordinary stage when the output actually depends on an LM.
 
+When the artifact is an assignment intended for a human, the stage receipt
+also carries [handoff metadata](job-delivery.md). Composition never grants
+visible-delivery or dispatch acceptance. The exact captured output remains
+authoritative across both surfaces.
+
 ## Pythia's role
 
 Pythia is both a usable worker and a measurement family. Its checkpoint series lets the same pipeline be evaluated across training time and model size. That gives us a way to ask which apparent pipeline properties are structural and which are accidents of one strong model.

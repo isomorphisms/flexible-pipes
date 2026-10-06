@@ -1,0 +1,9 @@
+Sun Y2 — finish the non-Pauli Young Tableaux surface
+
+Use one branch and one PR to complete the registered non-Pauli operations.
+Refresh current source, tests and operation registry first. Preserve the
+checked tableau/RSK base and canonical Unicode display. Factor shared
+mathematical primitives underneath the operations. Keep the exploratory
+Pauli/Schur–Weyl experiment separate. Run operation and Android packaging
+checks, retain exact commands and source heads, and land only qualified work.
+Report exact commits, tested operations and remaining bounded gaps.

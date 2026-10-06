@@ -1,0 +1,8 @@
+module JobDelivery
+
+data DeliveryMode = DisplayOnly | DisplayAndDispatch | DispatchOnly
+
+dispatch_requires_visible : DeliveryMode → Bool
+dispatch_requires_visible DisplayOnly = True
+dispatch_requires_visible DisplayAndDispatch = True
+dispatch_requires_visible DispatchOnly = False
