@@ -3,6 +3,10 @@
 Flexible Pipes owns repeatable invocation and receipts for the user's local AZ
 Amazon backend. Kitchen owns the provider-facing command itself.
 
+The canonical AZ source repository is `Ashtray-Archer/az`. The former
+`isomorphisms/az` location must not be used as a fallback. Phone execution
+uses the installed `$PREFIX/bin/az` backend through Grease.
+
 The exact Kitchen helper is pinned in
 `registry/product-lookup-kitchen.json`:
 
