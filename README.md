@@ -2,6 +2,10 @@
 
 Deterministic programs with language-model stages that are explicit, inspectable, and replayable.
 
+[Human-visible job delivery](docs/job-delivery.md) extends stage artifacts with
+separate observed delivery and dispatch. A composed job without the required
+visible surface blocks later pipeline effects.
+
 The first target is not a general agent framework. It is a small pipeline substrate where ordinary deterministic stages and model-backed stages can be composed without pretending that model inference itself is deterministic.
 
 ## Bootstrap model set
