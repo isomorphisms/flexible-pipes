@@ -89,6 +89,29 @@ def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], env
         candidate["qualification"] ← path
         candidate["qualification_sha256"] ← hashlib.sha256(Path(path).read_bytes()).hexdigest()
         run("stale-" + mutation, candidate, envelope, "BLOCKED", "STALE_")
+    # Known-bad maintained recipes get diagnostic configuration only. They
+    # cannot grant deployed authority. Each must disagree with the real API
+    # oracle even when it prints PASS or exits successfully.
+    for mutation in ["pass-printer", "failing-test", "output-bound", "time-bound"]:
+        candidate ← copy_object(config)
+        test_environment ∈ dict[str, str] ← dict(candidate["grease_environment"])
+        test_environment["FP_TEST_MUTANT"] ← mutation
+        candidate["grease_environment"] ← test_environment
+        candidate["generator"] ← str(Path(str(config["worker"])).parent.parent) + "/tests/registered-execution/mutant-generator.sh"
+        qualification ← json.loads(Path(str(config["qualification"])).read_bytes())
+        qualification["environment_sha256"] ← hashlib.sha256(encode(test_environment)).hexdigest()
+        operation_identity ∈ dict[str, object] ← {}
+        for field in ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256"]:
+            operation_identity[field] ← candidate[field]
+        qualification["operation_sha256"] ← hashlib.sha256(encode(operation_identity)).hexdigest()
+        path ← root + "/mutant-" + mutation + "-qualification.json"
+        Path(path).write_bytes(encode(qualification))
+        candidate["qualification"] ← path
+        candidate["qualification_sha256"] ← hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        failed ∈ dict[str, object] ← run("mutant-" + mutation, candidate, admit("mutant-" + mutation), "FAIL", "EXECUTION_BOUND_EXCEEDED" if mutation == "output-bound" or mutation == "time-bound" else "FIXTURE_VALIDATION_FAILED")
+        promotion ∈ dict[str, object] ← dict(failed["promotion"])
+        if len(failed["artifacts"]) != 0 or promotion["state"] != "rejected":
+            raise ValueError("failed mutant was published")
     # Recipe and contract changed after the original successful run. Use owned
     # copies, retaining the trusted expected bytes; never edit a user checkout.
     for mutation in ["recipe", "contract"]:

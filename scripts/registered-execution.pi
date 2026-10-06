@@ -23,6 +23,7 @@ from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exc
 REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
 MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network"]
+OPERATION_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256"]
 
 def interrupt(number ∈ int, frame ∈ object) → None:
     raise KeyboardInterrupt("supervisor interrupted")
@@ -188,7 +189,7 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
             raise ValueError("MISSING_EXECUTABLE: " + executable)
         if digest(Path(executable).read_bytes()) != tool["sha256"]:
             raise ValueError("TOOL_CHANGED")
-    for role in ["worker", "watchdog", "generator", "fixture_server", "api_validator", "seal_validator"]:
+    for role in ["worker", "watchdog", "generator", "parent_probe", "fixture_server", "api_validator", "seal_validator"]:
         selected ∈ str ← str(config[role])
         if not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
@@ -208,6 +209,11 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
         raise ValueError("STALE_QUALIFICATION")
     if qualification["tools_sha256"] != digest(encode(tools)) or qualification["environment_sha256"] != digest(encode(config["grease_environment"])):
         raise ValueError("STALE_RUNTIME_QUALIFICATION")
+    operation_identity ∈ dict[str, object] ← {}
+    for field in OPERATION_FIELDS:
+        operation_identity[field] ← config[field]
+    if qualification["operation_sha256"] != digest(encode(operation_identity)):
+        raise ValueError("STALE_OPERATION_QUALIFICATION")
     if digest(Path(str(config["qualification"])).read_bytes()) != config["qualification_sha256"]:
         raise ValueError("QUALIFICATION_CHANGED")
 
@@ -326,8 +332,13 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
             environment["HOME"] ← home
             environment["FP_FIXTURE_IO"] ← io
             grease ∈ list[str] ← list(config["grease"])
+            grease.append(str(config["parent_probe"]))
+            grease.extend(list(config["grease"]))
             grease.append(artifact)
             code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config, server)
+            parent_output ∈ bytes ← Path(base + "/execution-" + str(index) + "/stdout.bin").read_bytes()
+            if not parent_output.endswith(b"PARENT_SURVIVED\n"):
+                raise ValueError("PARENT_SHELL_TERMINATED")
             codes.append(code)
         if len(codes) == 1:
             codes.append(-125)
