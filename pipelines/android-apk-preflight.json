@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "android-apk-preflight",
+  "required_stages": [
+    "android-producer-gate"
+  ],
+  "stages": [
+    {
+      "name": "android-producer-gate",
+      "kind": "command",
+      "argv": [
+        "bash",
+        "scripts/android-producer-stage"
+      ],
+      "cwd": "."
+    }
+  ]
+}
