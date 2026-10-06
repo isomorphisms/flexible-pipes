@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Iterable
 from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError
 
-REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "publish"]
+REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "fixture-destination-authentication", "fixture-destination-api", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
-MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "accepted-still-pending", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network"]
+MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "accepted-still-pending", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network", "destination-authentication", "destination-api"]
 OPERATION_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256"]
 
 def interrupt(number ∈ int, frame ∈ object) → None:
@@ -30,18 +30,23 @@ def interrupt(number ∈ int, frame ∈ object) → None:
 
 signal.signal(signal.SIGTERM, interrupt)
 
+def process_fields(pid ∈ int) → list[str]:
+    state ∈ str ← Path("/proc/" + str(pid) + "/stat").read_text()
+    end ∈ int ← state.rfind(")")
+    fields ∈ list[str] ← state[end + 2:].split()
+    return fields
+
 def record_process(path ∈ str, child ∈ object) → None:
     pid ∈ int ← child.pid
-    process_state ∈ str ← Path("/proc/" + str(pid) + "/stat").read_text()
-    fields ∈ list[str] ← process_state.split()
-    atomic(path, {"pid": pid, "start_time": fields[21], "state": "RUNNING"})
+    fields ∈ list[str] ← process_fields(pid)
+    atomic(path, {"pid": pid, "start_time": fields[19], "state": "RUNNING"})
 
 def watch_process(directory ∈ str, child ∈ object, config ∈ dict[str, object], seconds ∈ int) → object:
     parent ∈ int ← os.getpid()
-    parent_fields ∈ list[str] ← Path("/proc/" + str(parent) + "/stat").read_text().split()
-    target_fields ∈ list[str] ← Path("/proc/" + str(child.pid) + "/stat").read_text().split()
+    parent_fields ∈ list[str] ← process_fields(parent)
+    target_fields ∈ list[str] ← process_fields(child.pid)
     plan ∈ str ← directory + "/guard-plan.json"
-    atomic(plan, {"parent_pid": parent, "parent_start": parent_fields[21], "target_pid": child.pid, "target_start": target_fields[21], "seconds": seconds})
+    atomic(plan, {"parent_pid": parent, "parent_start": parent_fields[19], "target_pid": child.pid, "target_start": target_fields[19], "seconds": seconds})
     command ∈ list[str] ← list(config["ithon"])
     command.extend([str(config["watchdog"]), plan, directory + "/guard-result.json"])
     guard ∈ object ← subprocess.Popen(command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -56,9 +61,8 @@ def reap_interrupted(run ∈ str) → None:
             process_file ∈ str ← "/proc/" + str(pid) + "/stat"
             exists ∈ bool ← Path(process_file).exists()
             if exists:
-                state ∈ str ← Path(process_file).read_text()
-                fields ∈ list[str] ← state.split()
-                if fields[21] == record["start_time"]:
+                fields ∈ list[str] ← process_fields(pid)
+                if fields[19] == record["start_time"]:
                     os.killpg(pid, signal.SIGKILL)
             record["state"] ← "INTERRUPTED"
             atomic(str(path), record)
@@ -229,6 +233,17 @@ def adapter(config ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, 
         raise ValueError("UNKNOWN_ROUTE")
     repo ∈ str ← str(config["request_mirror"])
     commit ∈ str ← str(envelope["request_commit"])
+    import re
+    matched ∈ object ← re.fullmatch("[a-f0-9]{40}", commit)
+    if matched == None:
+        raise ValueError("REQUEST_COMMIT")
+    if config["authority"] == "deployed-trusted":
+        # Acquisition follows signed admission, uses a fixed canonical remote,
+        # and creates an explicit ref. Neither checkout nor FETCH_HEAD is used.
+        with open(str(config["state_root"]) + "/request-fetch.lock", "ab") as fetch_lock:
+            fcntl.flock(fetch_lock.fileno(), fcntl.LOCK_EX)
+            target ∈ str ← "refs/fp-intake/" + str(uuid.uuid4())
+            git(repo, ["fetch", "--no-tags", "--no-write-fetch-head", "https://github.com/isomorphisms/flexible-pipes.git", commit + ":" + target])
     # Resolve once; use only immutable objects, never a worktree or GITHUB_SHA.
     resolved ∈ str ← git(repo, ["rev-parse", "--verify", commit + "^{commit}"]).decode().strip()
     paths ∈ list[str] ← git(repo, ["diff", "--name-only", str(config["request_base"]), resolved]).decode().splitlines()
@@ -303,11 +318,14 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
     base ∈ str ← run + "/fixture-" + mode
     Path(base).mkdir(mode=493)
     io ∈ str ← base + "/io"
-    Path(io).mkdir(mode=493)
-    os.mkfifo(io + "/request", 438)
-    os.mkfifo(io + "/response", 438)
-    os.chmod(io + "/request", 438)
-    os.chmod(io + "/response", 438)
+    Path(io).mkdir(mode=488)
+    os.chown(io, 0, uid)
+    os.mkfifo(io + "/request", 400)
+    os.mkfifo(io + "/response", 416)
+    os.chown(io + "/request", 0, uid)
+    os.chown(io + "/response", 0, uid)
+    os.chmod(io + "/request", 400)
+    os.chmod(io + "/response", 416)
     specification ∈ str ← base + "/fixture.json"
     atomic(specification, {"mode": mode, "inputs": inputs, "artifact_sha256": digest(Path(artifact).read_bytes())})
     artifact_name ∈ str ← Path(artifact).name
@@ -544,6 +562,7 @@ envelope ∈ dict[str, object] ← read(argv[4] if diagnostic else argv[2])
 route ∈ str ← argv[3] if diagnostic else argv[1]
 try:
     if not diagnostic:
+        verify_deployment(configuration, False)
         admission_root ∈ str ← str(configuration["state_root"]) + "/admissions"
         Path(admission_root).mkdir(mode=448, parents=True, exist_ok=True)
         admission ∈ str ← admission_root + "/" + str(uuid.uuid4())
@@ -556,8 +575,11 @@ try:
         provider ∈ dict[str, object] ← read(decision)
         if provider["status"] != "PASS":
             raise ValueError("SIGNED_ADMISSION_REJECTED")
+        nonce ∈ str ← admission_root + "/nonce-" + digest(str(provider["jti"]).encode()) + ".json"
+        with open(nonce, "xb") as once:
+            once.write(encode(provider))
     raw ∈ bytes ← adapter(configuration, route, envelope)
-    retry ∈ bool ← bool(envelope.get("retry", False))
+    retry ∈ bool ← bool(envelope.get("retry", False)) if diagnostic else int(provider["run_attempt"]) > 1
     outcome ∈ dict[str, object] ← execute(configuration, raw, route, retry, diagnostic)
     print(json.dumps(outcome, sort_keys=True))
     sys.exit(0 if outcome["status"] == "PASS" else 1)

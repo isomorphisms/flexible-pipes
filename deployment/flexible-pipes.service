@@ -1,0 +1,24 @@
+[Unit]
+Description=Registered flexible-pipes supervisor
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/opt/catfood/bin/ithon /opt/flexible-pipes/current/scripts/registered-service.pi
+Restart=on-failure
+RestartSec=2
+KillMode=control-group
+NoNewPrivileges=yes
+CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_KILL CAP_CHOWN CAP_DAC_OVERRIDE CAP_NET_BIND_SERVICE
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/flexible-pipes
+StateDirectory=flexible-pipes
+RuntimeDirectory=flexible-pipes
+TasksMax=512
+MemoryMax=3G
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,4 @@
 #!/opt/catfood/bin/grease
 # Fixed installed release; no caller runtime, environment, or policy selection.
 if (len(ARGV) !== 2 or ARGV[0] !== 'github-event') { echo 'registered entry requires a GitHub event' >&2; exit 2 }
-exec /usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 LC_ALL=C.UTF-8 GITHUB_REF="$GITHUB_REF" GITHUB_SHA="$GITHUB_SHA" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" ACTIONS_ID_TOKEN_REQUEST_URL="$ACTIONS_ID_TOKEN_REQUEST_URL" ACTIONS_ID_TOKEN_REQUEST_TOKEN="$ACTIONS_ID_TOKEN_REQUEST_TOKEN" /opt/catfood/bin/ithon /opt/flexible-pipes/current/scripts/github-event.pi "$[ARGV[1]]"
+exec /usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 LC_ALL=C.UTF-8 GITHUB_REF="$[ENV.GITHUB_REF]" GITHUB_SHA="$[ENV.GITHUB_SHA]" GITHUB_EVENT_NAME="$[ENV.GITHUB_EVENT_NAME]" GITHUB_RUN_ID="$[ENV.GITHUB_RUN_ID]" GITHUB_RUN_ATTEMPT="$[ENV.GITHUB_RUN_ATTEMPT]" ACTIONS_ID_TOKEN_REQUEST_URL="$[ENV.ACTIONS_ID_TOKEN_REQUEST_URL]" ACTIONS_ID_TOKEN_REQUEST_TOKEN="$[ENV.ACTIONS_ID_TOKEN_REQUEST_TOKEN]" /opt/catfood/bin/ithon /opt/flexible-pipes/current/scripts/github-event.pi "$[ARGV[1]]"

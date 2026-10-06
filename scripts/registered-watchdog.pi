@@ -6,6 +6,10 @@ import time
 import json
 from pathlib import Path
 from builtins import ProcessLookupError, ValueError
+def fields(path ∈ str) → list[str]:
+    data ∈ str ← Path(path).read_text()
+    end ∈ int ← data.rfind(")")
+    return data[end + 2:].split()
 argv ∈ list[str] ← sys.argv
 plan ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
 parent ∈ int ← int(plan["parent_pid"])
@@ -20,16 +24,16 @@ while True:
     if not parent_exists:
         reason ← "SUPERVISOR_DIED"
         break
-    parent_fields ∈ list[str] ← Path(parent_file).read_text().split()
-    if parent_fields[21] != plan["parent_start"] or parent_fields[2] == "Z":
+    parent_fields ∈ list[str] ← fields(parent_file)
+    if parent_fields[19] != plan["parent_start"] or parent_fields[0] == "Z":
         reason ← "SUPERVISOR_DIED"
         break
     if not target_exists:
         break
-    target_fields ∈ list[str] ← Path(target_file).read_text().split()
-    if target_fields[21] != plan["target_start"]:
+    target_fields ∈ list[str] ← fields(target_file)
+    if target_fields[19] != plan["target_start"]:
         raise ValueError("PROCESS_IDENTITY_CHANGED")
-    if target_fields[2] == "Z":
+    if target_fields[0] == "Z":
         break
     now ∈ float ← time.monotonic()
     if now - started > float(plan["seconds"]):

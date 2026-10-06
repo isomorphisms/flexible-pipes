@@ -1,0 +1,50 @@
+"""Qualified TLS delivery; server identity and expected bytes are independent."""
+import json
+import ssl
+import urllib.request
+import base64
+import hashlib
+import os
+from pathlib import Path
+from builtins import dict, list, ValueError, open
+
+def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[str, object], output ∈ str) → dict[str, object]:
+    if not url.startswith("https://"):
+        raise ValueError("UNQUALIFIED_TRANSPORT")
+    context ∈ object ← ssl.create_default_context(cafile=certificate if certificate != "" else None)
+    encoded ∈ str ← json.dumps({"route": route, "envelope": envelope}, sort_keys=True)
+    if len(encoded.encode()) > 49152:
+        raise ValueError("SUBMISSION_BOUND_EXCEEDED")
+    request ∈ object ← urllib.request.Request(url, data=encoded.encode(), headers={"Content-Type": "application/json"}, method="POST")
+    with urllib.request.urlopen(request, context=context, timeout=140) as response:
+        data ∈ bytes ← response.read(12582913)
+    if len(data) > 12582912:
+        raise ValueError("RESULT_BOUND_EXCEEDED")
+    decoded ∈ dict[str, object] ← json.loads(data)
+    result ∈ dict[str, object] ← dict(decoded["result"])
+    deliveries ∈ list[dict[str, object]] ← list(decoded["delivery"])
+    Path(output).mkdir(mode=448, parents=True, exist_ok=False)
+    Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
+    if result["status"] != "PASS" and len(deliveries) != 0:
+        raise ValueError("FAILED_RESULT_DELIVERED_BYTES")
+    artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+    if result["status"] == "PASS" and len(artifacts) != len(deliveries):
+        raise ValueError("MISSING_DELIVERY")
+    for delivery in deliveries:
+        data ← base64.b64decode(str(delivery["bytes_base64"]), validate=True)
+        digest ∈ str ← hashlib.sha256(data).hexdigest()
+        name ∈ str ← str(delivery["name"])
+        if name.__contains__("/") or name.__contains__("\\") or name == "." or name == ".." or len(data) > 2097152:
+            raise ValueError("DELIVERY_PATH_OR_BOUND")
+        if digest != delivery["sha256"]:
+            raise ValueError("DELIVERY_DIGEST_MISMATCH")
+        matched ∈ bool ← False
+        for artifact in artifacts:
+            if artifact["name"] == name and artifact["sha256"] == digest:
+                matched ← True
+        if not matched:
+            raise ValueError("UNACCEPTED_DELIVERY")
+        with open(output + "/" + name, "xb") as stream:
+            stream.write(data)
+        os.chmod(output + "/" + name, 292)
+    return result

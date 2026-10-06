@@ -1,0 +1,21 @@
+"""Kernel permission probe; opens no truncating descriptors and writes no data."""
+import os
+import sys
+import json
+from pathlib import Path
+from builtins import dict, list, OSError, ValueError
+argv ∈ list[str] ← sys.argv
+plan ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+paths ∈ list[str] ← list(plan["paths"])
+for path in paths:
+    denied ∈ bool ← False
+    try:
+        descriptor ∈ int ← os.open(path, os.O_WRONLY | os.O_NONBLOCK)
+        os.close(descriptor)
+    except OSError as failure:
+        number ∈ int ← failure.errno
+        if number == 13:
+            denied ← True
+    if not denied:
+        raise ValueError("worker write access was not denied: " + path)
+print("kernel denied all protected writes")

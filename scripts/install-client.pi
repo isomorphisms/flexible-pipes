@@ -1,0 +1,45 @@
+"""Install a fixed, inactive transport client; never activate execution authority."""
+import os
+import sys
+import shutil
+import hashlib
+import json
+import ithon_frontend
+from pathlib import Path
+from builtins import ValueError, list, dict
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+launcher ∈ str ← argv[2]
+ithon ∈ str ← workspace + "/ithon"
+fp ∈ str ← workspace + "/flexible-pipes"
+uid ∈ int ← os.getuid()
+if uid != 0:
+    raise ValueError("CLIENT_INSTALL_REQUIRES_ADMINISTRATIVE_CONTEXT")
+destination ∈ str ← "/opt/flexible-pipes/current"
+exists ∈ bool ← Path(destination).exists()
+if exists:
+    raise ValueError("EXISTING_CLIENT_PRESERVED")
+files ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi"]
+for relative in files:
+    payload ∈ bytes ← Path(fp + "/" + relative).read_bytes()
+    if relative.endswith(".pi"):
+        checked ∈ object ← ithon_frontend.check_source(payload.decode(), relative)
+Path(destination + "/scripts").mkdir(mode=493, parents=True)
+for relative in files:
+    shutil.copyfile(fp + "/" + relative, destination + "/" + relative)
+    os.chmod(destination + "/" + relative, 365 if relative == "scripts/run-pipeline" else 292)
+runtime ∈ str ← "/opt/catfood"
+Path(runtime + "/bin").mkdir(mode=493, parents=True, exist_ok=True)
+Path(runtime + "/ithon/Lib").mkdir(mode=493, parents=True, exist_ok=False)
+for relative in ["ithon_host.py", "Lib/ithon_static.py", "Lib/ithon_frontend.py", "Lib/ithon_run.py"]:
+    shutil.copyfile(ithon + "/" + relative, runtime + "/ithon/" + relative)
+    os.chmod(runtime + "/ithon/" + relative, 292)
+os.symlink(launcher, runtime + "/bin/grease")
+Path(runtime + "/bin/ithon").write_text("#!/opt/catfood/bin/grease\nexec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 /opt/catfood/ithon/ithon_host.py \"$@\"\n")
+os.chmod(runtime + "/bin/ithon", 365)
+client ∈ dict[str, object] ← json.loads(Path(fp + "/deployment/client.json").read_bytes())
+Path("/etc/flexible-pipes").mkdir(mode=493, exist_ok=True)
+Path("/etc/flexible-pipes/client.json").write_text(json.dumps(client, sort_keys=True))
+os.chmod("/etc/flexible-pipes/client.json", 292)
+Path("/var/lib/flexible-pipes/export").mkdir(mode=493, parents=True, exist_ok=False)
+print(json.dumps({"state": client["state"], "authority": "unprivileged-transport-only", "client_sha256": hashlib.sha256(Path(destination + "/scripts/github-event.pi").read_bytes()).hexdigest()}))

@@ -1,0 +1,67 @@
+"""Disposable signing fixtures for the exact checked admission implementation."""
+import sys
+import json
+import time
+import base64
+import hashlib
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+argv ∈ list[str] ← sys.argv
+sys.path.insert(0, argv[1] + "/scripts")
+from admission import verify_token
+
+def encoded(payload ∈ bytes) → str:
+    value ∈ bytes ← base64.urlsafe_b64encode(payload)
+    return value.decode().rstrip("=")
+
+def numeric(value ∈ int) → str:
+    bits ∈ int ← value.bit_length()
+    return encoded(value.to_bytes((bits + 7) // 8, "big"))
+
+private ∈ object ← rsa.generate_private_key(public_exponent=65537, key_size=2048)
+numbers ∈ object ← private.public_key().public_numbers()
+exponent ∈ int ← numbers.e
+modulus ∈ int ← numbers.n
+keys ∈ dict[str, object] ← {"keys": [{"kid": "fixture", "kty": "RSA", "e": numeric(exponent), "n": numeric(modulus)}]}
+now ∈ int ← int(time.time())
+claims ∈ dict[str, object] ← {"iss": "https://token.actions.githubusercontent.com", "aud": "flexible-pipes-registered-v1", "repository_id": "1405888814", "ref": "refs/heads/main", "sha": "qualified", "workflow_ref": "isomorphisms/flexible-pipes/.github/workflows/run-pipeline.yml@refs/heads/main", "actor_id": "7", "jti": "disposable", "iat": now, "nbf": now, "exp": now + 120, "run_id": "fixture-run", "run_attempt": "1"}
+config ∈ dict[str, object] ← {"control_commit": "qualified", "authorized_actors": ["7"]}
+
+def token(value ∈ dict[str, object]) → str:
+    header ∈ str ← json.dumps({"alg": "RS256", "kid": "fixture"})
+    body ∈ str ← json.dumps(value)
+    signed ∈ str ← encoded(header.encode()) + "." + encoded(body.encode())
+    signature ∈ bytes ← private.sign(signed.encode(), padding.PKCS1v15(), hashes.SHA256())
+    return signed + "." + encoded(signature)
+
+positive ∈ dict[str, object] ← verify_token(token(claims), config, keys)
+if positive["status"] != "PASS":
+    raise ValueError("valid signed admission rejected")
+checks ∈ list[dict[str, object]] ← [{"case": "signed-positive", "status": "PASS"}]
+for field in ["iss", "aud", "repository_id", "ref", "sha", "workflow_ref", "actor_id", "exp"]:
+    mutant ∈ dict[str, object] ← dict(claims)
+    mutant[field] ← now - 1 if field == "exp" else "wrong"
+    rejected ∈ bool ← False
+    try:
+        verify_token(token(mutant), config, keys)
+    except Exception as failure:
+        rejected ← True
+        checks.append({"case": field, "status": "PASS", "rejection": str(failure)})
+    if not rejected:
+        raise ValueError("signed mutant accepted: " + field)
+valid_token ∈ str ← token(claims)
+parts ∈ list[str] ← valid_token.split(".")
+bad_token ∈ str ← parts[0] + "." + parts[1] + "." + encoded(b"forged signature")
+rejected ← False
+try:
+    verify_token(bad_token, config, keys)
+except Exception:
+    rejected ← True
+if not rejected:
+    raise ValueError("forged signature accepted")
+checks.append({"case": "forged-signature", "status": "PASS"})
+result ∈ dict[str, object] ← {"status": "PASS", "scope": "disposable-admission-interface", "source_sha256": hashlib.sha256(Path(argv[1] + "/scripts/admission.pi").read_bytes()).hexdigest(), "checks": checks, "excluded_claims": ["production-key", "deployment", "live-transfer"]}
+Path(argv[2]).write_text(json.dumps(result, sort_keys=True))
+print("signed admission interface qualified")
