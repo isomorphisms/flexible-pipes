@@ -1,0 +1,76 @@
+"""Execute the downloadable CI exporter with real unverified APK bytes."""
+from argparse import ArgumentParser
+from pathlib import Path
+from builtins import dict, list, ValueError
+import json
+import subprocess
+import tarfile
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser()
+    for name in ["python", "ithon-root", "apk", "output"]:
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    python ∈ str ← args.python
+    ithon ∈ str ← args.ithon_root
+    apk ∈ str ← args.apk
+    output ∈ str ← args.output
+    root ∈ Path ← Path(output).resolve()
+    root.mkdir(mode=448, exist_ok=False)
+    script ∈ str ← __file__
+    exporter ∈ str ← str(Path(script).resolve().parents.__getitem__(1).joinpath("scripts/package-qualification.pi"))
+    payload ∈ bytes ← Path(apk).read_bytes()
+    packed ∈ bool ← payload.startswith(b"PK")
+    if packed == False:
+        raise ValueError("TEST_REQUIRES_ACTUAL_APK_BYTES")
+    ledger ← "case\texpected\tresult\n"
+    historical ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/bin/git", "-C", str(Path(script).resolve().parents.__getitem__(1)), "show", "a0c27f0188113bdc844b1181cdc3db6a1c2ad7d1:scripts/package-qualification.pi"], capture_output=True, check=True, timeout=15)
+    old_source ∈ bytes ← historical.stdout
+    old_program ∈ Path ← root.joinpath("historical.pi")
+    old_program.write_bytes(old_source)
+    old_case ∈ Path ← root.joinpath("historical")
+    old_case.mkdir(mode=448)
+    old_case.joinpath("unverified.apk").write_bytes(payload)
+    old_child ∈ subprocess.CompletedProcess ← subprocess.run([python, ithon + "/ithon_host.py", str(old_program), str(old_case)], env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent"}, capture_output=True, check=True, timeout=30)
+    with tarfile.open(str(old_case) + ".tar.gz", "r:gz") as old_archive:
+        old_names ∈ list[str] ← old_archive.getnames()
+        old_leak ∈ bool ← old_names.__contains__("./unverified.apk")
+        if old_leak == False:
+            raise ValueError("HISTORICAL_EXPORT_BYPASS_NOT_REPRODUCED")
+    ledger ← ledger + "historical-a0c27f0\told raw archive exports actual unverified APK; reproduced failure\tPASS\n"
+    for scenario in ["valid", "apk-as-receipt", "private-and-symlink"]:
+        case ∈ Path ← root.joinpath(scenario)
+        case.mkdir(mode=448)
+        case.joinpath("attempt.txt").write_text("fixture qualification failure; no accepted artifact\n")
+        case.joinpath("dispatch.stdout.json").write_text('{"status":"BLOCKED","blocker":"fixture"}')
+        case.joinpath("unverified.apk").write_bytes(payload)
+        case.joinpath("private.pem").write_text("PRIVATE FIXTURE MARKER; never publish")
+        case.joinpath("device-frame.png").write_bytes(b"private raw fixture capture")
+        if scenario == "apk-as-receipt":
+            case.joinpath("dispatch.stdout.json").write_bytes(payload)
+        if scenario == "private-and-symlink":
+            case.joinpath("grease-interface.stderr.bin").symlink_to(case.joinpath("private.pem"))
+        child ∈ subprocess.CompletedProcess ← subprocess.run([python, ithon + "/ithon_host.py", exporter, str(case)], env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent"}, capture_output=True, timeout=30)
+        code ∈ int ← child.returncode
+        if code != 0:
+            detail ∈ bytes ← child.stderr
+            message ∈ str ← detail.decode(errors="replace")
+            raise ValueError("EXPORTER_FAILED:" + message)
+        with tarfile.open(str(case) + ".tar.gz", "r:gz") as archive:
+            names ∈ list[str] ← archive.getnames()
+            allowed ∈ list[str] ← [".", "./attempt.txt", "./dispatch.stdout.json", "./publication.json"]
+            for name in names:
+                permitted ∈ bool ← allowed.__contains__(name)
+                if permitted == False:
+                    raise ValueError("PRIVATE_OR_INSTALLABLE_EXPORT:" + name)
+            evidence_present ∈ bool ← names.__contains__("./attempt.txt")
+            if evidence_present == False:
+                raise ValueError("FAILURE_EVIDENCE_LOST")
+            receipt_present ∈ bool ← names.__contains__("./dispatch.stdout.json")
+            if scenario == "apk-as-receipt" and receipt_present:
+                raise ValueError("RENAMED_APK_EXPORTED")
+        ledger ← ledger + scenario + "\ttext receipts only; APK/raw/key/symlink excluded\tPASS\n"
+    root.joinpath("results.tsv").write_text(ledger)
+    print(ledger)
+
+main()

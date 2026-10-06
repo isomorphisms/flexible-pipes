@@ -1,0 +1,3 @@
+case	expected	result
+existing-client	EXISTING_CLIENT_PRESERVED before material reads	PASS
+inactive-client	DEPLOYMENT_INACTIVE exit 2; no artifacts	PASS

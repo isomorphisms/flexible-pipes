@@ -363,8 +363,7 @@ for failure_log in failure_logs:
     message ∈ bytes ← failure_log.read_bytes()
     if len(message) > 0:
         print(str(failure_log), message[:32768].decode(errors="replace"))
-archive ∈ str ← output + ".tar.gz"
-packaged ∈ object ← subprocess.run(["/usr/bin/tar", "-czf", archive, "-C", output, "."], env=environment, timeout=20)
-os.chmod(archive, 420)
+# The workflow's maintained package-qualification entrypoint alone exports
+# classified receipts. Private full state is never tarred as a deliverable.
 print(json.dumps({"exit_code": code, "output": output, "result": output + "/dispatch.stdout.json"}))
 sys.exit(code)

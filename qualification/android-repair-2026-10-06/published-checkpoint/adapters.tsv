@@ -1,0 +1,6 @@
+case	expected	observed_exit	result
+workflow_dispatch	PASS	0	PASS
+pipeline-requests	PASS	0	PASS
+wrong-repository	WRONG_REPOSITORY	2	PASS
+old-workflow	UNQUALIFIED_WORKFLOW_REF	2	PASS
+non-request-change	NON_REQUEST_CHANGE	2	PASS

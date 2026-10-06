@@ -1,0 +1,5 @@
+case	expected	result
+historical-a0c27f0	old raw archive exports actual unverified APK; reproduced failure	PASS
+valid	text receipts only; APK/raw/key/symlink excluded	PASS
+apk-as-receipt	text receipts only; APK/raw/key/symlink excluded	PASS
+private-and-symlink	text receipts only; APK/raw/key/symlink excluded	PASS
