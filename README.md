@@ -1,6 +1,16 @@
 # flexible-pipes
 
+[CF-A2-S6 integration state](docs/cf-a2-s6.md) records the reconciled registered
+candidate, material bindings and missing predecessor/deployment boundaries.
+
 Deterministic programs with language-model stages that are explicit, inspectable, and replayable.
+
+[Human-visible job delivery](docs/job-delivery.md) extends stage artifacts with
+separate observed delivery and dispatch. A composed job without the required
+visible surface blocks later pipeline effects.
+Text and binary attachments share that handoff identity. Archive members are
+materialized deterministically and a first-class attachment must preserve the
+declared bytes, filename, MIME type, provenance and digest.
 
 The first target is not a general agent framework. It is a small pipeline substrate where ordinary deterministic stages and model-backed stages can be composed without pretending that model inference itself is deterministic.
 

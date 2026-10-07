@@ -1,0 +1,37 @@
+case: nonzero
+evidence: executed-local-linux-x86_64
+exit_code: 1
+
+{
+  "failed_stage": "failed",
+  "finished_at": "2026-10-06T01:46:43.245840+00:00",
+  "pipeline": "nonzero",
+  "pipeline_path": "pipelines/nonzero.json",
+  "pipeline_sha256": "4d14d379170ffa1a007782c996a3ef9b40fce5764c5a4d7fd38c1e9804c3f0be",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/false"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-06T01:46:43.245826+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "failed",
+      "started_at": "2026-10-06T01:46:43.244858+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.244633+00:00",
+  "status": "FAIL"
+}

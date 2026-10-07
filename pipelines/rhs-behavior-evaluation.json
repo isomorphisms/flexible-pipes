@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "rhs-behavior-evaluation",
+  "required_stages": [
+    "evaluate"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "evaluate",
+      "argv": [
+        "grease",
+        "scripts/rhs-behavior-evaluation.ysh"
+      ],
+      "cwd": "."
+    }
+  ]
+}

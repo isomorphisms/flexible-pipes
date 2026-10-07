@@ -39,7 +39,8 @@ def main() → None:
     operation ∈ str ← data.get("pipeline", "")
     if operation != "android-native-apk":
         if operation != "android-diagnostic-capture":
-            sys.exit("UNREGISTERED_OPERATION")
+            if operation != "android-conversation-paired-build":
+                sys.exit("UNREGISTERED_OPERATION")
     if expected_pipeline:
         if operation != expected_pipeline:
             sys.exit("OPERATION_MISMATCH")

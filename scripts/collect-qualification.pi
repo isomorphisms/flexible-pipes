@@ -1,0 +1,86 @@
+"""Preserve exact receipts and partial logs in their existing owning repositories."""
+import sys
+import json
+import hashlib
+import shutil
+import tarfile
+from pathlib import Path
+from builtins import dict, list, ValueError
+argv ∈ list[str] ← sys.argv
+root ∈ str ← argv[1]
+workspace ∈ str ← argv[2]
+run_id ∈ str ← argv[3]
+scope ∈ str ← argv[4]
+owners ∈ list[str] ← ["flexible-pipes", "kitchen", "ai-ci", "catfood", "ithon"]
+for owner in owners:
+    Path(workspace + "/" + owner + "/evidence/fp2/" + run_id).mkdir(parents=True, exist_ok=False)
+fp_output ∈ str ← workspace + "/flexible-pipes/evidence/fp2/" + run_id
+result ∈ dict[str, object] ← json.loads(Path(root + "/dispatch.stdout.json").read_bytes())
+artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+filename ∈ str ← "transfer-sample-from-source-to-destination.sh"
+digest ∈ str ← ""
+script ∈ bytes ← b""
+branch ∈ str ← root + "/state/" + str(result.get("run_id", "not-started"))
+if len(artifacts) > 0:
+    filename ← str(artifacts[0]["name"])
+    digest ← str(artifacts[0]["sha256"])
+    branch_case ∈ dict[str, object] ← json.loads(Path(root + "/cases/request-branch-positive/stdout.json").read_bytes())
+    branch ← root + "/state/" + str(branch_case["run_id"])
+if Path(branch + "/" + filename).is_file():
+    script ← Path(branch + "/" + filename).read_bytes()
+    observed_digest ∈ str ← hashlib.sha256(script).hexdigest()
+    if digest != "" and observed_digest != digest:
+        raise ValueError("EVIDENCE_ARTIFACT_CHANGED")
+    digest ← observed_digest
+for relative in ["both-routes.json", "ithon-interface.json", "grease-interface.stdout.bin", "hostile-cases/results.json", "admission-interface.json", "gh-interface.json", "tls-service/result.json", "installed-client.json"]:
+    source ∈ str ← root + "/" + relative
+    if Path(source).is_file():
+        target ∈ str ← fp_output + "/" + relative
+        Path(target).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+records ∈ list[Path] ← list(Path(root).rglob("*"))
+with tarfile.open(fp_output + "/raw-records.tar.xz", "w:xz") as archive:
+    for record in records:
+        name ∈ str ← record.name
+        relative_path ∈ str ← str(record.relative_to(root))
+        selected ∈ bool ← name == "result.json" or name == "stdout.json" or name == "dispatch.stdout.json" or name == "observations.json" or name == "execution.json" or name == "decision.json" or name == "check.json" or name == "process.json" or name == "guard-result.json" or name == "worker-plan.json" or name == "guard-plan.json" or name.endswith(".stderr.bin") or name == "stderr.bin" or name == "stdout.bin"
+        if selected and record.is_file() and not relative_path.startswith("request-mirror.git/"):
+            archive.add(str(record), arcname=relative_path, recursive=False)
+kitchen_output ∈ str ← workspace + "/kitchen/evidence/fp2/" + run_id
+Path(kitchen_output + "/" + filename).write_bytes(script)
+if Path(root + "/gh-interface.json").is_file():
+    shutil.copyfile(root + "/gh-interface.json", kitchen_output + "/gh-interface.json")
+with tarfile.open(kitchen_output + "/raw-fixtures.tar.gz", "w:gz") as archive:
+    branch_files ∈ list[Path] ← list(Path(branch).rglob("*"))
+    for record in branch_files:
+        name ∈ str ← record.name
+        relative_path ∈ str ← str(record.relative_to(branch))
+        if record.is_file() and relative_path.startswith("fixture-") and name != filename:
+            archive.add(str(record), arcname=relative_path, recursive=False)
+decisions ∈ list[dict[str, object]] ← []
+decision_files ∈ list[Path] ← list(Path(branch).glob("fixture-*/decision.json"))
+for decision in decision_files:
+    value ∈ dict[str, object] ← json.loads(decision.read_bytes())
+    decisions.append(value)
+Path(workspace + "/ai-ci/evidence/fp2/" + run_id + "/decisions.json").write_text(json.dumps(decisions, sort_keys=True))
+with tarfile.open(workspace + "/ai-ci/evidence/fp2/" + run_id + "/observations.tar.gz", "w:gz") as archive:
+    observation_files ∈ list[Path] ← list(Path(branch).glob("fixture-*/io/observations.json"))
+    for observation in observation_files:
+        archive.add(str(observation), arcname=str(observation.relative_to(branch)), recursive=False)
+if Path(branch + "/seal-logs/process.json").is_file():
+    seal ∈ dict[str, object] ← json.loads(Path(branch + "/seal-logs/process.json").read_bytes())
+    Path(workspace + "/catfood/evidence/fp2/" + run_id + "/seal-process.json").write_text(json.dumps(seal, sort_keys=True))
+shutil.copyfile(root + "/ithon-interface.json", workspace + "/ithon/evidence/fp2/" + run_id + "/interface.json")
+manifest ∈ dict[str, object] ← {"schema_version": 1, "scope": scope, "operation_status": result["status"], "first_failure": result.get("first_failure", result.get("blocker")), "workflow_run": run_id, "workflow_url": "https://github.com/isomorphisms/flexible-pipes/actions/runs/" + run_id, "deployment": "inactive", "artifact_name": filename, "artifact_bytes": len(script), "artifact_sha256": digest, "control": result.get("control"), "operation_version": result.get("operation_version"), "contract_sha256": result.get("contract_sha256"), "qualification_sha256": result.get("qualification_sha256"), "excluded_claims": ["deployment", "live-transfer", "physical-device"]}
+for owner in owners:
+    directory ∈ str ← workspace + "/" + owner + "/evidence/fp2/" + run_id
+    files ∈ list[dict[str, object]] ← []
+    owned_files ∈ list[Path] ← list(Path(directory).rglob("*"))
+    for record in owned_files:
+        if record.is_file():
+            payload ∈ bytes ← record.read_bytes()
+            files.append({"path": str(record.relative_to(directory)), "bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest()})
+    owned ∈ dict[str, object] ← dict(manifest)
+    owned["files"] ← files
+    Path(directory + "/manifest.json").write_text(json.dumps(owned, sort_keys=True))
+print(json.dumps(manifest, sort_keys=True))

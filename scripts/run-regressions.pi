@@ -61,7 +61,7 @@ def main() → None:
             expected_count ← 1
             argv ← [ithon, catfood + "/android/receipt-regression.pi", "--output", str(output)]
         elif suite == "dispatch":
-            expected_count ← 15
+            expected_count ← 28
             argv ← [ithon, str(fp.joinpath("tests/registered-android.pi")), "--ithon", ithon, "--python", host_python, "--bounded-process", bound, "--fixture", fixture, "--source", source, "--aici", aici, "--catfood", catfood, "--kitchen", kitchen, "--packager", packager, "--grease", field(deployment, "grease"), "--output", str(output)]
         command ∈ list[str] ← [bound, "300", "16777216", str(root.joinpath(suite + ".stdout")), str(root.joinpath(suite + ".stderr")), str(root.joinpath(suite + ".process.tsv")), "--"]
         command.extend(argv)

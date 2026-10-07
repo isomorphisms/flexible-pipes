@@ -1,0 +1,37 @@
+case: missing-executable
+evidence: executed-local-linux-x86_64
+exit_code: 1
+
+{
+  "failed_stage": "absent",
+  "finished_at": "2026-10-06T01:46:43.056151+00:00",
+  "pipeline": "missing-executable",
+  "pipeline_path": "pipelines/missing-executable.json",
+  "pipeline_sha256": "734e61082b650f612cdf5a0f6907d16874173ad11fad892e7b155e5018cfa05d",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/definitely-unavailable-fp1-command"
+      ],
+      "cwd": ".",
+      "exit_code": 127,
+      "finished_at": "2026-10-06T01:46:43.056138+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "absent",
+      "started_at": "2026-10-06T01:46:43.055633+00:00",
+      "stderr_sha256": "a2d4ddee658917c9ba50271b4b75ae59bf2207e4376bf2f8203ae589b7457cb8",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.055486+00:00",
+  "status": "FAIL"
+}

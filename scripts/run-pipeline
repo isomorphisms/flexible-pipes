@@ -14,7 +14,7 @@ if operation == "github-event":
     runtime = "/opt/catfood/bin/ithon"
     controller = "/opt/flexible-pipes/current/scripts/github-event.pi"
     arguments = sys.argv[2:]
-elif operation in {"android-native-apk", "android-diagnostic-capture", "regression-history-smoke"}:
+elif operation in {"android-native-apk", "android-diagnostic-capture", "android-conversation-paired-build"} or (operation == "regression-history-smoke" and "--deployment" in sys.argv):
     qualification = "--deployment" in sys.argv
     runtime = os.environ.get("FLEXIBLE_PIPES_ITHON", "") if qualification else "/opt/catfood/bin/ithon"
     directory = root if qualification else Path("/opt/flexible-pipes/current/scripts")

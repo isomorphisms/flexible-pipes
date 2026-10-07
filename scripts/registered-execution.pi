@@ -416,6 +416,8 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                 raise ValueError("DUPLICATE_ID_DIFFERENT_BYTES")
             if not retry:
                 existing_result ∈ dict[str, object] ← read(str(previous["result"]))
+                if existing_result["qualification_sha256"] != config["qualification_sha256"] or existing_result["contract_sha256"] != config["contract_sha256"] or existing_result["source"] != config["materials"] or existing_result["dependencies"] != config["tools"]:
+                    raise ValueError("STALE_ATTEMPT_MATERIALS: a prior receipt cannot authorize changed execution inputs")
                 if existing_result["status"] == "RUNNING":
                     prior_run ∈ str ← str(Path(str(previous["result"])).parent)
                     reap_interrupted(prior_run)
@@ -585,7 +587,7 @@ try:
     # Android uses the same signed admission and immutable data-only intake.
     # Its finite adapter owns its required stages and fixed producer boundary.
     selected ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
-    if selected.get("pipeline", "") in ["android-native-apk", "android-diagnostic-capture"]:
+    if selected.get("pipeline", "") in ["android-native-apk", "android-diagnostic-capture", "android-conversation-paired-build"]:
         intake ∈ str ← "/var/lib/flexible-pipes/private"
         android_controller ∈ str ← "/opt/flexible-pipes/current/scripts/run-registered-operation.pi"
         android_runs ∈ str ← "/var/lib/flexible-pipes/android-runs"

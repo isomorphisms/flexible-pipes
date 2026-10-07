@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "amazon-az",
+  "required_stages": ["amazon-az"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "amazon-az",
+      "argv": ["/bin/sh", "scripts/amazon-az"],
+      "cwd": "."
+    }
+  ]
+}

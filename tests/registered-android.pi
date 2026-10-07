@@ -1,11 +1,12 @@
 """Exercise the public pipeline-name entrypoint with independent expectations."""
 from argparse import ArgumentParser
 from pathlib import Path
-from builtins import dict, list
+from builtins import dict, list, ValueError
 import hashlib
 import json
 import subprocess
 import sys
+import time
 
 def sha(path ∈ Path) → str:
     value ∈ str ← hashlib.sha256(path.read_bytes()).hexdigest()
@@ -40,9 +41,14 @@ def main() → None:
     ref ∈ str ← identity_bytes.decode().strip()
     ledger ← "case\texpected\tobserved_exit\tresult\n"
     failures ← 0
-    for scenario in ["valid", "valid-terminal", "omitted-stage", "worker-stages", "declared-sha", "swapped-controller", "invalid-later-runtime", "wrong-package", "multiple-pid", "failed-producer", "changed-pid", "self-approved", "build-blocked", "build-omitted", "missing-application"]:
+    for scenario in ["valid", "valid-terminal", "omitted-stage", "worker-stages", "declared-sha", "swapped-controller", "invalid-later-runtime", "wrong-package", "multiple-pid", "failed-producer", "changed-pid", "self-approved", "build-blocked", "build-omitted", "missing-application", "changed-kitchen-bytes", "mutable-predecessor", "wrong-procedure", "zero-stages", "arbitrary-target", "no-op-supervisor", "changed-plan-during-run", "changed-profile-during-run", "changed-runtime-during-run"]:
         case ∈ Path ← root.joinpath(scenario)
         case.mkdir(mode=448)
+        actual_kitchen ∈ str ← kitchen
+        if scenario == "changed-kitchen-bytes":
+            actual_kitchen ← str(case.joinpath("replacement-kitchen"))
+            subprocess.run(["/usr/local/bin/git", "clone", "--shared", kitchen, actual_kitchen], capture_output=True, check=True)
+            Path(actual_kitchen + "/tasks/android-diagnostic/capture.pi").write_text('print("PASS from substituted Kitchen code")\n')
         channel ∈ Path ← case.joinpath("rish")
         import shutil
         shutil.copyfile(fixture, channel)
@@ -70,7 +76,9 @@ def main() → None:
         plan.__setitem__("package", "org.isomorphisms.crystal.halite")
         plan.__setitem__("claim", "crash-observation")
         plan.__setitem__("permitted_actions", "observe")
-        plan.__setitem__("task_sha256", sha(Path(kitchen + "/tasks/android-diagnostic/capture.pi")))
+        plan.__setitem__("task_sha256", sha(Path(actual_kitchen + "/tasks/android-diagnostic/capture.pi")))
+        if scenario == "wrong-procedure":
+            plan["task_sha256"] ← "0000000000000000000000000000000000000000000000000000000000000000"
         plan.__setitem__("apk_sha256", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         plan.__setitem__("required_observable", "bounded-log")
         plan.__setitem__("observable_producer", "CrystalProducer")
@@ -95,6 +103,8 @@ def main() → None:
         stages ∈ list[str] ← ["prepare", "catfood-profile", "aici-prepare", "kitchen-capture", "aici-evidence", "deliver"]
         if scenario == "omitted-stage":
             stages ← ["prepare", "deliver"]
+        elif scenario == "zero-stages":
+            stages ← []
         definition.__setitem__("stages", stages)
         definition.__setitem__("profile", str(case.joinpath("profile.json")))
         definition.__setitem__("capture_runtime", str(case.joinpath("runtime.json")))
@@ -108,17 +118,32 @@ def main() → None:
         deployment.__setitem__("source_root", source_name)
         deployment.__setitem__("aici_root", aici)
         deployment.__setitem__("catfood_root", catfood)
-        deployment.__setitem__("kitchen_root", kitchen)
+        deployment.__setitem__("kitchen_root", actual_kitchen)
         deployment.__setitem__("packager_root", packager)
         deployment.__setitem__("grease", grease)
+        revisions ∈ dict[str, object] ← dict()
+        for owner in ["aici_root", "catfood_root", "kitchen_root"]:
+            owner_root ∈ str ← deployment.get(owner)
+            observed ∈ subprocess.CompletedProcess ← subprocess.run(["/usr/local/bin/git", "-C", owner_root, "rev-parse", "HEAD"], capture_output=True, check=True)
+            owner_ref ∈ str ← observed.stdout.decode().strip()
+            revisions[owner] ← owner_ref
+        deployment["source_revisions"] ← revisions
+        if scenario == "mutable-predecessor":
+            revisions["kitchen_root"] ← "main"
         if scenario == "self-approved":
             deployment.__setitem__("authority_kind", "trusted-deployment")
         tools ∈ dict[str, object] ← dict()
-        for path in [ithon, host_python, bound, grease, "/usr/local/bin/git", str(fp.joinpath("scripts/android-build.ysh")), str(fp.joinpath("scripts/run-registered-operation.pi")), catfood + "/android/profile.pi", aici + "/android-diagnostic/check.pi", kitchen + "/tasks/android-diagnostic/capture.pi"]:
+        for path in [ithon, host_python, bound, grease, "/usr/local/bin/git", str(fp.joinpath("scripts/android-build.ysh")), str(fp.joinpath("scripts/run-registered-operation.pi")), catfood + "/android/profile.pi", aici + "/android-diagnostic/check.pi", actual_kitchen + "/tasks/android-diagnostic/capture.pi"]:
             tools.__setitem__(path, sha(Path(path)))
         if scenario == "swapped-controller":
             tools.__setitem__(str(fp.joinpath("scripts/run-registered-operation.pi")), "0")
         deployment.__setitem__("tool_digests", tools)
+        for runtime_file in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
+            runtime_path ∈ Path ← Path(ithon).parent.joinpath(runtime_file)
+            tools[str(runtime_path)] ← sha(runtime_path)
+        if scenario == "no-op-supervisor":
+            deployment["bounded_process"] ← "/usr/bin/true"
+            tools["/usr/bin/true"] ← sha(Path("/usr/bin/true"))
         write(case.joinpath("deployment.json"), deployment)
         request ∈ dict[str, object] ← dict()
         request.__setitem__("pipeline", "android-diagnostic-capture")
@@ -126,6 +151,8 @@ def main() → None:
         request.__setitem__("repository", "functorial-games/crystal")
         request.__setitem__("ref", ref)
         request.__setitem__("target", "miro-a1")
+        if scenario == "arbitrary-target":
+            request["target"] ← "tablet"
         request.__setitem__("application", "halite")
         request.__setitem__("permitted_actions", "observe")
         request.__setitem__("requested_result", "private-capture")
@@ -155,7 +182,30 @@ def main() → None:
         invocation ∈ list[str] ← [ithon, str(fp.joinpath("scripts/request.pi")), "--python", host_python, "--request", str(case.joinpath("request.json")), "--deployment", str(case.joinpath("deployment.json")), "--runs-root", str(case.joinpath("runs"))]
         if scenario == "valid-terminal":
             invocation ← [host_python, str(fp.joinpath("scripts/run-pipeline")), "android-diagnostic-capture", "--request", str(case.joinpath("request.json")), "--deployment", str(case.joinpath("deployment.json")), "--runs-root", str(case.joinpath("runs"))]
-        child ∈ subprocess.CompletedProcess ← subprocess.run(invocation, env=environment, cwd="/", capture_output=True)
+        if scenario.startswith("changed-") and scenario.endswith("-during-run"):
+            process ∈ object ← subprocess.Popen(invocation, env=environment, cwd="/", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            changed ∈ bool ← False
+            started ∈ float ← time.monotonic()
+            deadline ∈ float ← started + 15.0
+            while True:
+                now ∈ float ← time.monotonic()
+                finished ∈ object ← process.poll()
+                if now >= deadline or finished != None:
+                    break
+                markers ∈ list[Path] ← list(case.glob("runs/*/capture/authority.stdout"))
+                if len(markers) > 0:
+                    name ∈ str ← "plan.json" if scenario == "changed-plan-during-run" else "profile.json" if scenario == "changed-profile-during-run" else "runtime.json"
+                    original ∈ str ← case.joinpath(name).read_text()
+                    case.joinpath(name).write_text(original + "\n")
+                    changed ← True
+                    break
+                time.sleep(0.001)
+            observed_streams ∈ tuple[bytes, bytes] ← process.communicate(timeout=30)
+            child ∈ subprocess.CompletedProcess ← subprocess.CompletedProcess(invocation, process.returncode, observed_streams[0], observed_streams[1])
+            if not changed:
+                raise ValueError("MUTATION_BARRIER_NOT_REACHED:" + scenario)
+        else:
+            child ∈ subprocess.CompletedProcess ← subprocess.run(invocation, env=environment, cwd="/", capture_output=True)
         code ∈ int ← child.returncode
         stdout ∈ bytes ← child.stdout
         stderr ∈ bytes ← child.stderr
@@ -180,6 +230,20 @@ def main() → None:
             expected ← "MANDATORY_STAGE_MISMATCH"
         elif scenario == "missing-application":
             expected ← "MISSING_INPUT:application"
+        elif scenario == "changed-kitchen-bytes":
+            expected ← "UNPUBLISHED_PROCEDURE_BYTES"
+        elif scenario == "mutable-predecessor":
+            expected ← "IMMUTABLE_PREDECESSOR_REQUIRED"
+        elif scenario == "wrong-procedure":
+            expected ← "TASK_DIGEST_MISMATCH"
+        elif scenario == "zero-stages":
+            expected ← "MANDATORY_STAGE_MISMATCH"
+        elif scenario == "arbitrary-target":
+            expected ← "UNREGISTERED_TARGET"
+        elif scenario == "no-op-supervisor":
+            expected ← "prepare"
+        elif scenario.endswith("-during-run"):
+            expected ← "MATERIAL_CHANGED:plan" if scenario == "changed-plan-during-run" else "MATERIAL_CHANGED:profile" if scenario == "changed-profile-during-run" else "MATERIAL_CHANGED:capture_runtime"
         elif scenario != "valid":
             if scenario != "valid-terminal":
                 expected ← "kitchen-capture"
@@ -199,7 +263,7 @@ def main() → None:
             if code != 0:
                 output ∈ bytes ← stdout + stderr
                 matched ∈ bool ← output.__contains__(expected.encode())
-                if expected != "kitchen-capture":
+                if expected != "kitchen-capture" and scenario != "no-op-supervisor" and not scenario.endswith("-during-run"):
                     effects ∈ bool ← case.joinpath("runs").exists()
                     if effects:
                         matched ← False
@@ -209,6 +273,68 @@ def main() → None:
             failures ← failures + 1
         ledger ← ledger + scenario + "\t" + expected + "\t" + str(code) + "\t" + verdict + "\n"
         root.joinpath("results.tsv").write_text(ledger)
+    # Same request never aliases an earlier attempt or overwrites its receipts.
+    valid ∈ Path ← root.joinpath("valid")
+    repeated_invocation ∈ list[str] ← [host_python, str(fp.joinpath("scripts/run-pipeline")), "android-diagnostic-capture", "--request", str(valid.joinpath("request.json")), "--deployment", str(valid.joinpath("deployment.json")), "--runs-root", str(valid.joinpath("runs"))]
+    run_ids ∈ list[str] ← []
+    original_receipt ∈ dict[str, object] ← json.loads(valid.joinpath("stdout").read_bytes())
+    original_run ∈ Path ← Path(str(original_receipt["private_run"]))
+    original_bytes ∈ bytes ← original_run.joinpath("receipt.json").read_bytes()
+    for mode in ["repeated", "concurrent"]:
+        observations ∈ list[subprocess.CompletedProcess] ← []
+        if mode == "repeated":
+            for repetition in [1, 2]:
+                observations.append(subprocess.run(repeated_invocation, env=environment, cwd="/tmp", capture_output=True, timeout=30))
+        else:
+            children ∈ list[object] ← []
+            for repetition in [1, 2]:
+                children.append(subprocess.Popen(repeated_invocation, env=environment, cwd="/", stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+            for concurrent_child in children:
+                streams ∈ tuple[bytes, bytes] ← concurrent_child.communicate(timeout=30)
+                observations.append(subprocess.CompletedProcess(repeated_invocation, concurrent_child.returncode, streams[0], streams[1]))
+        for observed in observations:
+            observed_code ∈ int ← observed.returncode
+            if observed_code != 0:
+                raise ValueError("ATTEMPT_FAILED:" + mode)
+            attempt_result ∈ dict[str, object] ← json.loads(observed.stdout)
+            run_id ∈ str ← attempt_result.get("run_id")
+            if run_ids.__contains__(run_id) or attempt_result["materials_sha256"] != original_receipt["materials_sha256"]:
+                raise ValueError("ATTEMPT_ALIAS_OR_UNBOUND_INPUT")
+            run_ids.append(run_id)
+            private ∈ Path ← Path(str(attempt_result["private_run"]))
+            actual ∈ dict[str, object] ← json.loads(private.joinpath("receipt.json").read_bytes())
+            if actual != attempt_result or attempt_result["status"] != "PASS":
+                raise ValueError("ATTEMPT_RECEIPT_MISMATCH")
+        retained_bytes ∈ bytes ← original_run.joinpath("receipt.json").read_bytes()
+        if retained_bytes != original_bytes:
+            raise ValueError("OLD_RECEIPT_CLOBBERED")
+        ledger ← ledger + mode + "-attempts\tDISTINCT_BOUND_ATTEMPTS\t0\tPASS\n"
+        root.joinpath("results.tsv").write_text(ledger)
+    # A changed request input requires fresh execution and a different binding.
+    stale ∈ Path ← valid.joinpath("runs/stale-receipt.json")
+    stale.write_bytes(original_bytes)
+    fresh_plan ∈ dict[str, object] ← json.loads(valid.joinpath("plan.json").read_bytes())
+    fresh_plan["experiment"] ← "changed experiment must have independent fresh execution"
+    write(valid.joinpath("plan.json"), fresh_plan)
+    fresh_child ∈ subprocess.CompletedProcess ← subprocess.run(repeated_invocation, env=environment, cwd="/tmp", capture_output=True, timeout=30)
+    fresh_code ∈ int ← fresh_child.returncode
+    if fresh_code != 0:
+        raise ValueError("CHANGED_REQUEST_EXECUTION_FAILED")
+    fresh_result ∈ dict[str, object] ← json.loads(fresh_child.stdout)
+    fresh_run ∈ Path ← Path(str(fresh_result["private_run"]))
+    stale_bytes ∈ bytes ← stale.read_bytes()
+    if fresh_result["materials_sha256"] == original_receipt["materials_sha256"] or fresh_result["plan_sha256"] == original_receipt["plan_sha256"] or not fresh_run.joinpath("capture/capture.json").is_file() or stale_bytes != original_bytes:
+        raise ValueError("STALE_RECEIPT_REUSED")
+    ledger ← ledger + "stale-receipt-changed-input\tFRESH_BOUND_EXECUTION\t0\tPASS\n"
+    failed_attempts ∈ list[Path] ← list(root.joinpath("no-op-supervisor/runs").glob("*/receipt.json"))
+    if len(failed_attempts) != 1:
+        raise ValueError("PARTIAL_ATTEMPT_LOST")
+    partial ∈ dict[str, object] ← json.loads(failed_attempts[0].read_bytes())
+    partial_artifacts ∈ list[object] ← partial.get("artifacts")
+    if partial["status"] != "FAIL" or len(partial_artifacts) != 0:
+        raise ValueError("PARTIAL_ATTEMPT_PROMOTED")
+    ledger ← ledger + "partial-attempt-preserved\tFAIL_WITHOUT_ARTIFACTS\t1\tPASS\n"
+    root.joinpath("results.tsv").write_text(ledger)
     print(ledger)
     if failures != 0:
         sys.exit(1)

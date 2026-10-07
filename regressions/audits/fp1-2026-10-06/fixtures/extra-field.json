@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "extra-field",
+  "command": "ignored caller command",
+  "stages": [
+    {
+      "kind": "command",
+      "name": "control",
+      "argv": [
+        "/usr/bin/true"
+      ],
+      "interpreter": "ignored override"
+    }
+  ]
+}

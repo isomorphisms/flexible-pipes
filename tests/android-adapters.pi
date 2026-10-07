@@ -28,9 +28,15 @@ def main() → None:
     environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_AUTHOR_NAME": "Qualification fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid", "GIT_COMMITTER_NAME": "Qualification fixture", "GIT_COMMITTER_EMAIL": "fixture@example.invalid"}
     request ∈ str ← Path(fixture + "/request.json").read_text()
     ledger ← "case\texpected\tobserved_exit\tresult\n"
-    for scenario in ["workflow_dispatch", "pipeline-requests", "wrong-repository", "old-workflow", "non-request-change"]:
+    for scenario in ["workflow_dispatch", "pipeline-requests", "wrong-repository", "old-workflow", "non-request-change", "paired-dispatch", "paired-request-branch", "paired-arbitrary-target"]:
         case ∈ Path ← root.joinpath(scenario)
         case.mkdir()
+        case_request ∈ str ← request
+        if scenario.startswith("paired-"):
+            paired ∈ dict[str, object] ← {"pipeline": "android-conversation-paired-build", "request_id": scenario, "application_plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+            if scenario == "paired-arbitrary-target":
+                paired["target"] ← "tablet"
+            case_request ← json.dumps(paired)
         mirror ∈ Path ← case.joinpath("mirror")
         for command in [["/usr/bin/git", "init", "-b", "main", str(mirror)], ["/usr/bin/git", "-C", str(mirror), "commit", "--allow-empty", "-m", "independent baseline"]]:
             subprocess.run(command, env=environment, check=True, capture_output=True)
@@ -38,7 +44,7 @@ def main() → None:
         initial_bytes ∈ bytes ← initial.stdout
         baseline ∈ str ← initial_bytes.decode().strip()
         mirror.joinpath("requests").mkdir()
-        mirror.joinpath("requests/fixture.json").write_text(request)
+        mirror.joinpath("requests/fixture.json").write_text(case_request)
         if scenario == "non-request-change":
             mirror.joinpath("executable-change").write_text("would replace trusted code")
         for command in [["/usr/bin/git", "-C", str(mirror), "add", "."], ["/usr/bin/git", "-C", str(mirror), "commit", "-m", "data-only request"]]:
@@ -53,16 +59,18 @@ def main() → None:
         write(case.joinpath("android-deployment.json"), android)
         config ∈ dict[str, object] ← {"authority": "qualification", "ithon": [python, ithon_root + "/ithon_host.py"], "state_root": str(case), "android_qualification_deployment": str(case.joinpath("android-deployment.json")), "request_mirror": str(mirror), "request_base": baseline, "control_commit": baseline}
         context ∈ dict[str, str] ← {"GITHUB_REF": "refs/heads/main", "GITHUB_SHA": baseline, "GITHUB_RUN_ID": "fixture", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_EVENT_NAME": "workflow_dispatch"}
-        event ∈ dict[str, object] ← {"inputs": {"request": request}}
-        if scenario in ["pipeline-requests", "non-request-change"]:
+        event ∈ dict[str, object] ← {"inputs": {"request": case_request}}
+        if scenario in ["pipeline-requests", "non-request-change", "paired-request-branch"]:
             context.__setitem__("GITHUB_EVENT_NAME", "workflow_run")
             event ← {"workflow_run": {"head_branch": "pipeline-requests", "head_repository": {"id": 1405888814}, "head_sha": commit}}
         mapped ∈ dict[str, object] ← event_envelope(event, context, "disposable-non-authorizing-token")
         envelope ∈ dict[str, object] ← dict(mapped.get("envelope"))
         route ← "workflow_dispatch"
         expected ← "PASS"
-        if scenario in ["pipeline-requests", "non-request-change"]:
+        if scenario in ["pipeline-requests", "non-request-change", "paired-request-branch"]:
             route ← "pipeline-requests"
+        if scenario.startswith("paired-"):
+            expected ← "PAIRED_REQUEST_FIELDS" if scenario == "paired-arbitrary-target" else "MISSING_PREDECESSOR:S2"
         if scenario == "wrong-repository":
             envelope.__setitem__("repository_id", 1)
             expected ← "WRONG_REPOSITORY"
@@ -78,9 +86,17 @@ def main() → None:
         payload ∈ bytes ← child.stdout
         case.joinpath("stdout").write_bytes(payload)
         case.joinpath("stderr").write_bytes(child.stderr)
+        state ∈ str ← "BLOCKED"
+        blocker ∈ str ← ""
+        if scenario.startswith("paired-"):
+            blocker ← child.stderr.decode(errors="replace")
+            if code == 0 or not blocker.__contains__(expected) or case.joinpath("android-runs").exists():
+                raise ValueError("PAIRED_ADAPTER_REJECTION_MISSING:" + scenario)
+            ledger ← ledger + scenario + "\t" + expected + "\t" + str(code) + "\tPASS\n"
+            continue
         result ∈ dict[str, object] ← json.loads(payload)
-        state ∈ str ← result.get("status", "")
-        blocker ∈ str ← result.get("blocker", "")
+        state ← result.get("status", "")
+        blocker ← result.get("blocker", "")
         if expected == "PASS":
             if code != 0 or state != "PASS":
                 raise ValueError("ADAPTER_EXPECTED_CAPTURE:" + scenario + ":" + blocker)

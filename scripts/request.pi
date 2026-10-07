@@ -24,7 +24,7 @@ def main() → None:
     if is_text == False:
         sys.exit("MISSING_INPUT:pipeline")
     registered ← False
-    for name in ["android-native-apk", "android-diagnostic-capture"]:
+    for name in ["android-native-apk", "android-diagnostic-capture", "android-conversation-paired-build"]:
         if name == operation:
             registered ← True
     if registered == False:

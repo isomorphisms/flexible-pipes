@@ -1,0 +1,37 @@
+case: false-green
+evidence: executed-local-linux-x86_64
+exit_code: 0
+
+{
+  "finished_at": "2026-10-06T01:46:43.187772+00:00",
+  "pipeline": "false-green",
+  "pipeline_path": "pipelines/false-green.json",
+  "pipeline_sha256": "6172fb7b4251c73d8f25fb05964b28f0ad6195ceba9cf9b2961d1c7e115069be",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/printf",
+        "PASS\n"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T01:46:43.187760+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "required-test",
+      "started_at": "2026-10-06T01:46:43.186321+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c26de83abdc9496cd1301470918ec39ecca1cf389ef0ae1c6504da1800d1c431"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.186166+00:00",
+  "status": "PASS"
+}

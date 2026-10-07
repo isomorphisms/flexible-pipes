@@ -1,0 +1,38 @@
+case: late-invalid
+evidence: executed-local-linux-x86_64
+exit_code: 1
+
+{
+  "finished_at": "2026-10-06T01:46:43.061360+00:00",
+  "pipeline": "late-invalid",
+  "pipeline_path": "pipelines/late-invalid.json",
+  "pipeline_sha256": "05dd30646059d41a4a75f30ac5456661f4851e52a4bffa093619691b05503d5b",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "runner_error": "ValueError: stage 2: unsupported kind 'unsupported'",
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/touch",
+        "early-marker"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T01:46:43.061335+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "first-effect",
+      "started_at": "2026-10-06T01:46:43.060100+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.059909+00:00",
+  "status": "FAIL"
+}

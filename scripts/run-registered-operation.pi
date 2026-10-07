@@ -10,6 +10,87 @@ import re
 import subprocess
 import sys
 import uuid
+import signal
+from builtins import Exception, ValueError, sorted
+
+def encoded(value ∈ object) → bytes:
+    text ∈ str ← json.dumps(value, sort_keys=True, separators=(",", ":"))
+    return text.encode()
+
+def atomic(path ∈ Path, value ∈ object) → None:
+    filename ∈ str ← path.name
+    token ∈ str ← uuid.uuid4().hex
+    temporary ∈ Path ← path.with_name(filename + "." + token + ".tmp")
+    with temporary.open("xb") as stream:
+        stream.write(encoded(value))
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+def material(role ∈ str, path ∈ str) → dict[str, object]:
+    item ∈ Path ← Path(path)
+    if not item.is_absolute() or not item.is_file():
+        raise ValueError("MATERIAL_ABSENT:" + role)
+    return {"role": role, "path": str(item), "resolved": str(item.resolve()), "sha256": sha(item), "size": item.stat().st_size}
+
+def recheck(materials ∈ list[dict[str, object]]) → None:
+    for item in materials:
+        path ∈ Path ← Path(str(item["path"]))
+        if not path.is_file() or str(path.resolve()) != item["resolved"] or sha(path) != item["sha256"]:
+            raise ValueError("MATERIAL_CHANGED:" + str(item["role"]))
+
+def source_materials(git ∈ str, root ∈ Path, ref ∈ str, environment ∈ dict[str, str]) → list[dict[str, object]]:
+    listing ∈ CompletedProcess ← subprocess.run([git, "-C", str(root), "ls-tree", "-rz", "--full-tree", ref], env=environment, capture_output=True, check=True)
+    entries ∈ list[bytes] ← listing.stdout.split(b"\x00")
+    result ∈ list[dict[str, object]] ← []
+    for entry in entries:
+        if entry != b"":
+            parts ∈ list[bytes] ← entry.split(b"\t", 1)
+            header ∈ list[bytes] ← parts[0].split()
+            relative ∈ str ← parts[1].decode()
+            if header[0] != b"100644" and header[0] != b"100755":
+                raise ValueError("SOURCE_ENTRY_UNSUPPORTED:" + relative)
+            path ∈ Path ← root.joinpath(relative)
+            if path.is_symlink():
+                raise ValueError("SOURCE_SYMLINK:" + relative)
+            committed ∈ CompletedProcess ← subprocess.run([git, "-C", str(root), "cat-file", "blob", header[2].decode()], env=environment, capture_output=True, check=True)
+            item ∈ dict[str, object] ← material("source:" + relative, str(path))
+            committed_sha ∈ str ← hashlib.sha256(committed.stdout).hexdigest()
+            if committed_sha != item["sha256"]:
+                raise ValueError("SOURCE_CHANGED_AFTER_ADMISSION:" + relative)
+            item["commit"] ← ref
+            item["blob"] ← header[2].decode()
+            result.append(item)
+    return result
+
+def verify_stage(stage ∈ str, run ∈ Path, ref ∈ str, plan_digest ∈ str) → None:
+    # Exit zero is only a process observation. Each effectful stage must also
+    # produce its independently bound output in this fresh attempt directory.
+    if stage == "prepare":
+        prepared_ref ∈ str ← run.joinpath("prepare.stdout").read_text().strip()
+        if prepared_ref != ref:
+            raise ValueError("PREPARE_OUTPUT_MISMATCH")
+    elif stage == "catfood-profile":
+        profile ∈ dict[str, object] ← json.loads(run.joinpath("stable-profile.json").read_bytes(), object_pairs_hook=unique)
+        if field(profile, "schema") != "catfood-device-profile-v1" or field(profile, "model") != "MIRO A1":
+            raise ValueError("PROFILE_LOOKUP_MISSING_OR_WRONG")
+    elif stage == "aici-prepare":
+        preparation ∈ dict[str, object] ← json.loads(run.joinpath("prepared.json").read_bytes(), object_pairs_hook=unique)
+        if field(preparation, "result") != "PREPARED" or field(preparation, "plan_sha256") != plan_digest:
+            raise ValueError("PREPARATION_OUTPUT_MISMATCH")
+    elif stage == "kitchen-capture":
+        capture ∈ dict[str, object] ← json.loads(run.joinpath("capture/capture.json").read_bytes(), object_pairs_hook=unique)
+        if field(capture, "state") != "CAPTURED":
+            raise ValueError("CAPTURE_OUTPUT_MISSING")
+    elif stage == "aici-evidence":
+        decision ∈ dict[str, object] ← json.loads(run.joinpath("diagnostic-decision.json").read_bytes(), object_pairs_hook=unique)
+        capture_path ∈ Path ← run.joinpath("capture/capture.json")
+        capture ← json.loads(capture_path.read_bytes(), object_pairs_hook=unique)
+        observation ∈ Path ← Path(field(capture, "observation_path"))
+        if not observation.resolve().is_relative_to(run.joinpath("capture").resolve()):
+            raise ValueError("OBSERVATION_OUTSIDE_ATTEMPT")
+        if field(decision, "result") != "PASS" or field(decision, "plan_sha256") != plan_digest or field(decision, "capture_sha256") != sha(capture_path) or field(decision, "observation_sha256") != sha(observation):
+            raise ValueError("DECISION_OUTPUT_MISMATCH")
 
 def unique(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
     answer ∈ dict[str, object] ← dict()
@@ -44,13 +125,24 @@ def main() → None:
     request_name ∈ str ← args.request
     deployment_name ∈ str ← args.deployment
     runs_name ∈ str ← args.runs_root
+    if operation == "android-conversation-paired-build":
+        paired ∈ dict[str, object] ← json.loads(Path(request_name).read_bytes(), object_pairs_hook=unique)
+        if set(paired) != set(["pipeline", "request_id", "application_plan_sha256"]):
+            sys.exit("PAIRED_REQUEST_FIELDS: only data and an approved plan identity are permitted")
+        if field(paired, "pipeline") != operation:
+            sys.exit("OPERATION_MISMATCH")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", field(paired, "request_id")):
+            sys.exit("REQUEST_ID")
+        if not re.fullmatch(r"[0-9a-f]{64}", field(paired, "application_plan_sha256")):
+            sys.exit("IMMUTABLE_PLAN_IDENTITY_REQUIRED")
+        sys.exit("MISSING_PREDECESSOR:S2 approved immutable plan; S4 qualified shared decision; S5 exact Kitchen procedure; S3 independent acceptance")
     if operation != "android-native-apk":
         if operation != "android-diagnostic-capture":
             sys.exit("UNREGISTERED_OPERATION:" + operation)
     request_path ∈ Path ← Path(request_name).resolve()
     deployment_path ∈ Path ← Path(deployment_name).resolve()
     request ∈ dict[str, object] ← json.loads(request_path.read_text(), object_pairs_hook=unique)
-    deployment ∈ dict[str, object] ← json.loads(deployment_path.read_text())
+    deployment ∈ dict[str, object] ← json.loads(deployment_path.read_text(), object_pairs_hook=unique)
     keys ∈ list[str] ← list(request.keys())
     allowed ∈ list[str] ← ["pipeline", "request_id", "repository", "ref", "target", "application", "permitted_actions", "requested_result", "diagnostic_plan"]
     for key in keys:
@@ -140,22 +232,54 @@ def main() → None:
     dependencies ∈ list[str] ← [field(deployment, "ithon"), field(deployment, "python"), field(deployment, "git"), field(deployment, "bounded_process"), field(deployment, "catfood_root") + "/android/profile.pi", field(deployment, "aici_root") + "/android-diagnostic/check.pi", field(deployment, "kitchen_root") + "/tasks/android-diagnostic/capture.pi"]
     if operation == "android-native-apk":
         dependencies ← [field(deployment, "ithon"), field(deployment, "python"), field(deployment, "git"), field(deployment, "bounded_process"), field(deployment, "grease"), str(controller.parent.joinpath("android-build.ysh"))]
+    ithon_root ∈ Path ← Path(field(deployment, "ithon")).parent
+    for runtime_file in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
+        dependencies.append(str(ithon_root.joinpath(runtime_file)))
     for dependency in dependencies:
         recorded ∈ str ← tools.get(dependency, "")
         if recorded != sha(Path(dependency)):
             sys.exit("UNBOUND_DEPENDENCY:" + dependency)
+    # A digest supplied alongside replacement code is not source admission.
+    # Qualification uses immutable predecessor source identities; production
+    # will require the independent installed promotion, and is blocked below.
+    revisions ∈ dict[str, object] ← deployment.get("source_revisions")
+    if not isinstance(revisions, dict):
+        sys.exit("MISSING_INPUT:source_revisions")
+    for owner in ["aici_root", "catfood_root", "kitchen_root"]:
+        revision ∈ str ← field(revisions, owner)
+        if not re.fullmatch(r"[0-9a-f]{40}", revision):
+            sys.exit("IMMUTABLE_PREDECESSOR_REQUIRED:" + owner)
+        owner_root ∈ Path ← Path(field(deployment, owner)).resolve()
+        observed ∈ CompletedProcess ← subprocess.run([git, "-C", str(owner_root), "rev-parse", "HEAD"], env=environment, capture_output=True, check=True)
+        observed_commit ∈ str ← observed.stdout.decode().strip()
+        if observed_commit != revision:
+            sys.exit("PREDECESSOR_REVISION_MISMATCH:" + owner)
+        for dependency in dependencies:
+            dependency_path ∈ Path ← Path(dependency).resolve()
+            if dependency_path.is_relative_to(owner_root):
+                relative_name ∈ str ← str(dependency_path.relative_to(owner_root))
+                published ∈ CompletedProcess ← subprocess.run([git, "-C", str(owner_root), "show", revision + ":" + relative_name], env=environment, capture_output=True, check=True)
+                committed_digest ∈ str ← hashlib.sha256(published.stdout).hexdigest()
+                if committed_digest != sha(dependency_path):
+                    sys.exit("UNPUBLISHED_PROCEDURE_BYTES:" + relative_name)
     # Explicit deployment arguments are qualification only. They never activate
     # a verifier, signer, runtime release or publication authority.
     authority ∈ str ← field(deployment, "authority_kind")
+    if authority != "qualification" and str(deployment_path) != "/etc/flexible-pipes/android-deployment.json":
+        sys.exit("SELF_APPROVED_DEPLOYMENT")
+    if authority != "qualification":
+        # Historical v2 promotion cannot authorize the new maintained family.
+        # No producer/service is activated by reconciling parked source.
+        sys.exit("S6_PREDECESSORS_UNQUALIFIED: immutable plan, exact procedure, independent producer and installed promotion required")
     observed_deployment ∈ str ← str(deployment_path)
     if observed_deployment != "/etc/flexible-pipes/android-deployment.json":
         if authority != "qualification":
             sys.exit("SELF_APPROVED_DEPLOYMENT")
     else:
         information ∈ object ← deployment_path.stat()
-        owner ∈ int ← information.st_uid
+        owner_uid ∈ int ← information.st_uid
         permissions ∈ int ← information.st_mode
-        if owner != 0:
+        if owner_uid != 0:
             sys.exit("UNTRUSTED_DEPLOYMENT_OWNER")
         writable ∈ int ← permissions & 18
         if writable != 0:
@@ -167,7 +291,9 @@ def main() → None:
     plan ← ""
     if operation == "android-diagnostic-capture":
         plan ← field(request, "diagnostic_plan")
-        proposed ∈ dict[str, object] ← json.loads(Path(plan).read_text())
+        if not Path(plan).is_absolute() or Path(plan).is_symlink():
+            sys.exit("ABSOLUTE_REGULAR_PLAN_REQUIRED")
+        proposed ∈ dict[str, object] ← json.loads(Path(plan).read_text(), object_pairs_hook=unique)
         artifact_bound ∈ bool ← bool(re.fullmatch(r"[0-9a-f]{64}", field(proposed, "apk_sha256")))
         if artifact_bound == False:
             sys.exit("MISSING_INPUT:exact installed APK digest or explicit identity discovery required")
@@ -229,6 +355,22 @@ def main() → None:
             sys.stderr.write(readiness_error.decode(errors="replace"))
             sys.exit("PRODUCER_PREPARATION_BLOCKED")
     # No task effects occur above. Whole plan and dependency closure are checked.
+    materials ∈ list[dict[str, object]] ← [material("request", str(request_path)), material("deployment", str(deployment_path))]
+    ordered_paths ∈ list[str] ← sorted(paths)
+    for tool in ordered_paths:
+        materials.append(material("implementation:" + tool, tool))
+    materials.extend(source_materials(git, source, ref, environment))
+    if operation == "android-diagnostic-capture":
+        for role in ["profile", "capture_runtime"]:
+            materials.append(material(role, field(definition, role)))
+        materials.append(material("plan", str(Path(plan).resolve())))
+        for role in ["launcher", "bounded_process"]:
+            materials.append(material(role, field(capture_input, role)))
+        if channel == "rish":
+            materials.append(material("dex", field(capture_input, "dex")))
+        materials.append(material("profile-observations", field(deployment, "catfood_root") + "/docs/observations/miro-a1-graphics-rish-2026-10-05.tsv"))
+    material_digest ∈ str ← hashlib.sha256(encoded(materials)).hexdigest()
+    plan_digest ∈ str ← sha(Path(plan)) if plan != "" else ""
     token ∈ str ← uuid.uuid4().hex
     run ∈ Path ← Path(runs_name).resolve().joinpath(operation + "-" + token)
     run.mkdir(mode=448, parents=True, exist_ok=False)
@@ -249,6 +391,14 @@ def main() → None:
     artifacts ∈ list[dict[str, object]] ← []
     receipt.__setitem__("artifacts", artifacts)
     receipt.__setitem__("private_run", str(run))
+    receipt.__setitem__("run_id", operation + "-" + token)
+    receipt.__setitem__("attempt_id", token)
+    receipt.__setitem__("materials", materials)
+    receipt.__setitem__("materials_sha256", material_digest)
+    receipt.__setitem__("predecessor_revisions", revisions)
+    receipt.__setitem__("plan_sha256", plan_digest)
+    receipt.__setitem__("physical_A1", "NOT_RUN")
+    receipt.__setitem__("physical_C67", "NOT_RUN")
     stages ∈ list[dict[str, object]] ← []
     receipt.__setitem__("stages", stages)
     ithon ∈ str ← field(deployment, "ithon")
@@ -262,8 +412,26 @@ def main() → None:
         record.__setitem__("name", stage)
         record.__setitem__("required", True)
         record.__setitem__("state", "NOT_RUN")
+        record.__setitem__("run_id", operation + "-" + token)
+        record.__setitem__("attempt_id", token)
+        record.__setitem__("plan_sha256", plan_digest)
+        record.__setitem__("materials_sha256", material_digest)
         stages.append(record)
+    atomic(run.joinpath("receipt.json"), receipt)
     for stage in required:
+        try:
+            recheck(materials)
+        except Exception as changed:
+            receipt["status"] ← "FAIL"
+            receipt["failed_stage"] ← stage
+            receipt["first_failure"] ← str(changed)
+            atomic(run.joinpath("receipt.json"), receipt)
+            print(json.dumps(receipt, sort_keys=True))
+            sys.exit(1)
+        for running in stages:
+            if running["name"] == stage:
+                running["state"] ← "RUNNING"
+        atomic(run.joinpath("receipt.json"), receipt)
         argv ∈ list[str] ← []
         if operation == "android-native-apk":
             argv ← [field(deployment, "grease"), str(controller.parent.joinpath("android-build.ysh")), stage, ref, field(request, "target"), str(run)]
@@ -289,8 +457,9 @@ def main() → None:
                     item.__setitem__("state", "PASS")
             receipt.__setitem__("status", "PASS")
             receipt.__setitem__("acceptance_scope", "private bounded observation; visual/physical correctness NOT_VERIFIED")
+            receipt["decision_sha256"] ← sha(run.joinpath("diagnostic-decision.json"))
             final_text ∈ str ← json.dumps(receipt, sort_keys=True, indent=2)
-            run.joinpath("receipt.json").write_text(final_text + "\n")
+            atomic(run.joinpath("receipt.json"), receipt)
             print(final_text)
             sys.exit(0)
         stdout ∈ Path ← run.joinpath(stage + ".stdout")
@@ -300,13 +469,25 @@ def main() → None:
         command.extend(argv)
         child ∈ CompletedProcess ← subprocess.run(command, env=environment, cwd=str(source))
         code ∈ int ← child.returncode
+        first_failure ∈ str ← ""
+        if code == 0:
+            try:
+                recheck(materials)
+                if operation == "android-diagnostic-capture":
+                    verify_stage(stage, run, ref, plan_digest)
+            except Exception as failure:
+                code ← 1
+                first_failure ← str(failure)
         for item in stages:
             item_name ∈ str ← item.get("name")
             if item_name == stage:
                 item.__setitem__("state", "PASS")
                 item.__setitem__("exit_code", code)
-                item.__setitem__("stdout_sha256", sha(stdout))
-                item.__setitem__("stderr_sha256", sha(stderr))
+                item.__setitem__("child_exit_code", child.returncode)
+                item.__setitem__("argv", argv)
+                item.__setitem__("process_sha256", sha(native_status) if native_status.is_file() else "NOT_OBSERVED")
+                item.__setitem__("stdout_sha256", sha(stdout) if stdout.is_file() else "NOT_OBSERVED")
+                item.__setitem__("stderr_sha256", sha(stderr) if stderr.is_file() else "NOT_OBSERVED")
                 if code != 0:
                     item.__setitem__("state", "FAIL")
         receipt.__setitem__("status", "RUNNING")
@@ -326,8 +507,9 @@ def main() → None:
         if code != 0:
             receipt.__setitem__("status", "FAIL")
             receipt.__setitem__("failed_stage", stage)
+            receipt.__setitem__("first_failure", first_failure)
         receipt_text ∈ str ← json.dumps(receipt, sort_keys=True, indent=2)
-        run.joinpath("receipt.json").write_text(receipt_text + "\n")
+        atomic(run.joinpath("receipt.json"), receipt)
         if code != 0:
             print(receipt_text)
             sys.exit(1)
