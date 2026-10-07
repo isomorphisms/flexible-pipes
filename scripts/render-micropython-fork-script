@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import hashlib
+import sys
+
+EXPECTED = {
+    "source": "micropython/micropython",
+    "destination_org": "dilapidated-shed",
+    "repository": "micropython",
+    "expected_login": "isomorphisms",
+}
+
+SCRIPT = """gh auth status --hostname github.com
+gh api user --jq '.login'
+gh api orgs/dilapidated-shed --jq '.login'
+gh api user/memberships/orgs/dilapidated-shed --jq '.state + ":" + .role'
+gh api repos/micropython/micropython --jq '.full_name'
+gh api --method POST repos/micropython/micropython/forks -f organization=dilapidated-shed -f name=micropython -F default_branch_only=false
+gh api repos/dilapidated-shed/micropython --jq '{full_name, fork, source: .source.full_name}'
+"""
+
+def main() -> int:
+    data = SCRIPT.encode("utf-8")
+    if not data.endswith(b"\n"):
+        raise SystemExit("script must end with LF")
+    if b" sh " in b" " + data + b" " or data.startswith(b"sh "):
+        raise SystemExit("refusing shell-interpreter invocation")
+    if b"#!/bin/sh" in data or b"#!/system/bin/sh" in data:
+        raise SystemExit("refusing shell-script output")
+    sys.stdout.buffer.write(data)
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
