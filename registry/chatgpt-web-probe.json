@@ -10,7 +10,7 @@
     "repository": "isomorphisms/kitchen",
     "origin": "https://github.com/isomorphisms/kitchen.git",
     "ref": "chatgpt-probe",
-    "commit": "078ace33b6d7dd7a1738f87ccee00e8198853c82"
+    "commit": "f401a888a769d99e725005f5088cf70aabb9f7ce"
   },
   "catfood": {
     "repository": "isomorphisms/catfood",
