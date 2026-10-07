@@ -4,13 +4,7 @@
   "human_script_owner": "isomorphisms/kitchen",
   "kitchen": {
     "repository": "isomorphisms/kitchen",
-    "commit": "5237aeddc2a15e250a4cf0affe3d278123206f40",
-    "fork_helper": {
-      "candidate_path": "tasks/github-repository-fork/1.sh",
-      "candidate_blob_sha": "3f32376ad832419cf15100d965ce912c3139d1aa",
-      "generator_path": "tasks/github-repository-fork/generate-fork-github-repository-script.sh",
-      "generator_blob_sha": "33912527a09ad4e5304a4c693653ad50d0e2181a"
-    },
+    "commit": "abfe5e9440e3b87d8712cae4a45a716a347fa1e5",
     "submodules": {
       "micropython": {
         "path": "sources/interpreters/micropython",
@@ -27,6 +21,12 @@
         "repository": "ArtifexSoftware/mujs",
         "commit": "aab59f2c8136b55e8eef7a016d5a15fe8cf69f3f"
       }
+    },
+    "fork_paste_contract": {
+      "path": "tasks/github-repository-fork/paste-contract.json",
+      "git_blob_sha": "5909df4ef6fd38dfd3a1c6a745c2beda32a291ea",
+      "renderer_path": "tasks/github-repository-fork/render-paste-block.py",
+      "renderer_git_blob_sha": "f6dc8fb30f6614d74fbc9ee04192752c127cf1a7"
     }
   },
   "catfood": {
@@ -49,6 +49,8 @@
       "repository",
       "destination_org"
     ],
-    "output": "literal paste block; no attachment; no sh invocation"
+    "output": "literal paste block; no attachment; no sh invocation",
+    "parity_test": "tests/github-fork-kitchen-parity.py",
+    "parity": "exact bytes for every Kitchen contract vector plus exact parameter order"
   }
 }
