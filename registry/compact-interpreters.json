@@ -37,14 +37,18 @@
     "footprint_policy": "android/compact-scripting-runtimes.md"
   },
   "status": {
-    "micropython_fork": "script-renderer-ready; destination fork not yet observed",
+    "micropython_fork": "use generic github-fork-script pipeline; destination fork not yet observed",
     "android_packages": "not-yet-qualified"
   },
   "pipeline": {
-    "name": "micropython-fork-script",
-    "path": "pipelines/micropython-fork-script.json",
-    "renderer": "scripts/render-micropython-fork-script",
-    "delivery_mode": "display-only",
+    "name": "github-fork-script",
+    "path": "pipelines/github-fork-script.json",
+    "renderer": "scripts/render-github-fork-script",
+    "parameters": [
+      "source_owner",
+      "repository",
+      "destination_org"
+    ],
     "output": "literal paste block; no attachment; no sh invocation"
   }
 }
