@@ -37,7 +37,14 @@
     "footprint_policy": "android/compact-scripting-runtimes.md"
   },
   "status": {
-    "micropython_fork": "blocked-until-dilapidated-shed/micropython-exists",
+    "micropython_fork": "script-renderer-ready; destination fork not yet observed",
     "android_packages": "not-yet-qualified"
+  },
+  "pipeline": {
+    "name": "micropython-fork-script",
+    "path": "pipelines/micropython-fork-script.json",
+    "renderer": "scripts/render-micropython-fork-script",
+    "delivery_mode": "display-only",
+    "output": "literal paste block; no attachment; no sh invocation"
   }
 }
