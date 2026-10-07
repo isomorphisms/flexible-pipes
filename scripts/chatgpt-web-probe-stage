@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+registry="$root/registry/chatgpt-web-probe.json"
+work="$root/.flexible-pipes/work/chatgpt-web-probe"
+
+fail() {
+    printf 'chatgpt-web-probe pipeline: %s\n' "$*" >&2
+    exit 1
+}
+
+[[ -f "$registry" ]] || fail "registry is missing"
+
+read_json() {
+    python3 - "$registry" "$1" "$2" <<'PY'
+import json, sys
+data=json.load(open(sys.argv[1]))
+print(data[sys.argv[2]][sys.argv[3]])
+PY
+}
+
+clone_exact() {
+    local key=$1 destination=$2
+    local origin ref expected observed
+    origin=$(read_json "$key" origin)
+    ref=$(read_json "$key" ref)
+    expected=$(read_json "$key" commit)
+    rm -rf "$destination"
+    git init -q "$destination"
+    git -C "$destination" remote add origin "$origin"
+    git -C "$destination" fetch -q --no-tags --depth=1 origin "$ref"
+    observed=$(git -C "$destination" rev-parse FETCH_HEAD)
+    [[ "$observed" == "$expected" ]] ||
+        fail "$key ref moved: expected $expected got $observed"
+    git -C "$destination" checkout -q --detach "$observed"
+}
+
+rm -rf "$work"
+mkdir -p "$work"
+
+clone_exact chatgpt_exporter "$work/exporter"
+clone_exact kitchen "$work/kitchen"
+clone_exact catfood "$work/catfood"
+clone_exact android_ndk "$work/android-NDK"
+clone_exact aici "$work/ai-ci"
+
+android_home=${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}
+[[ -n "$android_home" ]] || fail "ANDROID_HOME/ANDROID_SDK_ROOT is required"
+sdkmanager="$android_home/cmdline-tools/latest/bin/sdkmanager"
+[[ -x "$sdkmanager" ]] || fail "sdkmanager is missing: $sdkmanager"
+
+platform=$(read_json android_sdk platform)
+build_tools=$(read_json android_sdk build_tools)
+ndk_package=$(read_json android_sdk ndk)
+
+yes | "$sdkmanager" --licenses >/dev/null || true
+"$sdkmanager" "$platform" "$build_tools" "$ndk_package"
+
+ndk_version=${ndk_package#ndk;}
+ndk_home="$android_home/ndk/$ndk_version"
+[[ -d "$ndk_home" ]] || fail "installed NDK directory is missing: $ndk_home"
+
+export CHATGPT_PROBE_CHECKOUT="$work/exporter"
+export CATFOOD_CHECKOUT="$work/catfood"
+export ANDROID_NDK_CHECKOUT="$work/android-NDK"
+export AICI_CHECKOUT="$work/ai-ci"
+export ANDROID_NDK_HOME="$ndk_home"
+export CHATGPT_PROBE_OUTPUT_DIR="$work/out"
+
+bash "$work/kitchen/tasks/chatgpt-web-probe/build.sh"
+
+[[ -f "$work/out/artifacts.tsv" ]] || fail "producer emitted no artifacts manifest"
+cp "$registry" "$work/out/flexible-pipes-registry.json"
+
+printf '%s\n' 'CHATGPT_WEB_PROBE_PIPELINE PASS'
+cat "$work/out/artifacts.tsv"
