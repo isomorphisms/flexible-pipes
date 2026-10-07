@@ -73,8 +73,11 @@ bash "$work/kitchen/tasks/chatgpt-web-probe/build.sh"
 [[ -f "$work/out/artifacts.tsv" ]] || fail "producer emitted no artifacts manifest"
 cp "$registry" "$work/out/flexible-pipes-registry.json"
 cp "$work/kitchen/tasks/chatgpt-web-probe/install.sh" "$work/out/install.sh"
+cp "$work/kitchen/tasks/chatgpt-web-probe/collect-baseline.sh" "$work/out/collect-baseline.sh"
 cp "$work/catfood/android/target.sh" "$work/out/catfood-target.sh"
-chmod 0755 "$work/out/install.sh"
+cp "$work/exporter/probe/scripts/connect.sh" "$work/out/connect.sh"
+cp "$work/exporter/probe/scripts/capture.py" "$work/out/capture.py"
+chmod 0755 "$work/out/install.sh" "$work/out/collect-baseline.sh" "$work/out/connect.sh" "$work/out/capture.py"
 
 printf '%s\n' 'CHATGPT_WEB_PROBE_PIPELINE PASS'
 cat "$work/out/artifacts.tsv"
