@@ -1,0 +1,87 @@
+"""Off-device paired native producer; Cat Food owns target facts."""
+import argparse
+import csv
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from typing import Any
+from builtins import ValueError, list, len
+
+
+def command(argv ∈ list[str], log ∈ object) → int:
+    result ∈ object ← subprocess.run(argv, capture_output=True, text=True, timeout=120)
+    stdout ∈ str ← result.stdout
+    stderr ∈ str ← result.stderr
+    encoded ∈ str ← json.dumps(argv)
+    log.write_text(encoded + "\n" + stdout + stderr)
+    code ∈ int ← result.returncode
+    return code
+
+
+def build(source ∈ str, source_revision ∈ str, targets ∈ str, targets_revision ∈ str,
+          ndk ∈ str, ick ∈ str, ick_revision ∈ str, output ∈ str) → None:
+    destination ∈ object ← Path(output)
+    destination.mkdir(parents=True, exist_ok=False)
+    toolchain ∈ object ← Path(ndk).joinpath("toolchains", "llvm", "prebuilt", "linux-x86_64")
+    binaries ∈ object ← toolchain.joinpath("bin")
+    with Path(targets).open(newline="") as stream:
+        rows ∈ list[dict[str, str]] ← list(csv.DictReader(stream, delimiter="\t"))
+    if len(rows) != 2 or rows[0]["device"] != "MIRO_A1" or rows[1]["device"] != "MIRO_C67":
+        raise ValueError("PAIRED_TARGET_ORDER")
+    result ∈ object ← subprocess.run([ick, "-dumpmachine"], capture_output=True, text=True, check=True)
+    ick_target ∈ str ← result.stdout.strip()
+    receipt ∈ dict[str, Any] ← {"source_revision": source_revision, "source_sha256": hashlib.sha256(Path(source).read_bytes()).hexdigest(), "targets_revision": targets_revision, "targets_sha256": hashlib.sha256(Path(targets).read_bytes()).hexdigest(), "ick_revision": ick_revision, "ick_binary_sha256": hashlib.sha256(Path(ick).read_bytes()).hexdigest(), "ick_target": ick_target, "ndk_properties": Path(ndk).joinpath("source.properties").read_text(), "producer_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "acceptance": "CROSS_BUILD_ONLY"}
+    built ∈ list[dict[str, Any]] ← []
+    for row in rows:
+        device ∈ str ← row["device"]
+        artifact ∈ object ← destination.joinpath("infer-" + device)
+        object_file ∈ object ← destination.joinpath(device + ".o")
+        compiler ∈ str ← str(binaries.joinpath(row["ndk_target"] + row["api"] + "-clang"))
+        flags ∈ list[str] ← ["-O3", "-std=c11", "-ffp-contract=off", "-Wall", "-Wextra", "-Werror"]
+        gap ∈ str ← "qualified ICK executable targets " + ick_target + "; required armeabi-v7a target unavailable in this artifact"
+        compile_route ∈ str ← "NDK"
+        if device == "MIRO_C67":
+            headers ∈ object ← toolchain.joinpath("sysroot", "usr", "include")
+            attempt ∈ list[str] ← [ick, "-B" + str(Path(ick).parent) + "/", "-isystem", str(headers), "-isystem", str(headers.joinpath("aarch64-linux-android")), "-D__ANDROID__", "-D__ANDROID_API__=" + row["api"]]
+            attempt.extend(flags)
+            attempt.extend(["-c", source, "-o", str(object_file)])
+            code ∈ int ← command(attempt, destination.joinpath(device + "-ick-attempt.txt"))
+            if code == 0:
+                compile_route ← "ICK-object"
+                gap ← "NDK supplies Android Bionic link sysroot; ICK object stage succeeded"
+            else:
+                gap ← "ICK C object stage rejected NDK r29 Bionic nullability/availability headers; see retained attempt"
+        if compile_route == "NDK":
+            if device == "MIRO_A1":
+                flags.extend(["-march=armv7-a", "-mfpu=neon", "-mfloat-abi=softfp"])
+            compile_argv ∈ list[str] ← [compiler]
+            compile_argv.extend(flags)
+            compile_argv.extend(["-c", source, "-o", str(object_file)])
+            code ∈ int ← command(compile_argv, destination.joinpath(device + "-compile.txt"))
+            if code != 0:
+                raise ValueError("NDK_COMPILE")
+        code ∈ int ← command([compiler, str(object_file), "-lm", "-o", str(artifact)], destination.joinpath(device + "-link.txt"))
+        if code != 0:
+            raise ValueError("NDK_LINK")
+        unstripped ∈ int ← artifact.stat().st_size
+        code ∈ int ← command([str(binaries.joinpath("llvm-strip")), "--strip-all", str(artifact)], destination.joinpath(device + "-strip.txt"))
+        if code != 0:
+            raise ValueError("STRIP")
+        code ∈ int ← command([str(binaries.joinpath("llvm-readelf")), "-h", "-l", str(artifact)], destination.joinpath(device + "-elf.txt"))
+        if code != 0:
+            raise ValueError("ELF_INSPECTION")
+        metadata ∈ dict[str, Any] ← {"device": device, "abi": row["abi"], "api": row["api"], "compile_route": compile_route, "link_route": "NDK", "ick_gap": gap, "pre_strip_bytes": unstripped, "post_strip_bytes": artifact.stat().st_size, "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(), "physical_runtime": "NOT_RUN", "artifact": artifact.name}
+        built.append(metadata)
+    receipt["targets"] ← built
+    encoded ∈ str ← json.dumps(receipt, indent=2)
+    destination.joinpath("build.json").write_text(encoded + "\n")
+    destination.joinpath("COMPLETE.txt").write_text("paired-cross-build=PASS\nphysical-A1=NOT_RUN\nphysical-C67=NOT_RUN\n")
+
+
+if __name__ == "__main__":
+    parser ∈ object ← argparse.ArgumentParser()
+    for name in ("source", "source-revision", "targets", "targets-revision", "ndk", "ick", "ick-revision", "output"):
+        parser.add_argument("--" + name, required=True)
+    args ∈ object ← parser.parse_args()
+    build(args.source, args.source_revision, args.targets, args.targets_revision, args.ndk, args.ick, args.ick_revision, args.output)
