@@ -1,0 +1,109 @@
+"""Generic instruction-following causal-model command, not an encoder threshold."""
+import sys
+import json
+import hashlib
+import platform
+import time
+from pathlib import Path
+from builtins import ValueError, globals
+
+MODEL ∈ str ← "Qwen/Qwen2.5-Coder-0.5B-Instruct"
+INSTRUCTION ∈ str ← "Decide whether the CLAIM agrees with the observed behavior, using SOURCE as context. Assess only the supplied observations. If the claim is vague or unsupported, answer UNKNOWN. Your first line must be exactly AGREEMENT, CONTRADICTION, or UNKNOWN. Give no explanation."
+
+def digest(data ∈ bytes) → str:
+    value ∈ str ← hashlib.sha256(data).hexdigest()
+    return value
+
+def read(path ∈ str) → str:
+    value ∈ str ← Path(path).read_text()
+    return value
+
+def write(path ∈ str, value ∈ str) → None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(value)
+
+def clock() → float:
+    value ∈ float ← time.monotonic()
+    return value
+
+def classify(response ∈ str) → str:
+    lines ∈ list[str] ← response.strip().splitlines()
+    if len(lines) == 0:
+        return "PARSE_FAILURE"
+    first ∈ str ← lines[0].strip()
+    if first == "AGREEMENT" or first == "CONTRADICTION" or first == "UNKNOWN":
+        return first
+    return "PARSE_FAILURE"
+
+def evaluate(candidate ∈ str, output ∈ str) → None:
+    import torch
+    import transformers
+    import huggingface_hub
+    from huggingface_hub import HfApi
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    started ∈ float ← clock()
+    api ∈ object ← HfApi()
+    info ∈ object ← api.model_info(MODEL, revision="main", files_metadata=True)
+    revision ∈ str ← info.sha
+    if len(revision) != 40:
+        raise ValueError("Model revision was not resolved to an immutable commit")
+    write(output + "/resolved-revision.txt", revision + "\n")
+    torch.set_num_threads(2)
+    torch.manual_seed(1701)
+    tokenizer ∈ object ← AutoTokenizer.from_pretrained(MODEL, revision=revision, trust_remote_code=False)
+    model ∈ object ← AutoModelForCausalLM.from_pretrained(MODEL, revision=revision, torch_dtype=torch.float32, attn_implementation="eager", trust_remote_code=False)
+    model.eval()
+    tokenizer.save_pretrained(output + "/tokenizer")
+    write(output + "/configuration.json", model.config.to_json_string())
+    write(output + "/chat-template.txt", tokenizer.chat_template)
+    identity ∈ dict[str, object] ← {"model": MODEL, "model_revision": revision, "tokenizer_revision": revision, "decision": "strict first stripped line; no training or score threshold", "dtype": "float32", "device": "cpu", "attention": "eager", "threads": 2, "seed": 1701, "do_sample": False, "max_new_tokens": 32, "max_input_tokens": 4096, "truncation": False, "system_instruction": INSTRUCTION, "torch": torch.__version__, "transformers": transformers.__version__, "huggingface_hub": huggingface_hub.__version__, "platform": platform.platform()}
+    write(output + "/identity.json", json.dumps(identity, indent=2))
+    identifiers ∈ list[str] ← read(candidate + "/manifest.txt").splitlines()
+    if len(identifiers) != 104:
+        raise ValueError("Candidate requires the complete neutral packet manifest")
+    findings ∈ list[str] ← ["id\tpayload_sha256\tverdict\tevidence"]
+    for identifier in identifiers:
+        packet ∈ str ← read(candidate + "/" + identifier + ".txt")
+        payload_hash ∈ str ← digest(packet.encode())
+        if identifier != payload_hash[:20]:
+            raise ValueError("Candidate packet digest mismatch")
+        messages ∈ list[dict[str, str]] ← [{"role": "system", "content": INSTRUCTION}, {"role": "user", "content": packet}]
+        prompt ∈ str ← tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        encoded ∈ dict[str, object] ← tokenizer.batch_encode_plus([prompt], return_tensors="pt", truncation=False)
+        input_tensor ∈ object ← encoded["input_ids"]
+        input_tokens ∈ int ← input_tensor.size(-1)
+        if input_tokens > 4096:
+            raise ValueError("Unsupported packet length; truncation is forbidden")
+        directory ∈ str ← output + "/raw/" + identifier
+        write(directory + "/prompt.txt", prompt)
+        write(directory + "/input-token-ids.json", json.dumps(input_tensor.tolist()))
+        begin ∈ float ← clock()
+        with torch.inference_mode():
+            generated ∈ object ← model.generate(**encoded, max_new_tokens=32, do_sample=False, pad_token_id=tokenizer.eos_token_id)
+        elapsed ∈ float ← clock() - begin
+        generated_length ∈ int ← generated.size(-1)
+        response_length ∈ int ← generated_length - input_tokens
+        response_tokens ∈ object ← generated.select(0, 0).narrow(0, input_tokens, response_length)
+        response ∈ str ← tokenizer.decode(response_tokens, skip_special_tokens=True)
+        write(directory + "/response.txt", response)
+        write(directory + "/response-token-ids.json", json.dumps(response_tokens.tolist()))
+        write(directory + "/execution.json", json.dumps({"state": "EXECUTED", "payload_sha256": payload_hash, "input_tokens": input_tokens, "seconds": elapsed}))
+        verdict ∈ str ← classify(response)
+        findings.append(identifier + "\t" + payload_hash + "\t" + verdict + "\tmodel-only-estimate")
+    write(output + "/findings.tsv", "\n".join(findings) + "\n")
+    write(output + "/completion.json", json.dumps({"state": "EXECUTED", "cases": 104, "seconds": clock() - started}))
+    print("Real causal model executed 104 retained prompts")
+
+def main() → None:
+    args ∈ list[str] ← sys.argv[1:]
+    if args[0] == "check":
+        if classify("AGREEMENT\n") != "AGREEMENT" or classify("probably true") != "PARSE_FAILURE" or classify("") != "PARSE_FAILURE":
+            raise ValueError("Candidate decision parser failed")
+        print("Ithon model adapter frontend and decision parser passed; inference not claimed")
+    else:
+        evaluate(args[0], args[1])
+
+namespace ∈ dict[str, object] ← globals()
+module_name ∈ str ← namespace.get("__name__", "")
+if module_name == "__main__":
+    main()
