@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "name": "compact-interpreter-sources",
+  "human_script_owner": "isomorphisms/kitchen",
+  "kitchen": {
+    "repository": "isomorphisms/kitchen",
+    "commit": "5237aeddc2a15e250a4cf0affe3d278123206f40",
+    "fork_helper": {
+      "candidate_path": "tasks/github-repository-fork/1.sh",
+      "candidate_blob_sha": "3f32376ad832419cf15100d965ce912c3139d1aa",
+      "generator_path": "tasks/github-repository-fork/generate-fork-github-repository-script.sh",
+      "generator_blob_sha": "33912527a09ad4e5304a4c693653ad50d0e2181a"
+    },
+    "submodules": {
+      "micropython": {
+        "path": "sources/interpreters/micropython",
+        "repository": "dilapidated-shed/micropython",
+        "commit": "a129b2fba1a3348088c94d0462eef16d20874dea"
+      },
+      "fieldmouse": {
+        "path": "sources/interpreters/fieldmouse",
+        "repository": "dilapidated-shed/fieldmouse",
+        "commit": "7ebef96b31b013b086bab8abb683741451d08f32"
+      },
+      "mujs": {
+        "path": "sources/interpreters/mujs",
+        "repository": "ArtifexSoftware/mujs",
+        "commit": "aab59f2c8136b55e8eef7a016d5a15fe8cf69f3f"
+      }
+    }
+  },
+  "catfood": {
+    "repository": "isomorphisms/catfood",
+    "commit": "d4be5047ad8efbc2b52c4673efcb3c89faa7cad9",
+    "inventory": "tools.tsv",
+    "android_delivery": "android/delivery.tsv",
+    "footprint_policy": "android/compact-scripting-runtimes.md"
+  },
+  "status": {
+    "micropython_fork": "blocked-until-dilapidated-shed/micropython-exists",
+    "android_packages": "not-yet-qualified"
+  }
+}
