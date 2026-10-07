@@ -2,30 +2,29 @@
 
 This record separates three jobs that should not be collapsed:
 
-1. **Kitchen** prepares and tests human-facing scripts and pins exact interpreter source.
-2. **Flexible Pipes** records the exact producer/source identities used by repeatable work.
+1. **Kitchen** owns tested script semantics and source pins.
+2. **Flexible Pipes** deterministically renders the exact human-visible script text and records its digest.
 3. **Cat Food** owns build/deployment facts and Android runtime delivery.
 
 The current machine-readable lock is `registry/compact-interpreters.json`.
 
-## Why there is no fork pipeline yet
+## Human-visible MicroPython fork script
 
-Flexible Pipes can run checked-in named pipelines, but its current delivery contract does
-not improve on Kitchen for producing a small standalone terminal script for a human to
-execute. Copying the same fork script into this repository would create two script owners.
+`pipelines/micropython-fork-script.json` runs a deterministic Python renderer. Its
+authoritative output is the literal multi-line paste block in stage stdout. The stage is
+`display-only`: the human-visible text must be byte-identical to that stdout artifact.
 
-Therefore the fork operation remains a Kitchen artifact. Flexible Pipes records the exact
-Kitchen commit and blob identities so later automation can materialize or invoke that
-specific checked helper rather than reconstructing it from chat.
+The rendered block deliberately contains no `sh` invocation and is not an attached file.
+It uses GitHub CLI/API commands directly in the user's existing shell.
 
-A future pipeline may consume the registry after two conditions are true:
+Canonical request form:
 
-- `dilapidated-shed/micropython` exists and contains the pinned MicroPython commit;
-- the pipeline has a reviewed cross-repository materialization stage with a receipt binding
-  the Kitchen helper bytes and source gitlinks.
+```text
+Run flexible-pipes pipeline micropython-fork-script.
+```
 
-Until then, do not describe a Flexible Pipes fork/build as executed merely because the
-registry exists.
+A controller may only call the script delivered when the exact stage output has been
+presented visibly. Repository-side composition does not itself prove ChatGPT delivery.
 
 ## Interpreter intent
 
