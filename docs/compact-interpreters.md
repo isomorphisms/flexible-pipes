@@ -3,28 +3,33 @@
 This record separates three jobs that should not be collapsed:
 
 1. **Kitchen** owns tested script semantics and source pins.
-2. **Flexible Pipes** deterministically renders the exact human-visible script text and records its digest.
+2. **Flexible Pipes** owns reusable deterministic renderers/pipelines and exact run receipts.
 3. **Cat Food** owns build/deployment facts and Android runtime delivery.
 
 The current machine-readable lock is `registry/compact-interpreters.json`.
 
-## Human-visible MicroPython fork script
+## Generic GitHub fork script
 
-`pipelines/micropython-fork-script.json` runs a deterministic Python renderer. Its
-authoritative output is the literal multi-line paste block in stage stdout. The stage is
-`display-only`: the human-visible text must be byte-identical to that stdout artifact.
+The reusable pipeline is `github-fork-script`. It takes three parameters:
 
-The rendered block deliberately contains no `sh` invocation and is not an attached file.
-It uses GitHub CLI/API commands directly in the user's existing shell.
+- `source_owner`
+- `repository`
+- `destination_org`
 
-Canonical request form:
+The repository name is preserved by construction. The renderer deliberately omits
+`--fork-name`, and `--clone=false` prevents a local clone.
+
+Example request:
 
 ```text
-Run flexible-pipes pipeline micropython-fork-script.
+Run flexible-pipes pipeline github-fork-script with source_owner=micropython, repository=micropython, destination_org=dilapidated-shed.
 ```
 
-A controller may only call the script delivered when the exact stage output has been
-presented visibly. Repository-side composition does not itself prove ChatGPT delivery.
+MicroPython is only one invocation of this generic operation.
+
+The authoritative output is the stage's literal plain-text command block. It contains
+no `sh` invocation and is not an attachment. The pipeline records exact parameters and
+the stdout digest.
 
 ## Interpreter intent
 
