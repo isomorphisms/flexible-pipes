@@ -1,0 +1,25 @@
+name: Generic GitHub fork script
+on:
+  push:
+    paths:
+      - 'scripts/render-github-fork-script'
+      - 'scripts/run-pipeline'
+      - 'pipelines/github-fork-script.json'
+      - 'tests/github-fork-script.py'
+      - '.github/workflows/github-fork-script.yml'
+  pull_request:
+    paths:
+      - 'scripts/render-github-fork-script'
+      - 'scripts/run-pipeline'
+      - 'pipelines/github-fork-script.json'
+      - 'tests/github-fork-script.py'
+      - '.github/workflows/github-fork-script.yml'
+permissions:
+  contents: read
+jobs:
+  exact-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: python3 tests/github-fork-script.py
