@@ -4,7 +4,7 @@
     "repository": "dilapidated-shed/ChatGPTExporter",
     "origin": "https://github.com/dilapidated-shed/ChatGPTExporter.git",
     "ref": "probe",
-    "commit": "3def46037144a93b26f64c12b8919fbe9492ef62"
+    "commit": "a5ece411de8c1e73a4a7787f17d6c55ec656a9fd"
   },
   "kitchen": {
     "repository": "isomorphisms/kitchen",
