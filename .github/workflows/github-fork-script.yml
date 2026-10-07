@@ -6,6 +6,7 @@ on:
       - 'scripts/run-pipeline'
       - 'pipelines/github-fork-script.json'
       - 'tests/github-fork-script.py'
+      - 'tests/github-fork-kitchen-parity.py'
       - '.github/workflows/github-fork-script.yml'
   pull_request:
     paths:
@@ -13,6 +14,7 @@ on:
       - 'scripts/run-pipeline'
       - 'pipelines/github-fork-script.json'
       - 'tests/github-fork-script.py'
+      - 'tests/github-fork-kitchen-parity.py'
       - '.github/workflows/github-fork-script.yml'
 permissions:
   contents: read
@@ -22,4 +24,14 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - run: python3 tests/github-fork-script.py
+        with:
+          path: flexible-pipes
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/kitchen
+          ref: abfe5e9440e3b87d8712cae4a45a716a347fa1e5
+          path: kitchen
+      - run: python3 flexible-pipes/tests/github-fork-script.py
+        working-directory: flexible-pipes
+      - run: python3 tests/github-fork-kitchen-parity.py --kitchen-root ../kitchen
+        working-directory: flexible-pipes
