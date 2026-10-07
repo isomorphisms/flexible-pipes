@@ -6,7 +6,7 @@ import json
 import subprocess
 from pathlib import Path
 from typing import Any
-from builtins import ValueError, list, len
+from builtins import ValueError, list, len, globals
 
 
 def command(argv ∈ list[str], log ∈ object) → int:
@@ -79,7 +79,9 @@ def build(source ∈ str, source_revision ∈ str, targets ∈ str, targets_revi
     destination.joinpath("COMPLETE.txt").write_text("paired-cross-build=PASS\nphysical-A1=NOT_RUN\nphysical-C67=NOT_RUN\n")
 
 
-if __name__ == "__main__":
+namespace ∈ dict[str, Any] ← globals()
+module_name ∈ str ← namespace.get("__name__", "")
+if module_name == "__main__":
     # Historical source and cross-build evidence are retained. The old CLI let
     # a caller supply arbitrary tools, target matrices and claimed revisions.
     # It is not a maintained authority path. S5 must own the exact procedure;

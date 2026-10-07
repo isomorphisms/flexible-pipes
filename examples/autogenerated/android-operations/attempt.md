@@ -36,8 +36,10 @@ by device instance even when output bytes coincide.
 
 This revision reconciles existing checked-Ithon controllers and preserves the
 paired producer. It does not create another runner or another plan schema.
-S2's immutable plan, S4's qualified decision and S5's exact procedure family
-are not published at the inspected predecessor refs. Consequently the paired
+S2's approved immutable plan and S4's qualified producer decision are missing.
+S5 subsequently published an exact fixture-only procedure family at
+dd7b40f2d4ddc47c33d019f4a4caa68b059bdeaf, blocked on S2/S3/S4.
+Consequently the paired
 route is a registered blocked reservation, not an admitted operation. Production
 Android paths remain closed until those contracts and installed authority exist.
 Qualification may still exercise the historical bounded diagnostic path, with
@@ -46,3 +48,14 @@ all request/plan/profile/runtime/code inputs bound to each stage and rechecked.
 The existing FP1 choice of checked Ithon remains authoritative here. New work
 requires the same hashing, process, exception and filesystem foreign interfaces
 as the preserved attempt above; no new language fallback is introduced.
+
+`collect-s6-evidence.pi` projects data-only receipts into material and stage TSVs
+and a digest-bound regression fixture configuration. Its signature is
+Receipt × FixtureConfiguration → IO EvidenceFiles; it never executes receipt
+argv or grants acceptance. The pinned Ithon checker required explicit types for
+foreign JSON/str results and refused empty untyped containers; those three
+initial static failures were corrected with typed field access and encoding.
+The checked implementation then completed without an unchecked fallback.
+The historical producer guard similarly uses typed `globals()` access because
+the older checked runtime rejects a bare `__name__` reference. Direct execution
+is now observed to reject before producing output.

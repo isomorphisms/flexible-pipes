@@ -1,0 +1,53 @@
+{
+  "aici_root": "/workspace/scratch/abee77e7d011/aici-predecessor",
+  "android-diagnostic-capture": {
+    "capture_runtime": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runtime.json",
+    "profile": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/profile.json",
+    "stages": [
+      "prepare",
+      "catfood-profile",
+      "aici-prepare",
+      "kitchen-capture",
+      "aici-evidence",
+      "deliver"
+    ]
+  },
+  "authority_kind": "qualification",
+  "bounded_process": "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+  "catfood_root": "/workspace/scratch/abee77e7d011/catfood-predecessor",
+  "channel_fixture": "/workspace/scratch/8a7b03e54622/diagnostic-host/android-channel-fixture",
+  "git": "/usr/local/bin/git",
+  "grease": "/workspace/scratch/abee77e7d011/fp2/.build/grease/bin/grease",
+  "ithon": "/workspace/scratch/abee77e7d011/ithon/ithon",
+  "kitchen_root": "/workspace/scratch/abee77e7d011/kitchen-predecessor",
+  "packager_root": "/workspace/scratch/abee77e7d011/packager-unavailable",
+  "python": "/usr/bin/python3",
+  "source_revisions": {
+    "aici_root": "e4723d886658edffd65ffa3d35dc3a2cf83f15ce",
+    "catfood_root": "a1d36ee45b66a1af86d7594cc18df889610d5c81",
+    "kitchen_root": "ede931c8fc9d95fb91f11c4230de28f1a97030bc"
+  },
+  "source_root": "/workspace/scratch/abee77e7d011/crystal",
+  "tool_digests": {
+    "/usr/bin/python3": "a92f0f95e883390c7256b2e441484aac06b1002dbe1d924141a77c8d82f96223",
+    "/usr/local/bin/git": "2dae8066ef4d6a926561b4b0eaca7b458d4f5b56bb83760656e6baa7fc3e974f",
+    "/workspace/scratch/8a7b03e54622/diagnostic-host/android-channel-fixture": "6ce7b56b3a391e9c8d16aae238d465a1d0d65a7c9092b3a7cafcde79ff227f68",
+    "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process": "c237aa1010a702fda2aeaddd113f62bec286e8da2481f6da42b21a3c9dcb3c7f",
+    "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi": "6f0a5d9bd49a0986f3350603083f971701b766859315c2f96470a934a52735c8",
+    "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/tests.pi": "d73a3fbbdae7ce70d2f7f201354eea6489d6a36cf0284dde76b418b260bb687f",
+    "/workspace/scratch/abee77e7d011/catfood-predecessor/android/profile.pi": "fdcd75c5593bede7df5994b4d3a22524d378c135c47434de463ceafcde400243",
+    "/workspace/scratch/abee77e7d011/catfood-predecessor/android/receipt-regression.pi": "d7539fab446e21e3736d969e18f01638b32dedf6a8425fcdd1962d7414aba5dd",
+    "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/android-build.ysh": "f7522b16a0f163c473eb96fc5066c09ee3e65411b4c528adc19c9cdbb132e9ca",
+    "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/run-registered-operation.pi": "fdfe91519bcdd8381ca94a752071d33b1548fb898095a9a6b10610e61020574c",
+    "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/run-regressions.pi": "5ee77a3954e9010fbff93ff5c08e8b0d1732523cddf57a3124e9876aa6d2933c",
+    "/workspace/scratch/abee77e7d011/flexible-pipes/tests/registered-android.pi": "5fbbbefaece3b6f2b3bf3caa25883bffa9e676b9e974dae06b11ec9a41343e8b",
+    "/workspace/scratch/abee77e7d011/fp2/.build/grease/bin/grease": "5fbdbad50ff44eb5d0ce002ca4bfba5a85f565a07eaf90411e9802e3cc1be482",
+    "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_frontend.py": "bb87a17a618cfafe603f5b56a4d97be1960c084e7a341341418d9d86cd1a4c96",
+    "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_run.py": "78ef65a128630b5960579d52402146bbbf54175fe6127f44f29f5f14e46ce682",
+    "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_static.py": "f475d3e7bc6f537a83d0157a927c10228eded1b4fce7cb235b81a7d91247891d",
+    "/workspace/scratch/abee77e7d011/ithon/ithon": "fd446e7d1ba4956ec5fdba1a18c6fd67dc26bc12ff967972f4a0cc3cd5613ef3",
+    "/workspace/scratch/abee77e7d011/ithon/ithon_host.py": "31428419871be0e1ba971ee57bd6018c55f456917ccbf403ad5befafb6456571",
+    "/workspace/scratch/abee77e7d011/kitchen-predecessor/tasks/android-diagnostic/capture.pi": "7faa056902283fbfebba2b3bbfe5a9e59697fb9b73b799cffcd2da58e9e5afb5",
+    "/workspace/scratch/abee77e7d011/kitchen-predecessor/tests/android-diagnostic.pi": "70fb4a19acff7fe1d436931f25fce1855e5ba1240c7fde2b122fdb2faa0841c6"
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "acceptance_scope": "private bounded observation; visual/physical correctness NOT_VERIFIED",
+  "artifacts": [],
+  "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+  "controller_sha256": "fdfe91519bcdd8381ca94a752071d33b1548fb898095a9a6b10610e61020574c",
+  "decision_sha256": "e3546179f0f80489eafe9e53a4c5c5c1a39f71d3462b50290320b35cb56fd7f2",
+  "declared_source_ref": "25b63837091c92e07738b1b51865603cc4b5e63d",
+  "deployment_sha256": "9f08ce972a7b84ae893126aa63f79e5cf8aa44912cf10147e88196c477420396",
+  "github_sha_declared": "1111111111111111111111111111111111111111",
+  "materials": [
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/request.json",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/request.json",
+      "role": "request",
+      "sha256": "65ebf0320233bf9d3f407acd55c83166568c0abfb152ce6d5e43da5a01de5c2b",
+      "size": 390
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/deployment.json",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/deployment.json",
+      "role": "deployment",
+      "sha256": "9f08ce972a7b84ae893126aa63f79e5cf8aa44912cf10147e88196c477420396",
+      "size": 3169
+    },
+    {
+      "path": "/usr/bin/python3",
+      "resolved": "/usr/bin/python3.12",
+      "role": "implementation:/usr/bin/python3",
+      "sha256": "a92f0f95e883390c7256b2e441484aac06b1002dbe1d924141a77c8d82f96223",
+      "size": 8025024
+    },
+    {
+      "path": "/usr/local/bin/git",
+      "resolved": "/usr/local/bin/git",
+      "role": "implementation:/usr/local/bin/git",
+      "sha256": "2dae8066ef4d6a926561b4b0eaca7b458d4f5b56bb83760656e6baa7fc3e974f",
+      "size": 19135768
+    },
+    {
+      "path": "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+      "resolved": "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+      "role": "implementation:/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+      "sha256": "c237aa1010a702fda2aeaddd113f62bec286e8da2481f6da42b21a3c9dcb3c7f",
+      "size": 10720
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi",
+      "resolved": "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi",
+      "role": "implementation:/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi",
+      "sha256": "6f0a5d9bd49a0986f3350603083f971701b766859315c2f96470a934a52735c8",
+      "size": 10171
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/catfood-predecessor/android/profile.pi",
+      "resolved": "/workspace/scratch/abee77e7d011/catfood-predecessor/android/profile.pi",
+      "role": "implementation:/workspace/scratch/abee77e7d011/catfood-predecessor/android/profile.pi",
+      "sha256": "fdcd75c5593bede7df5994b4d3a22524d378c135c47434de463ceafcde400243",
+      "size": 6795
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/android-build.ysh",
+      "resolved": "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/android-build.ysh",
+      "role": "implementation:/workspace/scratch/abee77e7d011/flexible-pipes/scripts/android-build.ysh",
+      "sha256": "f7522b16a0f163c473eb96fc5066c09ee3e65411b4c528adc19c9cdbb132e9ca",
+      "size": 2317
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/run-registered-operation.pi",
+      "resolved": "/workspace/scratch/abee77e7d011/flexible-pipes/scripts/run-registered-operation.pi",
+      "role": "implementation:/workspace/scratch/abee77e7d011/flexible-pipes/scripts/run-registered-operation.pi",
+      "sha256": "fdfe91519bcdd8381ca94a752071d33b1548fb898095a9a6b10610e61020574c",
+      "size": 31326
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/fp2/.build/grease/bin/grease",
+      "resolved": "/workspace/scratch/abee77e7d011/fp2/.build/grease/bin/grease",
+      "role": "implementation:/workspace/scratch/abee77e7d011/fp2/.build/grease/bin/grease",
+      "sha256": "5fbdbad50ff44eb5d0ce002ca4bfba5a85f565a07eaf90411e9802e3cc1be482",
+      "size": 335
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_frontend.py",
+      "resolved": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_frontend.py",
+      "role": "implementation:/workspace/scratch/abee77e7d011/ithon/Lib/ithon_frontend.py",
+      "sha256": "bb87a17a618cfafe603f5b56a4d97be1960c084e7a341341418d9d86cd1a4c96",
+      "size": 15726
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_run.py",
+      "resolved": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_run.py",
+      "role": "implementation:/workspace/scratch/abee77e7d011/ithon/Lib/ithon_run.py",
+      "sha256": "78ef65a128630b5960579d52402146bbbf54175fe6127f44f29f5f14e46ce682",
+      "size": 3952
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_static.py",
+      "resolved": "/workspace/scratch/abee77e7d011/ithon/Lib/ithon_static.py",
+      "role": "implementation:/workspace/scratch/abee77e7d011/ithon/Lib/ithon_static.py",
+      "sha256": "f475d3e7bc6f537a83d0157a927c10228eded1b4fce7cb235b81a7d91247891d",
+      "size": 25879
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/ithon/ithon",
+      "resolved": "/workspace/scratch/abee77e7d011/ithon/ithon",
+      "role": "implementation:/workspace/scratch/abee77e7d011/ithon/ithon",
+      "sha256": "fd446e7d1ba4956ec5fdba1a18c6fd67dc26bc12ff967972f4a0cc3cd5613ef3",
+      "size": 493
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/ithon/ithon_host.py",
+      "resolved": "/workspace/scratch/abee77e7d011/ithon/ithon_host.py",
+      "role": "implementation:/workspace/scratch/abee77e7d011/ithon/ithon_host.py",
+      "sha256": "31428419871be0e1ba971ee57bd6018c55f456917ccbf403ad5befafb6456571",
+      "size": 1044
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/kitchen-predecessor/tasks/android-diagnostic/capture.pi",
+      "resolved": "/workspace/scratch/abee77e7d011/kitchen-predecessor/tasks/android-diagnostic/capture.pi",
+      "role": "implementation:/workspace/scratch/abee77e7d011/kitchen-predecessor/tasks/android-diagnostic/capture.pi",
+      "sha256": "7faa056902283fbfebba2b3bbfe5a9e59697fb9b73b799cffcd2da58e9e5afb5",
+      "size": 15741
+    },
+    {
+      "blob": "58e23a41ed4a71c30c0bb05eb8c9261b3d9a6854",
+      "commit": "25b63837091c92e07738b1b51865603cc4b5e63d",
+      "path": "/workspace/scratch/abee77e7d011/crystal/README.md",
+      "resolved": "/workspace/scratch/abee77e7d011/crystal/README.md",
+      "role": "source:README.md",
+      "sha256": "beab6b33f3129fcb87206089ce6660cfc88a9f5bab3433d8839a736c3de28e8f",
+      "size": 937
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/profile.json",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/profile.json",
+      "role": "profile",
+      "sha256": "6c2db87cbf3b83d5d472389a8b1ebc2ab5584108b2bfe4582b0f8fef39d7b8ba",
+      "size": 63
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runtime.json",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runtime.json",
+      "role": "capture_runtime",
+      "sha256": "ce305e07aba855735f0ae1c30ef6c4d74079f74c635cc8f496e3b6d85cd674ea",
+      "size": 556
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/plan.json",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/plan.json",
+      "role": "plan",
+      "sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "size": 789
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/rish",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/rish",
+      "role": "launcher",
+      "sha256": "6ce7b56b3a391e9c8d16aae238d465a1d0d65a7c9092b3a7cafcde79ff227f68",
+      "size": 12720
+    },
+    {
+      "path": "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+      "resolved": "/workspace/scratch/8a7b03e54622/diagnostic-host/bounded-process",
+      "role": "bounded_process",
+      "sha256": "c237aa1010a702fda2aeaddd113f62bec286e8da2481f6da42b21a3c9dcb3c7f",
+      "size": 10720
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/rish_shizuku.dex",
+      "resolved": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/rish_shizuku.dex",
+      "role": "dex",
+      "sha256": "bc5710ea1cc70f5365e136a0a28120c8b54fb9a838d37fb54671cabbf5a00977",
+      "size": 20
+    },
+    {
+      "path": "/workspace/scratch/abee77e7d011/catfood-predecessor/docs/observations/miro-a1-graphics-rish-2026-10-05.tsv",
+      "resolved": "/workspace/scratch/abee77e7d011/catfood-predecessor/docs/observations/miro-a1-graphics-rish-2026-10-05.tsv",
+      "role": "profile-observations",
+      "sha256": "bc35d1f963bce2737581aa96b38f0c08d40f21e87d7f4c25b5be84ff530082c9",
+      "size": 3367
+    }
+  ],
+  "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+  "observed_source_ref": "25b63837091c92e07738b1b51865603cc4b5e63d",
+  "operation": "android-diagnostic-capture",
+  "physical_A1": "NOT_RUN",
+  "physical_C67": "NOT_RUN",
+  "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+  "predecessor_revisions": {
+    "aici_root": "e4723d886658edffd65ffa3d35dc3a2cf83f15ce",
+    "catfood_root": "a1d36ee45b66a1af86d7594cc18df889610d5c81",
+    "kitchen_root": "ede931c8fc9d95fb91f11c4230de28f1a97030bc"
+  },
+  "private_run": "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+  "request_sha256": "65ebf0320233bf9d3f407acd55c83166568c0abfb152ce6d5e43da5a01de5c2b",
+  "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+  "schema": "flexible-pipes-registered-android-v2",
+  "stages": [
+    {
+      "argv": [
+        "/usr/local/bin/git",
+        "-C",
+        "/workspace/scratch/abee77e7d011/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "child_exit_code": 0,
+      "exit_code": 0,
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "prepare",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "process_sha256": "bef044c6122f138443875f4b47ca824c0639476c12a173d6200738bc5d6e68c7",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3e291543c634f5623e22ce7f7fd1431af2d9f6682a86ab6fa42f2008aaf3ed16"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/abee77e7d011/ithon/ithon",
+        "/workspace/scratch/abee77e7d011/catfood-predecessor/android/profile.pi",
+        "--model",
+        "miro-a1",
+        "--instance",
+        "a1-fixture-one",
+        "--output",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/stable-profile.json"
+      ],
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "child_exit_code": 0,
+      "exit_code": 0,
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "catfood-profile",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "process_sha256": "4b3a30b47260bbb7633cc686bab9e5ddee130b71e6fb5498057d139006283074",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "de859d9b7f0360cbf82f66c61b8cafaa1f5df78cbd82c263af1503f8e8aa18b0"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/abee77e7d011/ithon/ithon",
+        "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi",
+        "--plan",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/plan.json",
+        "--output",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/prepared.json"
+      ],
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "child_exit_code": 0,
+      "exit_code": 0,
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "aici-prepare",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "process_sha256": "2d5a86cdd987f7feb1aa210a7714d4ed7808fc18a7be3e7e649e5edb87e70427",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "12289c3674273cf67c0f7ca11dd01f07411f5ef7d2b1214ed8a767c7518c7b4b"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/abee77e7d011/ithon/ithon",
+        "/workspace/scratch/abee77e7d011/kitchen-predecessor/tasks/android-diagnostic/capture.pi",
+        "--plan",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/plan.json",
+        "--profile",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/profile.json",
+        "--runtime",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runtime.json",
+        "--output",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/capture"
+      ],
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "child_exit_code": 0,
+      "exit_code": 0,
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "kitchen-capture",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "process_sha256": "9ecebea7b958663ad9cd4212bec3bc5a7e82a83c50a3e31c34dd0fd98d2b618a",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "2666a1c75d0ec9ff281845f6e2f85e5063c69597abd1a801d16a209d599a78de"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/abee77e7d011/ithon/ithon",
+        "/workspace/scratch/abee77e7d011/aici-predecessor/android-diagnostic/check.pi",
+        "--plan",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/plan.json",
+        "--capture",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/capture/capture.json",
+        "--output",
+        "/workspace/scratch/abee77e7d011/android-qualification-6/valid/runs/android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750/diagnostic-decision.json"
+      ],
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "child_exit_code": 0,
+      "exit_code": 0,
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "aici-evidence",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "process_sha256": "5442b7c12d2b3c049d388108e40f4e366ec1fdf9273ce4e45a1e90893729a1d8",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ffe3ee659bc702b450fb73b2d2ab7279aa4c7733c779d7667e6d7b755132f97a"
+    },
+    {
+      "attempt_id": "bfdb239d540842698e1bb709a4e82750",
+      "materials_sha256": "24ddff354f2c22e677f4080f28014feb6036997faad6ec8a0971d92a68627aa3",
+      "name": "deliver",
+      "plan_sha256": "e061422f32b3ae4cb429cd62afd86e5b7f62a1ce790bf2c7bd5a1ad11f5d535e",
+      "required": true,
+      "run_id": "android-diagnostic-capture-bfdb239d540842698e1bb709a4e82750",
+      "state": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

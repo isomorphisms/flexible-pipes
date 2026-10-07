@@ -1,0 +1,37 @@
+"""Data-only evidence projection; never executes a receipt's argv."""
+import hashlib
+import json
+import sys
+from pathlib import Path
+from builtins import dict, list, str
+
+def cell(record ∈ dict[str, object], name ∈ str) → str:
+    value ∈ str ← str(record.get(name, "NOT_OBSERVED"))
+    return value
+
+arguments ∈ list[str] ← sys.argv
+receipt_path ∈ Path ← Path(arguments[1])
+receipt ∈ dict[str, object] ← json.loads(receipt_path.read_text())
+destination ∈ Path ← Path(arguments[2])
+destination.mkdir(parents=True, exist_ok=False)
+destination.joinpath("receipt.json").write_bytes(receipt_path.read_bytes())
+materials ∈ list[dict[str, object]] ← receipt.get("materials")
+identities ∈ str ← "role\tpath\tresolved\tsha256\tbytes\n"
+for material in materials:
+    identities ← identities + cell(material, "role") + "\t" + cell(material, "path") + "\t" + cell(material, "resolved") + "\t" + cell(material, "sha256") + "\t" + cell(material, "size") + "\n"
+destination.joinpath("materials.tsv").write_text(identities)
+stages ∈ list[dict[str, object]] ← receipt.get("stages")
+ledger ∈ str ← "stage\tstate\tchild_exit\trun_id\tattempt_id\tplan_sha256\tmaterials_sha256\n"
+for stage in stages:
+    ledger ← ledger + cell(stage, "name") + "\t" + cell(stage, "state") + "\t" + cell(stage, "child_exit_code") + "\t" + cell(stage, "run_id") + "\t" + cell(stage, "attempt_id") + "\t" + cell(stage, "plan_sha256") + "\t" + cell(stage, "materials_sha256") + "\n"
+destination.joinpath("stages.tsv").write_text(ledger)
+deployment ∈ dict[str, object] ← json.loads(Path(arguments[3]).read_text())
+deployment["channel_fixture"] ← arguments[4]
+tools ∈ dict[str, str] ← deployment.get("tool_digests")
+fp ∈ Path ← Path(arguments[5])
+required ∈ list[str] ← [arguments[4], cell(deployment, "aici_root") + "/android-diagnostic/tests.pi", cell(deployment, "kitchen_root") + "/tests/android-diagnostic.pi", cell(deployment, "catfood_root") + "/android/receipt-regression.pi", str(fp.joinpath("tests/registered-android.pi")), str(fp.joinpath("scripts/run-regressions.pi"))]
+for name in required:
+    tools[name] ← hashlib.sha256(Path(name).read_bytes()).hexdigest()
+deployment["tool_digests"] ← tools
+rendered ∈ str ← json.dumps(deployment, sort_keys=True, indent=2)
+destination.joinpath("replay-deployment.json").write_text(rendered + "\n")

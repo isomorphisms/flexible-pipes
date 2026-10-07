@@ -4,7 +4,11 @@ Status: **BLOCKED**, partial implementation. The maintained result still require
 Cat Food S2's approved immutable application plan, AICI S4's independently
 qualified shared producer decision, Kitchen S5's exact maintained procedure,
 and Cat Food S3's independent acceptance consumer. The preserved predecessors
-do not supply these new contracts. Local uncommitted successor work is not an
+do not supply admitted production contracts. Kitchen subsequently published
+S5 candidate `dd7b40f2d4ddc47c33d019f4a4caa68b059bdeaf`, explicitly
+HOST_FIXTURE_ONLY / CANDIDATE_PRODUCTION_BLOCKED on S2/S3/S4. Its exact
+procedure identities are preserved in the S6 evidence; no fixture adapter is
+promoted into production admission. Local uncommitted successor work is not an
 immutable dependency pin. No replacement runner or Cat Food plan schema is
 created here.
 

@@ -1,0 +1,7 @@
+attempt	observed_result	stage_count	publication	physical_A1	physical_C67
+production-terminal	MISSING_RUNTIME:independently delivered checked Ithon	0	NOT_RUN	NOT_RUN	NOT_RUN
+paired-workflow-dispatch	MISSING_PREDECESSOR:S2	0	NOT_RUN	NOT_RUN	NOT_RUN
+paired-request-branch	MISSING_PREDECESSOR:S2	0	NOT_RUN	NOT_RUN	NOT_RUN
+FP2-initial	BOUNDARY_SOURCE_UNCHECKED:wrong dependency roots	0	NOT_RUN	NOT_RUN	NOT_RUN
+FP2-pinned	FileNotFoundError:/usr/bin/gh during materialization	0	NOT_RUN	NOT_RUN	NOT_RUN
+Grease-version	PrintVersionDetails assertion:NDK compiler version formatting	0	NOT_RUN	NOT_RUN	NOT_RUN

@@ -1,0 +1,1409 @@
+building Grease from its pinned source
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking for --enable-universalsdk... no
+checking for --with-universal-archs... 32-bit
+checking MACHDEP... linux2
+checking EXTRAPLATDIR... 
+checking for --without-gcc... no
+checking for --with-icc... no
+checking for gcc... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang accepts -g... yes
+checking for /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang option to accept ISO C89... none needed
+checking for --with-cxx-main=<compiler>... no
+checking how to run the C preprocessor... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for --with-suffix... 
+checking for case-insensitive build directory... no
+checking LIBRARY... libpython$(VERSION).a
+checking LINKCC... $(PURIFY) $(MAINCC)
+checking for GNU ld... yes
+checking for --enable-shared... no
+checking for --enable-profiling... no
+checking LDLIBRARY... libpython$(VERSION).a
+checking for ranlib... ranlib
+checking for ar... ar
+checking for svnversion... not-found
+checking for hg... not-found
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+checking for --with-pydebug... no
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang accepts -fno-strict-aliasing... yes
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang accepts -OPT:Olimit=0... yes
+checking whether gcc supports ParseTuple __format__... no
+checking for --enable-optimizations... no
+checking for --with-lto... no
+checking target system type... x86_64-pc-linux-gnu
+checking for -llvm-profdata... no
+checking for llvm-profdata... ''
+checking whether pthreads are available without options... yes
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ also accepts flags for thread support... no
+checking for ANSI C header files... (cached) yes
+checking asm/types.h usability... yes
+checking asm/types.h presence... yes
+checking for asm/types.h... yes
+checking conio.h usability... no
+checking conio.h presence... no
+checking for conio.h... no
+checking direct.h usability... no
+checking direct.h presence... no
+checking for direct.h... no
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking errno.h usability... yes
+checking errno.h presence... yes
+checking for errno.h... yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking grp.h usability... yes
+checking grp.h presence... yes
+checking for grp.h... yes
+checking ieeefp.h usability... no
+checking ieeefp.h presence... no
+checking for ieeefp.h... no
+checking io.h usability... no
+checking io.h presence... no
+checking for io.h... no
+checking langinfo.h usability... yes
+checking langinfo.h presence... yes
+checking for langinfo.h... yes
+checking libintl.h usability... yes
+checking libintl.h presence... yes
+checking for libintl.h... yes
+checking poll.h usability... yes
+checking poll.h presence... yes
+checking for poll.h... yes
+checking process.h usability... no
+checking process.h presence... no
+checking for process.h... no
+checking pthread.h usability... yes
+checking pthread.h presence... yes
+checking for pthread.h... yes
+checking shadow.h usability... yes
+checking shadow.h presence... yes
+checking for shadow.h... yes
+checking signal.h usability... yes
+checking signal.h presence... yes
+checking for signal.h... yes
+checking for stdint.h... (cached) yes
+checking stropts.h usability... no
+checking stropts.h presence... no
+checking for stropts.h... no
+checking termios.h usability... yes
+checking termios.h presence... yes
+checking for termios.h... yes
+checking thread.h usability... no
+checking thread.h presence... no
+checking for thread.h... no
+checking for unistd.h... (cached) yes
+checking utime.h usability... yes
+checking utime.h presence... yes
+checking for utime.h... yes
+checking sys/audioio.h usability... no
+checking sys/audioio.h presence... no
+checking for sys/audioio.h... no
+checking sys/bsdtty.h usability... no
+checking sys/bsdtty.h presence... no
+checking for sys/bsdtty.h... no
+checking sys/epoll.h usability... yes
+checking sys/epoll.h presence... yes
+checking for sys/epoll.h... yes
+checking sys/event.h usability... no
+checking sys/event.h presence... no
+checking for sys/event.h... no
+checking sys/file.h usability... yes
+checking sys/file.h presence... yes
+checking for sys/file.h... yes
+checking sys/loadavg.h usability... no
+checking sys/loadavg.h presence... no
+checking for sys/loadavg.h... no
+checking sys/lock.h usability... no
+checking sys/lock.h presence... no
+checking for sys/lock.h... no
+checking sys/mkdev.h usability... no
+checking sys/mkdev.h presence... no
+checking for sys/mkdev.h... no
+checking sys/modem.h usability... no
+checking sys/modem.h presence... no
+checking for sys/modem.h... no
+checking sys/param.h usability... yes
+checking sys/param.h presence... yes
+checking for sys/param.h... yes
+checking sys/poll.h usability... yes
+checking sys/poll.h presence... yes
+checking for sys/poll.h... yes
+checking sys/select.h usability... yes
+checking sys/select.h presence... yes
+checking for sys/select.h... yes
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking sys/statvfs.h usability... yes
+checking sys/statvfs.h presence... yes
+checking for sys/statvfs.h... yes
+checking for sys/stat.h... (cached) yes
+checking sys/termio.h usability... no
+checking sys/termio.h presence... no
+checking for sys/termio.h... no
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking sys/times.h usability... yes
+checking sys/times.h presence... yes
+checking for sys/times.h... yes
+checking for sys/types.h... (cached) yes
+checking sys/un.h usability... yes
+checking sys/un.h presence... yes
+checking for sys/un.h... yes
+checking sys/utsname.h usability... yes
+checking sys/utsname.h presence... yes
+checking for sys/utsname.h... yes
+checking sys/wait.h usability... yes
+checking sys/wait.h presence... yes
+checking for sys/wait.h... yes
+checking pty.h usability... yes
+checking pty.h presence... yes
+checking for pty.h... yes
+checking libutil.h usability... no
+checking libutil.h presence... no
+checking for libutil.h... no
+checking sys/resource.h usability... yes
+checking sys/resource.h presence... yes
+checking for sys/resource.h... yes
+checking netpacket/packet.h usability... yes
+checking netpacket/packet.h presence... yes
+checking for netpacket/packet.h... yes
+checking sysexits.h usability... yes
+checking sysexits.h presence... yes
+checking for sysexits.h... yes
+checking bluetooth.h usability... no
+checking bluetooth.h presence... no
+checking for bluetooth.h... no
+checking bluetooth/bluetooth.h usability... no
+checking bluetooth/bluetooth.h presence... no
+checking for bluetooth/bluetooth.h... no
+checking linux/tipc.h usability... yes
+checking linux/tipc.h presence... yes
+checking for linux/tipc.h... yes
+checking spawn.h usability... yes
+checking spawn.h presence... yes
+checking for spawn.h... yes
+checking util.h usability... no
+checking util.h presence... no
+checking for util.h... no
+checking alloca.h usability... yes
+checking alloca.h presence... yes
+checking for alloca.h... yes
+checking for dirent.h that defines DIR... yes
+checking for library containing opendir... none required
+checking whether sys/types.h defines makedev... no
+checking for sys/mkdev.h... (cached) no
+checking sys/sysmacros.h usability... yes
+checking sys/sysmacros.h presence... yes
+checking for sys/sysmacros.h... yes
+checking for linux/netlink.h... yes
+checking for clock_t in time.h... yes
+checking for makedev... yes
+checking Solaris LFS bug... no
+checking for mode_t... yes
+checking for off_t... yes
+checking for pid_t... yes
+checking for size_t... yes
+checking for uid_t in sys/types.h... yes
+checking for uint32_t... yes
+checking for uint32_t... yes
+checking for uint64_t... yes
+checking for uint64_t... yes
+checking for int32_t... yes
+checking for int32_t... yes
+checking for int64_t... yes
+checking for int64_t... yes
+checking for ssize_t... yes
+checking size of int... 4
+checking size of long... 8
+checking size of void *... 8
+checking size of short... 2
+checking size of float... 4
+checking size of double... 8
+checking size of fpos_t... 16
+checking size of size_t... 8
+checking size of pid_t... 4
+checking for long long support... yes
+checking size of long long... 8
+checking for long double support... yes
+checking size of long double... 16
+checking for _Bool support... yes
+checking size of _Bool... 1
+checking for uintptr_t... yes
+checking size of uintptr_t... 8
+checking size of off_t... 8
+checking whether to enable large file support... no
+checking size of time_t... 8
+checking for pthread_t... yes
+checking size of pthread_t... 8
+checking for --enable-toolbox-glue... no
+checking for --enable-framework... no
+checking for dyld... no
+checking SO... .so
+checking LDSHARED... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared
+checking CCSHARED... -fPIC
+checking LINKFORSHARED... -Xlinker -export-dynamic
+checking CFLAGSFORSHARED... 
+checking SHLIBS... $(LIBS)
+checking for dlopen in -ldl... yes
+checking for shl_load in -ldld... no
+checking for library containing sem_init... none required
+checking for textdomain in -lintl... no
+checking for t_open in -lnsl... no
+checking for socket in -lsocket... no
+checking for --with-libs... no
+checking for pkg-config... no
+checking for --with-system-expat... no
+checking for --with-system-ffi... no
+checking for --with-tcltk-includes... default
+checking for --with-tcltk-libs... default
+checking for --with-dbmliborder... 
+checking for --with-signal-module... yes
+checking for --with-dec-threads... no
+checking for --with-threads... yes
+checking if PTHREAD_SCOPE_SYSTEM is supported... no
+checking for pthread_sigmask... yes
+checking for pthread_atfork... yes
+checking if --enable-ipv6 is specified... yes
+checking if RFC2553 API is available... yes
+checking ipv6 stack type... linux-glibc
+checking for OSX 10.5 SDK or later... no
+checking for --with-doc-strings... yes
+checking for --with-tsc... no
+checking for --with-pymalloc... yes
+checking for --with-valgrind... no
+checking for --with-wctype-functions... no
+checking for dlopen... yes
+checking DYNLOADFILE... dynload_shlib.o
+checking MACHDEP_OBJS... MACHDEP_OBJS
+checking for alarm... yes
+checking for setitimer... yes
+checking for getitimer... yes
+checking for bind_textdomain_codeset... yes
+checking for chown... yes
+checking for clock... yes
+checking for confstr... yes
+checking for ctermid... yes
+checking for execv... yes
+checking for fchmod... yes
+checking for fchown... yes
+checking for fork... yes
+checking for fpathconf... yes
+checking for ftime... yes
+checking for ftruncate... yes
+checking for gai_strerror... yes
+checking for getgroups... yes
+checking for getlogin... yes
+checking for getloadavg... yes
+checking for getpeername... yes
+checking for getpgid... yes
+checking for getpid... yes
+checking for getentropy... yes
+checking for getpriority... yes
+checking for getresuid... yes
+checking for getresgid... yes
+checking for getpwent... yes
+checking for getspnam... yes
+checking for getspent... yes
+checking for getsid... yes
+checking for getwd... yes
+checking for initgroups... yes
+checking for kill... yes
+checking for killpg... yes
+checking for lchmod... yes
+checking for lchown... yes
+checking for lstat... yes
+checking for mkfifo... yes
+checking for mknod... yes
+checking for mktime... yes
+checking for mmap... yes
+checking for mremap... yes
+checking for nice... yes
+checking for pathconf... yes
+checking for pause... yes
+checking for plock... no
+checking for poll... yes
+checking for pthread_init... no
+checking for putenv... yes
+checking for readlink... yes
+checking for realpath... yes
+checking for select... yes
+checking for sem_open... yes
+checking for sem_timedwait... yes
+checking for sem_getvalue... yes
+checking for sem_unlink... yes
+checking for setegid... yes
+checking for seteuid... yes
+checking for setgid... yes
+checking for setlocale... yes
+checking for setregid... yes
+checking for setreuid... yes
+checking for setsid... yes
+checking for setpgid... yes
+checking for setpgrp... yes
+checking for setuid... yes
+checking for setvbuf... yes
+checking for snprintf... yes
+checking for setlocale... (cached) yes
+checking for setregid... (cached) yes
+checking for setreuid... (cached) yes
+checking for setresuid... yes
+checking for setresgid... yes
+checking for setsid... (cached) yes
+checking for setpgid... (cached) yes
+checking for setpgrp... (cached) yes
+checking for setuid... (cached) yes
+checking for setvbuf... (cached) yes
+checking for snprintf... (cached) yes
+checking for sigaction... yes
+checking for siginterrupt... yes
+checking for sigrelse... yes
+checking for strftime... yes
+checking for sysconf... yes
+checking for tcgetpgrp... yes
+checking for tcsetpgrp... yes
+checking for tempnam... yes
+checking for timegm... yes
+checking for times... yes
+checking for tmpfile... yes
+checking for tmpnam... yes
+checking for tmpnam_r... yes
+checking for truncate... yes
+checking for uname... yes
+checking for unsetenv... yes
+checking for utimes... yes
+checking for waitpid... yes
+checking for wait3... yes
+checking for wait4... yes
+checking for wcscoll... yes
+checking for _getpty... no
+checking for chroot... yes
+checking for link... yes
+checking for symlink... yes
+checking for fchdir... yes
+checking for fsync... yes
+checking for fdatasync... yes
+checking for epoll... yes
+checking for kqueue... no
+checking for ctermid_r... no
+checking for flock declaration... yes
+checking for flock... yes
+checking for getpagesize... yes
+checking for broken unsetenv... no
+checking for true... true
+checking for inet_aton in -lc... yes
+checking for chflags... no
+checking for lchflags... no
+checking for inflateCopy in -lz... yes
+checking for hstrerror... yes
+checking for inet_aton... yes
+checking for inet_pton... yes
+checking for setgroups... yes
+checking for openpty... yes
+checking for forkpty... yes
+checking for memmove... yes
+checking for fseek64... no
+checking for fseeko... yes
+checking for fstatvfs... yes
+checking for ftell64... no
+checking for ftello... yes
+checking for statvfs... yes
+checking for dup2... yes
+checking for getcwd... yes
+checking for strdup... yes
+checking for getpgrp... yes
+checking for setpgrp... (cached) yes
+checking for gettimeofday... yes
+checking for major... yes
+checking for getaddrinfo... yes
+checking getaddrinfo bug... no
+checking for getnameinfo... yes
+checking whether time.h and sys/time.h may both be included... yes
+checking whether struct tm is in sys/time.h or time.h... time.h
+checking for struct tm.tm_zone... yes
+checking for struct stat.st_rdev... yes
+checking for struct stat.st_blksize... yes
+checking for struct stat.st_flags... no
+checking for struct stat.st_gen... no
+checking for struct stat.st_birthtime... no
+checking for struct stat.st_blocks... yes
+checking for time.h that defines altzone... no
+checking whether sys/select.h and sys/time.h may both be included... yes
+checking for addrinfo... yes
+checking for sockaddr_storage... yes
+checking whether char is unsigned... no
+checking for an ANSI C-conforming const... yes
+checking for working volatile... yes
+checking for working signed char... yes
+checking for prototypes... yes
+checking for variable length prototypes and stdarg.h... yes
+checking for socketpair... yes
+checking if sockaddr has sa_len member... no
+checking whether va_list is an array... yes
+checking for gethostbyname_r... yes
+checking gethostbyname_r with 6 args... yes
+checking for __fpu_control... yes
+checking for --with-fpectl... no
+checking for --with-libm=STRING... default LIBM="-lm"
+checking for --with-libc=STRING... default LIBC=""
+checking whether C doubles are little-endian IEEE 754 binary64... yes
+checking whether C doubles are big-endian IEEE 754 binary64... no
+checking whether C doubles are ARM mixed-endian IEEE 754 binary64... no
+checking whether we can use gcc inline assembler to get and set x87 control word... yes
+checking for x87-style double rounding... no
+checking whether tanh preserves the sign of zero... yes
+checking for acosh... yes
+checking for asinh... yes
+checking for atanh... yes
+checking for copysign... yes
+checking for erf... yes
+checking for erfc... yes
+checking for expm1... yes
+checking for finite... yes
+checking for gamma... yes
+checking for hypot... yes
+checking for lgamma... yes
+checking for log1p... yes
+checking for round... yes
+checking for tgamma... yes
+checking whether isinf is declared... yes
+checking whether isnan is declared... yes
+checking whether isfinite is declared... yes
+checking whether POSIX semaphores are enabled... yes
+checking for broken sem_getvalue... no
+checking digit size for Python's longs... no value specified
+checking wchar.h usability... yes
+checking wchar.h presence... yes
+checking for wchar.h... yes
+checking size of wchar_t... 4
+checking for UCS-4 tcl... no
+checking whether wchar_t is signed... no
+checking what type to use for unicode... unsigned short
+checking whether byte ordering is bigendian... no
+checking whether right shift extends the sign bit... no
+checking for getc_unlocked() and friends... yes
+checking how to link readline libs... none
+checking for rl_callback_handler_install in -lreadline... no
+checking for rl_pre_input_hook in -lreadline... no
+checking for rl_completion_display_matches_hook in -lreadline... no
+checking for rl_resize_terminal in -lreadline... no
+checking for rl_completion_matches in -lreadline... no
+checking for broken nice()... no
+checking for broken poll()... no
+checking for struct tm.tm_zone... (cached) yes
+checking for working tzset()... yes
+checking for tv_nsec in struct stat... yes
+checking for tv_nsec2 in struct stat... no
+checking curses.h usability... no
+checking curses.h presence... no
+checking for curses.h... no
+checking ncurses.h usability... no
+checking ncurses.h presence... no
+checking for ncurses.h... no
+checking for term.h... no
+checking whether mvwdelch is an expression... no
+checking whether WINDOW has _flags... no
+checking for is_term_resized... no
+checking for resize_term... no
+checking for resizeterm... no
+configure: checking for device files
+checking for /dev/ptmx... yes
+checking for /dev/ptc... no
+checking for %lld and %llu printf() format support... yes
+checking for %zd printf() format support... yes
+checking for socklen_t... yes
+checking for build directories... checking for --with-computed-gotos... no value specified
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang supports computed gotos... yes
+done
+checking for ensurepip... no
+configure: creating ./config.status
+config.status: creating Makefile.pre
+config.status: creating Modules/Setup.config
+config.status: creating Misc/python.pc
+config.status: creating Modules/ld_so_aix
+config.status: creating pyconfig.h
+creating Modules/Setup
+creating Modules/Setup.local
+creating Makefile
+
+
+If you want a release build with all optimizations active (LTO, PGO, etc),
+please run ./configure --enable-optimizations
+
+
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Modules/python.o ./Modules/python.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/acceler.o Parser/acceler.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/grammar1.o Parser/grammar1.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/listnode.o Parser/listnode.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/node.o Parser/node.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/parser.o Parser/parser.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/parsetok.o Parser/parsetok.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/bitset.o Parser/bitset.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/metagrammar.o Parser/metagrammar.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/firstsets.o Parser/firstsets.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/grammar.o Parser/grammar.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/pgen.o Parser/pgen.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/myreadline.o Parser/myreadline.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/tokenizer.o Parser/tokenizer.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/abstract.o Objects/abstract.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/boolobject.o Objects/boolobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/bufferobject.o Objects/bufferobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/bytes_methods.o Objects/bytes_methods.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/bytearrayobject.o Objects/bytearrayobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/capsule.o Objects/capsule.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/cellobject.o Objects/cellobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/classobject.o Objects/classobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/cobject.o Objects/cobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/codeobject.o Objects/codeobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/complexobject.o Objects/complexobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/descrobject.o Objects/descrobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/enumobject.o Objects/enumobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/exceptions.o Objects/exceptions.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/genobject.o Objects/genobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/fileobject.o Objects/fileobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/floatobject.o Objects/floatobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/frameobject.o Objects/frameobject.c
+Objects/frameobject.c:613:18: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+  613 | int _PyFrame_Init()
+      |                  ^
+      |                   void
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/funcobject.o Objects/funcobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/intobject.o Objects/intobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/iterobject.o Objects/iterobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/listobject.o Objects/listobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/longobject.o Objects/longobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/dictobject.o Objects/dictobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/memoryobject.o Objects/memoryobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/methodobject.o Objects/methodobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/moduleobject.o Objects/moduleobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/object.o Objects/object.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/obmalloc.o Objects/obmalloc.c
+Objects/object.c:1042:56: warning: implicit conversion from 'long' to 'double' changes value from 4611686018427387903 to 4611686018427387904 [-Wimplicit-const-int-float-conversion]
+ 1042 |         if (intpart > LONG_MAX/2 || -intpart > LONG_MAX/2) {
+      |                                              ~ ~~~~~~~~^~
+Objects/object.c:1042:31: warning: implicit conversion from 'long' to 'double' changes value from 4611686018427387903 to 4611686018427387904 [-Wimplicit-const-int-float-conversion]
+ 1042 |         if (intpart > LONG_MAX/2 || -intpart > LONG_MAX/2) {
+      |                     ~ ~~~~~~~~^~
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/rangeobject.o Objects/rangeobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/setobject.o Objects/setobject.c
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/sliceobject.o Objects/sliceobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/stringobject.o Objects/stringobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/structseq.o Objects/structseq.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/tupleobject.o Objects/tupleobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/typeobject.o Objects/typeobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/weakrefobject.o Objects/weakrefobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/unicodeobject.o Objects/unicodeobject.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Objects/unicodectype.o Objects/unicodectype.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/_warnings.o Python/_warnings.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/Python-ast.o Python/Python-ast.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/asdl.o Python/asdl.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/mysnprintf.o Python/mysnprintf.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pyctype.o Python/pyctype.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/tokenizer_pgen.o Parser/tokenizer_pgen.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/printgrammar.o Parser/printgrammar.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Parser/pgenmain.o Parser/pgenmain.c
+Parser/pgenmain.c:121:15: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+  121 | PyErr_Occurred()
+      |               ^
+      |                void
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/bltinmodule.o Python/bltinmodule.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/ceval.o Python/ceval.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/codecs.o Python/codecs.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/errors.o Python/errors.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/frozen.o Python/frozen.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/frozenmain.o Python/frozenmain.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/future.o Python/future.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/getargs.o Python/getargs.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/getcompiler.o Python/getcompiler.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/getcopyright.o Python/getcopyright.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -DPLATFORM='"linux2"' -o Python/getplatform.o ./Python/getplatform.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/getversion.o Python/getversion.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/import.o Python/import.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -I. -o Python/importdl.o ./Python/importdl.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/marshal.o Python/marshal.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/modsupport.o Python/modsupport.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/mystrtoul.o Python/mystrtoul.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/peephole.o Python/peephole.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pyarena.o Python/pyarena.c
+Python/pyarena.c:131:12: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+  131 | PyArena_New()
+      |            ^
+      |             void
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pyfpe.o Python/pyfpe.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pymath.o Python/pymath.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pystate.o Python/pystate.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pythonrun.o Python/pythonrun.c
+Python/pystate.c:311:28: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+  311 | PyThreadState_DeleteCurrent()
+      |                            ^
+      |                             void
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/random.o Python/random.c
+Python/random.c:170:1: warning: unused function 'dev_urandom_noraise' [-Wunused-function]
+  170 | dev_urandom_noraise(unsigned char *buffer, Py_ssize_t size)
+      | ^~~~~~~~~~~~~~~~~~~
+Python/random.c:201:1: warning: unused function 'dev_urandom_python' [-Wunused-function]
+  201 | dev_urandom_python(char *buffer, Py_ssize_t size)
+      | ^~~~~~~~~~~~~~~~~~
+Python/random.c:293:1: warning: unused function 'dev_urandom_close' [-Wunused-function]
+  293 | dev_urandom_close(void)
+      | ^~~~~~~~~~~~~~~~~
+3 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/structmember.o Python/structmember.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/sysmodule.o Python/sysmodule.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/traceback.o Python/traceback.c
+Python/sysmodule.c:1187:22: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+ 1187 | Py_SubversionRevision()
+      |                      ^
+      |                       void
+Python/sysmodule.c:1194:25: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+ 1194 | Py_SubversionShortBranch()
+      |                         ^
+      |                          void
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/getopt.o Python/getopt.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pystrcmp.o Python/pystrcmp.c
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/pystrtod.o Python/pystrtod.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/dtoa.o Python/dtoa.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/formatter_unicode.o Python/formatter_unicode.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/formatter_string.o Python/formatter_string.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/dynload_shlib.o Python/dynload_shlib.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/thread.o Python/thread.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Modules/config.o Modules/config.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -DPYTHONPATH='":plat-linux2:lib-tk:lib-old"' \
+	-DPREFIX='"/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix"' \
+	-DEXEC_PREFIX='"/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix"' \
+	-DVERSION='"2.7"' \
+	-DVPATH='""' \
+	-o Modules/getpath.o ./Modules/getpath.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Modules/main.o Modules/main.c
+Modules/main.c:209:12: warning: unused function 'RunModuleDirectly' [-Wunused-function]
+  209 | static int RunModuleDirectly(char *module, int set_argv0)
+      |            ^~~~~~~~~~~~~~~~~
+Modules/main.c:284:13: warning: unused function 'FatalAppBundleError' [-Wunused-function]
+  284 | static void FatalAppBundleError(char* filename, int sts) {
+      |             ^~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Modules/gcmodule.o Modules/gcmodule.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/threadmodule.c -o Modules/threadmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/signalmodule.c -o Modules/signalmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/posixmodule.c -o Modules/posixmodule.o
+./Modules/signalmodule.c:393:9: warning: 'siginterrupt' is deprecated: Use sigaction with SA_RESTART instead [-Wdeprecated-declarations]
+  393 |     if (siginterrupt(sig_num, flag)<0) {
+      |         ^
+/usr/include/signal.h:325:3: note: 'siginterrupt' has been explicitly marked deprecated here
+  325 |   __attribute_deprecated_msg__ ("Use sigaction with SA_RESTART instead");
+      |   ^
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:367:19: note: expanded from macro '__attribute_deprecated_msg__'
+  367 |          __attribute__ ((__deprecated__ (msg)))
+      |                          ^
+./Modules/posixmodule.c:358:13: warning: result of comparison of constant 9223372036854775807 with expression of type 'uid_t' (aka 'unsigned int') is always true [-Wtautological-constant-out-of-range-compare]
+  358 |     if (uid <= LONG_MAX)
+      |         ~~~ ^  ~~~~~~~~
+./Modules/posixmodule.c:366:13: warning: result of comparison of constant 9223372036854775807 with expression of type 'gid_t' (aka 'unsigned int') is always true [-Wtautological-constant-out-of-range-compare]
+  366 |     if (gid <= LONG_MAX)
+      |         ~~~ ^  ~~~~~~~~
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/errnomodule.c -o Modules/errnomodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/pwdmodule.c -o Modules/pwdmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/_sre.c -o Modules/_sre.o
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/_codecsmodule.c -o Modules/_codecsmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/_weakref.c -o Modules/_weakref.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/zipimport.c -o Modules/zipimport.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/symtablemodule.c -o Modules/symtablemodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE  -c ./Modules/xxsubtype.c -o Modules/xxsubtype.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  Parser/acceler.o Parser/grammar1.o Parser/listnode.o Parser/node.o Parser/parser.o Parser/parsetok.o Parser/bitset.o Parser/metagrammar.o Parser/firstsets.o Parser/grammar.o Parser/pgen.o Objects/obmalloc.o Python/mysnprintf.o Python/pyctype.o Parser/tokenizer_pgen.o Parser/printgrammar.o Parser/pgenmain.o -ldl  -o Parser/pgen
+Parser/pgen ./Grammar/Grammar Include/graminit.h Python/graminit.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/ast.o Python/ast.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/compile.o Python/compile.c
+touch Python/graminit.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/symtable.o Python/symtable.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Python/graminit.o Python/graminit.c
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE \
+      -DSVNVERSION="\"`LC_ALL=C echo Unversioned directory`\"" \
+      -DHGVERSION="\"`LC_ALL=C `\"" \
+      -DHGTAG="\"`LC_ALL=C `\"" \
+      -DHGBRANCH="\"`LC_ALL=C `\"" \
+      -o Modules/getbuildinfo.o ./Modules/getbuildinfo.c
+rm -f libpython2.7.a
+ar rc libpython2.7.a Modules/getbuildinfo.o
+ar rc libpython2.7.a Parser/acceler.o Parser/grammar1.o Parser/listnode.o Parser/node.o Parser/parser.o Parser/parsetok.o Parser/bitset.o Parser/metagrammar.o Parser/firstsets.o Parser/grammar.o Parser/pgen.o Parser/myreadline.o Parser/tokenizer.o
+ar rc libpython2.7.a Objects/abstract.o Objects/boolobject.o Objects/bufferobject.o Objects/bytes_methods.o Objects/bytearrayobject.o Objects/capsule.o Objects/cellobject.o Objects/classobject.o Objects/cobject.o Objects/codeobject.o Objects/complexobject.o Objects/descrobject.o Objects/enumobject.o Objects/exceptions.o Objects/genobject.o Objects/fileobject.o Objects/floatobject.o Objects/frameobject.o Objects/funcobject.o Objects/intobject.o Objects/iterobject.o Objects/listobject.o Objects/longobject.o Objects/dictobject.o Objects/memoryobject.o Objects/methodobject.o Objects/moduleobject.o Objects/object.o Objects/obmalloc.o Objects/rangeobject.o Objects/setobject.o Objects/sliceobject.o Objects/stringobject.o Objects/structseq.o Objects/tupleobject.o Objects/typeobject.o Objects/weakrefobject.o Objects/unicodeobject.o Objects/unicodectype.o
+ar rc libpython2.7.a Python/_warnings.o Python/Python-ast.o Python/asdl.o Python/ast.o Python/bltinmodule.o Python/ceval.o Python/compile.o Python/codecs.o Python/errors.o Python/frozen.o Python/frozenmain.o Python/future.o Python/getargs.o Python/getcompiler.o Python/getcopyright.o Python/getplatform.o Python/getversion.o Python/graminit.o Python/import.o Python/importdl.o Python/marshal.o Python/modsupport.o Python/mystrtoul.o Python/mysnprintf.o Python/peephole.o Python/pyarena.o Python/pyctype.o Python/pyfpe.o Python/pymath.o Python/pystate.o Python/pythonrun.o Python/random.o Python/structmember.o Python/symtable.o Python/sysmodule.o Python/traceback.o Python/getopt.o Python/pystrcmp.o Python/pystrtod.o Python/dtoa.o Python/formatter_unicode.o Python/formatter_string.o Python/dynload_shlib.o   Python/thread.o
+ar rc libpython2.7.a Modules/config.o Modules/getpath.o Modules/main.o Modules/gcmodule.o 
+ar rc libpython2.7.a Modules/threadmodule.o  Modules/signalmodule.o  Modules/posixmodule.o  Modules/errnomodule.o  Modules/pwdmodule.o  Modules/_sre.o  Modules/_codecsmodule.o  Modules/_weakref.o  Modules/zipimport.o  Modules/symtablemodule.o  Modules/xxsubtype.o
+ranlib libpython2.7.a
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang  -Xlinker -export-dynamic -o python \
+		Modules/python.o \
+		libpython2.7.a -ldl    -lm  
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -c -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes  -I. -IInclude -I./Include   -DPy_BUILD_CORE -o Modules/_math.o Modules/_math.c
+./python -E -S -m sysconfig --generate-posix-vars ;\
+if test $? -ne 0 ; then \
+	echo "generate-posix-vars failed" ; \
+	rm -f ./pybuilddir.txt ; \
+	exit 1 ; \
+fi
+running build
+running build_ext
+warning: openssl 0x00000000 is too old for _hashlib
+INFO: Can't locate Tcl/Tk libs and/or headers
+building '_struct' extension
+creating build/temp.linux-x86_64-2.7/workspace
+creating build/temp.linux-x86_64-2.7/workspace/scratch
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_struct.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_struct.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_struct.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_struct.so
+building '_ctypes_test' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes_test.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes_test.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes_test.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_ctypes_test.so
+building 'array' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/arraymodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/arraymodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/arraymodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/array.so
+building 'cmath' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cmathmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cmathmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cmathmodule.o Modules/_math.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lm -o build/lib.linux-x86_64-2.7/cmath.so
+building 'math' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mathmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mathmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mathmodule.o Modules/_math.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lm -o build/lib.linux-x86_64-2.7/math.so
+building 'strop' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/stropmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/stropmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/stropmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/strop.so
+building 'time' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c:921:9: warning: 'ftime' is deprecated: Use gettimeofday or clock_gettime instead [-Wdeprecated-declarations]
+  921 |         ftime(&t);
+      |         ^
+/usr/include/x86_64-linux-gnu/sys/timeb.h:31:3: note: 'ftime' has been explicitly marked deprecated here
+   31 |   __attribute_deprecated_msg__ ("Use gettimeofday or clock_gettime instead");
+      |   ^
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:367:19: note: expanded from macro '__attribute_deprecated_msg__'
+  367 |          __attribute__ ((__deprecated__ (msg)))
+      |                          ^
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lm -o build/lib.linux-x86_64-2.7/time.so
+building 'datetime' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/datetimemodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/datetimemodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c:921:9: warning: 'ftime' is deprecated: Use gettimeofday or clock_gettime instead [-Wdeprecated-declarations]
+  921 |         ftime(&t);
+      |         ^
+/usr/include/x86_64-linux-gnu/sys/timeb.h:31:3: note: 'ftime' has been explicitly marked deprecated here
+   31 |   __attribute_deprecated_msg__ ("Use gettimeofday or clock_gettime instead");
+      |   ^
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:367:19: note: expanded from macro '__attribute_deprecated_msg__'
+  367 |          __attribute__ ((__deprecated__ (msg)))
+      |                          ^
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/datetimemodule.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lm -o build/lib.linux-x86_64-2.7/datetime.so
+building 'itertools' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/itertoolsmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/itertoolsmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/itertoolsmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/itertools.so
+building 'future_builtins' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/future_builtins.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/future_builtins.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/future_builtins.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/future_builtins.so
+building '_random' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_randommodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_randommodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_randommodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_random.so
+building '_collections' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_collectionsmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_collectionsmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_collectionsmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_collections.so
+building '_bisect' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_bisectmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_bisectmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_bisectmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_bisect.so
+building '_heapq' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_heapqmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_heapqmodule.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_heapqmodule.c:600:21: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
+  600 | [explanation by Fran<E7>ois Pinard]\n\
+      |                     ^~~~
+Include/Python.h:176:60: note: expanded from macro 'PyDoc_STRVAR'
+  176 | #define PyDoc_STRVAR(name,str) PyDoc_VAR(name) = PyDoc_STR(str)
+      |                                                            ^~~
+Include/Python.h:178:24: note: expanded from macro 'PyDoc_STR'
+  178 | #define PyDoc_STR(str) str
+      |                        ^~~
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_heapqmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_heapq.so
+building 'operator' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/operator.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/operator.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/operator.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/operator.so
+building '_io' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bufferedio.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bufferedio.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bufferedio.c:934:19: warning: variable 'written' set but not used [-Wunused-but-set-variable]
+  934 |     Py_ssize_t n, written = 0;
+      |                   ^
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bufferedio.c:1757:16: warning: variable 'written' set but not used [-Wunused-but-set-variable]
+ 1757 |     Py_ssize_t written = 0;
+      |                ^
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bytesio.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bytesio.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/fileio.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/fileio.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/iobase.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/iobase.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/_iomodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/_iomodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/stringio.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/stringio.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_io -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/textio.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/textio.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/textio.c:322:29: warning: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Wsingle-bit-bitfield-constant-conversion]
+  322 |             self->pendingcr = 1;
+      |                             ^ ~
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bufferedio.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/bytesio.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/fileio.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/iobase.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/_iomodule.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/stringio.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_io/textio.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_io.so
+building '_functools' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_functoolsmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_functoolsmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_functoolsmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_functools.so
+building '_json' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_json.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_json.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_json.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_json.so
+building '_testcapi' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_testcapimodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_testcapimodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_testcapimodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_testcapi.so
+building '_hotshot' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_hotshot.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_hotshot.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_hotshot.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_hotshot.so
+building '_lsprof' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_lsprof.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_lsprof.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/rotatingtree.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/rotatingtree.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_lsprof.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/rotatingtree.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_lsprof.so
+building 'unicodedata' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/unicodedata.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/unicodedata.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/unicodedata.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/unicodedata.so
+building '_locale' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_localemodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_localemodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_localemodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_locale.so
+building 'fcntl' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/fcntlmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/fcntlmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/fcntlmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/fcntl.so
+building 'grp' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/grpmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/grpmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/grpmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/grp.so
+building 'spwd' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/spwdmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/spwdmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/spwdmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/spwd.so
+building 'select' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/selectmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/selectmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/selectmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/select.so
+building 'parser' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/parsermodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/parsermodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/parsermodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/parser.so
+building 'cStringIO' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cStringIO.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cStringIO.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cStringIO.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/cStringIO.so
+building 'cPickle' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cPickle.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cPickle.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cPickle.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/cPickle.so
+building 'mmap' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mmapmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mmapmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/mmapmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/mmap.so
+building 'syslog' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/syslogmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/syslogmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/syslogmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/syslog.so
+building 'audioop' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/audioop.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/audioop.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/audioop.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/audioop.so
+building 'crypt' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cryptmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cryptmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cryptmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lcrypt -o build/lib.linux-x86_64-2.7/crypt.so
+building '_csv' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_csv.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_csv.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_csv.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_csv.so
+building '_socket' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/socketmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/socketmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.c:921:9: warning: 'ftime' is deprecated: Use gettimeofday or clock_gettime instead [-Wdeprecated-declarations]
+  921 |         ftime(&t);
+      |         ^
+/usr/include/x86_64-linux-gnu/sys/timeb.h:31:3: note: 'ftime' has been explicitly marked deprecated here
+   31 |   __attribute_deprecated_msg__ ("Use gettimeofday or clock_gettime instead");
+      |   ^
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:367:19: note: expanded from macro '__attribute_deprecated_msg__'
+  367 |          __attribute__ ((__deprecated__ (msg)))
+      |                          ^
+1 warning generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/socketmodule.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/timemodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lm -o build/lib.linux-x86_64-2.7/_socket.so
+building '_ssl' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ssl.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ssl.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ssl.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lssl -lcrypto -o build/lib.linux-x86_64-2.7/_ssl.so
+building '_sha' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/shamodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/shamodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/shamodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_sha.so
+building '_md5' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5module.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5module.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5module.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/md5.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_md5.so
+building '_sha256' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha256module.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha256module.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha256module.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_sha256.so
+building '_sha512' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha512module.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha512module.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/sha512module.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_sha512.so
+building 'termios' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/termios.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/termios.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/termios.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/termios.so
+building 'resource' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/resource.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/resource.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/resource.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/resource.so
+building 'zlib' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/zlibmodule.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/zlibmodule.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/zlibmodule.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lz -o build/lib.linux-x86_64-2.7/zlib.so
+building 'binascii' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/binascii.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/binascii.o -DUSE_ZLIB_CRC32
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/binascii.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -lz -o build/lib.linux-x86_64-2.7/binascii.so
+building 'pyexpat' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_EXPAT_CONFIG_H=1 -DUSE_PYEXPAT_CAPI -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/./Modules/expat -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/pyexpat.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/pyexpat.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_EXPAT_CONFIG_H=1 -DUSE_PYEXPAT_CAPI -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/./Modules/expat -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlparse.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlparse.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_EXPAT_CONFIG_H=1 -DUSE_PYEXPAT_CAPI -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/./Modules/expat -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlrole.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlrole.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_EXPAT_CONFIG_H=1 -DUSE_PYEXPAT_CAPI -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/./Modules/expat -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmltok.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmltok.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/pyexpat.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlparse.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmlrole.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/expat/xmltok.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/pyexpat.so
+building '_elementtree' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_EXPAT_CONFIG_H=1 -DUSE_PYEXPAT_CAPI -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/./Modules/expat -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_elementtree.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_elementtree.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_elementtree.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_elementtree.so
+building '_multibytecodec' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/multibytecodec.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/multibytecodec.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/multibytecodec.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_multibytecodec.so
+building '_codecs_kr' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_kr.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_kr.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_kr.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_kr.so
+building '_codecs_jp' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_jp.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_jp.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_jp.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_jp.so
+building '_codecs_cn' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_cn.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_cn.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_cn.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_cn.so
+building '_codecs_tw' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_tw.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_tw.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_tw.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_tw.so
+building '_codecs_hk' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_hk.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_hk.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_hk.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_hk.so
+building '_codecs_iso2022' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_iso2022.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_iso2022.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/cjkcodecs/_codecs_iso2022.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_codecs_iso2022.so
+building '_multiprocessing' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_multiprocessing -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/multiprocessing.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/multiprocessing.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_multiprocessing -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/socket_connection.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/socket_connection.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -IModules/_multiprocessing -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/semaphore.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/semaphore.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/multiprocessing.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/socket_connection.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_multiprocessing/semaphore.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_multiprocessing.so
+building 'linuxaudiodev' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/linuxaudiodev.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/linuxaudiodev.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/linuxaudiodev.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/linuxaudiodev.so
+building 'ossaudiodev' extension
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/ossaudiodev.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/ossaudiodev.o
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/ossaudiodev.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/ossaudiodev.so
+creating build/temp.linux-x86_64-2.7/libffi
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking target system type... x86_64-unknown-linux-gnu
+checking for gsed... sed
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+checking for gawk... no
+checking for mawk... mawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking for gcc... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang accepts -g... yes
+checking for /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang option to accept ISO C89... none needed
+checking for style of include used by make... GNU
+checking dependency style of /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang... gcc3
+checking whether we are using the GNU C++ compiler... yes
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ accepts -g... yes
+checking dependency style of /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++... gcc3
+checking dependency style of /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang... gcc3
+checking whether /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang and cc understand -c and -o together... yes
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld
+checking if the linker (/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 1572864
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang object... ok
+checking for sysroot... no
+checking for mt... no
+checking if : is a manifest tool... no
+checking how to run the C preprocessor... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang supports -fno-rtti -fno-exceptions... yes
+checking for /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang option to produce PIC... -fPIC -DPIC
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang PIC flag -fPIC -DPIC works... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang static flag -static works... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang supports -c -o file.o... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang supports -c -o file.o... (cached) yes
+checking whether the /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang linker (/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ -E
+checking for ld used by /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++... /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld -m elf_x86_64
+checking if the linker (/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld -m elf_x86_64) is GNU ld... yes
+checking whether the /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ linker (/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking for /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ option to produce PIC... -fPIC -DPIC
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ PIC flag -fPIC -DPIC works... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ static flag -static works... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ supports -c -o file.o... yes
+checking if /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ supports -c -o file.o... (cached) yes
+checking whether the /workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ linker (/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking size of size_t... 8
+checking for C compiler vendor... clang
+checking CFLAGS for maximum warnings... -Wall
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking sys/mman.h usability... yes
+checking sys/mman.h presence... yes
+checking for sys/mman.h... yes
+checking for mmap... yes
+checking for sys/mman.h... (cached) yes
+checking for mmap... (cached) yes
+checking whether read-only mmap of a plain file works... yes
+checking whether mmap from /dev/zero works... yes
+checking for MAP_ANON(YMOUS)... yes
+checking whether mmap with MAP_ANON(YMOUS) works... yes
+checking for ANSI C header files... (cached) yes
+checking for memcpy... yes
+checking for size_t... yes
+checking for working alloca.h... yes
+checking for alloca... yes
+checking size of double... 8
+checking size of long double... 16
+checking whether byte ordering is bigendian... no
+checking assembler .cfi pseudo-op support... yes
+checking assembler supports pc related relocs... yes
+checking assembler .ascii pseudo-op support... yes
+checking assembler .string pseudo-op support... yes
+checking for _ prefix in compiled symbols... no
+checking toolchain supports unwind section type... yes
+checking whether .eh_frame section should be read-only... yes
+checking for __attribute__((visibility("hidden")))... yes
+clang: error: unsupported option '-print-multi-os-directory'
+clang: error: no input files
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating include/Makefile
+config.status: creating include/ffi.h
+config.status: creating Makefile
+config.status: creating testsuite/Makefile
+config.status: creating man/Makefile
+config.status: creating libffi.pc
+config.status: creating fficonfig.py
+config.status: creating fficonfig.h
+config.status: linking /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffitarget.h to include/ffitarget.h
+config.status: linking /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/include/ffi_common.h to include/ffi_common.h
+config.status: executing buildir commands
+config.status: skipping top_srcdir/Makefile - not created
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing include commands
+config.status: executing src commands
+building '_ctypes' extension
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src
+creating build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callbacks.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callbacks.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callproc.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callproc.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/stgdict.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/stgdict.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/cfield.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/cfield.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/prep_cif.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/prep_cif.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/closures.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/closures.o -Wall -fexceptions
+In file included from /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/closures.c:249:
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/dlmalloc.c:3385:7: warning: variable 'nfences' set but not used [-Wunused-but-set-variable]
+ 3385 |   int nfences = 0;
+      |       ^
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/dlmalloc.c:4450:20: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+ 4450 | void dlmalloc_stats() {
+      |                    ^
+      |                     void
+2 warnings generated.
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi64.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi64.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/unix64.S -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/unix64.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi.c -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -fPIC -fno-strict-aliasing -OPT:Olimit=0 -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -Ibuild/temp.linux-x86_64-2.7/libffi/include -Ibuild/temp.linux-x86_64-2.7/libffi -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src -I. -IInclude -I./Include -I/usr/include/x86_64-linux-gnu -I/usr/local/include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Include -I/workspace/scratch/abee77e7d011/fp2/.build/grease/python2 -c /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/sysv.S -o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/sysv.o -Wall -fexceptions
+/workspace/scratch/5aee68bc8651/deps/sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -shared build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/_ctypes.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callbacks.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/callproc.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/stgdict.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/cfield.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/prep_cif.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/closures.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi64.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/unix64.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/ffi.o build/temp.linux-x86_64-2.7/workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Modules/_ctypes/libffi/src/x86/sysv.o -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib -o build/lib.linux-x86_64-2.7/_ctypes.so
+
+Python build finished, but the necessary bits to build these modules were not found:
+_bsddb             _curses            _curses_panel   
+_hashlib           _sqlite3           _tkinter        
+bsddb185           bz2                dbm             
+dl                 gdbm               imageop         
+nis                readline           sunaudiodev     
+To find the necessary bits, look in setup.py in detect_modules() for the module's name.
+
+running build_scripts
+creating build/scripts-2.7
+copying and adjusting /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Tools/scripts/pydoc -> build/scripts-2.7
+copying and adjusting /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Tools/scripts/idle -> build/scripts-2.7
+copying and adjusting /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Tools/scripts/2to3 -> build/scripts-2.7
+copying and adjusting /workspace/scratch/abee77e7d011/fp2/.build/grease/python2/Lib/smtpd.py -> build/scripts-2.7
+changing mode of build/scripts-2.7/pydoc from 644 to 755
+changing mode of build/scripts-2.7/idle from 644 to 755
+changing mode of build/scripts-2.7/2to3 from 644 to 755
+changing mode of build/scripts-2.7/smtpd.py from 644 to 755
+Creating directory /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include
+Creating directory /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/Python-ast.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/Python.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/abstract.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/asdl.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/ast.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/bitset.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/boolobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/bufferobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/bytearrayobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/bytes_methods.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/bytesobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/cStringIO.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/cellobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/ceval.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/classobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/cobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/code.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/codecs.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/compile.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/complexobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/datetime.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/descrobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/dictobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/dtoa.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/enumobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/errcode.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/eval.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/fileobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/floatobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/frameobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/funcobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/genobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/graminit.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/grammar.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/import.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/intobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/intrcheck.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/iterobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/listobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/longintrepr.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/longobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/marshal.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/memoryobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/metagrammar.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/methodobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/modsupport.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/moduleobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/node.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/object.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/objimpl.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/opcode.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/osdefs.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/parsetok.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/patchlevel.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pgen.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pgenheaders.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/py_curses.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyarena.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pycapsule.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyctype.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pydebug.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyerrors.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyexpat.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyfpe.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pygetopt.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pymacconfig.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pymactoolbox.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pymath.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pymem.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pyport.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pystate.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pystrcmp.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pystrtod.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pythonrun.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/pythread.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/rangeobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/setobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/sliceobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/stringobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/structmember.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/structseq.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/symtable.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/sysmodule.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/timefuncs.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/token.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/traceback.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/tupleobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/ucnhash.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/unicodeobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/warnings.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 ./Include/weakrefobject.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7
+/usr/bin/install -c -m 644 pyconfig.h /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/pyconfig.h
+./configure: Wrote _build/detected-cpp-config.h
+./configure: Wrote _build/detected-config.sh
+./configure: Wrote _build/detected-config.h
+Removing _devbuild/gen/*
+asdl/hnode.asdl -> (asdl_main) -> _devbuild/gen/hnode_asdl.py
+frontend/types.asdl -> (asdl_main) -> _devbuild/gen/types_asdl.py
+core/runtime.asdl -> (asdl_main) -> _devbuild/gen/runtime_asdl.py
+core/value.asdl -> (asdl_main) -> _devbuild/gen/value_asdl.py
+data_lang/htm8.asdl -> (asdl_main) -> _devbuild/gen/htm8_asdl.py
+data_lang/nil8.asdl -> (asdl_main) -> _devbuild/gen/nil8_asdl.py
+display/pretty.asdl -> (asdl_main) -> _devbuild/gen/pretty_asdl.py
+mycpp/mycpp.asdl -> (asdl_main) -> _devbuild/gen/mycpp_asdl.py
+tools/find/find.asdl -> (asdl_main) -> _devbuild/gen/find_asdl.py
+  (frontend/consts_gen) -> _devbuild/gen/id_kind_asdl.py
+  (frontend/consts_gen) -> _devbuild/gen/id_kind.py
+frontend/syntax.asdl -> (asdl_main) -> _devbuild/gen/syntax_asdl.py
+  (frontend/option_gen) -> _devbuild/gen/option_asdl.py
+  (frontend/flag_gen) -> _devbuild/gen/arg_types.py
+yaks/yaks.asdl -> (asdl_main) -> _devbuild/gen/yaks_asdl.py
+mycpp/examples/expr.asdl -> (asdl_main) -> _devbuild/gen/expr_asdl.py
+asdl/examples/demo_lib.asdl -> (asdl_main) -> _devbuild/gen/demo_lib_asdl.py
+asdl/examples/typed_demo.asdl -> (asdl_main) -> _devbuild/gen/typed_demo_asdl.py
+asdl/examples/shared_variant.asdl -> (asdl_main) -> _devbuild/gen/shared_variant_asdl.py
+asdl/examples/typed_arith.asdl -> (asdl_main) -> _devbuild/gen/typed_arith_asdl.py
+ysh/grammar.pgen2 -> (ysh/grammar_gen) -> _devbuild/gen/grammar{.marshal,_nt.py}
+tools/find/find.pgen2 -> (ysh/grammar_gen) -> _devbuild/gen/find{.marshal,_nt.py}
+mycpp/examples/arith.pgen2 -> (ysh/grammar_gen) -> _devbuild/gen/arith{.marshal,_nt.py}
+  (pyext/setup_libc.py) -> libc.so
+In file included from pyext/libc.c:25:
+In file included from /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/Python.h:8:
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/pyconfig.h:1190:9: warning: '_POSIX_C_SOURCE' macro redefined [-Wmacro-redefined]
+ 1190 | #define _POSIX_C_SOURCE 200112L
+      |         ^
+/usr/include/features.h:292:10: note: previous definition is here
+  292 | # define _POSIX_C_SOURCE        200809L
+      |          ^
+In file included from pyext/libc.c:25:
+In file included from /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/Python.h:8:
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/pyconfig.h:1212:9: warning: '_XOPEN_SOURCE' macro redefined [-Wmacro-redefined]
+ 1212 | #define _XOPEN_SOURCE 600
+      |         ^
+/usr/include/features.h:216:10: note: previous definition is here
+  216 | # define _XOPEN_SOURCE  700
+      |          ^
+2 warnings generated.
+    OK _test/unit/pyext/libc_test.py.log
+  (pyext/setup_posix.py) -> posix_.so
+pyext/posixmodule.c:190:13: warning: result of comparison of constant 9223372036854775807 with expression of type 'uid_t' (aka 'unsigned int') is always true [-Wtautological-constant-out-of-range-compare]
+  190 |     if (uid <= LONG_MAX)
+      |         ~~~ ^  ~~~~~~~~
+pyext/posixmodule.c:198:13: warning: result of comparison of constant 9223372036854775807 with expression of type 'gid_t' (aka 'unsigned int') is always true [-Wtautological-constant-out-of-range-compare]
+  198 |     if (gid <= LONG_MAX)
+      |         ~~~ ^  ~~~~~~~~
+2 warnings generated.
+    OK _test/unit/pyext/posix_test.py.log
+  (pyext/setup_fanos.py) -> fanos.so
+In file included from pyext/fanos.c:9:
+In file included from /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/Python.h:8:
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/pyconfig.h:1190:9: warning: '_POSIX_C_SOURCE' macro redefined [-Wmacro-redefined]
+ 1190 | #define _POSIX_C_SOURCE 200112L
+      |         ^
+/usr/include/features.h:292:10: note: previous definition is here
+  292 | # define _POSIX_C_SOURCE        200809L
+      |          ^
+1 warning generated.
+    OK _test/unit/pyext/fanos_test.py.log
+  (pyext/setup_fastfunc.py) -> fastfunc.so
+In file included from pyext/fastfunc.c:12:
+In file included from /workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/Python.h:8:
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/pyconfig.h:1190:9: warning: '_POSIX_C_SOURCE' macro redefined [-Wmacro-redefined]
+ 1190 | #define _POSIX_C_SOURCE 200112L
+      |         ^
+/usr/include/features.h:292:10: note: previous definition is here
+  292 | # define _POSIX_C_SOURCE        200809L
+      |          ^
+pyext/fastfunc.c:37:46: warning: passing 'unsigned char *' to parameter of type 'const char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   37 |   PyObject *ret = PyString_FromStringAndSize(out.data, out.len);
+      |                                              ^~~~~~~~
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/stringobject.h:62:63: note: passing argument to parameter here
+   62 | PyAPI_FUNC(PyObject *) PyString_FromStringAndSize(const char *, Py_ssize_t);
+      |                                                               ^
+pyext/fastfunc.c:53:46: warning: passing 'unsigned char *' to parameter of type 'const char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   53 |   PyObject *ret = PyString_FromStringAndSize(out.data, out.len);
+      |                                              ^~~~~~~~
+/workspace/scratch/abee77e7d011/fp2/.build/grease/python2-prefix/include/python2.7/stringobject.h:62:63: note: passing argument to parameter here
+   62 | PyAPI_FUNC(PyObject *) PyString_FromStringAndSize(const char *, Py_ssize_t);
+      |                                                               ^
+pyext/fastfunc.c:97:15: warning: passing 'char *' to parameter of type 'const unsigned char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   97 |   utf8_decode(string + start, &decode_result);
+      |               ^~~~~~~~~~~~~~
+./data_lang/utf8.h:98:53: note: passing argument to parameter 'input' here
+   98 | static inline void utf8_decode(const unsigned char *input,
+      |                                                     ^
+4 warnings generated.
+    OK _test/unit/pyext/fastfunc_test.py.log
+cat food core tools are built

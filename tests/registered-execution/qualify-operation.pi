@@ -130,6 +130,9 @@ repositories ∈ list[dict[str, object]] ← [
 fp_files ∈ list[str] ← list(repositories[0]["files"])
 fp_files.extend(["scripts/event_adapter.pi", "tests/registered-execution/check-boundary-sources.pi", "tests/registered-execution/qualify-client.pi"])
 repositories[0]["files"] ← fp_files
+published_ref ∈ str ← os.environ.get("FP_QUALIFICATION_PUBLISHED_REF", "")
+if published_ref != "":
+    repositories[0]["ref"] ← published_ref
 for repository in repositories:
     checkout ∈ str ← str(repository["checkout"])
     commit ∈ str ← git(checkout, ["rev-parse", "HEAD"])
