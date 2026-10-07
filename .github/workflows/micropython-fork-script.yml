@@ -1,0 +1,23 @@
+name: MicroPython fork script
+on:
+  push:
+    paths:
+      - 'scripts/render-micropython-fork-script'
+      - 'pipelines/micropython-fork-script.json'
+      - 'tests/render-micropython-fork-script.py'
+      - '.github/workflows/micropython-fork-script.yml'
+  pull_request:
+    paths:
+      - 'scripts/render-micropython-fork-script'
+      - 'pipelines/micropython-fork-script.json'
+      - 'tests/render-micropython-fork-script.py'
+      - '.github/workflows/micropython-fork-script.yml'
+permissions:
+  contents: read
+jobs:
+  exact-paste-block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: python3 tests/render-micropython-fork-script.py
