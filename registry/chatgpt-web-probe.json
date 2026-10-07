@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "chatgpt_exporter": {
+    "repository": "dilapidated-shed/ChatGPTExporter",
+    "origin": "https://github.com/dilapidated-shed/ChatGPTExporter.git",
+    "ref": "probe",
+    "commit": "3def46037144a93b26f64c12b8919fbe9492ef62"
+  },
+  "kitchen": {
+    "repository": "isomorphisms/kitchen",
+    "origin": "https://github.com/isomorphisms/kitchen.git",
+    "ref": "chatgpt-probe",
+    "commit": "c591d198abffffddf0d584effb7e50ce8ec9572f"
+  },
+  "catfood": {
+    "repository": "isomorphisms/catfood",
+    "origin": "https://github.com/isomorphisms/catfood.git",
+    "ref": "chatgpt-probe",
+    "commit": "9c88297b18a1dfa652df341678e989269de9d972"
+  },
+  "android_ndk": {
+    "repository": "isomorphisms/android-NDK",
+    "origin": "https://github.com/isomorphisms/android-NDK.git",
+    "ref": "main",
+    "commit": "7c61ee43e75f7c2dab9288edb0e10055898b36e6"
+  },
+  "aici": {
+    "repository": "isomorphisms/ai-ci",
+    "origin": "https://github.com/isomorphisms/ai-ci.git",
+    "ref": "chatgpt-probe",
+    "commit": "771d1598f001558295fc082ad0b976400ae17369"
+  },
+  "android_sdk": {
+    "platform": "platforms;android-34",
+    "build_tools": "build-tools;34.0.0",
+    "ndk": "ndk;27.2.12479018"
+  }
+}
