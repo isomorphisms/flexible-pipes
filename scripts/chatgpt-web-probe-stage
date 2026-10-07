@@ -45,6 +45,13 @@ clone_exact catfood "$work/catfood"
 clone_exact android_ndk "$work/android-NDK"
 clone_exact aici "$work/ai-ci"
 
+bash -n "$work/kitchen/tasks/chatgpt-web-probe/build.sh"
+bash -n "$work/kitchen/tasks/chatgpt-web-probe/install.sh"
+bash -n "$work/kitchen/tasks/chatgpt-web-probe/install-run.sh"
+bash -n "$work/kitchen/tasks/chatgpt-web-probe/collect-baseline.sh"
+bash -n "$work/exporter/probe/scripts/connect.sh"
+python3 -m py_compile "$work/exporter/probe/scripts/capture.py"
+
 android_home=${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}
 [[ -n "$android_home" ]] || fail "ANDROID_HOME/ANDROID_SDK_ROOT is required"
 sdkmanager="$android_home/cmdline-tools/latest/bin/sdkmanager"
