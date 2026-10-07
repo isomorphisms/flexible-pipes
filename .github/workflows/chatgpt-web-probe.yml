@@ -1,0 +1,44 @@
+name: ChatGPT Web Probe paired Android producer
+
+on:
+  push:
+    branches:
+      - chatgpt-probe
+    paths:
+      - "pipelines/chatgpt-web-probe.json"
+      - "registry/chatgpt-web-probe.json"
+      - "scripts/chatgpt-web-probe-stage"
+      - ".github/workflows/chatgpt-web-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  produce:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Run registered pipeline
+        run: python3 scripts/run-pipeline chatgpt-web-probe
+
+      - name: Upload paired APKs and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatgpt-web-probe-paired
+          path: .flexible-pipes/work/chatgpt-web-probe/out/
+          if-no-files-found: error
+
+      - name: Upload Flexible Pipes receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatgpt-web-probe-pipeline-receipt
+          path: .flexible-pipes/runs/
+          if-no-files-found: error
