@@ -90,12 +90,14 @@ def evaluate(candidate ∈ str, output ∈ str) → None:
         write(directory + "/execution.json", json.dumps({"state": "EXECUTED", "payload_sha256": payload_hash, "input_tokens": input_tokens, "seconds": elapsed}))
         verdict ∈ str ← classify(response)
         findings.append(identifier + "\t" + payload_hash + "\t" + verdict + "\tmodel-only-estimate")
-    write(output + "/findings.tsv", "\n".join(findings) + "\n")
+    joined ∈ str ← "\n".join(findings)
+    write(output + "/findings.tsv", joined + "\n")
     write(output + "/completion.json", json.dumps({"state": "EXECUTED", "cases": 104, "seconds": clock() - started}))
     print("Real causal model executed 104 retained prompts")
 
 def main() → None:
-    args ∈ list[str] ← sys.argv[1:]
+    arguments ∈ list[str] ← sys.argv
+    args ∈ list[str] ← arguments[1:]
     if args[0] == "check":
         if classify("AGREEMENT\n") != "AGREEMENT" or classify("probably true") != "PARSE_FAILURE" or classify("") != "PARSE_FAILURE":
             raise ValueError("Candidate decision parser failed")
