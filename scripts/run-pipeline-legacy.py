@@ -10,6 +10,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +45,8 @@ def fail(message: str) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run one checked-in flexible-pipes pipeline")
     parser.add_argument("pipeline", help="pipeline name, without pipelines/ or .json")
+    parser.add_argument("--param", action="append", default=[], metavar="NAME=VALUE", help="pipeline parameter; repeat for multiple values")
+    parser.add_argument("--ithon", help="verified Ithon entrypoint, required for job artifacts")
     parser.add_argument(
         "--runs-root",
         default=os.environ.get(
@@ -71,6 +74,47 @@ def main() -> int:
         return fail("pipeline schema_version must be 1")
     if spec.get("name") != args.pipeline:
         return fail(f"pipeline name mismatch: file says {spec.get('name')!r}")
+
+    parameter_rules = spec.get("parameters", {})
+    if not isinstance(parameter_rules, dict):
+        return fail("pipeline parameters must be an object")
+    parameters: dict[str, str] = {}
+    for raw_parameter in args.param:
+        if "=" not in raw_parameter:
+            return fail(f"pipeline parameter must use NAME=VALUE: {raw_parameter!r}")
+        parameter_name, parameter_value = raw_parameter.split("=", 1)
+        if not NAME_RE.fullmatch(parameter_name):
+            return fail(f"invalid pipeline parameter name: {parameter_name!r}")
+        if parameter_name in parameters:
+            return fail(f"duplicate pipeline parameter: {parameter_name}")
+        parameters[parameter_name] = parameter_value
+
+    unknown_parameters = sorted(set(parameters) - set(parameter_rules))
+    if unknown_parameters:
+        return fail("unknown pipeline parameters: " + ", ".join(unknown_parameters))
+
+    for parameter_name, rule in parameter_rules.items():
+        if not isinstance(parameter_name, str) or not NAME_RE.fullmatch(parameter_name):
+            return fail(f"invalid declared pipeline parameter name: {parameter_name!r}")
+        if not isinstance(rule, dict):
+            return fail(f"pipeline parameter {parameter_name} rule must be an object")
+        required = rule.get("required", False)
+        if not isinstance(required, bool):
+            return fail(f"pipeline parameter {parameter_name} required must be Boolean")
+        if required and parameter_name not in parameters:
+            return fail(f"missing required pipeline parameter: {parameter_name}")
+        pattern = rule.get("pattern")
+        if pattern is not None:
+            if not isinstance(pattern, str):
+                return fail(f"pipeline parameter {parameter_name} pattern must be a string")
+            if parameter_name in parameters:
+                try:
+                    matches = re.fullmatch(pattern, parameters[parameter_name])
+                except re.error as exc:
+                    return fail(f"invalid pattern for pipeline parameter {parameter_name}: {exc}")
+                if matches is None:
+                    return fail(f"pipeline parameter {parameter_name} does not match required pattern")
+
     stages = spec.get("stages")
     if not isinstance(stages, list) or not stages:
         return fail("pipeline must contain a non-empty stages list")
@@ -105,6 +149,20 @@ def main() -> int:
         ):
             return fail(f"stage {name}: argv must be a non-empty string list")
 
+        resolved_argv: list[str] = []
+        for argument in argv:
+            match = re.fullmatch(r"\{\{([A-Za-z0-9][A-Za-z0-9._-]*)\}\}", argument)
+            if match:
+                parameter_name = match.group(1)
+                if parameter_name not in parameters:
+                    return fail(f"stage {name}: missing value for parameter {parameter_name}")
+                resolved_argv.append(parameters[parameter_name])
+            else:
+                if "{{" in argument or "}}" in argument:
+                    return fail(f"stage {name}: parameter placeholders must occupy a whole argv element")
+                resolved_argv.append(argument)
+        argv = resolved_argv
+
         cwd_rel = stage.get("cwd", ".")
         if not isinstance(cwd_rel, str):
             return fail(f"stage {name}: cwd must be a string")
@@ -115,8 +173,24 @@ def main() -> int:
             return fail(f"stage {name}: cwd does not exist: {cwd_rel!r}")
 
         validated_stages.append(
-            {"name": name, "argv": argv, "cwd_rel": cwd_rel, "cwd": cwd}
+            {"name": name, "argv": argv, "cwd_rel": cwd_rel, "cwd": cwd,
+             "handoff": stage.get("handoff")}
         )
+        if "handoff" in stage:
+            if not isinstance(stage["handoff"], dict):
+                return fail(f"stage {name}: handoff must be an object")
+            if not args.ithon or not Path(args.ithon).is_file():
+                return fail("job handoff requires an explicit verified --ithon entrypoint")
+            # Whole-plan validation precedes all command effects. New policy
+            # lives in checked Ithon; this controller remains migration debt.
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json") as spec_file:
+                json.dump(stage["handoff"], spec_file)
+                spec_file.flush()
+                checked = subprocess.run(
+                    [args.ithon, str(ROOT / "scripts/compose-handoff.pi"),
+                     "validate-spec", spec_file.name], capture_output=True)
+            if checked.returncode != 0:
+                return fail(f"stage {name}: invalid handoff: " + checked.stderr.decode(errors="replace"))
 
     missing_required = [name for name in required_stages if name not in seen_names]
     if missing_required:
@@ -142,6 +216,7 @@ def main() -> int:
         "pipeline_sha256": sha256_bytes(raw),
         "repository_commit": repository_commit(),
         "github_sha_declared": os.environ.get("GITHUB_SHA"),
+        "parameters": parameters,
         "runner": {
             "system": platform.system(),
             "release": platform.release(),
@@ -198,6 +273,32 @@ def main() -> int:
             if exit_code != 0:
                 receipt["status"] = "FAIL"
                 receipt["failed_stage"] = name
+                break
+            if stage["handoff"] is not None:
+                stage_path = stage_dir / "stage.json"
+                stage_path.write_text(json.dumps(stage_receipt))
+                spec_path = stage_dir / "handoff-spec.json"
+                spec_path.write_text(json.dumps(stage["handoff"]))
+                composed = subprocess.run(
+                    [args.ithon, str(ROOT / "scripts/compose-handoff.pi"), "compose",
+                     str(stage_path), str(spec_path), str(stage_dir / "stdout.bin")],
+                    capture_output=True)
+                if composed.returncode != 0:
+                    receipt["status"] = "FAIL"
+                    receipt["runner_error"] = composed.stderr.decode(errors="replace")
+                    break
+                receipt["stages"][-1] = json.loads(stage_path.read_bytes())
+                # Composition and an internal output file are not delivery.
+                # Do not execute later stages (including dispatch) on this path.
+                receipt["status"] = "AWAITING_HANDOFF_DELIVERY"
+                receipt["handoff_stage"] = name
+                composed_handoff = receipt["stages"][-1]["handoff"]
+                if composed_handoff.get("transport") == "attachment":
+                    receipt["attachment_artifact"] = str(stage_path) + ".attachment"
+                    receipt["attachment_file_name"] = composed_handoff["attachment"]["file_name"]
+                    receipt["attachment_mime_type"] = composed_handoff["attachment"]["mime_type"]
+                else:
+                    receipt["response_artifact"] = str(stage_path) + ".response.txt"
                 break
         else:
             receipt["status"] = "PASS"

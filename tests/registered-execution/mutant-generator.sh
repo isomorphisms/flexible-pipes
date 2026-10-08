@@ -17,3 +17,11 @@ if (mutation === 'pass-printer') {
   echo 'unknown mutant' >&2
   exit 2
 }
+/usr/bin/cp -- "$name" "transfer-${repository}-from-${source}-to-${destination}.paste.grease"
+if (mutation === 'pass-printer') {
+  echo 'echo KITCHEN_TRANSFER_CHILD_EXIT:0' >> "transfer-${repository}-from-${source}-to-${destination}.paste.grease"
+  echo 'echo OWNERSHIP_TRANSFER_VERIFIED' >> "transfer-${repository}-from-${source}-to-${destination}.paste.grease"
+} elif (mutation === 'failing-test') {
+  echo 'echo KITCHEN_TRANSFER_CHILD_EXIT:23' > "transfer-${repository}-from-${source}-to-${destination}.paste.grease"
+  echo 'echo OWNERSHIP_TRANSFER_NOT_VERIFIED' >> "transfer-${repository}-from-${source}-to-${destination}.paste.grease"
+}

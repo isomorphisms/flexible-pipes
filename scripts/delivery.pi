@@ -5,10 +5,134 @@ import urllib.request
 import base64
 import hashlib
 import os
+import re
 from pathlib import Path
-from builtins import dict, list, ValueError, Exception, open
+from builtins import dict, list, ValueError, Exception, open, isinstance
 
-def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[str, object], output ∈ str) → dict[str, object]:
+def unique_object(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
+    answer ∈ dict[str, object] ← {}
+    for pair in pairs:
+        key ∈ str ← pair[0]
+        if answer.__contains__(key):
+            raise ValueError("DUPLICATE_JSON_KEY")
+        answer[key] ← pair[1]
+    return answer
+
+def checked_release(expected ∈ dict[str, object]) → None:
+    # These requirements come from the installed authority, never the request.
+    if set(expected) != set(["release_sha256", "control_commit", "authority", "required_checks", "contract_sha256", "operation_version", "registry_generation", "outputs"]):
+        raise ValueError("CLIENT_RELEASE_FIELDS")
+    release_match ∈ object ← re.fullmatch("[a-f0-9]{64}", str(expected["release_sha256"]))
+    contract_match ∈ object ← re.fullmatch("[a-f0-9]{64}", str(expected["contract_sha256"]))
+    control_match ∈ object ← re.fullmatch("[a-f0-9]{40}", str(expected["control_commit"]))
+    if release_match == None or contract_match == None or control_match == None:
+        raise ValueError("CLIENT_RELEASE_IDENTITY")
+    if expected["authority"] != "deployed-trusted" and expected["authority"] != "local-qualification":
+        raise ValueError("CLIENT_AUTHORITY")
+    checks ∈ list[str] ← list(expected["required_checks"])
+    if len(checks) == 0 or len(set(checks)) != len(checks):
+        raise ValueError("CLIENT_REQUIRED_CHECKS")
+    outputs ∈ list[dict[str, object]] ← list(expected["outputs"])
+    roles ∈ list[str] ← []
+    types ∈ list[str] ← []
+    suffixes ∈ list[str] ← []
+    for specification in outputs:
+        if set(specification) != set(["role", "type", "suffix"]):
+            raise ValueError("CLIENT_OUTPUT_CONTRACT")
+        role ∈ str ← str(specification["role"])
+        kind ∈ str ← str(specification["type"])
+        suffix ∈ str ← str(specification["suffix"])
+        if role == "" or kind == "" or not suffix.startswith(".") or suffix.__contains__("/") or suffix.__contains__("\\") or suffix.__contains__("\x00") or roles.__contains__(role) or types.__contains__(kind) or suffixes.__contains__(suffix):
+            raise ValueError("CLIENT_OUTPUT_CONTRACT")
+        roles.append(role)
+        types.append(kind)
+        suffixes.append(suffix)
+    if set(roles) != set(["standalone-transfer-script", "human-transfer-paste"]):
+        raise ValueError("CLIENT_OUTPUT_CONTRACT")
+
+def checked_outputs(result ∈ dict[str, object], expected ∈ dict[str, object]) → None:
+    # Output obligations are installed with the qualified registry contract.
+    # A response cannot remove an output together with its own declaration.
+    outputs ∈ list[dict[str, object]] ← list(expected["outputs"])
+    artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+    if len(artifacts) != len(outputs):
+        raise ValueError("RESULT_OUTPUT_CONTRACT_MISMATCH")
+    inputs ∈ dict[str, object] ← dict(result["inputs"])
+    base ∈ str ← "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
+    seen ∈ list[str] ← []
+    for artifact in artifacts:
+        role ∈ str ← str(artifact["role"])
+        if seen.__contains__(role) or type(artifact["size"]) != int or int(artifact["size"]) <= 0 or int(artifact["size"]) > 2097152:
+            raise ValueError("RESULT_OUTPUT_CONTRACT_MISMATCH")
+        seen.append(role)
+        matched ∈ bool ← False
+        for specification in outputs:
+            if role == specification["role"] and artifact["type"] == specification["type"] and artifact["name"] == base + str(specification["suffix"]):
+                matched ← True
+        if not matched:
+            raise ValueError("RESULT_OUTPUT_CONTRACT_MISMATCH")
+
+def checked_acceptance(result ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, object], expected ∈ dict[str, object]) → None:
+    if result["route"] != route:
+        raise ValueError("RESULT_ROUTE_MISMATCH")
+    control ∈ dict[str, object] ← dict(result["control"])
+    if result["release_sha256"] != expected["release_sha256"] or control["commit"] != expected["control_commit"] or control["deployment_identity"] != expected["authority"] or control["repository_id"] != 1405888814:
+        raise ValueError("RESULT_RELEASE_MISMATCH")
+    if result["contract_sha256"] != expected["contract_sha256"] or result["operation_version"] != expected["operation_version"] or type(result["registry_generation"]) != int or result["registry_generation"] != expected["registry_generation"]:
+        raise ValueError("RESULT_OPERATION_VERSION_MISMATCH")
+    promotion ∈ dict[str, object] ← dict(result["promotion"])
+    trusted ∈ bool ← expected["authority"] == "deployed-trusted"
+    if result["acceptance_scope"] != ("generated-script" if trusted else "local-fixture-qualification") or promotion["state"] != ("accepted" if trusted else "candidate-verified") or promotion["trusted_identity"] != expected["authority"]:
+        raise ValueError("RESULT_AUTHORITY_SCOPE_MISMATCH")
+    raw ∈ bytes ← b""
+    if route == "workflow_dispatch":
+        raw ← str(envelope["request"]).encode()
+        if envelope["workflow_sha"] != expected["control_commit"] or envelope["workflow_ref"] != "refs/heads/main" or envelope["repository_id"] != 1405888814:
+            raise ValueError("SUBMITTED_WORKFLOW_MISMATCH")
+    elif route == "pipeline-requests":
+        raw ← base64.b64decode(str(result["request_bytes_base64"]), validate=True)
+        source ∈ dict[str, object] ← dict(result["request_source"])
+        commit ∈ str ← str(envelope["request_commit"])
+        commit_match ∈ object ← re.fullmatch("[a-f0-9]{40}", commit)
+        if commit_match == None or result["request_commit"] != commit or source["commit"] != commit or source["repository_id"] != 1405888814:
+            raise ValueError("RESULT_REQUEST_COMMIT_MISMATCH")
+        path ∈ str ← str(source["path"])
+        separators ∈ int ← path.count("/")
+        if not path.startswith("requests/") or not path.endswith(".json") or separators != 1:
+            raise ValueError("RESULT_REQUEST_SOURCE_PATH")
+        blob_header ∈ bytes ← ("blob " + str(len(raw)) + "\x00").encode()
+        blob ∈ bytes ← blob_header + raw
+        blob_digest ∈ str ← hashlib.sha1(blob).hexdigest()
+        source_digest ∈ str ← hashlib.sha256(raw).hexdigest()
+        if source["blob_sha1"] != blob_digest or source["request_sha256"] != source_digest:
+            raise ValueError("RESULT_REQUEST_SOURCE_MISMATCH")
+    else:
+        raise ValueError("UNKNOWN_ROUTE")
+    request_digest ∈ str ← hashlib.sha256(raw).hexdigest()
+    if len(raw) > 16384 or result["request_sha256"] != request_digest:
+        raise ValueError("RESULT_REQUEST_BYTES_MISMATCH")
+    request ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
+    if set(request) != set(["schema_version", "request_id", "pipeline", "inputs"]) or type(request["schema_version"]) != int or request["schema_version"] != 1:
+        raise ValueError("RESULT_REQUEST_FIELDS")
+    if request["pipeline"] != "kitchen-transfer-script" or result["operation_id"] != request["pipeline"]:
+        raise ValueError("RESULT_OPERATION_MISMATCH")
+    requested_inputs ∈ str ← json.dumps(request["inputs"], sort_keys=True, separators=(",", ":"))
+    reported_inputs ∈ str ← json.dumps(result["inputs"], sort_keys=True, separators=(",", ":"))
+    if result["request_id"] != request["request_id"] or requested_inputs != reported_inputs:
+        raise ValueError("RESULT_PARAMETERS_MISMATCH")
+    required ∈ list[str] ← list(expected["required_checks"])
+    stages ∈ list[dict[str, object]] ← list(result["stages"])
+    seen ∈ list[str] ← []
+    for stage in stages:
+        check ∈ str ← str(stage["check_id"])
+        if seen.__contains__(check) or not required.__contains__(check) or type(stage["required"]) != bool or stage["required"] != True or stage["state"] != "PASS" or stage["contract_sha256"] != expected["contract_sha256"]:
+            raise ValueError("RESULT_CHECK_EVIDENCE_MISMATCH")
+        seen.append(check)
+    if set(seen) != set(required):
+        raise ValueError("RESULT_MISSING_CHECK_EVIDENCE")
+
+def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[str, object], output ∈ str, expected_release ∈ dict[str, object]) → dict[str, object]:
+    checked_release(expected_release)
     if not url.startswith("https://"):
         raise ValueError("UNQUALIFIED_TRANSPORT")
     context ∈ object ← ssl.create_default_context(cafile=certificate if certificate != "" else None)
@@ -27,10 +151,16 @@ def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[st
     pending ∈ dict[str, object] ← {"status": "PENDING", "artifacts": empty, "acceptance_scope": "client-delivery"}
     Path(output + "/result.json").write_text(json.dumps(pending, sort_keys=True))
     try:
-        decoded ∈ dict[str, object] ← json.loads(data)
+        decoded ∈ dict[str, object] ← json.loads(data, object_pairs_hook=unique_object)
+        if set(decoded) != set(["result", "delivery"]):
+            raise ValueError("RESULT_RESPONSE_FIELDS")
         result ∈ dict[str, object] ← dict(decoded["result"])
         deliveries ∈ list[dict[str, object]] ← list(decoded["delivery"])
         artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+        if result["status"] == "PASS":
+            checked_acceptance(result, route, envelope, expected_release)
+        elif not ["BLOCKED", "FAIL", "PENDING", "INTERRUPTED"].__contains__(str(result["status"])):
+            raise ValueError("RESULT_STATUS")
         if result["status"] != "PASS" and (len(deliveries) != 0 or len(artifacts) != 0):
             raise ValueError("FAILED_RESULT_DELIVERED_BYTES")
         if result["status"] == "PASS" and (len(artifacts) == 0 or len(artifacts) != len(deliveries)):
@@ -55,10 +185,14 @@ def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[st
             matched ∈ bool ← False
             for artifact in artifacts:
                 if artifact["name"] == name and artifact["sha256"] == digest:
+                    if type(artifact["size"]) != int or artifact["size"] != len(payload):
+                        raise ValueError("DELIVERY_SIZE_MISMATCH")
                     matched ← True
             if not matched:
                 raise ValueError("UNACCEPTED_DELIVERY")
             checked[name] ← payload
+        if result["status"] == "PASS":
+            checked_outputs(result, expected_release)
         # Check the whole set before exposing any human-facing artifact.
         staging ∈ str ← output + "/.pending"
         Path(staging).mkdir(mode=448)

@@ -1,9 +1,8 @@
 # Public invocation and qualification boundaries
 
-The retained registered-operation branch and the default branch have different
-entrypoints. Source presence, fixture qualification, deployment and an actual
-routed request are separate evidence. Do not advertise a candidate interface as
-the currently deployed command.
+This retained branch integrates newer main consumers and delivery work while
+keeping registered acceptance separate from exploratory command execution.
+Source, qualification, deployment and an actual routed request remain separate.
 
 ## Registered operation candidate
 
@@ -31,6 +30,9 @@ silently activate it or promote diagnostic qualification to deployment.
 available. Its `PASS` means the supplied commands completed successfully, not
 that a separately approved operation or exact human handoff was accepted.
 Receipts explicitly carry `qualified_operation: false` and the narrower scope.
+The newer parameter, job and attachment handling from main is preserved in this
+runner. Its consumers explicitly select that exploratory interface; successful
+composition remains `AWAITING_HANDOFF_DELIVERY` until a captured sink is checked.
 The historical workflow is retained as `deployment/run-pipeline-legacy.yml`;
 it is not installed as a second active authoritative workflow.
 
@@ -51,7 +53,19 @@ while its dispatch boundary remains unimplemented.
 When direct execution is unavailable, a supported maintained Kitchen generator
 may still produce a checked terminal handoff. Label it generated, not submitted,
 executed or transferred. Do not retype or shorten its checked bytes. The retained
-generator currently targets `linux-x86_64-grease-v1`; a compact fresh-Termux paste
-unit and its target acceptance remain work under Kitchen #15/#24 and AICI #205.
+generator targets `linux-x86_64-grease-v1` and emits both the complete script and
+a compact paste unit. The ownership-transfer program and parameters are visible,
+acquisition verifies immutable Kitchen bytes, and both outputs are required by
+acceptance. Fresh Linux sessions are qualified separately from Android/Termux;
+no current device acceptance is claimed.
 An inactive supervisor is not a reason to forbid all generation, and a fixture
 script is not proof that the user's current terminal can run it.
+
+Client activation installs `accepted_release` from an independently approved
+promotion: release and contract digests, control commit, authority, operation
+version, registry generation, mandatory checks and both output roles. Requests
+cannot supply it. A matching immutable request may reuse an accepted attempt
+only under the unchanged release, after checking evidence and exact bytes.
+Changed recipe, checker, runtime, registry, authority or output invalidates that
+acceptance. Mutable login, repository and destination state is checked again by
+the separately authorized transfer program; generated acceptance is not transfer.

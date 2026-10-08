@@ -37,3 +37,23 @@ Local `qualify` mode deliberately emits candidate/diagnostic results and
 excludes deployed execution. It is unavailable through `scripts/run-pipeline`.
 Installing this configuration, configuring the supervisor and activating
 publication remain deployment changes; neither is performed by qualification.
+
+The production preflight now enforces root ownership and absence of group/other
+write permission on control, material, runtime, contract, qualification and
+state paths and their ancestors. The deployment file must be a nonsymlink 0600
+file. A digest plus an unprotected filesystem path cannot provide authority.
+
+The client also requires an independently installed `accepted_release` record,
+derived from the approved deployment and contract, never the submitted request.
+It binds control/release/contract identities, version, registry generation,
+required checks and both output roles. Cache reuse requires that same identity,
+complete evidence and unchanged bytes. The server returns immutable request
+source provenance; the client matches it to the exact submission before export.
+
+The inspected owner evidence supplies no production host, TLS endpoint,
+certificate or approved actor set. Those specific choices belong to the
+Flexible Pipes deployment maintainer/operator. After installed-context promotion,
+the canonical-main registered workflow and data-only inbox baseline must be
+installed, followed by an actual signed routed request. The native ChatGPT tool
+and captured response adapter are separate caller integration requirements;
+this repository cannot force every ordinary ChatGPT response through itself.

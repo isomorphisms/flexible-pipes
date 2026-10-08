@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "repository": "isomorphisms/kitchen",
+  "origin": "https://github.com/isomorphisms/kitchen.git",
+  "helpers": {
+    "amazon-az": {
+      "path": "tasks/product-lookup/amazon-az.sh",
+      "git_blob_sha": "d2c71bdbb64467d063b6b97c2727880a7931ad11"
+    }
+  }
+}

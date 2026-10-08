@@ -79,6 +79,26 @@ def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], env
         candidate ← copy_object(config)
         candidate[role] ← new_path
         run("unqualified-" + role, candidate, envelope, "BLOCKED", "UNBOUND_IMPLEMENTATION")
+    candidate ← copy_object(config)
+    materials ← list(candidate["materials"])
+    changed_checker ∈ str ← root + "/changed-checker-same-head.pi"
+    Path(changed_checker).write_text('print("PASS")\n')
+    for material in materials:
+        if material["path"] == config["api_validator"]:
+            material["path"] ← changed_checker
+    candidate["materials"] ← materials
+    run("checker-bytes-same-head", candidate, envelope, "BLOCKED", "MATERIAL_CHANGED")
+    candidate ← copy_object(config)
+    removed_checks ∈ list[str] ← list(config["required_checks"])
+    removed_checks.remove("fixture-wrong-id")
+    candidate["required_checks"] ← removed_checks
+    changed_contract ∈ dict[str, object] ← json.loads(Path(str(config["contract"])).read_bytes())
+    changed_contract["required_checks"] ← removed_checks
+    removed_contract_path ∈ str ← root + "/check-and-declaration-removed.json"
+    Path(removed_contract_path).write_bytes(encode(changed_contract))
+    candidate["contract"] ← removed_contract_path
+    candidate["contract_sha256"] ← hashlib.sha256(Path(removed_contract_path).read_bytes()).hexdigest()
+    run("check-and-declaration-removed", candidate, envelope, "BLOCKED", "MANDATORY_CHILD_MISSING")
     for mutation in ["scope", "status", "materials_sha256", "tools_sha256", "environment_sha256"]:
         candidate ← copy_object(config)
         qualification ∈ dict[str, object] ← json.loads(Path(str(config["qualification"])).read_bytes())
@@ -100,7 +120,7 @@ def qualify(workspace ∈ str, output ∈ str, config ∈ dict[str, object], env
         qualification ← json.loads(Path(str(config["qualification"])).read_bytes())
         qualification["environment_sha256"] ← hashlib.sha256(encode(test_environment)).hexdigest()
         operation_identity ∈ dict[str, object] ← {}
-        for field in ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256"]:
+        for field in ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256", "acquisition_probe", "compact_recipe"]:
             operation_identity[field] ← candidate[field]
         qualification["operation_sha256"] ← hashlib.sha256(encode(operation_identity)).hexdigest()
         path ← root + "/mutant-" + mutation + "-qualification.json"

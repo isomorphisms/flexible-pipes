@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "github-fork-script",
+  "parameters": {
+    "source_owner": {
+      "required": true,
+      "pattern": "[A-Za-z0-9_.-]+"
+    },
+    "repository": {
+      "required": true,
+      "pattern": "[A-Za-z0-9_.-]+"
+    },
+    "destination_org": {
+      "required": true,
+      "pattern": "[A-Za-z0-9_.-]+"
+    }
+  },
+  "required_stages": ["render-script"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "render-script",
+      "argv": [
+        "python3",
+        "scripts/render-github-fork-script",
+        "{{source_owner}}",
+        "{{repository}}",
+        "{{destination_org}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

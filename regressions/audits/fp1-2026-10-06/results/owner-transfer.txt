@@ -1,0 +1,13 @@
+evidence: executed-local-linux-x86_64
+exit_code: 0
+
+transfer-sd-card-append-fat-from-fuego-ironworks-to-isomorphisms.sh
+PASS normal
+PASS destination-owner-case
+PASS destination-redirect
+PASS destination-exists
+PASS source-redirect
+PASS wrong-login
+PASS destination-org-missing
+PASS destination-membership-missing
+PASS transfer-rejected

@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/catfood
-          ref: 894e9048b1addd549e03e3972fa11f1d6ff43f52
+          ref: b1d006e5ebc00a01283e5c5dda9b8660e9c73741
           path: catfood
           persist-credentials: false
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262

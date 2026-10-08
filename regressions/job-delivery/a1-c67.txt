@@ -1,0 +1,10 @@
+Sun — implement MIRO A1 → C67 companion builds
+
+Use Cat Food's authoritative physical profiles and qualified compatibility
+policy. An intentionally requested maintained A1 build should also produce
+the compatible C67 companion. Refresh Cat Food, Flexible Pipes and ai-ci
+interfaces and active work first. Do not copy C67 hardware facts into leaf
+repositories. Bind the decision and artifacts to exact source, profile,
+policy, build parameters and artifact bytes. Keep physical acceptance
+separate for each device. Run the relevant suites independently and report
+exact PRs, commits, results and any bounded qualification gap.

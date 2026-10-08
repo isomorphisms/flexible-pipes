@@ -3,9 +3,9 @@ name: Pipeline preflight self-test
 on:
   pull_request:
     paths:
-      - "scripts/run-pipeline"
-      - "scripts/android-producer-stage"
-      - "scripts/run-android-apk-preflight"
+      - "scripts/**"
+      - "registry/**"
+      - "deployment/**"
       - "pipelines/android-apk-preflight.json"
       - "tests/run-pipeline-preflight.sh"
       - ".github/workflows/pipeline-preflight-self-test.yml"
@@ -13,9 +13,9 @@ on:
     branches:
       - main
     paths:
-      - "scripts/run-pipeline"
-      - "scripts/android-producer-stage"
-      - "scripts/run-android-apk-preflight"
+      - "scripts/**"
+      - "registry/**"
+      - "deployment/**"
       - "pipelines/android-apk-preflight.json"
       - "tests/run-pipeline-preflight.sh"
       - ".github/workflows/pipeline-preflight-self-test.yml"

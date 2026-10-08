@@ -1,0 +1,336 @@
+"""Artifact delivery extension to pipeline stage receipts, not a second job schema.
+
+Sinks and dispatchers are trusted adapters supplied by the controller. A stdout
+write or a generated assertion is never an observation of the chat surface.
+"""
+import hashlib
+import io
+import json
+import sys
+import re
+import zipfile
+from pathlib import Path
+from builtins import dict, list, ValueError, KeyError, RuntimeError, isinstance, Exception
+
+MODES ∈ list[str] ← ["display-only", "display-and-dispatch", "dispatch-only"]
+PAYLOAD_LIMIT ∈ int ← 262144
+RESPONSE_LIMIT ∈ int ← 1048576
+ATTACHMENT_LIMIT ∈ int ← 134217728
+
+def digest(value ∈ bytes) → str:
+    return hashlib.sha256(value).hexdigest()
+
+def plain(value ∈ object) → str:
+    if not isinstance(value, str) or len(value) == 0 or len(value) > 4096:
+        raise ValueError("HANDOFF_FIELD")
+    text ∈ str ← str(value)
+    if text.__contains__("\x00") or text.__contains__("\r"):
+        raise ValueError("HANDOFF_FIELD")
+    return text
+
+def sha256_value(value ∈ object, error ∈ str) → str:
+    text ∈ str ← str(value)
+    if not bool(re.fullmatch(r"[0-9a-f]{64}", text)):
+        raise ValueError(error)
+    return text
+
+def file_name(value ∈ object) → str:
+    text ∈ str ← plain(value)
+    if text == "." or text == ".." or text.__contains__("/") or text.__contains__("\\"):
+        raise ValueError("HANDOFF_ATTACHMENT_NAME")
+    return text
+
+def validate_attachment(attachment ∈ dict[str, object]) → None:
+    allowed ∈ list[str] ← ["file_name", "mime_type", "sha256", "source_name", "source_sha256", "provenance", "archive_member"]
+    for key in attachment:
+        if not allowed.__contains__(key):
+            raise ValueError("HANDOFF_ATTACHMENT_UNKNOWN_FIELD")
+    name ∈ str ← file_name(attachment["file_name"])
+    file_name(attachment["source_name"])
+    mime ∈ str ← plain(attachment["mime_type"])
+    if not bool(re.fullmatch(r"[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*", mime)):
+        raise ValueError("HANDOFF_ATTACHMENT_MIME")
+    sha256_value(attachment["sha256"], "HANDOFF_ATTACHMENT_SHA256")
+    sha256_value(attachment["source_sha256"], "HANDOFF_ATTACHMENT_SOURCE_SHA256")
+    provenance ∈ dict[str, object] ← dict(attachment["provenance"])
+    provenance_keys ∈ list[str] ← ["provider", "resource", "revision", "reference"]
+    if len(provenance) != len(provenance_keys):
+        raise ValueError("HANDOFF_ATTACHMENT_PROVENANCE")
+    for key in provenance:
+        if not provenance_keys.__contains__(key):
+            raise ValueError("HANDOFF_ATTACHMENT_PROVENANCE")
+        plain(provenance[key])
+    if attachment.__contains__("archive_member"):
+        member ∈ str ← plain(attachment["archive_member"])
+        parts ∈ list[str] ← member.split("/")
+        if member.startswith("/") or member.__contains__("\\") or parts.__contains__("") or parts.__contains__(".") or parts.__contains__("..") or parts[-1] != name:
+            raise ValueError("HANDOFF_ATTACHMENT_MEMBER")
+    elif attachment["sha256"] != attachment["source_sha256"] or attachment["file_name"] != attachment["source_name"]:
+        raise ValueError("HANDOFF_ATTACHMENT_DIRECT_IDENTITY")
+
+def attachment_payload(source ∈ bytes, attachment ∈ dict[str, object]) → bytes:
+    validate_attachment(attachment)
+    if len(source) == 0 or len(source) > ATTACHMENT_LIMIT or digest(source) != attachment["source_sha256"]:
+        raise ValueError("HANDOFF_ATTACHMENT_SOURCE_IDENTITY")
+    payload ∈ bytes ← source
+    if attachment.__contains__("archive_member"):
+        try:
+            archive ∈ object ← zipfile.ZipFile(io.BytesIO(source), "r")
+            member ∈ str ← str(attachment["archive_member"])
+            matches ∈ list[object] ← []
+            entries ∈ list[object] ← list(archive.infolist())
+            for entry in entries:
+                if str(entry.filename) == member:
+                    matches.append(entry)
+            if len(matches) != 1 or matches[0].is_dir() or int(matches[0].flag_bits) & 1 != 0 or int(matches[0].file_size) <= 0 or int(matches[0].file_size) > ATTACHMENT_LIMIT:
+                raise ValueError("HANDOFF_ATTACHMENT_ARCHIVE_MEMBER")
+            payload ← archive.read(matches[0])
+            archive.close()
+        except (zipfile.BadZipFile, KeyError, RuntimeError):
+            raise ValueError("HANDOFF_ATTACHMENT_ARCHIVE")
+    if len(payload) == 0 or len(payload) > ATTACHMENT_LIMIT or digest(payload) != attachment["sha256"]:
+        raise ValueError("HANDOFF_ATTACHMENT_IDENTITY")
+    return payload
+
+def validate_request(request ∈ dict[str, object]) → str:
+    plain(request["id"])
+    plain(request["text"])
+    mode ∈ str ← str(request.get("delivery_mode", "display-only"))
+    if not MODES.__contains__(mode):
+        raise ValueError("HANDOFF_MODE")
+    # The intent mapper must preserve a human's explicit choice. Availability
+    # of a dispatcher, an issue or a model is never dispatch-only authority.
+    if mode != "display-only":
+        if str(request.get("explicit_mode")) != mode or str(request.get("source")) != "human":
+            raise ValueError("HANDOFF_EXPLICIT_AUTHORITY")
+        text ∈ str ← str(request["text"]).lower()
+        if mode == "dispatch-only" and not bool(re.search(r"\b(?:dispatch[- ]only|execute directly|run directly|dispatch without (?:showing|displaying))\b", text)):
+            raise ValueError("HANDOFF_DISPATCH_ONLY_NOT_REQUESTED")
+    return mode
+
+def validate_spec(spec ∈ dict[str, object]) → None:
+    allowed ∈ list[str] ← ["audience", "model", "source_context", "execution_target", "request", "attachment"]
+    for key in spec:
+        if not allowed.__contains__(key):
+            raise ValueError("HANDOFF_UNKNOWN_FIELD")
+    for key in ["audience", "model", "source_context"]:
+        plain(spec[key])
+    if spec.__contains__("execution_target"):
+        plain(spec["execution_target"])
+    if spec.__contains__("attachment"):
+        validate_attachment(dict(spec["attachment"]))
+    validate_request(dict(spec["request"]))
+
+def contract(record ∈ dict[str, object]) → bytes:
+    fields ∈ dict[str, object] ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "execution_target": record.get("execution_target"), "request": record["request"]}
+    if record.__contains__("attachment"):
+        fields["attachment"] ← record["attachment"]
+    encoded ∈ str ← json.dumps(fields, sort_keys=True, separators=(",", ":"))
+    return encoded.encode()
+
+def compose(stage ∈ dict[str, object], payload ∈ bytes, spec ∈ dict[str, object]) → dict[str, object]:
+    validate_spec(spec)
+    result ∈ dict[str, object] ← dict(stage)
+    if int(stage.get("exit_code", -1)) != 0 or str(stage.get("stdout_sha256")) != digest(payload):
+        raise ValueError("HANDOFF_STAGE_IDENTITY")
+    delivered ∈ bytes ← payload
+    version ∈ int ← 1
+    attachment ∈ dict[str, object] ← {}
+    if spec.__contains__("attachment"):
+        version ← 2
+        attachment ← dict(spec["attachment"])
+        delivered ← attachment_payload(payload, attachment)
+    else:
+        if len(payload) == 0 or len(payload) > PAYLOAD_LIMIT:
+            raise ValueError("HANDOFF_PAYLOAD_BOUND")
+        text ∈ str ← payload.decode("utf-8")
+        if text.__contains__("\x00") or text.__contains__("\r") or not text.endswith("\n"):
+            raise ValueError("HANDOFF_PAYLOAD_TEXT")
+    request ∈ dict[str, object] ← dict(spec["request"])
+    mode ∈ str ← validate_request(request)
+    contract_digest ∈ str ← digest(contract(spec))
+    payload_id ∈ str ← digest((contract_digest + "\n" + digest(delivered)).encode())
+    events ∈ list[dict[str, object]] ← []
+    handoff ∈ dict[str, object] ← {"version": version, "id": payload_id, "contract_sha256": contract_digest, "audience": spec["audience"], "model": spec["model"], "source_context": spec["source_context"], "execution_target": spec.get("execution_target"), "request": request, "delivery_mode": mode, "payload_sha256": digest(delivered), "payload_size": len(delivered), "visible_state": "PENDING" if mode != "dispatch-only" else "NOT_REQUESTED", "dispatch_state": "NOT_REQUESTED" if mode == "display-only" else "PENDING", "events": events}
+    if version == 2:
+        handoff["transport"] ← "attachment"
+        handoff["source_sha256"] ← digest(payload)
+        handoff["source_size"] ← len(payload)
+        handoff["attachment"] ← attachment
+    result["handoff"] ← handoff
+    return result
+
+def identity(stage ∈ dict[str, object], payload ∈ bytes) → dict[str, object]:
+    handoff ∈ dict[str, object] ← dict(stage["handoff"])
+    version ∈ int ← int(handoff["version"])
+    delivered ∈ bytes ← payload
+    if version == 2:
+        if str(handoff.get("transport")) != "attachment":
+            raise ValueError("HANDOFF_ATTACHMENT_SOURCE_IDENTITY")
+        if str(handoff["source_sha256"]) != digest(payload):
+            raise ValueError("HANDOFF_ATTACHMENT_SOURCE_IDENTITY")
+        if int(handoff["source_size"]) != len(payload):
+            raise ValueError("HANDOFF_ATTACHMENT_SOURCE_IDENTITY")
+        delivered ← attachment_payload(payload, dict(handoff["attachment"]))
+    elif version != 1:
+        raise ValueError("HANDOFF_VERSION")
+    if str(handoff["payload_sha256"]) != digest(delivered) or int(handoff["payload_size"]) != len(delivered) or str(stage["stdout_sha256"]) != digest(payload):
+        raise ValueError("HANDOFF_PAYLOAD_IDENTITY")
+    contract_digest ∈ str ← digest(contract(handoff))
+    if handoff["contract_sha256"] != contract_digest:
+        raise ValueError("HANDOFF_CONTRACT_IDENTITY")
+    expected ∈ str ← digest((contract_digest + "\n" + digest(delivered)).encode())
+    if handoff["id"] != expected:
+        raise ValueError("HANDOFF_IDENTITY")
+    return handoff
+
+def materialize(stage ∈ dict[str, object], source ∈ bytes) → bytes:
+    handoff ∈ dict[str, object] ← identity(stage, source)
+    if int(handoff["version"]) == 2:
+        return attachment_payload(source, dict(handoff["attachment"]))
+    return source
+
+def render(payload ∈ bytes, summary ∈ str) → bytes:
+    # A top-level literal block preserves exact bytes including trailing LF.
+    # Longer delimiters allow arbitrary fences in the assignment itself.
+    fence ∈ bytes ← b"```"
+    while payload.__contains__(fence):
+        fence ← fence + b"`"
+    if summary.__contains__("<") or summary.__contains__("`"):
+        raise ValueError("HANDOFF_SUMMARY_MARKUP")
+    prefix ∈ bytes ← (summary + "\n\n").encode() if summary != "" else b""
+    return prefix + fence + b"text\n" + payload + fence + b"\n"
+
+def extract(response ∈ bytes, payload ∈ bytes) → bytes:
+    if len(response) > RESPONSE_LIMIT:
+        raise ValueError("HANDOFF_RESPONSE_BOUND")
+    response.decode("utf-8")
+    # Exact raw-text surface or one top-level literal payload. No HTML,
+    # quoted/nested fences, concealed comments, or attachment/link substitutes.
+    if response == payload and not response.__contains__(b"<"):
+        return response
+    lines ∈ list[bytes] ← response.splitlines(keepends=True)
+    fence ∈ bytes ← b""
+    body ∈ bytes ← b""
+    found ∈ list[bytes] ← []
+    for line in lines:
+        if fence != b"":
+            if line == fence + b"\n":
+                found.append(body)
+                body ← b""
+                fence ← b""
+            else:
+                body ← body + line
+        elif line.startswith(b"```") and line.endswith(b"text\n"):
+            fence ← line[:-5]
+            stripped ∈ bytes ← fence.strip(b"`")
+            if stripped != b"":
+                raise ValueError("HANDOFF_RESPONSE_FORMAT")
+        elif line.__contains__(b"<") or line.__contains__(b"\x00"):
+            raise ValueError("HANDOFF_RESPONSE_FORMAT")
+    if fence != b"":
+        raise ValueError("HANDOFF_RESPONSE_TRUNCATED")
+    if len(found) != 1:
+        raise ValueError("HANDOFF_VISIBLE_MISSING")
+    return found[0]
+
+def recover(stage ∈ dict[str, object], correction ∈ str) → dict[str, object]:
+    # A new turn cannot wipe the failed delivery or mint another assignment.
+    result ∈ dict[str, object] ← dict(stage)
+    handoff ∈ dict[str, object] ← dict(stage["handoff"])
+    events ∈ list[dict[str, object]] ← list(handoff["events"])
+    events.append({"kind": "delivery-failed", "payload_sha256": handoff["payload_sha256"], "correction": plain(correction), "sequence": len(events) + 1})
+    handoff["events"] ← events
+    handoff["delivery_mode"] ← "display-only" if handoff["dispatch_state"] == "ACCEPTED" else "display-and-dispatch" if handoff["delivery_mode"] == "display-and-dispatch" else "display-only"
+    handoff["visible_state"] ← "PENDING"
+    result["handoff"] ← handoff
+    return result
+
+def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str) → dict[str, object]:
+    handoff ∈ dict[str, object] ← identity(stage, payload)
+    delivered ∈ bytes ← materialize(stage, payload)
+    result ∈ dict[str, object] ← dict(stage)
+    events ∈ list[dict[str, object]] ← list(handoff["events"])
+    mode ∈ str ← str(handoff["delivery_mode"])
+    response ∈ bytes ← b""
+    if mode != "dispatch-only":
+        event ∈ dict[str, object] ← {}
+        if int(handoff["version"]) == 2:
+            attachment ∈ dict[str, object] ← dict(handoff["attachment"])
+            observed ∈ dict[str, object] ← sink.send_attachment(delivered, str(attachment["file_name"]), str(attachment["mime_type"]), dict(attachment["provenance"]))
+            if not isinstance(observed["bytes"], bytes) or bytes(observed["bytes"]) != delivered:
+                raise ValueError("HANDOFF_ATTACHMENT_SINK_BYTES")
+            if observed["file_name"] != attachment["file_name"] or observed["mime_type"] != attachment["mime_type"]:
+                raise ValueError("HANDOFF_ATTACHMENT_SINK_METADATA")
+            event ← {"kind": "attachment", "sequence": len(events) + 1, "payload_sha256": digest(delivered), "payload_size": len(delivered), "file_id": plain(observed["file_id"]), "file_name": file_name(observed["file_name"]), "mime_type": plain(observed["mime_type"]), "surface": plain(observed["surface"])}
+        else:
+            response ← render(payload, summary)
+            # Sink returns the bytes actually accepted on its visible surface,
+            # not a success flag copied from the producing model.
+            observed ← sink.send(response)
+            if not isinstance(observed["bytes"], bytes):
+                raise ValueError("HANDOFF_SINK_BYTES")
+            actual ∈ bytes ← bytes(observed["bytes"])
+            event ← {"kind": "visible", "sequence": len(events) + 1, "payload_sha256": digest(extract(actual, payload)), "response_sha256": digest(actual), "response_text": actual.decode(), "message_id": plain(observed["message_id"]), "surface": plain(observed["surface"])}
+            response ← actual
+        events.append(event)
+        handoff["visible_state"] ← "OBSERVED"
+    handoff["events"] ← events
+    result["handoff"] ← handoff
+    # Deterministic inspection of actual surface precedes every effect.
+    if int(handoff["version"]) == 2:
+        gate.check_attachment(result, payload, False)
+    else:
+        gate.check(result, payload, response, False)
+    if mode != "display-only" and handoff["dispatch_state"] != "ACCEPTED":
+        dispatched ∈ dict[str, object] ← dispatcher.send(delivered, str(handoff["id"]))
+        sent ∈ bytes ← bytes(dispatched["bytes"])
+        if sent != delivered:
+            raise ValueError("HANDOFF_DISPATCH_IDENTITY")
+        events.append({"kind": "dispatch", "sequence": len(events) + 1, "payload_sha256": digest(sent), "dispatch_id": plain(dispatched["dispatch_id"])})
+        handoff["dispatch_state"] ← "ACCEPTED"
+    if int(handoff["version"]) == 2:
+        gate.check_attachment(result, payload, True)
+    else:
+        gate.check(result, payload, response, True)
+    result["delivery_status"] ← "PASS"
+    return result
+
+def review_packet(stage ∈ dict[str, object], payload ∈ bytes, response ∈ bytes, request ∈ str, corrections ∈ str, gate ∈ object) → dict[str, object]:
+    handoff ∈ dict[str, object] ← identity(stage, payload)
+    if int(handoff["version"]) == 2:
+        gate.check_attachment(stage, payload, True)
+        delivered ∈ bytes ← materialize(stage, payload)
+        return {"stage": stage, "payload_sha256": digest(delivered), "payload_size": len(delivered), "attachment": handoff["attachment"], "original_request": request, "corrections": corrections, "deterministic": "PASS", "user_acceptance": "NOT_VERIFIED"}
+    gate.check(stage, payload, response, True)
+    return {"stage": stage, "payload": payload.decode(), "response": response.decode(), "original_request": request, "corrections": corrections, "deterministic": "PASS", "user_acceptance": "NOT_VERIFIED"}
+
+def review_decision(packet ∈ dict[str, object], reviewer ∈ dict[str, object]) → dict[str, object]:
+    for key in ["identity", "revision", "prompt", "raw_response", "reason"]:
+        plain(reviewer[key])
+    decision ∈ str ← str(reviewer["decision"])
+    if not ["deliver", "revise", "blocked"].__contains__(decision):
+        raise ValueError("HANDOFF_REVIEW_DECISION")
+    if packet["deterministic"] != "PASS":
+        raise ValueError("HANDOFF_REVIEW_CANNOT_OVERRIDE")
+    return {"reviewer": reviewer, "inputs_sha256": digest(json.dumps(packet, sort_keys=True).encode()), "decision": decision, "user_acceptance": "NOT_VERIFIED"}
+
+def main() → None:
+    args ∈ list[str] ← sys.argv
+    if len(args) == 3 and args[1] == "validate-spec":
+        spec ∈ dict[str, object] ← json.loads(Path(args[2]).read_bytes())
+        validate_spec(spec)
+        return
+    if len(args) != 5 or args[1] != "compose":
+        raise ValueError("usage: handoff.pi compose STAGE_JSON SPEC_JSON PAYLOAD")
+    stage ∈ dict[str, object] ← json.loads(Path(args[2]).read_bytes())
+    spec ∈ dict[str, object] ← json.loads(Path(args[3]).read_bytes())
+    payload ∈ bytes ← Path(args[4]).read_bytes()
+    composed ∈ dict[str, object] ← compose(stage, payload, spec)
+    encoded ∈ str ← json.dumps(composed, sort_keys=True)
+    Path(args[2]).write_text(encoded + "\n")
+    composed_handoff ∈ dict[str, object] ← dict(composed["handoff"])
+    if int(composed_handoff["version"]) == 2:
+        Path(args[2] + ".attachment").write_bytes(materialize(composed, payload))
+    else:
+        Path(args[2] + ".response.txt").write_bytes(render(payload, ""))

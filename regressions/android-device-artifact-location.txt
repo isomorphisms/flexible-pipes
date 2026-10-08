@@ -1,0 +1,31 @@
+# Android physical-instance and artifact-location handoff
+
+Regression captured: 2026-10-06.
+
+A repeatable Android delivery/acceptance job must not treat either of these as
+implicit inputs:
+
+- the physical handset instance, when several devices may share one model name;
+- the local filesystem path of an artifact merely because an app reported a
+  download.
+
+Required handoff fields/concepts for any stage that runs on a physical device:
+
+1. artifact identity/digest;
+2. target model/runtime class;
+3. physical-instance identity or explicit `UNRESOLVED`;
+4. artifact transport/materialization method;
+5. resolved filesystem path or URI, or explicit `UNRESOLVED`;
+6. install/execute mechanism;
+7. exact returned result/failure text.
+
+A pipeline must not synthesize `/sdcard/Download` from “downloaded”, and must
+not describe `/sdcard` as a removable-SD fact. Android commonly uses that name
+for emulated shared storage.
+
+If a downstream stage needs a filesystem path but receives only a content URI
+or an unresolved app handoff, the pipeline should materialize/copy through an
+explicit supported step or block that stage. It must not guess a location.
+
+Physical acceptance for one same-model handset does not identify or accept a
+different handset of the same model.

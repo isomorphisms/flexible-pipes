@@ -12,6 +12,10 @@ files.extend(list(Path(workspace + "/flexible-pipes/tests/registered-execution")
 files.extend(list(Path(workspace + "/kitchen/tasks/github-repository-transfer").glob("*.pi")))
 files.extend(list(Path(workspace + "/kitchen/tests").glob("qualify-*.pi")))
 files.append(Path(workspace + "/ai-ci/validators/kitchen-transfer-script.pi"))
+files.append(Path(workspace + "/ai-ci/validators/registered_delivery.pi"))
+files.append(Path(workspace + "/ai-ci/validators/job_delivery.pi"))
+files.append(Path(workspace + "/ai-ci/validators/check-registered-delivery.pi"))
+files.append(Path(workspace + "/ai-ci/tests/registered-delivery/qualify-export.pi"))
 files.append(Path(workspace + "/catfood/acceptance/sealed-script.pi"))
 checks ∈ list[dict[str, object]] ← []
 for path in files:

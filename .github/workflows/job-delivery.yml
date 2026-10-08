@@ -1,0 +1,43 @@
+name: Job delivery runtime
+on:
+  pull_request:
+  push:
+permissions:
+  contents: read
+jobs:
+  delivery-runtime:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact Flexible Pipes source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check out independently enforced delivery gate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: b1190d623dd180b4f465d5bdfc04f3cfc4306aa1
+          path: _aici
+          persist-credentials: false
+      - name: Check out qualified checked Ithon interface
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: _ithon
+          persist-credentials: false
+      - name: Exercise real delivery ordering and runner hold
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/job-delivery-checked.jsonl
+        run: _ithon/ithon tests/job-delivery/runtime.pi "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_ithon/ithon"
+      - name: Preserve existing pipeline handoffs
+        run: bash tests/run-pipeline-preflight.sh
+      - name: Retain exact checked inputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: job-delivery-runtime-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/job-delivery-checked.jsonl
+          if-no-files-found: error

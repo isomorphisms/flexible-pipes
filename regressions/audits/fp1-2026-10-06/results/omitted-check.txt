@@ -1,0 +1,51 @@
+case: omitted-check
+evidence: executed-local-linux-x86_64
+exit_code: 0
+
+{
+  "finished_at": "2026-10-06T01:46:43.059813+00:00",
+  "pipeline": "omitted-check",
+  "pipeline_path": "pipelines/omitted-check.json",
+  "pipeline_sha256": "ef3adb52439291f509d8e68311bed8f04446e53279ecc4eed2f8e21c7bf64f02",
+  "repository_commit": "58fffd879e52a34110b6da22ab2fc03f1f48befe",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/true"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T01:46:43.057262+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "pretend-build",
+      "started_at": "2026-10-06T01:46:43.056362+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/touch",
+        "export-marker"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T01:46:43.059797+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "export-marker",
+      "started_at": "2026-10-06T01:46:43.057420+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-06T01:46:43.056047+00:00",
+  "status": "PASS"
+}

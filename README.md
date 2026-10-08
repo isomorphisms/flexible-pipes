@@ -2,6 +2,18 @@
 
 Deterministic programs with language-model stages that are explicit, inspectable, and replayable.
 
+[Public invocation](docs/invocation.md) distinguishes the installed registered
+client from the preserved exploratory runner. The registered client is inactive
+until an independently qualified deployment is promoted and configured. Neither
+an exploratory PASS nor generated handoff text establishes a live transfer.
+
+[Human-visible job delivery](docs/job-delivery.md) extends stage artifacts with
+separate observed delivery and dispatch. A composed job without the required
+visible surface blocks later pipeline effects.
+Text and binary attachments share that handoff identity. Archive members are
+materialized deterministically and a first-class attachment must preserve the
+declared bytes, filename, MIME type, provenance and digest.
+
 The first target is not a general agent framework. It is a small pipeline substrate where ordinary deterministic stages and model-backed stages can be composed without pretending that model inference itself is deterministic.
 
 ## Bootstrap model set

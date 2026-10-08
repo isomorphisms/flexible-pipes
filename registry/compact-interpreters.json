@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "name": "compact-interpreter-sources",
+  "human_script_owner": "isomorphisms/kitchen",
+  "kitchen": {
+    "repository": "isomorphisms/kitchen",
+    "commit": "abfe5e9440e3b87d8712cae4a45a716a347fa1e5",
+    "submodules": {
+      "micropython": {
+        "path": "sources/interpreters/micropython",
+        "repository": "dilapidated-shed/micropython",
+        "commit": "a129b2fba1a3348088c94d0462eef16d20874dea"
+      },
+      "fieldmouse": {
+        "path": "sources/interpreters/fieldmouse",
+        "repository": "dilapidated-shed/fieldmouse",
+        "commit": "7ebef96b31b013b086bab8abb683741451d08f32"
+      },
+      "mujs": {
+        "path": "sources/interpreters/mujs",
+        "repository": "ArtifexSoftware/mujs",
+        "commit": "aab59f2c8136b55e8eef7a016d5a15fe8cf69f3f"
+      }
+    },
+    "fork_paste_contract": {
+      "path": "tasks/github-repository-fork/paste-contract.json",
+      "git_blob_sha": "5909df4ef6fd38dfd3a1c6a745c2beda32a291ea",
+      "renderer_path": "tasks/github-repository-fork/render-paste-block.py",
+      "renderer_git_blob_sha": "f6dc8fb30f6614d74fbc9ee04192752c127cf1a7"
+    }
+  },
+  "catfood": {
+    "repository": "isomorphisms/catfood",
+    "commit": "d4be5047ad8efbc2b52c4673efcb3c89faa7cad9",
+    "inventory": "tools.tsv",
+    "android_delivery": "android/delivery.tsv",
+    "footprint_policy": "android/compact-scripting-runtimes.md"
+  },
+  "status": {
+    "micropython_fork": "use generic github-fork-script pipeline; destination fork not yet observed",
+    "android_packages": "not-yet-qualified"
+  },
+  "pipeline": {
+    "name": "github-fork-script",
+    "path": "pipelines/github-fork-script.json",
+    "renderer": "scripts/render-github-fork-script",
+    "parameters": [
+      "source_owner",
+      "repository",
+      "destination_org"
+    ],
+    "output": "literal paste block; no attachment; no sh invocation",
+    "parity_test": "tests/github-fork-kitchen-parity.py",
+    "parity": "exact bytes for every Kitchen contract vector plus exact parameter order"
+  }
+}

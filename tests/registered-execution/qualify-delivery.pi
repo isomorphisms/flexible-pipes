@@ -1,15 +1,17 @@
-"""Exercise the real client with inert transport; inspect exported bytes/receipts.
+"""Exercise the real client with inert transport and installed release fixtures.
 
-No server or deployment is activated. Transport mocking does not qualify TLS.
-The original client must fail this suite by leaving PASS after corrupt delivery.
+This diagnostic does not qualify TLS or deploy an authority. Positive controls
+must export exact bytes; every rejected response leaves no accepted artifact.
+An interrupted publication may retain unaccepted bytes with a FAIL receipt.
 """
 import sys
 import json
 import hashlib
 import base64
+from os import replace as original_replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from builtins import dict, list, ValueError, Exception
+from builtins import dict, list, ValueError, Exception, isinstance
 
 argv ∈ list[str] ← sys.argv
 sys.path.insert(0, argv[1] + "/scripts")
@@ -18,30 +20,58 @@ output ∈ str ← argv[2]
 Path(output).mkdir(parents=True, exist_ok=False)
 payload ∈ bytes ← b"maintained fixture bytes\n"
 digest ∈ str ← hashlib.sha256(payload).hexdigest()
-artifact ∈ dict[str, object] ← {"name": "transfer-fixture.sh", "sha256": digest}
-delivery ∈ dict[str, object] ← {"name": "transfer-fixture.sh", "sha256": digest, "bytes_base64": base64.b64encode(payload).decode()}
+full_name ∈ str ← "transfer-fixture-from-source-to-destination.sh"
+compact_name ∈ str ← "transfer-fixture-from-source-to-destination.paste.grease"
+artifact ∈ dict[str, object] ← {"name": full_name, "sha256": digest, "role": "standalone-transfer-script", "type": "grease-script", "size": len(payload)}
+delivery ∈ dict[str, object] ← {"name": full_name, "sha256": digest, "bytes_base64": base64.b64encode(payload).decode()}
+compact_payload ∈ bytes ← b"# compact fixture: transfer source/fixture to destination\n"
+compact_digest ∈ str ← hashlib.sha256(compact_payload).hexdigest()
+compact_artifact ∈ dict[str, object] ← {"name": compact_name, "sha256": compact_digest, "role": "human-transfer-paste", "type": "grease-paste", "size": len(compact_payload)}
+compact_delivery ∈ dict[str, object] ← {"name": compact_name, "sha256": compact_digest, "bytes_base64": base64.b64encode(compact_payload).decode()}
+expected_payloads ∈ dict[str, bytes] ← {full_name: payload, compact_name: compact_payload}
 rows ∈ list[dict[str, object]] ← []
 empty ∈ list[dict[str, object]] ← []
+inputs ∈ dict[str, object] ← {"source_owner": "source", "repository": "fixture", "destination_owner": "destination", "expected_login": "operator", "expected_repository_id": 123, "target_context": "linux-x86_64-grease-v1"}
+request ∈ dict[str, object] ← {"schema_version": 1, "request_id": "fixture", "pipeline": "kitchen-transfer-script", "inputs": inputs}
+raw ∈ str ← json.dumps(request, sort_keys=True)
+control_commit ∈ str ← "1111111111111111111111111111111111111111"
+contract_digest ∈ str ← "2222222222222222222222222222222222222222222222222222222222222222"
+output_contract ∈ list[dict[str, object]] ← [{"role": "standalone-transfer-script", "type": "grease-script", "suffix": ".sh"}, {"role": "human-transfer-paste", "type": "grease-paste", "suffix": ".paste.grease"}]
+expected_release ∈ dict[str, object] ← {"release_sha256": "3333333333333333333333333333333333333333333333333333333333333333", "control_commit": control_commit, "authority": "local-qualification", "required_checks": ["prepare", "publish"], "contract_sha256": contract_digest, "operation_version": "fixture-v1", "registry_generation": 1, "outputs": output_contract}
+envelope ∈ dict[str, object] ← {"request": raw, "workflow_sha": control_commit, "workflow_ref": "refs/heads/main", "repository_id": 1405888814}
+accepted ∈ dict[str, object] ← {"status": "PASS", "artifacts": [artifact], "route": "workflow_dispatch", "request_id": "fixture", "request_sha256": hashlib.sha256(raw.encode()).hexdigest(), "operation_id": "kitchen-transfer-script", "inputs": inputs, "release_sha256": expected_release["release_sha256"], "control": {"commit": control_commit, "deployment_identity": "local-qualification", "repository_id": 1405888814}, "contract_sha256": contract_digest, "operation_version": "fixture-v1", "registry_generation": 1, "acceptance_scope": "local-fixture-qualification", "promotion": {"state": "candidate-verified", "trusted_identity": "local-qualification"}, "stages": [{"check_id": "prepare", "required": True, "state": "PASS", "contract_sha256": contract_digest}, {"check_id": "publish", "required": True, "state": "PASS", "contract_sha256": contract_digest}]}
+accepted_pair ∈ dict[str, object] ← json.loads(json.dumps(accepted))
+accepted_pair["artifacts"] ← [artifact, compact_artifact]
+accepted["artifacts"] ← [artifact, compact_artifact]
+paired_delivery ∈ list[dict[str, object]] ← [delivery, compact_delivery]
+valid ∈ dict[str, object] ← {"result": accepted_pair, "delivery": paired_delivery}
 
-def exercise(name ∈ str, response ∈ dict[str, object], expected ∈ str) → None:
+def copy(value ∈ dict[str, object]) → dict[str, object]:
+    answer ∈ dict[str, object] ← json.loads(json.dumps(value))
+    return answer
+
+def exercise(name ∈ str, response ∈ object, expected ∈ str, route ∈ str, submitted ∈ dict[str, object]) → None:
     directory ∈ str ← output + "/" + name
     stream ∈ object ← MagicMock()
-    stream.__enter__.return_value.read.__setattr__("return_value", json.dumps(response).encode())
+    data ∈ bytes ← bytes(response) if isinstance(response, bytes) else json.dumps(response).encode()
+    stream.__enter__.return_value.read.__setattr__("return_value", data)
     failure ∈ str ← ""
-    envelope ∈ dict[str, object] ← {}
     with patch("ssl.create_default_context", return_value=MagicMock()):
         with patch("urllib.request.urlopen", return_value=stream):
             try:
-                result ∈ dict[str, object] ← submit("https://fixture.invalid/v1/execute", "", "workflow_dispatch", envelope, directory)
+                result ∈ dict[str, object] ← submit("https://fixture.invalid/v1/execute", "", route, submitted, directory, expected_release)
             except Exception as error:
                 failure ← str(error)
     receipt ∈ dict[str, object] ← json.loads(Path(directory + "/result.json").read_bytes())
     if expected == "PASS":
         if failure != "" or receipt["status"] != "PASS":
             raise ValueError("POSITIVE_CONTROL_FAILED: " + name + ": " + failure)
-        actual ∈ bytes ← Path(directory + "/transfer-fixture.sh").read_bytes()
-        if actual != payload:
-            raise ValueError("EXPORTED_BYTES_CHANGED")
+        exported_artifacts ∈ list[dict[str, object]] ← list(receipt["artifacts"])
+        for exported_artifact in exported_artifacts:
+            filename ∈ str ← str(exported_artifact["name"])
+            actual ∈ bytes ← Path(directory + "/" + filename).read_bytes()
+            if actual != expected_payloads[filename]:
+                raise ValueError("EXPORTED_BYTES_CHANGED")
     elif expected == "BLOCKED":
         if failure != "" or receipt["status"] != "BLOCKED":
             raise ValueError("BLOCKED_RESULT_LOST")
@@ -50,26 +80,171 @@ def exercise(name ∈ str, response ∈ dict[str, object], expected ∈ str) →
             raise ValueError("WRONG_DELIVERY_FAILURE: " + name + ": " + failure)
         if receipt["status"] == "PASS":
             raise ValueError("REJECTED_DELIVERY_LEFT_PASS: " + name)
-        exported ∈ bool ← Path(directory + "/transfer-fixture.sh").exists()
-        if exported:
-            raise ValueError("REJECTED_DELIVERY_EXPORTED_BYTES: " + name)
+        for filename in expected_payloads:
+            if Path(directory + "/" + filename).exists():
+                raise ValueError("REJECTED_DELIVERY_EXPORTED_BYTES: " + name)
     rows.append({"case": name, "status": "PASS", "observed_status": receipt["status"], "failure": failure})
 
-valid ∈ dict[str, object] ← {"result": {"status": "PASS", "artifacts": [artifact]}, "delivery": [delivery]}
-exercise("valid", valid, "PASS")
+def dispatch(name ∈ str, response ∈ object, expected ∈ str) → None:
+    exercise(name, response, expected, "workflow_dispatch", envelope)
+
+dispatch("valid", valid, "PASS")
+for variant in ["changed-compact-bytes", "truncated-compact-bytes"]:
+    compact_changed ∈ dict[str, object] ← dict(compact_delivery)
+    compact_changed["bytes_base64"] ← base64.b64encode(b"changed compact bytes" if variant == "changed-compact-bytes" else compact_payload[:-1]).decode()
+    dispatch(variant, {"result": accepted_pair, "delivery": [delivery, compact_changed]}, "DELIVERY_DIGEST_MISMATCH")
+dispatch("missing-compact-delivery", {"result": accepted_pair, "delivery": [delivery]}, "MISSING_DELIVERY")
+removed_compact ∈ dict[str, object] ← copy(accepted_pair)
+removed_compact["artifacts"] ← [artifact]
+dispatch("remove-compact-and-declaration", {"result": removed_compact, "delivery": [delivery]}, "RESULT_OUTPUT_CONTRACT_MISMATCH")
+for field in ["role", "type", "size"]:
+    altered_compact ∈ dict[str, object] ← dict(compact_artifact)
+    altered_compact[field] ← 1 if field == "size" else "unrelated"
+    output_altered ∈ dict[str, object] ← copy(accepted_pair)
+    output_altered["artifacts"] ← [artifact, altered_compact]
+    output_code ∈ str ← "DELIVERY_SIZE_MISMATCH" if field == "size" else "RESULT_OUTPUT_CONTRACT_MISMATCH"
+    dispatch("wrong-compact-" + field, {"result": output_altered, "delivery": paired_delivery}, output_code)
+swapped_full ∈ dict[str, object] ← dict(artifact)
+swapped_compact ∈ dict[str, object] ← dict(compact_artifact)
+swapped_full["role"] ← "human-transfer-paste"
+swapped_compact["role"] ← "standalone-transfer-script"
+output_altered ← copy(accepted_pair)
+output_altered["artifacts"] ← [swapped_full, swapped_compact]
+dispatch("swapped-output-roles", {"result": output_altered, "delivery": paired_delivery}, "RESULT_OUTPUT_CONTRACT_MISMATCH")
+for naming_error in ["repository", "source", "destination"]:
+    wrong_base ∈ str ← "transfer-unrelated-from-source-to-destination"
+    if naming_error == "source":
+        wrong_base ← "transfer-fixture-from-unrelated-to-destination"
+    elif naming_error == "destination":
+        wrong_base ← "transfer-fixture-from-source-to-unrelated"
+    wrong_full ∈ dict[str, object] ← dict(artifact)
+    wrong_compact ∈ dict[str, object] ← dict(compact_artifact)
+    wrong_full["name"] ← wrong_base + ".sh"
+    wrong_compact["name"] ← wrong_base + ".paste.grease"
+    wrong_full_delivery ∈ dict[str, object] ← dict(delivery)
+    wrong_compact_delivery ∈ dict[str, object] ← dict(compact_delivery)
+    wrong_full_delivery["name"] ← wrong_full["name"]
+    wrong_compact_delivery["name"] ← wrong_compact["name"]
+    output_altered ← copy(accepted_pair)
+    output_altered["artifacts"] ← [wrong_full, wrong_compact]
+    dispatch("wrong-output-name-" + naming_error, {"result": output_altered, "delivery": [wrong_full_delivery, wrong_compact_delivery]}, "RESULT_OUTPUT_CONTRACT_MISMATCH")
 changed ∈ dict[str, object] ← dict(delivery)
 changed["bytes_base64"] ← base64.b64encode(b"changed after verification").decode()
-exercise("changed-bytes", {"result": valid["result"], "delivery": [changed]}, "DELIVERY_DIGEST_MISMATCH")
-exercise("missing-delivery", {"result": valid["result"], "delivery": empty}, "MISSING_DELIVERY")
-exercise("empty-pass", {"result": {"status": "PASS", "artifacts": empty}, "delivery": empty}, "MISSING_DELIVERY")
+dispatch("changed-bytes", {"result": accepted, "delivery": [changed, compact_delivery]}, "DELIVERY_DIGEST_MISMATCH")
+dispatch("missing-delivery", {"result": accepted, "delivery": empty}, "MISSING_DELIVERY")
+empty_result ∈ dict[str, object] ← copy(accepted)
+empty_result["artifacts"] ← empty
+dispatch("empty-pass", {"result": empty_result, "delivery": empty}, "MISSING_DELIVERY")
 wrong ∈ dict[str, object] ← dict(delivery)
 wrong["name"] ← "other.sh"
-exercise("wrong-artifact", {"result": valid["result"], "delivery": [wrong]}, "UNACCEPTED_DELIVERY")
-exercise("duplicate-artifact", {"result": {"status": "PASS", "artifacts": [artifact, artifact]}, "delivery": [delivery, delivery]}, "DUPLICATE_ARTIFACT")
-reserved ∈ dict[str, object] ← dict(delivery)
-reserved["name"] ← "result.json"
-exercise("reserved-receipt-name", {"result": {"status": "PASS", "artifacts": [{"name": "result.json", "sha256": digest}]}, "delivery": [reserved]}, "DELIVERY_PATH_OR_BOUND")
-exercise("blocked-with-bytes", {"result": {"status": "BLOCKED", "artifacts": empty}, "delivery": [delivery]}, "FAILED_RESULT_DELIVERED_BYTES")
-exercise("blocked", {"result": {"status": "BLOCKED", "artifacts": empty, "blocker": "DEPLOYMENT_INACTIVE"}, "delivery": empty}, "BLOCKED")
+dispatch("wrong-artifact", {"result": accepted, "delivery": [wrong, compact_delivery]}, "UNACCEPTED_DELIVERY")
+duplicated ∈ dict[str, object] ← copy(accepted)
+duplicated["artifacts"] ← [artifact, artifact]
+dispatch("duplicate-artifact", {"result": duplicated, "delivery": [delivery, delivery]}, "DUPLICATE_ARTIFACT")
+reserved ∈ dict[str, object] ← copy(accepted)
+reserved["artifacts"] ← [{"name": "result.json", "sha256": digest}]
+reserved_delivery ∈ dict[str, object] ← dict(delivery)
+reserved_delivery["name"] ← "result.json"
+dispatch("reserved-receipt-name", {"result": reserved, "delivery": [reserved_delivery]}, "DELIVERY_PATH_OR_BOUND")
+dispatch("blocked-with-bytes", {"result": {"status": "BLOCKED", "artifacts": empty}, "delivery": [delivery]}, "FAILED_RESULT_DELIVERED_BYTES")
+dispatch("blocked", {"result": {"status": "BLOCKED", "artifacts": empty, "blocker": "DEPLOYMENT_INACTIVE"}, "delivery": empty}, "BLOCKED")
+for field in ["request_id", "operation_id", "request_sha256", "route", "release_sha256", "contract_sha256", "operation_version", "registry_generation"]:
+    altered ∈ dict[str, object] ← copy(accepted)
+    altered[field] ← "unrelated"
+    code ∈ str ← "RESULT_PARAMETERS_MISMATCH"
+    if field == "operation_id":
+        code ← "RESULT_OPERATION_MISMATCH"
+    elif field == "request_sha256":
+        code ← "RESULT_REQUEST_BYTES_MISMATCH"
+    elif field == "route":
+        code ← "RESULT_ROUTE_MISMATCH"
+    elif field == "release_sha256":
+        code ← "RESULT_RELEASE_MISMATCH"
+    elif ["contract_sha256", "operation_version", "registry_generation"].__contains__(field):
+        code ← "RESULT_OPERATION_VERSION_MISMATCH"
+    dispatch("wrong-" + field, {"result": altered, "delivery": paired_delivery}, code)
+for field in inputs:
+    altered ← copy(accepted)
+    altered_inputs ∈ dict[str, object] ← dict(altered["inputs"])
+    altered_inputs[field] ← "unrelated"
+    altered["inputs"] ← altered_inputs
+    dispatch("wrong-input-" + field, {"result": altered, "delivery": paired_delivery}, "RESULT_PARAMETERS_MISMATCH")
+for field in ["commit", "deployment_identity", "repository_id"]:
+    altered ← copy(accepted)
+    altered_control ∈ dict[str, object] ← dict(altered["control"])
+    altered_control[field] ← "unrelated"
+    altered["control"] ← altered_control
+    dispatch("wrong-control-" + field, {"result": altered, "delivery": paired_delivery}, "RESULT_RELEASE_MISMATCH")
+altered ← copy(accepted)
+altered["promotion"] ← {"state": "accepted", "trusted_identity": "deployed-trusted"}
+dispatch("candidate-claims-trusted", {"result": altered, "delivery": paired_delivery}, "RESULT_AUTHORITY_SCOPE_MISMATCH")
+altered ← copy(accepted)
+altered["stages"] ← [{"check_id": "publish", "required": True, "state": "PASS", "contract_sha256": contract_digest}]
+dispatch("remove-check-and-declaration", {"result": altered, "delivery": paired_delivery}, "RESULT_MISSING_CHECK_EVIDENCE")
+altered ← copy(accepted)
+altered["stages"] ← [{"check_id": "prepare", "required": False, "state": "SKIPPED", "contract_sha256": contract_digest}, {"check_id": "publish", "required": True, "state": "PASS", "contract_sha256": contract_digest}]
+dispatch("skipped-check", {"result": altered, "delivery": paired_delivery}, "RESULT_CHECK_EVIDENCE_MISMATCH")
+duplicated_json ∈ bytes ← json.dumps(valid).replace('"status": "PASS"', '"status": "FAIL", "status": "PASS"').encode()
+dispatch("duplicate-response-key", duplicated_json, "DUPLICATE_JSON_KEY")
+duplicate_request ∈ str ← raw.replace('"pipeline": "kitchen-transfer-script"', '"pipeline": "unrelated", "pipeline": "kitchen-transfer-script"')
+duplicate_envelope ∈ dict[str, object] ← copy(envelope)
+duplicate_envelope["request"] ← duplicate_request
+altered ← copy(accepted)
+altered["request_sha256"] ← hashlib.sha256(duplicate_request.encode()).hexdigest()
+exercise("duplicate-request-key", {"result": altered, "delivery": paired_delivery}, "DUPLICATE_JSON_KEY", "workflow_dispatch", duplicate_envelope)
+request_commit ∈ str ← "4444444444444444444444444444444444444444"
+branch ∈ dict[str, object] ← copy(accepted_pair)
+branch["route"] ← "pipeline-requests"
+branch["request_commit"] ← request_commit
+branch["request_bytes_base64"] ← base64.b64encode(raw.encode()).decode()
+raw_bytes ∈ bytes ← raw.encode()
+blob_header ∈ bytes ← ("blob " + str(len(raw_bytes)) + "\x00").encode()
+blob_digest ∈ str ← hashlib.sha1(blob_header + raw_bytes).hexdigest()
+source ∈ dict[str, object] ← {"repository_id": 1405888814, "commit": request_commit, "path": "requests/fixture.json", "blob_sha1": blob_digest, "request_sha256": accepted["request_sha256"]}
+branch["request_source"] ← source
+branch_envelope ∈ dict[str, object] ← {"request_commit": request_commit}
+exercise("valid-request-branch", {"result": branch, "delivery": paired_delivery}, "PASS", "pipeline-requests", branch_envelope)
+for field in ["request_commit", "request_bytes_base64"]:
+    altered ← copy(branch)
+    altered[field] ← "5555555555555555555555555555555555555555" if field == "request_commit" else base64.b64encode(b"changed request bytes").decode()
+    code ← "RESULT_REQUEST_COMMIT_MISMATCH" if field == "request_commit" else "RESULT_REQUEST_SOURCE_MISMATCH"
+    exercise("wrong-branch-" + field, {"result": altered, "delivery": paired_delivery}, code, "pipeline-requests", branch_envelope)
+for field in source:
+    altered ← copy(branch)
+    altered_source ∈ dict[str, object] ← dict(altered["request_source"])
+    altered_source[field] ← "unrelated"
+    altered["request_source"] ← altered_source
+    code ← "RESULT_REQUEST_SOURCE_MISMATCH"
+    if field == "repository_id" or field == "commit":
+        code ← "RESULT_REQUEST_COMMIT_MISMATCH"
+    elif field == "path":
+        code ← "RESULT_REQUEST_SOURCE_PATH"
+    exercise("wrong-branch-source-" + field, {"result": altered, "delivery": paired_delivery}, code, "pipeline-requests", branch_envelope)
+def fail_second_publication(source_path ∈ str, destination_path ∈ str) → None:
+    if destination_path.endswith("/" + compact_name):
+        raise ValueError("FIXTURE_SECOND_PUBLICATION_FAILED")
+    original_replace(source_path, destination_path)
+partial_directory ∈ str ← output + "/partial-publication"
+partial_stream ∈ object ← MagicMock()
+partial_stream.__enter__.return_value.read.__setattr__("return_value", json.dumps(valid).encode())
+partial_failure ∈ str ← ""
+with patch("ssl.create_default_context", return_value=MagicMock()):
+    with patch("urllib.request.urlopen", return_value=partial_stream):
+        with patch("os.replace", side_effect=fail_second_publication):
+            try:
+                partial_result ∈ dict[str, object] ← submit("https://fixture.invalid/v1/execute", "", "workflow_dispatch", envelope, partial_directory, expected_release)
+            except Exception as error:
+                partial_failure ← str(error)
+partial_receipt ∈ dict[str, object] ← json.loads(Path(partial_directory + "/result.json").read_bytes())
+if partial_failure != "FIXTURE_SECOND_PUBLICATION_FAILED" or partial_receipt["status"] != "FAIL" or partial_receipt["artifacts"] != empty:
+    raise ValueError("PARTIAL_PUBLICATION_INHERITED_ACCEPTANCE")
+if Path(partial_directory + "/" + compact_name).exists():
+    raise ValueError("INJECTED_PUBLICATION_FAILURE_NOT_EXERCISED")
+partial_bytes_present ∈ bool ← Path(partial_directory + "/" + full_name).exists()
+if partial_bytes_present:
+    observed_partial ∈ bytes ← Path(partial_directory + "/" + full_name).read_bytes()
+    if observed_partial != payload:
+        raise ValueError("PARTIAL_BYTES_CHANGED")
+rows.append({"case": "partial-publication", "status": "PASS", "observed_status": partial_receipt["status"], "failure": partial_failure, "partial_bytes_present": partial_bytes_present, "accepted_artifact_count": 0})
 Path(output + "/checks.json").write_text(json.dumps({"scope": "local-client-delivery-regression", "status": "PASS", "checks": rows, "excluded_claims": ["TLS", "deployment", "live-transfer"]}, sort_keys=True))
 print("client delivery regression passed")

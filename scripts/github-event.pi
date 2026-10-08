@@ -30,6 +30,6 @@ if len(token_payload) > 32768:
     raise ValueError("ADMISSION_SIZE")
 token_record ∈ dict[str, object] ← json.loads(token_payload)
 mapped ∈ dict[str, object] ← envelope(event, environment, str(token_record["value"]))
-result ∈ dict[str, object] ← submit(str(client["endpoint"]), str(client["ca_certificate"]), str(mapped["route"]), dict(mapped["envelope"]), directory)
+result ∈ dict[str, object] ← submit(str(client["endpoint"]), str(client["ca_certificate"]), str(mapped["route"]), dict(mapped["envelope"]), directory, dict(client["accepted_release"]))
 print(json.dumps({"status": result["status"], "export": directory}))
 sys.exit(0 if result["status"] == "PASS" else 1)
