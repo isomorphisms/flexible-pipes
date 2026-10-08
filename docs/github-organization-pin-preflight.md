@@ -1,7 +1,7 @@
 # Organization pin eligibility through Kitchen
 
 Public operation: `github-organization-pin-preflight`; maintained policy:
-`isomorphisms/kitchen@f37a33ac9693623cfafc16fb68c4eb10f83cf961`, task
+`isomorphisms/kitchen@7953ee33280ff6e276f31204995c2d2491f3e588`, task
 `tasks/github-organization-pin-preflight/1.py`.
 
 The action `.github/workflows/github-organization-pin-preflight.yml` checks out
