@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: f37a33ac9693623cfafc16fb68c4eb10f83cf961
+          ref: 7953ee33280ff6e276f31204995c2d2491f3e588
           path: flexible-pipes/kitchen
       - name: Test source-pinned Kitchen and pipeline parity
         working-directory: flexible-pipes
