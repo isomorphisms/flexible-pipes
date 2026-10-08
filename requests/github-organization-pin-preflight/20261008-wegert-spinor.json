@@ -1,0 +1,5 @@
+{
+  "pipeline": "github-organization-pin-preflight",
+  "organization": "isomorphismes",
+  "repositories": "isomorphismes/wegert,functorial-games/spinor"
+}
