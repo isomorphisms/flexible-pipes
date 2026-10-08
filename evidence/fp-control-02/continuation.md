@@ -15,6 +15,8 @@ Implemented repairs:
 - Production preflight enforces protected root-owned files and directories,
   including deployment, control, materials, tools, qualification and state.
 - The maintained Kitchen generator emits complete and compact presentations.
+  The compact loader requires private executing-user-owned state before any
+  acquisition or API call; its shared-directory counterexample is retained.
   The registered operation generates twice, seals both, exercises the exact
   compact bytes through 18 independently observed API scenarios, and requires
   both outputs. The contract has 24 mandatory stages; removing a check and its
@@ -29,7 +31,7 @@ Dependencies selected for hosted qualification:
 
 | Owner | Exact head |
 |---|---|
-| Kitchen | `59fc9d004ebbf851da1617929de1885b84f07157` |
+| Kitchen | `933ec7974b7b06050fa107a6733a3d1698cabb87` |
 | AICI | `b1190d623dd180b4f465d5bdfc04f3cfc4306aa1` |
 | Cat Food | `b1d006e5ebc00a01283e5c5dda9b8660e9c73741` |
 | Ithon | `d6e83969f82512e920fb17b44326cb54f31d015c` |
@@ -38,8 +40,8 @@ Dependencies selected for hosted qualification:
 Kitchen's compact acquisition uses descriptive immutable source at
 `322b4ff634ee745748b209f19e63c472d01e0ae9`, SHA-256
 `cf85b1dc4caea07749d5070bbc143d669e687820598c36a0050fddccb2612dc6`.
-The exact historical Young Tableaux paste is 2,184 bytes, SHA-256
-`fb99cdb41cf7745b39d47b938736d47b378999971c818b9f3413f91e8b833481`.
+The exact historical Young Tableaux paste is 2,348 bytes, SHA-256
+`4ca06c07fdcb4220ca355b84dbc902c2d17bad4b1809d32376dd8237e011b0e0`.
 This is generation/fixture evidence, not a new live-transfer authorization.
 
 Local checked regressions: 51 client cases and 66 cache cases passed.

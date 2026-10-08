@@ -158,7 +158,7 @@ for repository in repositories:
         materials.append({"path": path, "checkout": checkout, "relative_path": relative, "commit": commit, "origin": origin, "published_ref": repository["ref"], "sha256": digest(path)})
 
 tools ∈ list[dict[str, object]] ← []
-for path in [python, grease_python, grease_entry, "/usr/bin/git", "/usr/bin/grep", "/usr/bin/dirname", "/usr/bin/chmod", "/usr/bin/cat", "/usr/bin/head", "/usr/bin/curl", "/usr/bin/sha256sum", "/usr/bin/mktemp", "/usr/bin/mkdir", "/usr/bin/mv", "/usr/bin/rm", "/usr/bin/cp", "/usr/bin/openssl", "/usr/bin/gh", "/lib/x86_64-linux-gnu/libseccomp.so.2"]:
+for path in [python, grease_python, grease_entry, "/usr/bin/git", "/usr/bin/grep", "/usr/bin/dirname", "/usr/bin/chmod", "/usr/bin/cat", "/usr/bin/head", "/usr/bin/curl", "/usr/bin/sha256sum", "/usr/bin/mktemp", "/usr/bin/mkdir", "/usr/bin/mv", "/usr/bin/rm", "/usr/bin/id", "/usr/bin/stat", "/usr/bin/cp", "/usr/bin/openssl", "/usr/bin/gh", "/lib/x86_64-linux-gnu/libseccomp.so.2"]:
     tools.append({"path": path, "sha256": digest(path)})
 # Bind the actual interpreted Grease dependency closure, including generated
 # modules and native extensions, rather than treating a launcher as identity.
