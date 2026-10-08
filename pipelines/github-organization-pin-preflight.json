@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "name": "github-organization-pin-preflight",
+  "parameters": {
+    "organization": {
+      "required": true,
+      "pattern": "[A-Za-z0-9_.-]+"
+    },
+    "repositories": {
+      "required": true,
+      "pattern": "[A-Za-z0-9_.\\/-]+(?:,[A-Za-z0-9_.\\/-]+){0,5}"
+    }
+  },
+  "required_stages": [
+    "eligibility"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "eligibility",
+      "argv": [
+        "python3",
+        "kitchen/tasks/github-organization-pin-preflight/1.py",
+        "{{organization}}",
+        "{{repositories}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}
