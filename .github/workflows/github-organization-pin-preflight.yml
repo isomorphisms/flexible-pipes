@@ -60,7 +60,7 @@ jobs:
               os.environ["REQUEST_COMMIT"],
           ], text=True).splitlines()
           if len(files) != 1 or not re.fullmatch(
-              r"requests/github-organization-pin-preflight/[A-Za-z0-9_.-]+\\.json", files[0]
+              r"requests/github-organization-pin-preflight/[A-Za-z0-9_.-]+\.json", files[0]
           ):
               raise SystemExit("expected exactly one declared pin-preflight request")
           request = json.loads(Path(files[0]).read_text())
@@ -73,12 +73,12 @@ jobs:
           ):
               raise SystemExit("invalid organization")
           if not isinstance(request["repositories"], str) or not re.fullmatch(
-              r"[A-Za-z0-9_.\\/-]+(?:,[A-Za-z0-9_.\\/-]+){0,5}", request["repositories"]
+              r"[A-Za-z0-9_./-]+(?:,[A-Za-z0-9_./-]+){0,5}", request["repositories"]
           ):
               raise SystemExit("invalid repositories")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write(f"organization={request['organization']}\\n")
-              output.write(f"repositories={request['repositories']}\\n")
+              output.write(f"organization={request['organization']}\n")
+              output.write(f"repositories={request['repositories']}\n")
           PY
       - name: Run requested preflight (no GitHub mutation)
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/pin-preflight-requests') }}
