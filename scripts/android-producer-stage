@@ -54,7 +54,7 @@ registered_android() {
     origin=$(git -C "$FP_ANDROID_APP_ROOT" config --local --get remote.origin.url) ||
         fail 'application repository origin is unknown'
     case "$origin" in
-        "https://github.com/$registered"|"https://github.com/$registered.git"|
+        "https://github.com/$registered"|"https://github.com/$registered.git"|\
         "git@github.com:$registered"|"git@github.com:$registered.git") ;;
         *) fail "source origin is not registered application: $origin" ;;
     esac
