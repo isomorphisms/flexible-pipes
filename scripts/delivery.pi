@@ -6,7 +6,7 @@ import base64
 import hashlib
 import os
 from pathlib import Path
-from builtins import dict, list, ValueError, open
+from builtins import dict, list, ValueError, Exception, open
 
 def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[str, object], output ∈ str) → dict[str, object]:
     if not url.startswith("https://"):
@@ -20,31 +20,58 @@ def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[st
         data ∈ bytes ← response.read(12582913)
     if len(data) > 12582912:
         raise ValueError("RESULT_BOUND_EXCEEDED")
-    decoded ∈ dict[str, object] ← json.loads(data)
-    result ∈ dict[str, object] ← dict(decoded["result"])
-    deliveries ∈ list[dict[str, object]] ← list(decoded["delivery"])
     Path(output).mkdir(mode=448, parents=True, exist_ok=False)
-    Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
-    if result["status"] != "PASS" and len(deliveries) != 0:
-        raise ValueError("FAILED_RESULT_DELIVERED_BYTES")
-    artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
-    if result["status"] == "PASS" and len(artifacts) != len(deliveries):
-        raise ValueError("MISSING_DELIVERY")
-    for delivery in deliveries:
-        data ← base64.b64decode(str(delivery["bytes_base64"]), validate=True)
-        digest ∈ str ← hashlib.sha256(data).hexdigest()
-        name ∈ str ← str(delivery["name"])
-        if name.__contains__("/") or name.__contains__("\\") or name == "." or name == ".." or len(data) > 2097152:
-            raise ValueError("DELIVERY_PATH_OR_BOUND")
-        if digest != delivery["sha256"]:
-            raise ValueError("DELIVERY_DIGEST_MISMATCH")
-        matched ∈ bool ← False
+    # A server claim is evidence to check, never the client's accepted result.
+    Path(output + "/service-response.json").write_bytes(data)
+    empty ∈ list[dict[str, object]] ← []
+    pending ∈ dict[str, object] ← {"status": "PENDING", "artifacts": empty, "acceptance_scope": "client-delivery"}
+    Path(output + "/result.json").write_text(json.dumps(pending, sort_keys=True))
+    try:
+        decoded ∈ dict[str, object] ← json.loads(data)
+        result ∈ dict[str, object] ← dict(decoded["result"])
+        deliveries ∈ list[dict[str, object]] ← list(decoded["delivery"])
+        artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+        if result["status"] != "PASS" and (len(deliveries) != 0 or len(artifacts) != 0):
+            raise ValueError("FAILED_RESULT_DELIVERED_BYTES")
+        if result["status"] == "PASS" and (len(artifacts) == 0 or len(artifacts) != len(deliveries)):
+            raise ValueError("MISSING_DELIVERY")
+        names ∈ list[str] ← []
         for artifact in artifacts:
-            if artifact["name"] == name and artifact["sha256"] == digest:
-                matched ← True
-        if not matched:
-            raise ValueError("UNACCEPTED_DELIVERY")
-        with open(output + "/" + name, "xb") as stream:
-            stream.write(data)
-        os.chmod(output + "/" + name, 292)
-    return result
+            name ∈ str ← str(artifact["name"])
+            if names.__contains__(name):
+                raise ValueError("DUPLICATE_ARTIFACT")
+            names.append(name)
+        checked ∈ dict[str, bytes] ← {}
+        for delivery in deliveries:
+            payload ∈ bytes ← base64.b64decode(str(delivery["bytes_base64"]), validate=True)
+            digest ∈ str ← hashlib.sha256(payload).hexdigest()
+            name ← str(delivery["name"])
+            if name == "" or name.__contains__("/") or name.__contains__("\\") or name.__contains__("\x00") or name == "." or name == ".." or name == "result.json" or name == "service-response.json" or name == ".pending" or len(payload) > 2097152:
+                raise ValueError("DELIVERY_PATH_OR_BOUND")
+            if digest != delivery["sha256"]:
+                raise ValueError("DELIVERY_DIGEST_MISMATCH")
+            if checked.__contains__(name):
+                raise ValueError("DUPLICATE_DELIVERY")
+            matched ∈ bool ← False
+            for artifact in artifacts:
+                if artifact["name"] == name and artifact["sha256"] == digest:
+                    matched ← True
+            if not matched:
+                raise ValueError("UNACCEPTED_DELIVERY")
+            checked[name] ← payload
+        # Check the whole set before exposing any human-facing artifact.
+        staging ∈ str ← output + "/.pending"
+        Path(staging).mkdir(mode=448)
+        for name in checked:
+            with open(staging + "/" + name, "xb") as stream:
+                stream.write(checked[name])
+            os.chmod(staging + "/" + name, 292)
+        for name in checked:
+            os.replace(staging + "/" + name, output + "/" + name)
+        Path(staging + "/result.json").write_text(json.dumps(result, sort_keys=True))
+        os.replace(staging + "/result.json", output + "/result.json")
+        return result
+    except Exception as failure:
+        rejected ∈ dict[str, object] ← {"status": "FAIL", "first_failure": str(failure), "artifacts": empty, "acceptance_scope": "client-delivery"}
+        Path(output + "/result.json").write_text(json.dumps(rejected, sort_keys=True))
+        raise

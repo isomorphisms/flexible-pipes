@@ -1,11 +1,10 @@
 name: Registered Kitchen operation qualification
 on:
+  # Delivery, admission, bootstrap, runtime and workflow changes all affect
+  # qualification. A partial path list silently skipped required rechecks.
   pull_request:
-    paths:
-      - scripts/registered-*.pi
-      - tests/registered-execution/**
-      - registry/**
-      - .github/workflows/registered-operation-qualification.yml
+  push:
+    branches: [implement/fp2-runtime-qualification]
 permissions:
   contents: read
 jobs:
@@ -15,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: flexible-pipes
           fetch-depth: 0
           persist-credentials: false
@@ -29,7 +28,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: 6e03c55fcca17bd3d698f69f0ec85ed990da0816
+          ref: c978349774f67cd7eadb4f469e41773b8a6dce61
           path: kitchen
           persist-credentials: false
           fetch-depth: 0

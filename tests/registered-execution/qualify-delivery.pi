@@ -1,0 +1,75 @@
+"""Exercise the real client with inert transport; inspect exported bytes/receipts.
+
+No server or deployment is activated. Transport mocking does not qualify TLS.
+The original client must fail this suite by leaving PASS after corrupt delivery.
+"""
+import sys
+import json
+import hashlib
+import base64
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+from builtins import dict, list, ValueError, Exception
+
+argv ∈ list[str] ← sys.argv
+sys.path.insert(0, argv[1] + "/scripts")
+from delivery import submit
+output ∈ str ← argv[2]
+Path(output).mkdir(parents=True, exist_ok=False)
+payload ∈ bytes ← b"maintained fixture bytes\n"
+digest ∈ str ← hashlib.sha256(payload).hexdigest()
+artifact ∈ dict[str, object] ← {"name": "transfer-fixture.sh", "sha256": digest}
+delivery ∈ dict[str, object] ← {"name": "transfer-fixture.sh", "sha256": digest, "bytes_base64": base64.b64encode(payload).decode()}
+rows ∈ list[dict[str, object]] ← []
+empty ∈ list[dict[str, object]] ← []
+
+def exercise(name ∈ str, response ∈ dict[str, object], expected ∈ str) → None:
+    directory ∈ str ← output + "/" + name
+    stream ∈ object ← MagicMock()
+    stream.__enter__.return_value.read.__setattr__("return_value", json.dumps(response).encode())
+    failure ∈ str ← ""
+    envelope ∈ dict[str, object] ← {}
+    with patch("ssl.create_default_context", return_value=MagicMock()):
+        with patch("urllib.request.urlopen", return_value=stream):
+            try:
+                result ∈ dict[str, object] ← submit("https://fixture.invalid/v1/execute", "", "workflow_dispatch", envelope, directory)
+            except Exception as error:
+                failure ← str(error)
+    receipt ∈ dict[str, object] ← json.loads(Path(directory + "/result.json").read_bytes())
+    if expected == "PASS":
+        if failure != "" or receipt["status"] != "PASS":
+            raise ValueError("POSITIVE_CONTROL_FAILED: " + name + ": " + failure)
+        actual ∈ bytes ← Path(directory + "/transfer-fixture.sh").read_bytes()
+        if actual != payload:
+            raise ValueError("EXPORTED_BYTES_CHANGED")
+    elif expected == "BLOCKED":
+        if failure != "" or receipt["status"] != "BLOCKED":
+            raise ValueError("BLOCKED_RESULT_LOST")
+    else:
+        if not failure.startswith(expected):
+            raise ValueError("WRONG_DELIVERY_FAILURE: " + name + ": " + failure)
+        if receipt["status"] == "PASS":
+            raise ValueError("REJECTED_DELIVERY_LEFT_PASS: " + name)
+        exported ∈ bool ← Path(directory + "/transfer-fixture.sh").exists()
+        if exported:
+            raise ValueError("REJECTED_DELIVERY_EXPORTED_BYTES: " + name)
+    rows.append({"case": name, "status": "PASS", "observed_status": receipt["status"], "failure": failure})
+
+valid ∈ dict[str, object] ← {"result": {"status": "PASS", "artifacts": [artifact]}, "delivery": [delivery]}
+exercise("valid", valid, "PASS")
+changed ∈ dict[str, object] ← dict(delivery)
+changed["bytes_base64"] ← base64.b64encode(b"changed after verification").decode()
+exercise("changed-bytes", {"result": valid["result"], "delivery": [changed]}, "DELIVERY_DIGEST_MISMATCH")
+exercise("missing-delivery", {"result": valid["result"], "delivery": empty}, "MISSING_DELIVERY")
+exercise("empty-pass", {"result": {"status": "PASS", "artifacts": empty}, "delivery": empty}, "MISSING_DELIVERY")
+wrong ∈ dict[str, object] ← dict(delivery)
+wrong["name"] ← "other.sh"
+exercise("wrong-artifact", {"result": valid["result"], "delivery": [wrong]}, "UNACCEPTED_DELIVERY")
+exercise("duplicate-artifact", {"result": {"status": "PASS", "artifacts": [artifact, artifact]}, "delivery": [delivery, delivery]}, "DUPLICATE_ARTIFACT")
+reserved ∈ dict[str, object] ← dict(delivery)
+reserved["name"] ← "result.json"
+exercise("reserved-receipt-name", {"result": {"status": "PASS", "artifacts": [{"name": "result.json", "sha256": digest}]}, "delivery": [reserved]}, "DELIVERY_PATH_OR_BOUND")
+exercise("blocked-with-bytes", {"result": {"status": "BLOCKED", "artifacts": empty}, "delivery": [delivery]}, "FAILED_RESULT_DELIVERED_BYTES")
+exercise("blocked", {"result": {"status": "BLOCKED", "artifacts": empty, "blocker": "DEPLOYMENT_INACTIVE"}, "delivery": empty}, "BLOCKED")
+Path(output + "/checks.json").write_text(json.dumps({"scope": "local-client-delivery-regression", "status": "PASS", "checks": rows, "excluded_claims": ["TLS", "deployment", "live-transfer"]}, sort_keys=True))
+print("client delivery regression passed")

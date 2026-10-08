@@ -133,6 +133,10 @@ def main() -> int:
 
     receipt: dict[str, object] = {
         "schema_version": 1,
+        "execution_mode": "exploratory",
+        "acceptance_scope": "caller-supplied-command-execution",
+        "qualified_operation": False,
+        "excluded_claims": ["approved-operation", "verified-human-handoff", "deployment"],
         "pipeline": args.pipeline,
         "pipeline_path": str(pipeline_path.relative_to(ROOT)),
         "pipeline_sha256": sha256_bytes(raw),
