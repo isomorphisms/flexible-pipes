@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PINNED_KITCHEN_SHA = "f37a33ac9693623cfafc16fb68c4eb10f83cf961"
+PINNED_KITCHEN_SHA = "7953ee33280ff6e276f31204995c2d2491f3e588"
 KITCHEN_SCRIPT = ROOT / "kitchen/tasks/github-organization-pin-preflight/1.py"
 KITCHEN_TEST = ROOT / "kitchen/tests/github-organization-pin-preflight.py"
 PIPELINE = ROOT / "pipelines/github-organization-pin-preflight.json"
