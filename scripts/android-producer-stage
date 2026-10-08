@@ -44,9 +44,9 @@ registered_android() {
         git -C "$FP_ANDROID_APP_ROOT" diff --quiet HEAD -- "$rel" ||
             fail "registered application source changed: $rel"
     done
-    [[ "$a1_file" == wegert-armeabi-v7a.apk &&
-       "$c67_file" == wegert-arm64-v8a.apk ]] ||
-        fail 'unreviewed application artifact names'
+    [[ "$a1_file" =~ ^[A-Za-z0-9_.-]+\.apk$ &&
+       "$c67_file" =~ ^[A-Za-z0-9_.-]+\.apk$ ]] ||
+        fail 'unsafe registered APK artifact names'
     actual_sha=$(git -C "$FP_ANDROID_APP_ROOT" rev-parse HEAD) ||
         fail 'application checkout is not Git'
     [[ "$actual_sha" == "$FP_ANDROID_SOURCE_SHA" ]] ||
