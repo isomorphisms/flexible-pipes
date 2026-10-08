@@ -1,0 +1,100 @@
+name: Kitchen-backed organization pin preflight
+on:
+  pull_request:
+    paths:
+      - 'pipelines/github-organization-pin-preflight.json'
+      - 'tests/github-organization-pin-preflight.py'
+      - '.github/workflows/github-organization-pin-preflight.yml'
+  push:
+    paths:
+      - 'pipelines/github-organization-pin-preflight.json'
+      - 'tests/github-organization-pin-preflight.py'
+      - '.github/workflows/github-organization-pin-preflight.yml'
+      - 'requests/github-organization-pin-preflight/*.json'
+  workflow_dispatch:
+    inputs:
+      organization:
+        description: Destination organization
+        type: string
+        required: true
+        default: isomorphismes
+      repositories:
+        description: Comma-separated full repository names (1-6)
+        type: string
+        required: true
+        default: isomorphismes/wegert,functorial-games/spinor
+permissions:
+  contents: read
+jobs:
+  qualify-and-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: flexible-pipes
+          fetch-depth: 2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/kitchen
+          ref: 7953ee33280ff6e276f31204995c2d2491f3e588
+          path: flexible-pipes/kitchen
+      - name: Test source-pinned Kitchen and pipeline parity
+        working-directory: flexible-pipes
+        run: python3 tests/github-organization-pin-preflight.py
+      - name: Select a single data-only request
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/pin-preflight-requests' }}
+        id: select
+        working-directory: flexible-pipes
+        env:
+          REQUEST_COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+          files = subprocess.check_output([
+              "git", "diff-tree", "--no-commit-id", "--name-only", "-r",
+              os.environ["REQUEST_COMMIT"],
+          ], text=True).splitlines()
+          if len(files) != 1 or not re.fullmatch(
+              r"requests/github-organization-pin-preflight/[A-Za-z0-9_.-]+\.json", files[0]
+          ):
+              raise SystemExit("expected exactly one declared pin-preflight request")
+          request = json.loads(Path(files[0]).read_text())
+          if set(request) != {"pipeline", "organization", "repositories"}:
+              raise SystemExit("invalid pin-preflight request keys")
+          if request["pipeline"] != "github-organization-pin-preflight":
+              raise SystemExit("request selected a different operation")
+          if not isinstance(request["organization"], str) or not re.fullmatch(
+              r"[A-Za-z0-9_.-]+", request["organization"]
+          ):
+              raise SystemExit("invalid organization")
+          if not isinstance(request["repositories"], str) or not re.fullmatch(
+              r"[A-Za-z0-9_./-]+(?:,[A-Za-z0-9_./-]+){0,5}", request["repositories"]
+          ):
+              raise SystemExit("invalid repositories")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"organization={request['organization']}\n")
+              output.write(f"repositories={request['repositories']}\n")
+          PY
+      - name: Run requested preflight (no GitHub mutation)
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/pin-preflight-requests') }}
+        working-directory: flexible-pipes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION: ${{ inputs.organization || steps.select.outputs.organization }}
+          REPOSITORIES: ${{ inputs.repositories || steps.select.outputs.repositories }}
+        run: |
+          python3 scripts/run-pipeline github-organization-pin-preflight \
+            --param "organization=$ORGANIZATION" \
+            --param "repositories=$REPOSITORIES"
+      - name: Preserve receipts even when eligibility is BLOCKED
+        if: ${{ always() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/pin-preflight-requests')) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: organization-pin-preflight-${{ github.run_id }}
+          path: flexible-pipes/.flexible-pipes/runs/
+          if-no-files-found: warn
