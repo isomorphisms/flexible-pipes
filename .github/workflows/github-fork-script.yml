@@ -31,7 +31,7 @@ jobs:
           repository: isomorphisms/kitchen
           ref: abfe5e9440e3b87d8712cae4a45a716a347fa1e5
           path: kitchen
-      - run: python3 flexible-pipes/tests/github-fork-script.py
+      - run: python3 tests/github-fork-script.py
         working-directory: flexible-pipes
       - run: python3 tests/github-fork-kitchen-parity.py --kitchen-root ../kitchen
         working-directory: flexible-pipes
