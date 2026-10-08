@@ -1,0 +1,60 @@
+name: Kitchen-backed organization pin preflight
+on:
+  pull_request:
+    paths:
+      - 'pipelines/github-organization-pin-preflight.json'
+      - 'tests/github-organization-pin-preflight.py'
+      - '.github/workflows/github-organization-pin-preflight.yml'
+  push:
+    paths:
+      - 'pipelines/github-organization-pin-preflight.json'
+      - 'tests/github-organization-pin-preflight.py'
+      - '.github/workflows/github-organization-pin-preflight.yml'
+  workflow_dispatch:
+    inputs:
+      organization:
+        description: Destination organization
+        type: string
+        required: true
+        default: isomorphismes
+      repositories:
+        description: Comma-separated full repository names (1-6)
+        type: string
+        required: true
+        default: isomorphismes/wegert,functorial-games/spinor
+permissions:
+  contents: read
+jobs:
+  qualify-and-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: flexible-pipes
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/kitchen
+          ref: f37a33ac9693623cfafc16fb68c4eb10f83cf961
+          path: flexible-pipes/kitchen
+      - name: Test source-pinned Kitchen and pipeline parity
+        working-directory: flexible-pipes
+        run: python3 tests/github-organization-pin-preflight.py
+      - name: Run requested preflight (no GitHub mutation)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: flexible-pipes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION: ${{ inputs.organization }}
+          REPOSITORIES: ${{ inputs.repositories }}
+        run: |
+          python3 scripts/run-pipeline github-organization-pin-preflight \
+            --param "organization=$ORGANIZATION" \
+            --param "repositories=$REPOSITORIES"
+      - name: Preserve receipts even when eligibility is BLOCKED
+        if: ${{ always() && github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: organization-pin-preflight-${{ github.run_id }}
+          path: flexible-pipes/.flexible-pipes/runs/
+          if-no-files-found: warn
