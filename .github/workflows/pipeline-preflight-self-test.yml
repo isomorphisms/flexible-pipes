@@ -22,6 +22,10 @@ on:
       - "scripts/run-android-apk-preflight"
       - "pipelines/android-apk-preflight.json"
       - "tests/run-pipeline-preflight.sh"
+      - "registry/android-native-applications.tsv"
+      - "pipelines/android-native-apk.json"
+      - "tests/android-native-apk.sh"
+      - "docs/android-native-apk.md"
       - ".github/workflows/pipeline-preflight-self-test.yml"
 
 permissions:
