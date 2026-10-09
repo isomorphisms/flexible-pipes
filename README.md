@@ -1,3 +1,10 @@
+# How to move a user's GitHub repository to a different organization
+
+See [the discoverable Grease-first Flexible Pipes task](docs/how-to-move-the-users-github-repository-to-a-different-organization.md).
+It calls Script Kitchen to generate a complete standalone program, executes it under Grease, verifies the repository ID, and renders a checked answer.
+
+---
+
 # flexible-pipes
 
 Deterministic programs with language-model stages that are explicit, inspectable, and replayable.

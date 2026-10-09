@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "how-to-move-the-users-github-repository-to-a-different-organization",
+  "description": "Deterministically call Script Kitchen to generate a complete standalone Grease transfer program, execute it or detect an existing transfer, independently verify immutable repository ID, then render a truthful human response.",
+  "parameters": {
+    "source_owner": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "repository": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "destination_organization": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "expected_login": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    }
+  },
+  "required_stages": [
+    "generate-run-verify-and-render-response"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "generate-run-verify-and-render-response",
+      "argv": [
+        "grease",
+        "scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh",
+        "{{source_owner}}",
+        "{{repository}}",
+        "{{destination_organization}}",
+        "{{expected_login}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

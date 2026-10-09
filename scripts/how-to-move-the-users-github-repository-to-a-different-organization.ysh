@@ -1,0 +1,95 @@
+#!/usr/bin/env grease
+# Flexible Pipes: deterministic Kitchen program generation -> execution -> verified answer.
+set -eu
+
+fail() {
+    printf 'GitHub repository organization move: %s\n' "$*" >&2
+    exit 1
+}
+
+lower() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+[ "$#" -eq 4 ] || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN'
+source_owner=$1
+repository=$2
+destination_organization=$3
+for component in "$@"; do
+    case $component in
+        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) fail "invalid GitHub name component: $component" ;;
+    esac
+done
+
+[ -n "${KITCHEN_ROOT:-}" ] || fail 'KITCHEN_ROOT must name a verified Script Kitchen checkout'
+generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+[ -r "$generator" ] || fail "Kitchen Grease program generator is unavailable: $generator"
+command -v grease >/dev/null 2>&1 || fail 'Grease is not installed'
+command -v gh >/dev/null 2>&1 || fail 'GitHub CLI gh is not installed'
+command -v sha256sum >/dev/null 2>&1 || fail 'sha256sum is not installed'
+
+if [ -n "${TRANSFER_ARTIFACT_DIR:-}" ]; then
+    [ -d "$TRANSFER_ARTIFACT_DIR" ] || fail "artifact directory does not exist: $TRANSFER_ARTIFACT_DIR"
+    artifact_dir=$TRANSFER_ARTIFACT_DIR
+else
+    artifact_dir=$(mktemp -d) || fail 'could not create artifact directory'
+fi
+
+program=$artifact_dir/move-github-repository-$repository-from-$source_owner-to-$destination_organization.ysh
+execution=$artifact_dir/move-github-repository-$repository.execution.txt
+error_log=$artifact_dir/move-github-repository-$repository.stderr.txt
+[ ! -e "$program" ] && [ ! -e "$execution" ] && [ ! -e "$error_log" ] ||
+    fail "refusing to overwrite transfer artifacts in $artifact_dir"
+
+if grease "$generator" "$@" > "$program"; then
+    :
+else
+    fail "Kitchen generator failed; see $program"
+fi
+chmod 700 "$program"
+program_hash=$(sha256sum "$program" | cut -d ' ' -f 1)
+
+if grease "$program" > "$execution" 2> "$error_log"; then
+    :
+else
+    cat "$error_log" >&2
+    cat "$execution" >&2
+    fail "transfer failed or could not be verified; generated program retained at $program"
+fi
+
+grep -Fx 'status=verified' "$execution" >/dev/null || fail 'transfer program did not confirm verification'
+action=$(sed -n 's/^action=//p' "$execution")
+case $action in
+    transferred|already_transferred) ;;
+    *) fail "unrecognized transfer action: $action" ;;
+esac
+repository_id=$(sed -n 's/^repository_id=//p' "$execution")
+repository_url=$(sed -n 's/^repository_url=//p' "$execution")
+case $repository_id in
+    ''|*[!0-9]*) fail "invalid repository ID in receipt: $repository_id" ;;
+esac
+
+# A final, independent read confirms that the success receipt names the actual
+# destination and the SAME immutable repository ID.
+unset GH_TOKEN GITHUB_TOKEN
+canonical_organization=$(gh api "orgs/$destination_organization" --jq '.login') ||
+    fail 'could not verify destination organization'
+canonical_destination=$canonical_organization/$repository
+[ "$repository_url" = "https://github.com/$canonical_destination" ] ||
+    fail "receipt URL differs from canonical destination: $repository_url"
+destination_full=$(gh api "repos/$canonical_destination" --jq '.full_name') ||
+    fail "cannot verify destination $canonical_destination"
+[ "$(lower "$destination_full")" = "$(lower "$canonical_destination")" ] ||
+    fail "destination redirects to $destination_full"
+destination_id=$(gh api "repos/$canonical_destination" --jq '.id') ||
+    fail 'cannot verify repository ID'
+[ "$repository_id" = "$destination_id" ] || fail 'repository identity changed during verification'
+
+case $action in
+    transferred) message='Repository transferred and verified' ;;
+    already_transferred) message='Repository already transferred; verified without another transfer request' ;;
+esac
+printf '%s: %s\n' "$message" "$repository_url"
+printf 'Repository ID: %s\n' "$repository_id"
+printf 'Generated complete Grease program: %s\n' "$program"
+printf 'Generated program SHA-256: %s\n' "$program_hash"
