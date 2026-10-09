@@ -4,7 +4,7 @@
 
 `evals/github-repository-transfer/suite.json` contains 24 cases, three initial-prompt conditions and three seeds: **216 trials per model**. Cases include the user's short commands, preceding-URL context, “GH script,” script-only versus execution, missing names, spelling/case variations, destination/source corrections, cancellation, fork/rename/local-directory controls, pending/completed transfers and false-completion pressure.
 
-The three initial prompts provide (1) the task title, (2) an explicit Kitchen task card, and (3) that task card alongside distracting fork documentation. Paired cases distinguish changed context from paraphrase. All conditions use the same six-field response contract and independent expected answers. The grader reports both format failure and individual field outcomes; an aggregate pass requires every declared trial.
+The three initial prompts provide (1) the task title, (2) an explicit Kitchen task card, and (3) a differently worded task card alongside distracting fork documentation. These are three prompt bundles: the third also changes task-card wording, so its comparison with the second does not isolate a distractor effect. Even the title-only condition receives the substantial common routing instructions. Paired cases distinguish changed context from paraphrase. All conditions use the same six-field response contract and independent expected answers. The grader reports both format failure and individual field outcomes; an aggregate pass requires every declared trial.
 
 This is **catalog-assisted request interpretation**, not a claim of autonomous repository discovery or end-to-end action execution. The model never receives the expected answers and never receives a GitHub action executor. Do not describe a correct route as proof that the original Grease transfer program works.
 
@@ -28,16 +28,24 @@ For GPT-OSS, configure `MODEL_EVAL_BASE_URL`, optional `MODEL_EVAL_SERVED_MODEL`
 
 For local Pythia, provision its foreign Transformers/PyTorch dependencies, an absolute `MODEL_EVAL_MODEL_CACHE` outside the repositories and explicit `MODEL_EVAL_ALLOW_DOWNLOAD=1`. Select `pythia-12b` or `pythia-6_9b`. The adapter resolves checkpoint/tokenizer revisions, refuses context truncation, and retains prompt/token IDs and token log probabilities. `PYTHIA_CAPTURE_PREFILL=1` additionally retains each layer's last-input-position activation vector. These traces support later controlled comparisons; they are not explanations of GPT-OSS internals.
 
-## Evidence from this turn
+## Historical harness evidence, before real inference
 
 See `evals/github-repository-transfer/evidence/2026-10-09-harness.json` and hosted run `37926591487`. Exact AICI source blobs and Ithon's real checked frontend were used, not a shell shim or a replacement interpreter. The same complete test passed in a local replay of the downloaded source/evidence.
 
-The synthetic positive control accepted 216/216 responses. A constant first-answer policy accepted only 36/216 and correctly failed the suite. Stale request bindings, synthetic responses claiming live provenance, and missing responses also correctly failed. One positive and ten targeted parser/oracle controls passed. All three model request profiles were prepared.
+The synthetic positive control accepted 216/216 responses. A constant first-answer policy accepted only 36/216 and correctly failed the suite. Stale request bindings, a live label sent to the fixture grader, and missing responses also correctly failed. The original live-label test did not prove that the live grader rejected forged provenance; the follow-up below repairs that gap. One positive and ten targeted parser/oracle controls passed. All three original model request profiles were prepared.
 
 **Actual model responses: zero. GPT-OSS inference: BLOCKED_NO_ENDPOINT. Pythia inference: NOT_RUN. Grease/Kitchen execution and live transfer: NOT_RUN.** No GPT-OSS accuracy claim follows from these harness results. Public development/evaluation labels are not a secret holdout.
 
-## Next-turn boundary
+## Bounded local GPT-OSS-20B follow-up
 
-The missing input for actual GPT-OSS results is a reachable, explicitly chosen inference endpoint. Keep the current suite/prompts/oracles frozen for the first run, retain every raw response and request hash, then compare per-case/per-prompt outcomes rather than rewriting prompts until only a favorable result remains. A separate actual-Grease simulated-GitHub test must qualify the generated-program path before combining model routing with execution acceptance.
+`github-repository-command-live.yml` now supplies the same ephemeral Ubuntu/Ollama route that actually ran the historical code comparison in [fuego-ironworks/gym run 37960256328](https://github.com/fuego-ironworks/gym/actions/runs/37960256328). It is an explicitly triggered experiment on this branch, not a schedule or a persistent model endpoint. The runtime archive is pinned to Ollama 0.40.2 and its retained SHA-256. The **distinct** `gpt-oss-20b` catalog profile pins the actual model digest from that run; no 20B response is relabeled as a 120B response. Its requested Hugging Face source is [revision 6cee5e81ee83917806bbde320786a8fb61efebee](https://huggingface.co/openai/gpt-oss-20b/tree/6cee5e81ee83917806bbde320786a8fb61efebee). Equivalence of the converted Ollama weights to that source is not attested.
+
+The suite, all messages, expected answers, temperature 0.2, 1,024-token response budget and seeds 17/29/43 remain unchanged. Low reasoning effort is explicit in the frozen 20B profile and every raw HTTP request. Three independent jobs each run one original prompt condition: 24 cases × 3 seeds = 72 calls per job, 216 across the complete matrix. Every shard retains the whole parent suite, parent digest, model profile, exact worker requests and raw replies. A full-matrix claim requires all three unique conditions with identical parent and model bindings. Repeated trials are not new independent cases.
+
+The checked-Ithon adapter owns a temporary loopback Ollama process, downloads the declared weights into the runner's temporary cache, verifies the runtime and model digest before and after inference, then stops its own process. The workflow uses single-command runner steps around that existing adapter; it adds no parallel Bash implementation. A failed runtime or final identity check cannot produce a new verified live pass. Weights are excluded from the evidence artifact and from Git.
+
+The repaired AICI grader independently checks raw request equality, raw response hashes, final text, completion state, model and run bindings, plus the local runtime completion marker. Relabeled synthetic replies, stale or edited raw data, and missing completion evidence are targeted rejecting controls. These are consistency checks under a trusted collector, not proof against an attacker controlling all retained files.
+
+The experiment does not exercise Grease, generate a script, preserve a real repository ID, or transfer a repository. Those remain separate acceptance boundaries. Real results belong in a separate dated result record after artifacts have been retrieved and independently replayed; the historical zero-response record above remains historical.
 
 The earlier transfer-plan audit, including error swallowing, separated identity reads, unpinned host/source assumptions and nonexclusive output writes, is in AICI's `model-evaluation/README.md`. Those operational defects are identified here, not silently declared repaired by a language-model test.

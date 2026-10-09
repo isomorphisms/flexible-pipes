@@ -67,7 +67,7 @@ def main() → None:
             raise ValueError("unexpected worker payload field")
         if contains(payload, "expected") or contains(payload, "case_id") or contains(payload, "split"):
             raise ValueError("oracle metadata leaked to worker")
-    for model in ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"]:
+    for model in ["gpt-oss-20b", "gpt-oss-120b", "pythia-12b", "pythia-6_9b"]:
         directory ∈ str ← output + "/prepared-" + model
         reports.append(run([ithon, evaluator, "prepare", suite, catalog, model, directory], 0, environment))
         snapshot ∈ dict[str, Any] ← load(directory + "/model.json")
@@ -83,7 +83,7 @@ def main() → None:
     if actual_summary["passed"] != 0 or actual_summary["responses"] != 0:
         raise ValueError("missing responses were accepted")
     Path(output + "/checks.txt").write_text("\n".join(reports))
-    receipt ∈ dict[str, Any] ← {"status": "HARNESS_ONLY_PASS", "cases": 24, "prompt_conditions": 3, "trials_per_condition": 3, "matrix_size": 216, "synthetic_controls": ["good", "constant", "stale", "false-live", "missing"], "model_profiles_prepared": ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"], "gpt_oss": "BLOCKED_NO_ENDPOINT", "actual_model_responses": 0, "pythia_inference": "NOT_RUN", "grease_execution": "NOT_RUN", "kitchen_execution": "NOT_RUN", "live_transfer": "NOT_RUN"}
+    receipt ∈ dict[str, Any] ← {"status": "HARNESS_ONLY_PASS", "cases": 24, "prompt_conditions": 3, "trials_per_condition": 3, "matrix_size": 216, "synthetic_controls": ["good", "constant", "stale", "false-live", "missing"], "model_profiles_prepared": ["gpt-oss-20b", "gpt-oss-120b", "pythia-12b", "pythia-6_9b"], "gpt_oss": "BLOCKED_NO_ENDPOINT", "actual_model_responses": 0, "pythia_inference": "NOT_RUN", "grease_execution": "NOT_RUN", "kitchen_execution": "NOT_RUN", "live_transfer": "NOT_RUN"}
     Path(output + "/receipt.json").write_text(str(json.dumps(receipt, indent=2)) + "\n")
     print(json.dumps(receipt, sort_keys=True))
 
