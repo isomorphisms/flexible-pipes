@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: 4aef0d8f57be746fc3549106f9f95d353f2f30fe
+          ref: ff8a58ec18b826cf906706e6d0517fb8c4628638
           path: kitchen
       - name: Acquire exact native Grease runtime (not a shell mock)
         env:
