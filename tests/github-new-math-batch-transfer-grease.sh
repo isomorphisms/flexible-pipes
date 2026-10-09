@@ -143,7 +143,12 @@ TRANSFER_TEST_STATE=$tmp/state
 export PATH TRANSFER_TEST_MODE TRANSFER_SINGLE_WRAPPER TRANSFER_TEST_STATE KITCHEN_ROOT GREASE_BINARY
 
 cd "$tmp"
-grease "$batch" > "$tmp/first.out" 2> "$tmp/first.err"
+status=0
+grease "$batch" > "$tmp/first.out" 2> "$tmp/first.err" || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$tmp/first.out" "$tmp/first.err" >&2
+    exit "$status"
+fi
 grep -F 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs' "$tmp/first.out"
 [ "$(wc -l < "$tmp/state/post.log" | tr -d ' ')" = 10 ]
 printf '%s\n' \
@@ -151,7 +156,12 @@ printf '%s\n' \
     zakharevich snaith kirby-calculus morava goodwillie > "$tmp/expected-posts"
 cmp "$tmp/expected-posts" "$tmp/state/post.log"
 
-grease "$batch" > "$tmp/second.out" 2> "$tmp/second.err"
+status=0
+grease "$batch" > "$tmp/second.out" 2> "$tmp/second.err" || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$tmp/second.out" "$tmp/second.err" >&2
+    exit "$status"
+fi
 grep -F 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs' "$tmp/second.out"
 [ "$(wc -l < "$tmp/state/post.log" | tr -d ' ')" = 10 ]
 grep -F 'already transferred' "$tmp/second.out" >/dev/null
