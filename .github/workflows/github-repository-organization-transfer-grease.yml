@@ -1,0 +1,39 @@
+name: Grease GitHub repository organization transfer
+on:
+  push:
+    paths:
+      - 'scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh'
+      - 'pipelines/how-to-move-the-users-github-repository-to-a-different-organization.json'
+      - 'tests/github-repository-organization-transfer-grease.sh'
+      - 'docs/how-to-move-the-users-github-repository-to-a-different-organization.md'
+      - '.github/workflows/github-repository-organization-transfer-grease.yml'
+  pull_request:
+    paths:
+      - 'scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh'
+      - 'pipelines/how-to-move-the-users-github-repository-to-a-different-organization.json'
+      - 'tests/github-repository-organization-transfer-grease.sh'
+      - 'docs/how-to-move-the-users-github-repository-to-a-different-organization.md'
+      - '.github/workflows/github-repository-organization-transfer-grease.yml'
+permissions:
+  contents: read
+jobs:
+  checked-organization-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: flexible-pipes
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/kitchen
+          ref: 1a24babb9331413f20e6442047f7de8893899bd2
+          path: kitchen
+      - name: Test Kitchen's Grease transfer generator with fake GitHub
+        run: sh tests/github-repository-transfer-grease.sh
+        working-directory: kitchen
+      - name: Test Flexible Pipes generated program and checked response
+        env:
+          KITCHEN_ROOT: ${{ github.workspace }}/kitchen
+        run: sh tests/github-repository-organization-transfer-grease.sh
+        working-directory: flexible-pipes
