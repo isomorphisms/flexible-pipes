@@ -41,8 +41,8 @@ wrapper_name=how-to-move-the-users-github-repository-to-a-different-organization
 
 try { scratch=$(mktemp -d) }
 if (_error.code !== 0) { fail 'could not create private scratch directory' }
-trap 'rm -rf "$scratch"' EXIT HUP INT TERM
 mkdir -p "$scratch/kitchen/tasks/github-repository-transfer" "$scratch/artifacts"
+printf 'BATCH WORKSPACE: %s\n' "$scratch"
 
 test_mode=$[get(ENV, 'TRANSFER_TEST_MODE', '')]
 if test "$test_mode" = 1; then
@@ -194,4 +194,5 @@ for item in "$@"; do
 done
 
 if (verified !== 10) { fail "internal verified count is $verified, expected 10" }
+rm -rf "$scratch"
 printf '%s\n' 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs'
