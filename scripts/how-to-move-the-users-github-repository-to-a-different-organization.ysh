@@ -11,7 +11,7 @@ lower() {
     printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-[ "$#" -eq 4 ] || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN'
+test "$#" -eq 4 || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN'
 source_owner=$1
 repository=$2
 destination_organization=$3
@@ -21,28 +21,31 @@ for component in "$@"; do
     esac
 done
 
-[ -n "${KITCHEN_ROOT:-}" ] || fail 'KITCHEN_ROOT must name a verified Script Kitchen checkout'
+KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
+TRANSFER_ARTIFACT_DIR=$[get(ENV, 'TRANSFER_ARTIFACT_DIR', '')]
+test -n "$KITCHEN_ROOT" || fail 'KITCHEN_ROOT must name a verified Script Kitchen checkout'
 generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
-[ -r "$generator" ] || fail "Kitchen Grease program generator is unavailable: $generator"
+test -r "$generator" || fail "Kitchen Grease program generator is unavailable: $generator"
 command -v grease >/dev/null 2>&1 || fail 'Grease is not installed'
 command -v gh >/dev/null 2>&1 || fail 'GitHub CLI gh is not installed'
 command -v sha256sum >/dev/null 2>&1 || fail 'sha256sum is not installed'
 
-if [ -n "${TRANSFER_ARTIFACT_DIR:-}" ]; then
-    [ -d "$TRANSFER_ARTIFACT_DIR" ] || fail "artifact directory does not exist: $TRANSFER_ARTIFACT_DIR"
+if test -n "${TRANSFER_ARTIFACT_DIR:-}"; then
+    test -d "$TRANSFER_ARTIFACT_DIR" || fail "artifact directory does not exist: $TRANSFER_ARTIFACT_DIR"
     artifact_dir=$TRANSFER_ARTIFACT_DIR
 else
-    artifact_dir=$(mktemp -d) || fail 'could not create artifact directory'
+    try { artifact_dir=$(mktemp -d) }
+    if (_error.code !== 0) { fail 'could not create artifact directory' }
 fi
 
 program=$artifact_dir/move-github-repository-$repository-from-$source_owner-to-$destination_organization.ysh
 execution=$artifact_dir/move-github-repository-$repository.execution.txt
 error_log=$artifact_dir/move-github-repository-$repository.stderr.txt
-[ ! -e "$program" ] && [ ! -e "$execution" ] && [ ! -e "$error_log" ] ||
+test ! -e "$program" && test ! -e "$execution" && test ! -e "$error_log" ||
     fail "refusing to overwrite transfer artifacts in $artifact_dir"
 
 if grease "$generator" "$@" > "$program"; then
-    :
+    true
 else
     fail "Kitchen generator failed; see $program"
 fi
@@ -50,7 +53,7 @@ chmod 700 "$program"
 program_hash=$(sha256sum "$program" | cut -d ' ' -f 1)
 
 if grease "$program" > "$execution" 2> "$error_log"; then
-    :
+    true
 else
     cat "$error_log" >&2
     cat "$execution" >&2
@@ -71,19 +74,23 @@ esac
 
 # A final, independent read confirms that the success receipt names the actual
 # destination and the SAME immutable repository ID.
-unset GH_TOKEN GITHUB_TOKEN
-canonical_organization=$(gh api "orgs/$destination_organization" --jq '.login') ||
-    fail 'could not verify destination organization'
+setglobal ENV.GH_TOKEN = null
+setglobal ENV.GITHUB_TOKEN = null
+setglobal ENV.GH_HOST = 'github.com'
+try { canonical_organization=$(gh api "orgs/$destination_organization" --jq '.login') }
+if (_error.code !== 0) { fail 'could not verify destination organization' }
 canonical_destination=$canonical_organization/$repository
-[ "$repository_url" = "https://github.com/$canonical_destination" ] ||
+test "$repository_url" = "https://github.com/$canonical_destination" ||
     fail "receipt URL differs from canonical destination: $repository_url"
-destination_full=$(gh api "repos/$canonical_destination" --jq '.full_name') ||
-    fail "cannot verify destination $canonical_destination"
-[ "$(lower "$destination_full")" = "$(lower "$canonical_destination")" ] ||
+try { destination_full=$(gh api "repos/$canonical_destination" --jq '.full_name') }
+if (_error.code !== 0) { fail "cannot verify destination $canonical_destination" }
+destination_key=$(lower "$destination_full")
+expected_key=$(lower "$canonical_destination")
+test "$destination_key" = "$expected_key" ||
     fail "destination redirects to $destination_full"
-destination_id=$(gh api "repos/$canonical_destination" --jq '.id') ||
-    fail 'cannot verify repository ID'
-[ "$repository_id" = "$destination_id" ] || fail 'repository identity changed during verification'
+try { destination_id=$(gh api "repos/$canonical_destination" --jq '.id') }
+if (_error.code !== 0) { fail 'cannot verify repository ID' }
+test "$repository_id" = "$destination_id" || fail 'repository identity changed during verification'
 
 case $action in
     transferred) message='Repository transferred and verified' ;;

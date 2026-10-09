@@ -1,0 +1,11 @@
+# Repair actual Grease execution, not the test interpreter
+
+User-observed C67 failure: the old wrapper reached line 14 and rejected '[' under simple_test_builtin before any transfer request. The old tests substituted sh for grease, so their success did not establish Grease execution.
+
+This repair keeps real Grease safety defaults. The wrapper reads inherited values through ENV, uses test instead of '[', try/_error instead of conditional command-substitution assignment, true instead of ':', and explicit lowercased values instead of command substitutions in conditionals. The companion Kitchen source is 4aef0d8f57be746fc3549106f9f95d353f2f30fe and selects candidate 3, preserving candidate 2. No Bash/sh execution fallback or disabled Grease safety option is introduced.
+
+Actual local evidence: native Grease/Oils 0.37.0, source 5651cf97a1b5042f24f14112a7ade9a1518eb0bc, artifact 11419782646, archive SHA256 71e679fef031225716bbb4d6ea140ab17e9d44e7aa6bd4964e7bccbbed6ce323, ELF SHA256 7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c. Fourteen integrated scenarios passed: normal, already, wrong login, no admin, inactive membership, collision, unrelated redirect, invalid ID, source read failure, rejected POST, pending, wrong destination ID, unauthenticated, and changed ID at independent verification. Existing-artifact refusal, missing-root refusal, invalid input and deterministic generation also passed. The exact mapping-class/montesinos/SymmHub batch followed by rerun produced three total simulated POSTs, not six. Tests run outside both checkouts with whitespace in paths.
+
+Only GitHub responses and sleep are mocked. The launcher execs a real native ELF; the test rejects a shell shim and verifies that simple_test_builtin and strict_errexit are enabled. CI now acquires the same digest-bound interpreter and fails if unavailable.
+
+This is Linux host execution, not physical C67 acceptance. The phone's installed archive/source differ; repaired C67 execution and live GitHub transfer remain NOT_VERIFIED. It repairs runtime compatibility, not every previous hardening issue concerning source-read races, destination error classification, source admission, or shared artifact directories. No live transfer was made during these tests.
