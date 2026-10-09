@@ -37,3 +37,9 @@ jobs:
           GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
         run: sh tests/github-repository-organization-transfer-grease.sh
         working-directory: flexible-pipes
+      - name: Test the exact ten-repository batch and idempotent rerun
+        env:
+          KITCHEN_ROOT: ${{ github.workspace }}/kitchen
+          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
+        run: sh tests/github-new-math-batch-transfer-grease.sh
+        working-directory: flexible-pipes
