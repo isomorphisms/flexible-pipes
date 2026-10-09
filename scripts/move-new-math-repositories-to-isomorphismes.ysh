@@ -1,7 +1,6 @@
 #!/usr/bin/env grease
 # Flexible Pipes batch entrypoint for the October 9, 2026 mathematical repositories.
-# Fetches the pinned Kitchen generator and the pinned single-repository FP wrapper,
-# preflights the complete batch, transfers sequentially, and verifies all identities.
+# Kitchen generates each standalone transfer program before any GitHub mutation.
 set -eu
 
 fail() {
@@ -14,12 +13,10 @@ lower() {
 }
 
 test "$#" -eq 0 || fail 'this pinned batch takes no arguments'
-for tool in gh grease sha256sum cut head mktemp cat grep rm; do
+for tool in gh grease sha256sum cut head mktemp cat grep rm mkdir chmod sed; do
     command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
 done
 
-# Interactive ownership changes must use the user's gh credential, never an
-# inherited automation token or an alternate GH host.
 setglobal ENV.GH_TOKEN = null
 setglobal ENV.GITHUB_TOKEN = null
 setglobal ENV.GH_HOST = 'github.com'
@@ -32,27 +29,21 @@ test "$login_key" = isomorphisms ||
     fail "authenticated as $login, expected isomorphisms"
 
 kitchen_commit=78f6942928bcbebfc7cbe9112e22361baaf7f62f
-wrapper_commit=3bd04265ece03016e778636dd1f781a331b472ad
 candidate_blob=4ffb60afb7ec315e91b10f216aead8dfc07e129e
 generator_blob=9eae38147ed54f30f4b3f906c5ba9262a77b336a
-wrapper_blob=2a7704fb2a7c06177890fe66a315d259d05ada6c
 generator_name=render-standalone-github-repository-organization-transfer.ysh
-wrapper_name=how-to-move-the-users-github-repository-to-a-different-organization.ysh
 
 try { scratch=$(mktemp -d) }
 if (_error.code !== 0) { fail 'could not create private scratch directory' }
-mkdir -p "$scratch/kitchen/tasks/github-repository-transfer" "$scratch/artifacts"
+mkdir -p "$scratch/kitchen/tasks/github-repository-transfer" "$scratch/programs" "$scratch/artifacts"
 printf 'BATCH WORKSPACE: %s\n' "$scratch"
 
 test_mode=$[get(ENV, 'TRANSFER_TEST_MODE', '')]
 if test "$test_mode" = 1; then
     kitchen_root=$[get(ENV, 'KITCHEN_ROOT', '')]
-    wrapper=$[get(ENV, 'TRANSFER_SINGLE_WRAPPER', '')]
     test -n "$kitchen_root" || fail 'test mode requires KITCHEN_ROOT'
-    test -r "$wrapper" || fail 'test mode requires TRANSFER_SINGLE_WRAPPER'
 else
     kitchen_root=$scratch/kitchen
-    wrapper=$scratch/$wrapper_name
 
     try {
         actual_candidate_blob=$(gh api \
@@ -72,15 +63,6 @@ else
     test "$actual_generator_blob" = "$generator_blob" ||
         fail 'pinned Kitchen generator blob changed'
 
-    try {
-        actual_wrapper_blob=$(gh api \
-            "repos/isomorphisms/flexible-pipes/contents/scripts/$wrapper_name?ref=$wrapper_commit" \
-            --jq '.sha')
-    }
-    if (_error.code !== 0) { fail 'cannot inspect pinned Flexible Pipes wrapper' }
-    test "$actual_wrapper_blob" = "$wrapper_blob" ||
-        fail 'pinned Flexible Pipes wrapper blob changed'
-
     if gh api -H 'Accept: application/vnd.github.raw+json' \
         "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/6.ysh?ref=$kitchen_commit" \
         > "$kitchen_root/tasks/github-repository-transfer/6.ysh"; then
@@ -95,28 +77,35 @@ else
     else
         fail 'could not fetch pinned Kitchen generator'
     fi
-    if gh api -H 'Accept: application/vnd.github.raw+json' \
-        "repos/isomorphisms/flexible-pipes/contents/scripts/$wrapper_name?ref=$wrapper_commit" \
-        > "$wrapper"; then
-        true
-    else
-        fail 'could not fetch pinned Flexible Pipes wrapper'
-    fi
 
     candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/6.ysh")
     generator_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/$generator_name")
-    wrapper_header=$(head -n 1 "$wrapper")
     test "$candidate_header" = '#!/usr/bin/env grease' ||
         fail 'invalid Kitchen candidate header'
     test "$generator_header" = '#!/usr/bin/env grease' ||
         fail 'invalid Kitchen generator header'
-    test "$wrapper_header" = '#!/usr/bin/env grease' ||
-        fail 'invalid Flexible Pipes wrapper header'
 fi
 
-# NAME:IMMUTABLE_GITHUB_REPOSITORY_ID. This is deliberately explicit rather
-# than "everything created recently", which could transfer infrastructure.
+generator=$kitchen_root/tasks/github-repository-transfer/$generator_name
+test -r "$generator" || fail "Kitchen Grease program generator is unavailable before materialization: $generator"
+
+# NAME:IMMUTABLE_GITHUB_REPOSITORY_ID.
 set -- mapping-class:1412391052 montesinos:1412394512 Bulatov-Goodman-Strauss:1412402847 regina:1412463768 VanKoughnett:1412475989 zakharevich:1412476795 snaith:1412477737 kirby-calculus:1412481397 morava:1412482666 goodwillie:1412483445
+
+printf '%s\n' 'BATCH MATERIALIZATION: generating ten standalone Kitchen programs; no mutation has occurred'
+for item in "$@"; do
+    repository=$(printf '%s\n' "$item" | cut -d: -f1)
+    program=$scratch/programs/$repository.ysh
+    if grease "$generator" isomorphisms "$repository" isomorphismes isomorphisms > "$program"; then
+        true
+    else
+        fail "Kitchen generator failed for $repository"
+    fi
+    grease -n "$program" >/dev/null || fail "generated program does not parse under Grease: $repository"
+    chmod 700 "$program"
+    program_hash=$(sha256sum "$program" | cut -d ' ' -f 1)
+    printf 'PROGRAM   %-27s sha256=%s\n' "$repository" "$program_hash"
+done
 
 try { canonical_organization=$(gh api orgs/isomorphismes --jq '.login') }
 if (_error.code !== 0) { fail 'cannot read destination organization isomorphismes' }
@@ -148,6 +137,7 @@ for item in "$@"; do
         if (_error.code !== 0) { fail "cannot read administrator permission for $repository" }
         test "$source_admin" = true ||
             fail "authenticated user lacks administrator permission for $repository"
+
         destination_probe=$scratch/destination-probe
         rm -f "$destination_probe"
         try { gh api "repos/isomorphismes/$repository" --jq '.full_name' > "$destination_probe" 2>/dev/null }
@@ -179,14 +169,37 @@ for item in "$@"; do
     printf 'PREFLIGHT %-27s id=%s state=%s\n' "$repository" "$expected_id" "$state"
 done
 
-printf '%s\n' 'BATCH EXECUTION: transferring sequentially with one verified operation per repository'
+printf '%s\n' 'BATCH EXECUTION: running the ten materialized Kitchen programs sequentially'
 for item in "$@"; do
     repository=$(printf '%s\n' "$item" | cut -d: -f1)
-    artifact_dir=$scratch/artifacts/$repository
-    mkdir -p "$artifact_dir"
+    expected_id=$(printf '%s\n' "$item" | cut -d: -f2)
+    program=$scratch/programs/$repository.ysh
+    execution=$scratch/artifacts/$repository.stdout
+    error_log=$scratch/artifacts/$repository.stderr
     printf 'TRANSFER %s\n' "$repository"
-    KITCHEN_ROOT="$kitchen_root" TRANSFER_ARTIFACT_DIR="$artifact_dir" \
-        grease "$wrapper" isomorphisms "$repository" isomorphismes isomorphisms
+
+    if grease "$program" > "$execution" 2> "$error_log"; then
+        true
+    else
+        cat "$error_log" >&2
+        cat "$execution" >&2
+        fail "Kitchen transfer program failed for $repository; workspace retained at $scratch"
+    fi
+
+    grep -Fx 'status=verified' "$execution" >/dev/null ||
+        fail "Kitchen program did not verify $repository"
+    action=$(sed -n 's/^action=//p' "$execution")
+    case $action in
+        transferred|already_transferred) ;;
+        *) fail "unrecognized transfer action for $repository: $action" ;;
+    esac
+    receipt_id=$(sed -n 's/^repository_id=//p' "$execution")
+    receipt_url=$(sed -n 's/^repository_url=//p' "$execution")
+    test "$receipt_id" = "$expected_id" ||
+        fail "Kitchen receipt ID mismatch for $repository: $receipt_id"
+    test "$receipt_url" = "https://github.com/isomorphismes/$repository" ||
+        fail "Kitchen receipt URL mismatch for $repository: $receipt_url"
+    printf 'TRANSFER VERIFIED %-20s id=%s action=%s\n' "$repository" "$receipt_id" "$action"
 done
 
 printf '%s\n' 'BATCH FINAL VERIFICATION'
