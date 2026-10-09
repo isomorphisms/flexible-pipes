@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 1404b7e327470938fb947f644ba228e07b22cd15
+          ref: 52c8ae726ed586aef7a614d7f20aa6db57a1ec63
           path: aici
           persist-credentials: false
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -71,6 +71,7 @@ jobs:
       - name: Release only the temporary verified download archive
         run: rm -- '${{ runner.temp }}/ollama-linux-amd64.tar.zst'
       - name: Download pinned GPT-OSS-20B weights and execute all 72 frozen requests
+        timeout-minutes: 60
         env:
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
           OLLAMA_MODELS: ${{ runner.temp }}/gpt-oss-models

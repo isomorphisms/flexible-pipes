@@ -46,6 +46,10 @@ The checked-Ithon adapter owns a temporary loopback Ollama process, downloads th
 
 The repaired AICI grader independently checks raw request equality, raw response hashes, final text, completion state, model and run bindings, plus the local runtime completion marker. Relabeled synthetic replies, stale or edited raw data, and missing completion evidence are targeted rejecting controls. These are consistency checks under a trusted collector, not proof against an attacker controlling all retained files.
 
-The experiment does not exercise Grease, generate a script, preserve a real repository ID, or transfer a repository. Those remain separate acceptance boundaries. Real results belong in a separate dated result record after artifacts have been retrieved and independently replayed; the historical zero-response record above remains historical.
+The first complete live evaluation accepted **155/216 responses (71.8%)**: 51/72 for title-only, 50/72 for the Kitchen task card, and 54/72 for the reworded card plus distractor. All 216 replies completed normally and parsed as six-field JSON. The failed trials contain incorrect decisions or field values. All three downloaded artifacts were verified and independently regraded; the replay summaries matched the hosted summaries byte for byte. See [the full dated results, per-case table, source identities and artifact hashes](../evals/github-repository-transfer/evidence/2026-10-09-gpt-oss-20b/RESULTS.md).
+
+Future owned runs have a 55-minute adapter deadline and a 60-minute inference-step backstop within the 65-minute job limit. Timeout handling records incomplete work and leaves time to preserve partial evidence. The dated result record identifies the earlier exact source used by this completed run.
+
+The experiment does not exercise Grease, generate a script, preserve a real repository ID, or transfer a repository. Those remain separate acceptance boundaries. The historical zero-response record above remains historical; GPT-OSS-120B and Pythia inference remain unrun.
 
 The earlier transfer-plan audit, including error swallowing, separated identity reads, unpinned host/source assumptions and nonexclusive output writes, is in AICI's `model-evaluation/README.md`. Those operational defects are identified here, not silently declared repaired by a language-model test.
