@@ -125,7 +125,14 @@ case $path in
         esac
         ;;
     repos/isomorphismes/*)
-        [ -f "$state/$name.done" ] || { echo 'HTTP 404 not found' >&2; exit 1; }
+        [ -f "$state/$name.done" ] || {
+            if [ "$scenario" = destination-error ]; then
+                echo '{"message":"Forbidden","documentation_url":"https://docs.github.com/rest/repos/repos#get-a-repository","status":"403"}'
+            else
+                echo '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/repos#get-a-repository","status":"404"}'
+            fi
+            exit 1
+        }
         case $jq in
             .full_name) echo "$dst" ;;
             .id) echo "$id" ;;
@@ -178,4 +185,16 @@ fi
 grep -F 'identity mismatch for morava' "$tmp/wrong-id.out"
 [ ! -e "$tmp/state-wrong-id/post.log" ]
 
-echo 'PASS native Grease batch: ten transfers, idempotent rerun, preflight ID refusal'
+rm -rf "$tmp/state-destination-error"
+mkdir "$tmp/state-destination-error"
+TRANSFER_TEST_STATE=$tmp/state-destination-error
+TRANSFER_TEST_SCENARIO=destination-error
+export TRANSFER_TEST_STATE TRANSFER_TEST_SCENARIO
+if grease "$batch" > "$tmp/destination-error.out" 2>&1; then
+    echo 'non-404 destination API error was accepted' >&2
+    exit 1
+fi
+grep -F 'cannot determine whether destination exists' "$tmp/destination-error.out"
+[ ! -e "$tmp/state-destination-error/post.log" ]
+
+echo 'PASS native Grease batch: ten transfers, idempotent rerun, preflight ID refusal, real-style 404 classification'
