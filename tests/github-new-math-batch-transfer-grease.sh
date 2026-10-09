@@ -1,11 +1,10 @@
 #!/bin/sh
-# Actual native Grease runs the batch, FP wrapper, Kitchen generator and candidate.
+# Actual native Grease runs the batch plus each materialized Kitchen generator/candidate program.
 set -eu
 root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
 : "${KITCHEN_ROOT:?Set KITCHEN_ROOT to the pinned companion checkout}"
 : "${GREASE_BINARY:?Set GREASE_BINARY to the verified native Grease/YSH ELF}"
 batch=$root/scripts/move-new-math-repositories-to-isomorphismes.ysh
-wrapper=$root/scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 mkdir -p "$tmp/bin" "$tmp/state"
@@ -145,9 +144,8 @@ chmod 700 "$tmp/bin/grease" "$tmp/bin/sleep" "$tmp/bin/gh"
 
 PATH="$tmp/bin:$PATH"
 TRANSFER_TEST_MODE=1
-TRANSFER_SINGLE_WRAPPER=$wrapper
 TRANSFER_TEST_STATE=$tmp/state
-export PATH TRANSFER_TEST_MODE TRANSFER_SINGLE_WRAPPER TRANSFER_TEST_STATE KITCHEN_ROOT GREASE_BINARY
+export PATH TRANSFER_TEST_MODE TRANSFER_TEST_STATE KITCHEN_ROOT GREASE_BINARY
 
 cd "$tmp"
 status=0
@@ -156,6 +154,8 @@ if [ "$status" -ne 0 ]; then
     cat "$tmp/first.out" "$tmp/first.err" >&2
     exit "$status"
 fi
+grep -F 'BATCH MATERIALIZATION: generating ten standalone Kitchen programs; no mutation has occurred' "$tmp/first.out"
+[ "$(grep -c '^PROGRAM   ' "$tmp/first.out")" -eq 10 ]
 grep -F 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs' "$tmp/first.out"
 [ "$(wc -l < "$tmp/state/post.log" | tr -d ' ')" = 10 ]
 printf '%s\n' \
@@ -171,7 +171,7 @@ if [ "$status" -ne 0 ]; then
 fi
 grep -F 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs' "$tmp/second.out"
 [ "$(wc -l < "$tmp/state/post.log" | tr -d ' ')" = 10 ]
-grep -F 'already transferred' "$tmp/second.out" >/dev/null
+[ "$(grep -c 'action=already_transferred' "$tmp/second.out")" -eq 10 ]
 
 rm -rf "$tmp/state-wrong-id"
 mkdir "$tmp/state-wrong-id"
