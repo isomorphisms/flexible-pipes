@@ -1,0 +1,11 @@
+#!/usr/bin/env grease
+# Test GPT-OSS understanding of GitHub repository commands; never transfer a repo.
+set -e
+var pipes = ENV.FLEXIBLE_PIPES_ROOT
+var aici = ENV.AICI_ROOT
+var ithon = ENV.ITHON_ENTRYPOINT
+var output = ENV.MODEL_EVAL_OUTPUT
+var model = get(ENV, 'MODEL_EVAL_MODEL', 'gpt-oss-120b')
+"$ithon" "$aici/model-evaluation/evaluate.pi" prepare "$pipes/evals/github-repository-transfer/suite.json" "$pipes/models/catalog.toml" "$model" "$output"
+"$ithon" "$aici/model-evaluation/infer-http.pi" run "$output"
+"$ithon" "$aici/model-evaluation/evaluate.pi" grade "$output" live

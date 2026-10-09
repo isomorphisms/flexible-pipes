@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "HARNESS_ONLY_PASS",
+  "source_revision": "288c2ab13e4273aa2a3646bf60910bd3b2286bb7",
+  "aici_code_revision": "38f5fd26e5e937ac5fc9e410ffe86e46f0b6170f",
+  "ithon_revision": "d6e83969f82512e920fb17b44326cb54f31d015c",
+  "workflow_run": 37926591487,
+  "artifact_id": 11614551558,
+  "artifact_sha256": "d46f9114d2ce451084d7fa2075776d049956dbbb573cac2bc7915aeb92b61c51",
+  "cases": 24,
+  "prompt_conditions": 3,
+  "trials_per_condition": 3,
+  "matrix_size": 216,
+  "actual_ithon_frontend": "PASS on hosted runner and local replay of exact source blobs",
+  "parser_controls": {"positive": 1, "rejecting_mutants": 10, "status": "PASS"},
+  "synthetic_matrix_controls": {
+    "correct_oracle": {"accepted": 216, "responses": 216, "suite_status": "HARNESS_ONLY_PASS"},
+    "constant_first_answer": {"accepted": 36, "responses": 216, "suite_status": "HARNESS_ONLY_FAIL"},
+    "stale_request_binding": {"accepted": 0, "responses": 216, "suite_status": "HARNESS_ONLY_FAIL"},
+    "fixture_claims_live_evidence": {"accepted": 0, "responses": 216, "suite_status": "HARNESS_ONLY_FAIL"},
+    "missing_responses": {"accepted": 0, "responses": 0, "suite_status": "HARNESS_ONLY_FAIL"}
+  },
+  "model_profiles_prepared": ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"],
+  "gpt_oss_inference": "BLOCKED_NO_ENDPOINT",
+  "actual_model_responses": 0,
+  "gpt_oss_accuracy": "NOT_MEASURED",
+  "pythia_inference": "NOT_RUN",
+  "grease_execution": "NOT_RUN",
+  "kitchen_execution": "NOT_RUN",
+  "live_transfer": "NOT_RUN",
+  "warning": "Synthetic response counts measure the grader, never GPT-OSS or Pythia behavior. The public evaluation split is not a secret holdout."
+}

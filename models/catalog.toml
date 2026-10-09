@@ -1,5 +1,16 @@
 schema_version = 1
 
+[models.gpt-oss-20b]
+hf_repo = "openai/gpt-oss-20b"
+revision = "6cee5e81ee83917806bbde320786a8fb61efebee"
+role = "bounded-cpu-evaluation"
+interface = "chat"
+reasoning_effort = "low"
+ollama_model = "gpt-oss:20b"
+ollama_version = "0.40.2"
+ollama_digest = "f38aa0c53da5f8c49d08c43a99df24ff53167fe68e24664a7777288e7656fdfe"
+notes = "Distinct 20B pilot, using the runtime/model digest retained by Gym run 37960256328. The HF source revision is requested provenance; equivalence of Ollama's converted weights to that source is not attested."
+
 [models.gpt-oss-120b]
 hf_repo = "openai/gpt-oss-120b"
 revision = "b5c939de8f754692c1647ca79fbf85e8c1e70f8a"
