@@ -1,0 +1,213 @@
+#!/usr/bin/env grease
+# Flexible Pipes batch entrypoint for the October 9, 2026 mathematical repositories.
+# Fetches the pinned Kitchen generator and the pinned single-repository FP wrapper,
+# preflights the complete batch, transfers sequentially, and verifies all identities.
+set -eu
+
+fail() {
+    printf 'GitHub repository batch transfer: %s\n' "$*" >&2
+    exit 1
+}
+
+lower() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+test "$#" -eq 0 || fail 'this pinned batch takes no arguments'
+for tool in gh grease sha256sum cut head mktemp cat grep rm; do
+    command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
+done
+
+# Interactive ownership changes must use the user's gh credential, never an
+# inherited automation token or an alternate GH host.
+setglobal ENV.GH_TOKEN = null
+setglobal ENV.GITHUB_TOKEN = null
+setglobal ENV.GH_HOST = 'github.com'
+gh auth status --hostname github.com >/dev/null 2>&1 ||
+    fail 'gh is not authenticated to github.com'
+try { login=$(gh api user --jq '.login') }
+if (_error.code !== 0) { fail 'cannot read authenticated GitHub login' }
+login_key=$(lower "$login")
+test "$login_key" = isomorphisms ||
+    fail "authenticated as $login, expected isomorphisms"
+
+kitchen_commit=78f6942928bcbebfc7cbe9112e22361baaf7f62f
+wrapper_commit=3bd04265ece03016e778636dd1f781a331b472ad
+candidate_blob=4ffb60afb7ec315e91b10f216aead8dfc07e129e
+generator_blob=9eae38147ed54f30f4b3f906c5ba9262a77b336a
+wrapper_blob=2a7704fb2a7c06177890fe66a315d259d05ada6c
+generator_name=render-standalone-github-repository-organization-transfer.ysh
+wrapper_name=how-to-move-the-users-github-repository-to-a-different-organization.ysh
+
+try { scratch=$(mktemp -d) }
+if (_error.code !== 0) { fail 'could not create private scratch directory' }
+mkdir -p "$scratch/kitchen/tasks/github-repository-transfer" "$scratch/artifacts"
+printf 'BATCH WORKSPACE: %s\n' "$scratch"
+
+test_mode=$[get(ENV, 'TRANSFER_TEST_MODE', '')]
+if test "$test_mode" = 1; then
+    kitchen_root=$[get(ENV, 'KITCHEN_ROOT', '')]
+    wrapper=$[get(ENV, 'TRANSFER_SINGLE_WRAPPER', '')]
+    test -n "$kitchen_root" || fail 'test mode requires KITCHEN_ROOT'
+    test -r "$wrapper" || fail 'test mode requires TRANSFER_SINGLE_WRAPPER'
+else
+    kitchen_root=$scratch/kitchen
+    wrapper=$scratch/$wrapper_name
+
+    try {
+        actual_candidate_blob=$(gh api \
+            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/6.ysh?ref=$kitchen_commit" \
+            --jq '.sha')
+    }
+    if (_error.code !== 0) { fail 'cannot inspect pinned Kitchen candidate' }
+    test "$actual_candidate_blob" = "$candidate_blob" ||
+        fail 'pinned Kitchen candidate blob changed'
+
+    try {
+        actual_generator_blob=$(gh api \
+            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/$generator_name?ref=$kitchen_commit" \
+            --jq '.sha')
+    }
+    if (_error.code !== 0) { fail 'cannot inspect pinned Kitchen generator' }
+    test "$actual_generator_blob" = "$generator_blob" ||
+        fail 'pinned Kitchen generator blob changed'
+
+    try {
+        actual_wrapper_blob=$(gh api \
+            "repos/isomorphisms/flexible-pipes/contents/scripts/$wrapper_name?ref=$wrapper_commit" \
+            --jq '.sha')
+    }
+    if (_error.code !== 0) { fail 'cannot inspect pinned Flexible Pipes wrapper' }
+    test "$actual_wrapper_blob" = "$wrapper_blob" ||
+        fail 'pinned Flexible Pipes wrapper blob changed'
+
+    if gh api -H 'Accept: application/vnd.github.raw+json' \
+        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/6.ysh?ref=$kitchen_commit" \
+        > "$kitchen_root/tasks/github-repository-transfer/6.ysh"; then
+        true
+    else
+        fail 'could not fetch pinned Kitchen candidate'
+    fi
+    if gh api -H 'Accept: application/vnd.github.raw+json' \
+        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/$generator_name?ref=$kitchen_commit" \
+        > "$kitchen_root/tasks/github-repository-transfer/$generator_name"; then
+        true
+    else
+        fail 'could not fetch pinned Kitchen generator'
+    fi
+    if gh api -H 'Accept: application/vnd.github.raw+json' \
+        "repos/isomorphisms/flexible-pipes/contents/scripts/$wrapper_name?ref=$wrapper_commit" \
+        > "$wrapper"; then
+        true
+    else
+        fail 'could not fetch pinned Flexible Pipes wrapper'
+    fi
+
+    candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/6.ysh")
+    generator_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/$generator_name")
+    wrapper_header=$(head -n 1 "$wrapper")
+    test "$candidate_header" = '#!/usr/bin/env grease' ||
+        fail 'invalid Kitchen candidate header'
+    test "$generator_header" = '#!/usr/bin/env grease' ||
+        fail 'invalid Kitchen generator header'
+    test "$wrapper_header" = '#!/usr/bin/env grease' ||
+        fail 'invalid Flexible Pipes wrapper header'
+fi
+
+# NAME:IMMUTABLE_GITHUB_REPOSITORY_ID. This is deliberately explicit rather
+# than "everything created recently", which could transfer infrastructure.
+set -- mapping-class:1412391052 montesinos:1412394512 Bulatov-Goodman-Strauss:1412402847 regina:1412463768 VanKoughnett:1412475989 zakharevich:1412476795 snaith:1412477737 kirby-calculus:1412481397 morava:1412482666 goodwillie:1412483445
+
+try { canonical_organization=$(gh api orgs/isomorphismes --jq '.login') }
+if (_error.code !== 0) { fail 'cannot read destination organization isomorphismes' }
+organization_key=$(lower "$canonical_organization")
+test "$organization_key" = isomorphismes ||
+    fail "destination organization resolved to $canonical_organization"
+try { membership=$(gh api user/memberships/orgs/isomorphismes --jq '.state') }
+if (_error.code !== 0) { fail 'cannot verify membership in isomorphismes' }
+test "$membership" = active ||
+    fail "membership in isomorphismes is $membership, not active"
+
+printf '%s\n' 'BATCH PREFLIGHT: ten repositories; no mutation has occurred'
+for item in "$@"; do
+    repository=$(printf '%s\n' "$item" | cut -d: -f1)
+    expected_id=$(printf '%s\n' "$item" | cut -d: -f2)
+
+    try { actual_full=$(gh api "repos/isomorphisms/$repository" --jq '.full_name') }
+    if (_error.code !== 0) { fail "cannot read isomorphisms/$repository" }
+    try { actual_id=$(gh api "repos/isomorphisms/$repository" --jq '.id') }
+    if (_error.code !== 0) { fail "cannot read repository ID for $repository" }
+    test "$actual_id" = "$expected_id" ||
+        fail "identity mismatch for $repository: expected $expected_id, found $actual_id"
+
+    actual_key=$(lower "$actual_full")
+    source_key=$(lower "isomorphisms/$repository")
+    destination_key=$(lower "isomorphismes/$repository")
+    if test "$actual_key" = "$source_key"; then
+        try { source_admin=$(gh api "repos/isomorphisms/$repository" --jq '.permissions.admin') }
+        if (_error.code !== 0) { fail "cannot read administrator permission for $repository" }
+        test "$source_admin" = true ||
+            fail "authenticated user lacks administrator permission for $repository"
+        destination_probe=$scratch/destination-probe
+        rm -f "$destination_probe"
+        try { gh api "repos/isomorphismes/$repository" --jq '.full_name' > "$destination_probe" 2>/dev/null }
+        if (_error.code === 0) {
+            destination_full=$(cat "$destination_probe")
+            rm -f "$destination_probe"
+        } else {
+            try { grep -F '"status":"404"' "$destination_probe" >/dev/null }
+            if (_error.code !== 0) {
+                destination_error=$(cat "$destination_probe")
+                rm -f "$destination_probe"
+                fail "cannot determine whether destination exists for $repository: $destination_error"
+            }
+            rm -f "$destination_probe"
+            destination_full=''
+        }
+        test -z "$destination_full" ||
+            fail "destination already exists before transfer: $destination_full"
+        state=ready
+    elif test "$actual_key" = "$destination_key"; then
+        try { destination_id=$(gh api "repos/isomorphismes/$repository" --jq '.id') }
+        if (_error.code !== 0) { fail "cannot verify transferred destination for $repository" }
+        test "$destination_id" = "$expected_id" ||
+            fail "transferred destination ID mismatch for $repository"
+        state=already-transferred
+    else
+        fail "old source URL for $repository resolves to unrelated $actual_full"
+    fi
+    printf 'PREFLIGHT %-27s id=%s state=%s\n' "$repository" "$expected_id" "$state"
+done
+
+printf '%s\n' 'BATCH EXECUTION: transferring sequentially with one verified operation per repository'
+for item in "$@"; do
+    repository=$(printf '%s\n' "$item" | cut -d: -f1)
+    artifact_dir=$scratch/artifacts/$repository
+    mkdir -p "$artifact_dir"
+    printf 'TRANSFER %s\n' "$repository"
+    KITCHEN_ROOT="$kitchen_root" TRANSFER_ARTIFACT_DIR="$artifact_dir" \
+        grease "$wrapper" isomorphisms "$repository" isomorphismes isomorphisms
+done
+
+printf '%s\n' 'BATCH FINAL VERIFICATION'
+var verified = 0
+for item in "$@"; do
+    repository=$(printf '%s\n' "$item" | cut -d: -f1)
+    expected_id=$(printf '%s\n' "$item" | cut -d: -f2)
+    try { destination_full=$(gh api "repos/isomorphismes/$repository" --jq '.full_name') }
+    if (_error.code !== 0) { fail "destination is missing after execution: $repository" }
+    try { destination_id=$(gh api "repos/isomorphismes/$repository" --jq '.id') }
+    if (_error.code !== 0) { fail "cannot read final destination ID: $repository" }
+    destination_key=$(lower "$destination_full")
+    expected_key=$(lower "isomorphismes/$repository")
+    test "$destination_key" = "$expected_key" ||
+        fail "final destination redirects to $destination_full"
+    test "$destination_id" = "$expected_id" ||
+        fail "final repository ID mismatch for $repository"
+    setvar verified += 1
+    printf 'VERIFIED %-28s id=%s\n' "$destination_full" "$destination_id"
+done
+
+if (verified !== 10) { fail "internal verified count is $verified, expected 10" }
+rm -rf "$scratch"
+printf '%s\n' 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs'

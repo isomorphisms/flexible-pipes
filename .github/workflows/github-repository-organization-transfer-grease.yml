@@ -1,21 +1,8 @@
 name: Grease GitHub repository organization transfer
-on:
-  push:
-    paths:
-      - 'scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh'
-      - 'pipelines/how-to-move-the-users-github-repository-to-a-different-organization.json'
-      - 'tests/github-repository-organization-transfer-grease.sh'
-      - 'docs/how-to-move-the-users-github-repository-to-a-different-organization.md'
-      - '.github/workflows/github-repository-organization-transfer-grease.yml'
-  pull_request:
-    paths:
-      - 'scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh'
-      - 'pipelines/how-to-move-the-users-github-repository-to-a-different-organization.json'
-      - 'tests/github-repository-organization-transfer-grease.sh'
-      - 'docs/how-to-move-the-users-github-repository-to-a-different-organization.md'
-      - '.github/workflows/github-repository-organization-transfer-grease.yml'
+on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+  actions: read
 jobs:
   checked-organization-transfer:
     runs-on: ubuntu-latest
@@ -23,17 +10,36 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: flexible-pipes
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: 1a24babb9331413f20e6442047f7de8893899bd2
+          ref: 78f6942928bcbebfc7cbe9112e22361baaf7f62f
           path: kitchen
-      - name: Test Kitchen's Grease transfer generator with fake GitHub
+      - name: Acquire exact native Grease runtime (not a shell mock)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          gh api repos/dilapidated-shed/grease/actions/artifacts/11419782646/zip > "$RUNNER_TEMP/grease.zip"
+          printf '%s  %s\n' 71e679fef031225716bbb4d6ea140ab17e9d44e7aa6bd4964e7bccbbed6ce323 "$RUNNER_TEMP/grease.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/grease.zip" '_bin/cxx-asan/ysh' -d "$RUNNER_TEMP/grease"
+          chmod 755 "$RUNNER_TEMP/grease/_bin/cxx-asan/ysh"
+      - name: Test Kitchen generation under native Grease
+        env:
+          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
         run: sh tests/github-repository-transfer-grease.sh
         working-directory: kitchen
-      - name: Test Flexible Pipes generated program and checked response
+      - name: Test FP, generated program, identity and rerun under native Grease
         env:
           KITCHEN_ROOT: ${{ github.workspace }}/kitchen
+          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
         run: sh tests/github-repository-organization-transfer-grease.sh
+        working-directory: flexible-pipes
+      - name: Test the exact ten-repository batch and idempotent rerun
+        env:
+          KITCHEN_ROOT: ${{ github.workspace }}/kitchen
+          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
+        run: sh tests/github-new-math-batch-transfer-grease.sh
         working-directory: flexible-pipes
