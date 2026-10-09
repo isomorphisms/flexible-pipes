@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "model_catalog": "models/catalog.toml",
+  "evaluation_owner": "isomorphisms/ai-ci",
+  "evaluation_revision": "898603c8badcdf50f34714990cbbf20fd82a98a9",
+  "tested_code_revision": "38f5fd26e5e937ac5fc9e410ffe86e46f0b6170f",
+  "grader": "model-evaluation/evaluate.pi",
+  "gpt_oss_adapter": "model-evaluation/infer-http.pi",
+  "pythia_adapter": "model-evaluation/infer-pythia.pi",
+  "models": ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"],
+  "gpt_oss_reference_source": "model-evaluation/sources/gpt-oss",
+  "pythia_implementation_sources": ["model-evaluation/sources/transformers", "model-evaluation/sources/gpt-neox"],
+  "case_suite": "evals/github-repository-transfer/suite.json",
+  "instructions": "docs/test-gpt-oss-understanding-of-github-repository-commands.md",
+  "model_accuracy": "NOT_MEASURED",
+  "weights_in_git": false
+}
