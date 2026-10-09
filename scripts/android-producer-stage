@@ -6,6 +6,96 @@ fail() {
     exit 1
 }
 
+
+registered_android() {
+    # This mode consumes a checked allowlist and cannot be redirected to an
+    # arbitrary path or model-generated recipe.
+    for name in FP_ANDROID_REPOSITORY FP_ANDROID_SOURCE_SHA FP_ANDROID_APP_ROOT \
+        FP_CATFOOD_CHECKOUT FP_AICI_CHECKOUT FP_ANDROID_NDK_CHECKOUT \
+        FP_ANDROID_ICK_OBJECT FP_ANDROID_ICK_OBJECT_SHA256 FP_ANDROID_OUTPUT_DIR
+    do
+        [[ -n ${!name:-} ]] || fail "required registered input is unset: $name"
+    done
+    [[ "$FP_ANDROID_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] ||
+        fail 'source revision must be a full SHA'
+    [[ "$FP_ANDROID_ICK_OBJECT_SHA256" =~ ^[0-9a-f]{64}$ ]] ||
+        fail 'ICK object digest must be SHA-256'
+    [[ "$FP_ANDROID_OUTPUT_DIR" == /* && ! -e "$FP_ANDROID_OUTPUT_DIR" ]] ||
+        fail 'output directory must be a new absolute path'
+    [[ -f "$FP_ANDROID_ICK_OBJECT" ]] || fail 'required ICK object missing'
+    observed_object=$(sha256sum "$FP_ANDROID_ICK_OBJECT" | awk '{print $1}')
+    [[ "$observed_object" == "$FP_ANDROID_ICK_OBJECT_SHA256" ]] ||
+        fail 'ICK object digest mismatch'
+    root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+    registry="$root/registry/android-native-applications.tsv"
+    [[ -f "$registry" ]] || fail 'registered Android application index missing'
+    row=$(awk -F '\t' -v repository="$FP_ANDROID_REPOSITORY" '
+        /^[[:space:]]*#/ {next}
+        $1==repository {count++; result=$0}
+        END {if(count!=1) exit 2; print result}
+    ' "$registry") || fail 'application not uniquely registered'
+    IFS=$'\t' read -r registered contract_path recipe_path a1_file c67_file <<< "$row"
+    [[ "$registered" == "$FP_ANDROID_REPOSITORY" ]] || fail 'invalid registration identity'
+    for rel in "$contract_path" "$recipe_path"; do
+        [[ "$rel" != /* && "$rel" != *../* && "$rel" != */../* ]] ||
+            fail 'registered file path escapes source'
+        git -C "$FP_ANDROID_APP_ROOT" ls-files --error-unmatch "$rel" >/dev/null 2>&1 ||
+            fail "registered application source missing: $rel"
+        git -C "$FP_ANDROID_APP_ROOT" diff --quiet HEAD -- "$rel" ||
+            fail "registered application source changed: $rel"
+    done
+    [[ "$a1_file" =~ ^[A-Za-z0-9_.-]+\.apk$ &&
+       "$c67_file" =~ ^[A-Za-z0-9_.-]+\.apk$ ]] ||
+        fail 'unsafe registered APK artifact names'
+    actual_sha=$(git -C "$FP_ANDROID_APP_ROOT" rev-parse HEAD) ||
+        fail 'application checkout is not Git'
+    [[ "$actual_sha" == "$FP_ANDROID_SOURCE_SHA" ]] ||
+        fail 'application ref does not match exact checkout'
+    origin=$(git -C "$FP_ANDROID_APP_ROOT" config --local --get remote.origin.url) ||
+        fail 'application repository origin is unknown'
+    case "$origin" in
+        "https://github.com/$registered"|"https://github.com/$registered.git"|\
+        "git@github.com:$registered"|"git@github.com:$registered.git") ;;
+        *) fail "source origin is not registered application: $origin" ;;
+    esac
+    for policy in "$FP_AICI_CHECKOUT" "$FP_ANDROID_NDK_CHECKOUT"; do
+        [[ -d "$policy/.git" ]] || fail "policy is not a Git checkout: $policy"
+        revision=$(git -C "$policy" rev-parse HEAD)
+        git -C "$policy" fetch --quiet --no-tags origin main:refs/remotes/origin/main ||
+            fail 'cannot check policy main ancestry'
+        git -C "$policy" merge-base --is-ancestor "$revision" refs/remotes/origin/main ||
+            fail 'producer cannot execute unmerged policy candidate'
+    done
+    [[ -f "$FP_AICI_CHECKOUT/android-companion/verify.sh" ]] ||
+        fail 'AICI companion verifier not installed in approved policy'
+    [[ -f "$FP_ANDROID_NDK_CHECKOUT/apk/build-nativeactivity-apk.sh" ]] ||
+        fail 'approved direct packager missing'
+    export CATFOOD_CHECKOUT="$FP_CATFOOD_CHECKOUT"
+    export AICI_CHECKOUT="$FP_AICI_CHECKOUT"
+    export ANDROID_NDK_REPO="$FP_ANDROID_NDK_CHECKOUT"
+    export WEGERT_ICK_OBJECT="$FP_ANDROID_ICK_OBJECT"
+    bash "$FP_ANDROID_APP_ROOT/$recipe_path" "$FP_ANDROID_OUTPUT_DIR"
+    for artifact in "$a1_file" "$c67_file"; do
+        [[ -s "$FP_ANDROID_OUTPUT_DIR/$artifact" ]] ||
+            fail "required paired APK missing: $artifact"
+    done
+    map="$FP_ANDROID_OUTPUT_DIR/apk-map.tsv"
+    {
+        printf 'target\tapk\n'
+        printf 'phone\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$a1_file"
+        printf 'c67\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$c67_file"
+    } > "$map"
+    export AICI_COMPANION_RECEIPT="$FP_ANDROID_OUTPUT_DIR/aici-companion.receipt.tsv"
+    bash "$FP_AICI_CHECKOUT/android-companion/verify.sh" \
+        "$FP_CATFOOD_CHECKOUT" "$FP_ANDROID_APP_ROOT" \
+        "$FP_ANDROID_APP_ROOT/$contract_path" \
+        "$FP_ANDROID_OUTPUT_DIR/android-plan.tsv" "$map"
+}
+if [[ ${1:-} == registered ]]; then
+    registered_android
+    exit $?
+fi
+
 for name in \
     AICI_CHECKOUT \
     ANDROID_NDK_CHECKOUT \
