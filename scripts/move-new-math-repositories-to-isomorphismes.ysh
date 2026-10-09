@@ -14,7 +14,7 @@ lower() {
 }
 
 test "$#" -eq 0 || fail 'this pinned batch takes no arguments'
-for tool in gh grease sha256sum cut head mktemp; do
+for tool in gh grease sha256sum cut head mktemp cat grep rm; do
     command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
 done
 
@@ -31,10 +31,10 @@ login_key=$(lower "$login")
 test "$login_key" = isomorphisms ||
     fail "authenticated as $login, expected isomorphisms"
 
-kitchen_commit=6b4e22f2b878d09abc1cf0a06d38afb72322ecea
+kitchen_commit=78f6942928bcbebfc7cbe9112e22361baaf7f62f
 wrapper_commit=3bd04265ece03016e778636dd1f781a331b472ad
-candidate_blob=97771394b0fa528257db13fe65f9d9e4b34e7ab3
-generator_blob=45c12a48ec9f5ecad2edfe37acbbd128e1bdca06
+candidate_blob=4ffb60afb7ec315e91b10f216aead8dfc07e129e
+generator_blob=9eae38147ed54f30f4b3f906c5ba9262a77b336a
 wrapper_blob=2a7704fb2a7c06177890fe66a315d259d05ada6c
 generator_name=render-standalone-github-repository-organization-transfer.ysh
 wrapper_name=how-to-move-the-users-github-repository-to-a-different-organization.ysh
@@ -56,7 +56,7 @@ else
 
     try {
         actual_candidate_blob=$(gh api \
-            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/5.ysh?ref=$kitchen_commit" \
+            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/6.ysh?ref=$kitchen_commit" \
             --jq '.sha')
     }
     if (_error.code !== 0) { fail 'cannot inspect pinned Kitchen candidate' }
@@ -82,8 +82,8 @@ else
         fail 'pinned Flexible Pipes wrapper blob changed'
 
     if gh api -H 'Accept: application/vnd.github.raw+json' \
-        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/5.ysh?ref=$kitchen_commit" \
-        > "$kitchen_root/tasks/github-repository-transfer/5.ysh"; then
+        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/6.ysh?ref=$kitchen_commit" \
+        > "$kitchen_root/tasks/github-repository-transfer/6.ysh"; then
         true
     else
         fail 'could not fetch pinned Kitchen candidate'
@@ -103,7 +103,7 @@ else
         fail 'could not fetch pinned Flexible Pipes wrapper'
     fi
 
-    candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/5.ysh")
+    candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/6.ysh")
     generator_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/$generator_name")
     wrapper_header=$(head -n 1 "$wrapper")
     test "$candidate_header" = '#!/usr/bin/env grease' ||
@@ -148,13 +148,21 @@ for item in "$@"; do
         if (_error.code !== 0) { fail "cannot read administrator permission for $repository" }
         test "$source_admin" = true ||
             fail "authenticated user lacks administrator permission for $repository"
-        destination_full=''
-        try { destination_full=$(gh api "repos/isomorphismes/$repository" --jq '.full_name' 2>/dev/null) }
-        if (_error.code !== 0) {
-            destination_error=$destination_full
+        destination_probe=$scratch/destination-probe
+        rm -f "$destination_probe"
+        try { gh api "repos/isomorphismes/$repository" --jq '.full_name' > "$destination_probe" 2>/dev/null }
+        if (_error.code === 0) {
+            destination_full=$(cat "$destination_probe")
+            rm -f "$destination_probe"
+        } else {
+            try { grep -F '"status":"404"' "$destination_probe" >/dev/null }
+            if (_error.code !== 0) {
+                destination_error=$(cat "$destination_probe")
+                rm -f "$destination_probe"
+                fail "cannot determine whether destination exists for $repository: $destination_error"
+            }
+            rm -f "$destination_probe"
             destination_full=''
-            try { printf '%s\n' "$destination_error" | grep -F '"status":"404"' >/dev/null }
-            if (_error.code !== 0) { fail "cannot determine whether destination exists for $repository: $destination_error" }
         }
         test -z "$destination_full" ||
             fail "destination already exists before transfer: $destination_full"
