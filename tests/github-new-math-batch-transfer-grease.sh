@@ -171,7 +171,7 @@ if [ "$status" -ne 0 ]; then
 fi
 grep -F 'BATCH COMPLETE: 10/10 repositories are under isomorphismes with preserved IDs' "$tmp/second.out"
 [ "$(wc -l < "$tmp/state/post.log" | tr -d ' ')" = 10 ]
-grep -F 'already transferred' "$tmp/second.out" >/dev/null
+[ "$(grep -c 'action=already_transferred' "$tmp/second.out")" -eq 10 ]
 
 rm -rf "$tmp/state-wrong-id"
 mkdir "$tmp/state-wrong-id"
