@@ -87,7 +87,16 @@ else
 fi
 
 generator=$kitchen_root/tasks/github-repository-transfer/$generator_name
-test -r "$generator" || fail "Kitchen Grease program generator is unavailable before materialization: $generator"
+generator_probe=$scratch/generator-header
+if head -n 1 "$generator" > "$generator_probe" 2>/dev/null; then
+    true
+else
+    fail "Kitchen Grease program generator cannot be read before materialization: $generator"
+fi
+generator_header=$(cat "$generator_probe")
+rm -f "$generator_probe"
+test "$generator_header" = '#!/usr/bin/env grease' ||
+    fail "Kitchen Grease program generator has an invalid header before materialization: $generator"
 
 # NAME:IMMUTABLE_GITHUB_REPOSITORY_ID.
 set -- mapping-class:1412391052 montesinos:1412394512 Bulatov-Goodman-Strauss:1412402847 regina:1412463768 VanKoughnett:1412475989 zakharevich:1412476795 snaith:1412477737 kirby-calculus:1412481397 morava:1412482666 goodwillie:1412483445
