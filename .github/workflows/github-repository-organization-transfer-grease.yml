@@ -17,6 +17,9 @@ jobs:
           repository: isomorphisms/kitchen
           ref: 78f6942928bcbebfc7cbe9112e22361baaf7f62f
           path: kitchen
+      - name: Reject the C67-failing generator readability predicate
+        run: sh tests/c67-generator-readability-regression.sh
+        working-directory: flexible-pipes
       - name: Acquire exact native Grease runtime (not a shell mock)
         env:
           GH_TOKEN: ${{ github.token }}
