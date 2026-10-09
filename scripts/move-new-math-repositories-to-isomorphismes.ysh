@@ -31,10 +31,10 @@ login_key=$(lower "$login")
 test "$login_key" = isomorphisms ||
     fail "authenticated as $login, expected isomorphisms"
 
-kitchen_commit=4aef0d8f57be746fc3549106f9f95d353f2f30fe
+kitchen_commit=ff8a58ec18b826cf906706e6d0517fb8c4628638
 wrapper_commit=3bd04265ece03016e778636dd1f781a331b472ad
-candidate_blob=6d6f5208865539865ca104dca9df5c610ee32d5b
-generator_blob=b54d6bfeb1e91b1f22a2404c79bef3b40b054b64
+candidate_blob=19e7154b16ff781b29cbf9e57224b42fc7b8a282
+generator_blob=ade91e3d30bae5e946448772b3fdc06ddcf6cdc9
 wrapper_blob=2a7704fb2a7c06177890fe66a315d259d05ada6c
 generator_name=render-standalone-github-repository-organization-transfer.ysh
 wrapper_name=how-to-move-the-users-github-repository-to-a-different-organization.ysh
@@ -56,7 +56,7 @@ else
 
     try {
         actual_candidate_blob=$(gh api \
-            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/3.ysh?ref=$kitchen_commit" \
+            "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/4.ysh?ref=$kitchen_commit" \
             --jq '.sha')
     }
     if (_error.code !== 0) { fail 'cannot inspect pinned Kitchen candidate' }
@@ -82,8 +82,8 @@ else
         fail 'pinned Flexible Pipes wrapper blob changed'
 
     if gh api -H 'Accept: application/vnd.github.raw+json' \
-        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/3.ysh?ref=$kitchen_commit" \
-        > "$kitchen_root/tasks/github-repository-transfer/3.ysh"; then
+        "repos/isomorphisms/kitchen/contents/tasks/github-repository-transfer/4.ysh?ref=$kitchen_commit" \
+        > "$kitchen_root/tasks/github-repository-transfer/4.ysh"; then
         true
     else
         fail 'could not fetch pinned Kitchen candidate'
@@ -103,7 +103,7 @@ else
         fail 'could not fetch pinned Flexible Pipes wrapper'
     fi
 
-    candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/3.ysh")
+    candidate_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/4.ysh")
     generator_header=$(head -n 1 "$kitchen_root/tasks/github-repository-transfer/$generator_name")
     wrapper_header=$(head -n 1 "$wrapper")
     test "$candidate_header" = '#!/usr/bin/env grease' ||
@@ -148,7 +148,16 @@ for item in "$@"; do
         if (_error.code !== 0) { fail "cannot read administrator permission for $repository" }
         test "$source_admin" = true ||
             fail "authenticated user lacks administrator permission for $repository"
-        destination_full=$(gh api "repos/isomorphismes/$repository" --jq '.full_name' 2>/dev/null || true)
+        destination_full=''
+        try { destination_full=$(gh api "repos/isomorphismes/$repository" --jq '.full_name' 2>/dev/null) }
+        if (_error.code !== 0) {
+            destination_error=$destination_full
+            destination_full=''
+            case $destination_error in
+                *'"message":"Not Found"'*|*'"status":"404"'*) ;;
+                *) fail "cannot determine whether destination exists for $repository: $destination_error" ;;
+            esac
+        }
         test -z "$destination_full" ||
             fail "destination already exists before transfer: $destination_full"
         state=ready
