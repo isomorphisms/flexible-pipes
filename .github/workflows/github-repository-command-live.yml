@@ -18,9 +18,6 @@ jobs:
       max-parallel: 3
       matrix:
         condition: [title-only, kitchen-task-card, task-card-with-distractor]
-    env:
-      ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
-      OLLAMA_MODELS: ${{ runner.temp }}/gpt-oss-models
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -40,10 +37,16 @@ jobs:
           path: _ithon
           persist-credentials: false
       - name: Check the independent evaluator and rejection controls
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
         run: _ithon/ithon aici/model-evaluation/evaluate.pi self-test
       - name: Check the actual HTTP adapter through Ithon
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
         run: _ithon/ithon aici/model-evaluation/infer-http.pi check
       - name: Freeze all 24 cases and three trials for this prompt condition
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
         run: >-
           _ithon/ithon aici/model-evaluation/evaluate.pi prepare
           flexible-pipes/evals/github-repository-transfer/suite.json
@@ -68,11 +71,16 @@ jobs:
       - name: Release only the temporary verified download archive
         run: rm -- '${{ runner.temp }}/ollama-linux-amd64.tar.zst'
       - name: Download pinned GPT-OSS-20B weights and execute all 72 frozen requests
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+          OLLAMA_MODELS: ${{ runner.temp }}/gpt-oss-models
         run: >-
           _ithon/ithon aici/model-evaluation/infer-http.pi ollama
           '${{ runner.temp }}/command-live' '${{ runner.temp }}/ollama/bin/ollama'
       - name: Independently grade raw model responses and retain failures
         if: ${{ always() && hashFiles('aici/model-evaluation/evaluate.pi') != '' }}
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
         run: _ithon/ithon aici/model-evaluation/evaluate.pi grade '${{ runner.temp }}/command-live' live
       - name: Preserve raw requests, responses, identity, and all partial results
         if: always()
