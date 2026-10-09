@@ -4,23 +4,27 @@ import os
 import json
 import subprocess
 from pathlib import Path
-from builtins import ValueError, globals
+from builtins import ValueError, globals, dict
+from typing import Any
+from operator import contains
 
 
 def run(argv ∈ list[str], expected ∈ int, environment ∈ dict[str, str]) → str:
-    completed ∈ object ← subprocess.run(argv, capture_output=True, text=True, env=environment, timeout=120)
-    if completed.returncode != expected:
-        raise ValueError("Unexpected exit " + str(completed.returncode) + ", expected " + str(expected) + "\n" + completed.stdout + "\n" + completed.stderr)
-    return completed.stdout
+    completed ∈ Any ← subprocess.run(argv, capture_output=True, text=True, env=environment, timeout=120)
+    if int(completed.returncode) != expected:
+        raise ValueError("Unexpected exit " + str(completed.returncode) + ", expected " + str(expected) + "\n" + str(completed.stdout) + "\n" + str(completed.stderr))
+    result ∈ str ← completed.stdout
+    return result
 
 
-def load(path ∈ str) → object:
-    value ∈ object ← json.loads(Path(path).read_text())
+def load(path ∈ str) → Any:
+    value ∈ Any ← json.loads(Path(path).read_text())
     return value
 
 
 def main() → None:
-    args ∈ list[str] ← sys.argv[1:]
+    raw_arguments ∈ list[str] ← sys.argv
+    args ∈ list[str] ← raw_arguments[1:]
     if len(args) != 4:
         raise ValueError("usage: github-repository-command-evaluation.pi PIPES_ROOT AICI_ROOT ITHON_ENTRYPOINT OUTPUT")
     pipes ∈ str ← str(Path(args[0]).resolve())
@@ -50,39 +54,40 @@ def main() → None:
         if control == "good":
             code ← 0
         reports.append(run([ithon, evaluator, "exercise", directory, control], code, environment))
-        summary ∈ dict[str, object] ← load(directory + "/summary.json")
+        summary ∈ dict[str, Any] ← load(directory + "/summary.json")
         if summary["expected_trials"] != 216 or not summary["status"].startswith("HARNESS_ONLY_"):
             raise ValueError("wrong matrix size or synthetic evidence was promoted")
-    good_jobs ∈ list[dict[str, object]] ← load(output + "/good/requests.json")
-    repeat_jobs ∈ list[dict[str, object]] ← load(output + "/constant/requests.json")
+    good_jobs ∈ list[dict[str, Any]] ← load(output + "/good/requests.json")
+    repeat_jobs ∈ list[dict[str, Any]] ← load(output + "/constant/requests.json")
     if good_jobs != repeat_jobs:
         raise ValueError("same inputs did not produce identical requests")
     for job in good_jobs:
-        payload ∈ dict[str, object] ← job["payload"]
+        payload ∈ dict[str, Any] ← job["payload"]
         if set(payload) != set(["model", "messages", "seed", "temperature", "max_tokens"]):
             raise ValueError("unexpected worker payload field")
-        if "expected" in payload or "case_id" in payload or "split" in payload:
+        if contains(payload, "expected") or contains(payload, "case_id") or contains(payload, "split"):
             raise ValueError("oracle metadata leaked to worker")
     for model in ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"]:
         directory ∈ str ← output + "/prepared-" + model
         reports.append(run([ithon, evaluator, "prepare", suite, catalog, model, directory], 0, environment))
-        snapshot ∈ dict[str, object] ← load(directory + "/model.json")
+        snapshot ∈ dict[str, Any] ← load(directory + "/model.json")
         if snapshot["key"] != model:
             raise ValueError("wrong model profile selected")
     actual ∈ str ← output + "/prepared-gpt-oss-120b"
     reports.append(run([ithon, http, "run", actual], 3, environment))
-    blocked ∈ dict[str, object] ← load(actual + "/inference.json")
+    blocked ∈ dict[str, Any] ← load(actual + "/inference.json")
     if blocked["status"] != "BLOCKED" or blocked["requests_attempted"] != 0:
         raise ValueError("missing inference endpoint became a model run")
     reports.append(run([ithon, evaluator, "grade", actual, "live"], 1, environment))
-    actual_summary ∈ dict[str, object] ← load(actual + "/summary.json")
+    actual_summary ∈ dict[str, Any] ← load(actual + "/summary.json")
     if actual_summary["passed"] != 0 or actual_summary["responses"] != 0:
         raise ValueError("missing responses were accepted")
     Path(output + "/checks.txt").write_text("\n".join(reports))
-    receipt ∈ dict[str, object] ← {"status": "HARNESS_ONLY_PASS", "cases": 24, "prompt_conditions": 3, "trials_per_condition": 3, "matrix_size": 216, "synthetic_controls": ["good", "constant", "stale", "false-live", "missing"], "model_profiles_prepared": ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"], "gpt_oss": "BLOCKED_NO_ENDPOINT", "actual_model_responses": 0, "pythia_inference": "NOT_RUN", "grease_execution": "NOT_RUN", "kitchen_execution": "NOT_RUN", "live_transfer": "NOT_RUN"}
-    Path(output + "/receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    receipt ∈ dict[str, Any] ← {"status": "HARNESS_ONLY_PASS", "cases": 24, "prompt_conditions": 3, "trials_per_condition": 3, "matrix_size": 216, "synthetic_controls": ["good", "constant", "stale", "false-live", "missing"], "model_profiles_prepared": ["gpt-oss-120b", "pythia-12b", "pythia-6_9b"], "gpt_oss": "BLOCKED_NO_ENDPOINT", "actual_model_responses": 0, "pythia_inference": "NOT_RUN", "grease_execution": "NOT_RUN", "kitchen_execution": "NOT_RUN", "live_transfer": "NOT_RUN"}
+    Path(output + "/receipt.json").write_text(str(json.dumps(receipt, indent=2)) + "\n")
     print(json.dumps(receipt, sort_keys=True))
 
-namespace ∈ dict[str, object] ← globals()
-if namespace.get("__name__", "") == "__main__":
+namespace ∈ dict[str, Any] ← globals()
+module_name ∈ str ← namespace.get("__name__", "")
+if module_name == "__main__":
     main()
