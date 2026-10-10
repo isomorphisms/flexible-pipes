@@ -17,6 +17,9 @@ jobs:
           repository: isomorphisms/kitchen
           ref: 2d5c0afa372bb532750067a1a79194854f7236fb
           path: kitchen
+      - name: Validate retained C67 live-transfer evidence
+        run: sh tests/c67-live-transfer-evidence.sh
+        working-directory: flexible-pipes
       - name: Reject the C67-failing generator readability predicate
         run: sh tests/c67-generator-readability-regression.sh
         working-directory: flexible-pipes

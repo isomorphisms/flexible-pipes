@@ -38,8 +38,40 @@ instead of success. It does not require a model to decide whether to transfer.
 candidate and parameters. Actual transfer execution is a network mutation and
 must not be called deterministic; responses are conditioned on verified state.
 
-**Acceptance:** Kitchen's offline test includes successful transfer, idempotent
-rerun, redirect, collision, wrong login, missing administrator rights, inactive
-membership, rejected API mutation, and unverified response. Flexible Pipes'
-integration test checks Kitchen generation, stable identity, no duplicate POST,
-artifact retention, unsafe input rejection, and missing checkout refusal.
+**Acceptance:** Kitchen's native-Grease fixture suite includes successful transfer,
+idempotent rerun, redirect, collision, wrong login, missing administrator rights,
+inactive membership, rejected API mutation, real-style REST error bodies, and
+unverified response. Flexible Pipes' integration suite checks Kitchen generation,
+stable identity, no duplicate POST, artifact retention, unsafe input rejection,
+missing checkout refusal, complete batch materialization before mutation, and
+aggregate destination verification.
+
+## Physical C67 acceptance and lessons
+
+The first accepted live batch ran on a physical MIRO C67 in Termux on 2026-10-09.
+Ten Kitchen-generated programs moved ten repositories from `isomorphisms` to
+`isomorphismes`. After the user reported successful execution, GitHub was read
+independently: every destination was canonical and retained its original numeric
+repository ID. The retained evidence is in
+[`evidence/github-repository-transfer/2026-10-09-c67-live/`](../evidence/github-repository-transfer/2026-10-09-c67-live/).
+
+The accepted path established several operational rules:
+
+- Generate, parse, and hash all standalone Kitchen programs before the first POST.
+- On the C67, use an actual bounded file read plus pinned blob/header identity;
+  do not substitute a redundant `test -r` prediction for observed readability.
+- Preserve a failed command's exit status and response bytes separately. Real
+  `gh api` emitted a 404 REST body on stdout while returning nonzero.
+- Run the real Grease runtime. A `grease` fixture that merely invokes `sh` does
+  not qualify Grease behavior.
+- Treat visible delivery, target execution, accepted mutation, per-repository
+  verification, and aggregate verification as separate stages.
+- Do not report success from generated text, a zero exit status, or an accepted
+  POST. Success requires canonical destination and the same immutable repository
+  ID for every requested repository.
+
+The successful ChatGPT Android handoff used ordinary plain text because fenced
+CodeBlock content had rendered as an unavailable component. That is positive
+operational evidence for this conversation, not deployment of a generic trusted
+chat-surface adapter. The exact final terminal transcript was not retained and
+must not be reconstructed.
