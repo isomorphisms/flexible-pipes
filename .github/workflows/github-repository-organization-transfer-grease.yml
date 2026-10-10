@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: 78f6942928bcbebfc7cbe9112e22361baaf7f62f
+          ref: 2d5c0afa372bb532750067a1a79194854f7236fb
           path: kitchen
       - name: Reject the C67-failing generator readability predicate
         run: sh tests/c67-generator-readability-regression.sh
