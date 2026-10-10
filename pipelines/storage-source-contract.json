@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "storage-source-contract",
+  "required_stages": ["storage-contracts"],
+  "stages": [
+    {
+      "name": "storage-contracts",
+      "kind": "command",
+      "argv": ["env", "grease", "scripts/storage-contract-stage.grease"],
+      "cwd": "."
+    }
+  ]
+}
