@@ -28,9 +28,9 @@ login_key=$(lower "$login")
 test "$login_key" = isomorphisms ||
     fail "authenticated as $login, expected isomorphisms"
 
-kitchen_commit=78f6942928bcbebfc7cbe9112e22361baaf7f62f
+kitchen_commit=2d5c0afa372bb532750067a1a79194854f7236fb
 candidate_blob=4ffb60afb7ec315e91b10f216aead8dfc07e129e
-generator_blob=9eae38147ed54f30f4b3f906c5ba9262a77b336a
+generator_blob=87478f27d2bf37d386f21645b5a48f41aa2b9a61
 generator_name=render-standalone-github-repository-organization-transfer.ysh
 
 try { scratch=$(mktemp -d) }
