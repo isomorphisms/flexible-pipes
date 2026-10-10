@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+fail() {
+  printf 'GitHub repository transfer bootstrap: %s\n' "$*" >&2
+  exit 1
+}
+
+for tool in gh sha256sum tar mktemp find dirname grep sed head cat rm mkdir chmod; do
+  command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
+done
+
+gh auth status --hostname github.com >/dev/null 2>&1 || fail 'gh is not authenticated to github.com'
+login=$(gh api user --jq '.login') || fail 'cannot read authenticated GitHub login'
+[[ ${login,,} == isomorphisms ]] || fail "authenticated as $login, expected isomorphisms"
+
+work=$(mktemp -d) || fail 'cannot create private scratch directory'
+cleanup() { rm -rf "$work"; }
+trap cleanup EXIT
+
+# Bootstrap the exact published ARMv7 Grease runtime instead of assuming it is installed.
+grease_tag=phone-armv7-5ff32e220844
+grease_asset=grease-armv7-termux.tar.gz
+grease_sha256=7f2dce33f020a40156a297af38389298d2e4fb9933900379791dadb1e594b61a
+mkdir -p "$work/runtime-download" "$work/runtime"
+gh release download "$grease_tag" \
+  --repo dilapidated-shed/grease \
+  --pattern "$grease_asset" \
+  --dir "$work/runtime-download" || fail 'cannot download pinned ARMv7 Grease runtime'
+printf '%s  %s\n' "$grease_sha256" "$work/runtime-download/$grease_asset" | sha256sum -c - >/dev/null ||
+  fail 'pinned Grease runtime SHA-256 mismatch'
+tar -xzf "$work/runtime-download/$grease_asset" -C "$work/runtime" || fail 'cannot unpack Grease runtime'
+grease_bin=$(find "$work/runtime" -type f -path '*/bin/grease' -print -quit)
+[[ -n $grease_bin ]] || fail 'Grease archive does not contain bin/grease'
+chmod 700 "$grease_bin"
+export PATH="$(dirname "$grease_bin"):$PATH"
+command -v grease >/dev/null 2>&1 || fail 'Grease bootstrap did not produce an executable on PATH'
+grease -c 'exit 0' || fail 'pinned Grease runtime cannot execute on this phone'
+printf 'BOOTSTRAP VERIFIED: %s\n' "$grease_tag"
+
+# Run the accepted ten-repository Flexible Pipes batch exactly as pinned.
+flex_ref=6a162f17e9f2a677f621b6b8e397fa9b6bc58ea5
+batch_path=scripts/move-new-math-repositories-to-isomorphismes.ysh
+batch_blob=11158dc11770ba7ff755b82d39a5b212c31b3bee
+batch="$work/isomorphismes-batch.ysh"
+actual=$(gh api "repos/isomorphisms/flexible-pipes/contents/$batch_path?ref=$flex_ref" --jq '.sha') ||
+  fail 'cannot inspect pinned Flexible Pipes batch'
+[[ $actual == "$batch_blob" ]] || fail "Flexible Pipes batch blob mismatch: $actual"
+gh api -H 'Accept: application/vnd.github.raw+json' \
+  "repos/isomorphisms/flexible-pipes/contents/$batch_path?ref=$flex_ref" > "$batch" ||
+  fail 'cannot fetch pinned Flexible Pipes batch'
+grease "$batch" || fail 'ten-repository isomorphismes batch failed'
+
+# Materialize the same accepted Kitchen transfer program for the two Walnut & Burgundy repositories.
+kitchen_ref=2d5c0afa372bb532750067a1a79194854f7236fb
+candidate_path=tasks/github-repository-transfer/6.ysh
+candidate_blob=4ffb60afb7ec315e91b10f216aead8dfc07e129e
+generator_path=tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+generator_blob=87478f27d2bf37d386f21645b5a48f41aa2b9a61
+kitchen_root="$work/kitchen"
+mkdir -p "$kitchen_root/tasks/github-repository-transfer" "$work/programs" "$work/receipts"
+
+actual=$(gh api "repos/isomorphisms/kitchen/contents/$candidate_path?ref=$kitchen_ref" --jq '.sha') ||
+  fail 'cannot inspect pinned Kitchen transfer candidate'
+[[ $actual == "$candidate_blob" ]] || fail "Kitchen candidate blob mismatch: $actual"
+actual=$(gh api "repos/isomorphisms/kitchen/contents/$generator_path?ref=$kitchen_ref" --jq '.sha') ||
+  fail 'cannot inspect pinned Kitchen generator'
+[[ $actual == "$generator_blob" ]] || fail "Kitchen generator blob mismatch: $actual"
+
+gh api -H 'Accept: application/vnd.github.raw+json' \
+  "repos/isomorphisms/kitchen/contents/$candidate_path?ref=$kitchen_ref" \
+  > "$kitchen_root/$candidate_path" || fail 'cannot fetch Kitchen candidate'
+gh api -H 'Accept: application/vnd.github.raw+json' \
+  "repos/isomorphisms/kitchen/contents/$generator_path?ref=$kitchen_ref" \
+  > "$kitchen_root/$generator_path" || fail 'cannot fetch Kitchen generator'
+
+generator="$kitchen_root/$generator_path"
+
+for spec in barrow-green:1412674679 number:1412694618; do
+  repository=${spec%%:*}
+  expected_id=${spec##*:}
+  actual_id=$(gh api "repos/isomorphisms/$repository" --jq '.id') || fail "cannot read source repository ID for $repository"
+  [[ $actual_id == "$expected_id" ]] || fail "identity mismatch for $repository: expected $expected_id, found $actual_id"
+  program="$work/programs/$repository.ysh"
+  grease "$generator" isomorphisms "$repository" walnut-burgundy isomorphisms > "$program" ||
+    fail "Kitchen generator failed for $repository"
+  grease -n "$program" >/dev/null || fail "generated Kitchen program does not parse: $repository"
+  chmod 700 "$program"
+done
+
+for spec in barrow-green:1412674679 number:1412694618; do
+  repository=${spec%%:*}
+  expected_id=${spec##*:}
+  receipt="$work/receipts/$repository.stdout"
+  error_log="$work/receipts/$repository.stderr"
+  printf 'TRANSFER %s -> walnut-burgundy/%s\n' "$repository" "$repository"
+  if grease "$work/programs/$repository.ysh" > "$receipt" 2> "$error_log"; then
+    :
+  else
+    cat "$error_log" >&2
+    cat "$receipt" >&2
+    fail "Kitchen transfer failed for $repository"
+  fi
+  grep -Fx 'status=verified' "$receipt" >/dev/null || fail "Kitchen did not verify $repository"
+  receipt_id=$(sed -n 's/^repository_id=//p' "$receipt")
+  receipt_url=$(sed -n 's/^repository_url=//p' "$receipt")
+  [[ $receipt_id == "$expected_id" ]] || fail "receipt ID mismatch for $repository: $receipt_id"
+  [[ $receipt_url == "https://github.com/walnut-burgundy/$repository" ]] || fail "receipt URL mismatch for $repository: $receipt_url"
+  printf 'TRANSFER VERIFIED %s id=%s\n' "$repository" "$receipt_id"
+done
+
+for spec in barrow-green:1412674679 number:1412694618; do
+  repository=${spec%%:*}
+  expected_id=${spec##*:}
+  final_id=$(gh api "repos/walnut-burgundy/$repository" --jq '.id') || fail "final destination missing: walnut-burgundy/$repository"
+  [[ $final_id == "$expected_id" ]] || fail "final repository ID mismatch for $repository"
+done
+
+printf '%s\n' 'COMPLETE: 10 repositories verified under isomorphismes; barrow-green and number verified under walnut-burgundy'
