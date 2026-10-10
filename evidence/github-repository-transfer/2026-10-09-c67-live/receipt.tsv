@@ -2,7 +2,7 @@ field	value	source_class
 schema	flexible-pipes-live-operation-v1	contract
 operation	github-native-repository-ownership-transfer	contract
 source_owner	isomorphisms	request
- destination_owner	isomorphismes	request
+destination_owner	isomorphismes	request
 repository_count	10	request
 execution_date	2026-10-09	conversation
 execution_target	MIRO_C67_Termux	user-reported-device-context
