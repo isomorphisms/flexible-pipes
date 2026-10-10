@@ -18,15 +18,31 @@ work=$(mktemp -d) || fail 'cannot create private scratch directory'
 cleanup() { rm -rf "$work"; }
 trap cleanup EXIT
 
-# Bootstrap the exact published ARMv7 Grease runtime instead of assuming it is installed.
-grease_tag=phone-armv7-5ff32e220844
-grease_asset=grease-armv7-termux.tar.gz
-grease_sha256=7f2dce33f020a40156a297af38389298d2e4fb9933900379791dadb1e594b61a
+# Bootstrap a published Grease runtime matching the Termux userland ABI.
+# The Android kernel may support more ABIs than this Termux installation, so
+# select from dpkg rather than uname/getprop.
+command -v dpkg >/dev/null 2>&1 || fail 'missing command: dpkg'
+termux_arch=$(dpkg --print-architecture) || fail 'cannot determine Termux package architecture'
+case "$termux_arch" in
+  aarch64)
+    grease_tag=tablet-aarch64-6b14c70aeb85
+    grease_asset=grease-aarch64-termux.tar.gz
+    grease_sha256=bc332b8ca1cb1e6e44b06589b76cdb7e056ce7a8011cd65e66ab415ae38ad275
+    ;;
+  arm)
+    grease_tag=phone-armv7-5ff32e220844
+    grease_asset=grease-armv7-termux.tar.gz
+    grease_sha256=7f2dce33f020a40156a297af38389298d2e4fb9933900379791dadb1e594b61a
+    ;;
+  *)
+    fail "unsupported Termux architecture for pinned Grease runtime: $termux_arch"
+    ;;
+esac
 mkdir -p "$work/runtime-download" "$work/runtime"
 gh release download "$grease_tag" \
   --repo dilapidated-shed/grease \
   --pattern "$grease_asset" \
-  --dir "$work/runtime-download" || fail 'cannot download pinned ARMv7 Grease runtime'
+  --dir "$work/runtime-download" || fail "cannot download pinned Grease runtime for $termux_arch"
 printf '%s  %s\n' "$grease_sha256" "$work/runtime-download/$grease_asset" | sha256sum -c - >/dev/null ||
   fail 'pinned Grease runtime SHA-256 mismatch'
 tar -xzf "$work/runtime-download/$grease_asset" -C "$work/runtime" || fail 'cannot unpack Grease runtime'
