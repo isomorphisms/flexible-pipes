@@ -20,6 +20,9 @@ jobs:
       - name: Validate retained C67 live-transfer evidence
         run: sh tests/c67-live-transfer-evidence.sh
         working-directory: flexible-pipes
+      - name: Parse the dedicated Walnut & Burgundy Termux entrypoint
+        run: bash -n scripts/move-new-walnut-burgundy-repositories-from-termux
+        working-directory: flexible-pipes
       - name: Reject the C67-failing generator readability predicate
         run: sh tests/c67-generator-readability-regression.sh
         working-directory: flexible-pipes
