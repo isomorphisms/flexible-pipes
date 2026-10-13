@@ -6,6 +6,7 @@ permissions:
   contents: read
 jobs:
   delivery-runtime:
+    name: ${{ github.event_name == 'pull_request' && 'delivery-runtime' || format('delivery-runtime-{0}', github.event_name) }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out exact Flexible Pipes source

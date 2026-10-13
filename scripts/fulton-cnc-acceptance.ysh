@@ -1,0 +1,94 @@
+#!/usr/bin/env grease
+# FP-owned orchestration. M2 producers and independent AICI algebra stay owned
+# by their repositories. No motion or publication is performed by this stage.
+set -eu
+
+fail() {
+    printf 'FULTON-CNC-ACCEPTANCE: %s\n' "$*" >&2
+    exit 1
+}
+
+test "$#" -eq 5 || fail 'usage: M2 FULTON_ROOT CNC_ROOT AICI_ROOT NEW_EVIDENCE_DIRECTORY'
+m2=$1
+fulton=$2
+cnc=$3
+aici=$4
+evidence=$5
+for path in "$@"; do
+    case $path in
+        /*) true ;;
+        *) fail "absolute path required: $path" ;;
+    esac
+done
+test -x "$m2" || fail 'M2 executable unavailable'
+test -f "$fulton/sources/fulton-intersection-theory/experiments/case-a-arm.m2" || fail 'Fulton producer unavailable'
+test -f "$cnc/experiments/pole-continuation/pole-continuation.m2" || fail 'CNC producer unavailable'
+test -f "$aici/research/fulton-cnc-02/accept.m2" || fail 'independent AICI oracle unavailable'
+test ! -e "$evidence" || fail 'refusing existing evidence directory'
+mkdir -p "$evidence/research/01-arm" "$evidence/research/02-head" "$evidence/research/03-linkage-offset" "$evidence/pole"
+
+capture() {
+    input=$1
+    output=$2
+    expected=$3
+    shift 3
+    try { "$m2" --script "$input" "$@" > "$output.stdout.txt" 2> "$output.stderr.txt" }
+    observed=$[_error.code]
+    printf '%s\t%s\n' "$output" "$observed" >> "$evidence/exits.tsv"
+    test "$observed" -eq "$expected" || fail "wrong exit: $output expected=$expected observed=$observed"
+    if test "$expected" -eq 0; then
+        test ! -s "$output.stderr.txt" || fail "unexpected stderr: $output"
+    fi
+}
+
+printf 'output\texit_code\n' > "$evidence/exits.tsv"
+for root in "$fulton" "$cnc" "$aici"; do
+    git -C "$root" rev-parse HEAD >> "$evidence/source-heads.txt"
+done
+sha256sum "$m2" "$fulton/sources/fulton-intersection-theory/experiments/case-a-arm.m2" \
+    "$fulton/sources/fulton-intersection-theory/experiments/case-b-ac-head.m2" \
+    "$fulton/sources/fulton-intersection-theory/experiments/linkage-and-offset.m2" \
+    "$cnc/experiments/pole-continuation/pole-continuation.m2" \
+    "$cnc/experiments/pole-continuation/cases.tsv" \
+    "$cnc/experiments/pole-continuation/invalid-zero.tsv" \
+    "$cnc/experiments/pole-continuation/invalid-full-frame.tsv" \
+    "$aici/research/fulton-cnc-01/accept.m2" "$aici/research/fulton-cnc-02/accept.m2" > "$evidence/source-sha256.txt"
+
+capture "$fulton/sources/fulton-intersection-theory/experiments/case-a-arm.m2" "$evidence/research/01-arm/output" 0
+capture "$fulton/sources/fulton-intersection-theory/experiments/case-b-ac-head.m2" "$evidence/research/02-head/output" 0
+capture "$fulton/sources/fulton-intersection-theory/experiments/linkage-and-offset.m2" "$evidence/research/03-linkage-offset/output" 0
+cp "$evidence/research/01-arm/output.stdout.txt" "$evidence/research/01-arm/stdout.bin"
+cp "$evidence/research/02-head/output.stdout.txt" "$evidence/research/02-head/stdout.bin"
+cp "$evidence/research/03-linkage-offset/output.stdout.txt" "$evidence/research/03-linkage-offset/stdout.bin"
+capture "$aici/research/fulton-cnc-01/accept.m2" "$evidence/research/acceptance" 0 "$evidence/research" fp
+
+capture "$cnc/experiments/pole-continuation/pole-continuation.m2" "$evidence/pole/positive" 0 "$cnc/experiments/pole-continuation/cases.tsv"
+capture "$cnc/experiments/pole-continuation/pole-continuation.m2" "$evidence/pole/invalid-zero" 1 "$cnc/experiments/pole-continuation/invalid-zero.tsv"
+capture "$cnc/experiments/pole-continuation/pole-continuation.m2" "$evidence/pole/invalid-full-frame" 1 "$cnc/experiments/pole-continuation/invalid-full-frame.tsv"
+# These rows are written only after capture has checked the observed process
+# status; a diagnostic appearing in a successful process is insufficient.
+printf 'case\texit_code\npositive\t0\ninvalid-zero\t1\ninvalid-full-frame\t1\n' > "$evidence/pole/producer-exits.tsv"
+capture "$aici/research/fulton-cnc-02/accept.m2" "$evidence/pole/acceptance" 0 "$evidence/pole"
+
+# Preserve and execute the existing false-record matrix under the same oracle.
+while read -r name diagnostic; do
+    if test "$name" = case; then continue; fi
+    if test "$name" = positive; then continue; fi
+    fixture=$aici/research/fulton-cnc-01/fixtures/$name
+    capture "$aici/research/fulton-cnc-01/accept.m2" "$evidence/research/negative-$name" 1 "$fixture"
+    head -n 1 "$evidence/research/negative-$name.stderr.txt" > "$evidence/first-diagnostic.txt"
+    grep -F "$diagnostic" "$evidence/first-diagnostic.txt" >/dev/null || fail "wrong first diagnostic: $name"
+done < "$aici/research/fulton-cnc-01/cases.tsv"
+while read -r name fixturePath expected diagnostic; do
+    if test "$name" = case_id; then continue; fi
+    fixture=$aici/research/fulton-cnc-02/$fixturePath
+    capture "$aici/research/fulton-cnc-02/accept.m2" "$evidence/pole/fixture-$name" "$expected" "$fixture"
+    if test "$expected" -ne 0; then
+        head -n 1 "$evidence/pole/fixture-$name.stderr.txt" > "$evidence/first-diagnostic.txt"
+        grep -F "$diagnostic" "$evidence/first-diagnostic.txt" >/dev/null || fail "wrong first diagnostic: $name"
+    fi
+done < "$aici/research/fulton-cnc-02/cases.tsv"
+
+sha256sum "$evidence/pole/positive.stdout.txt" "$evidence/pole/invalid-zero.stderr.txt" \
+    "$evidence/pole/invalid-full-frame.stderr.txt" "$evidence/pole/producer-exits.tsv" > "$evidence/output-sha256.txt"
+printf '\033[32mPASS\033[0m Fulton/CNC producer execution and independent AICI acceptance\n'
