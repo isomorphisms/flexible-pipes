@@ -12,8 +12,9 @@
     "aici-head": {"required": true, "pattern": "[0-9a-f]{40}"},
     "aici": {"required": true, "pattern": "/[^\\n]+"}
   },
-  "required_stages": ["installed-indeed-kitchen-and-aici"],
+  "required_stages": ["job-envelope", "installed-indeed-kitchen-and-aici"],
   "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/indeed-cli/SUN-INDEED-CLI-01.txt"],"cwd":"."},
     {"kind":"command","name":"installed-indeed-kitchen-and-aici",
      "argv":["{{grease}}","{{kitchen-task}}","{{cli-root}}","{{cli-head}}","{{program}}","{{grease}}","{{aici-root}}","{{aici-head}}","{{aici}}"],"cwd":"."}
   ]
