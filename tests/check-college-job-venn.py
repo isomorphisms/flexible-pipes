@@ -7,7 +7,7 @@ import json
 import math
 from pathlib import Path
 import subprocess
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw
 
 
 LABELS = {
@@ -79,6 +79,47 @@ def check_rejected_footer_regressions(first, last, good_area, overlap):
     return len(cases)
 
 
+def require_complement(candidate, universe, good):
+    """G and its complement partition U, regardless of college membership."""
+    if candidate.size != universe.size or candidate.mode != 'L':
+        raise ValueError('complement mask has the wrong shape or mode')
+    if ImageChops.multiply(candidate, good).getbbox() is not None:
+        raise ValueError('good-job holders cannot be in the complement')
+    if ImageChops.difference(ImageChops.lighter(candidate, good), universe).getbbox() is not None:
+        raise ValueError('complement omits people outside good jobs or exceeds the universe')
+
+
+def check_complement(receipt, conf, root):
+    assert receipt['complement_label'] == 'BAD JOB OR NO JOB'
+    assert receipt['complement_definition'] == 'universe minus good jobs; independent of college membership'
+    assert receipt['universe_design_bbox'] == [70, 180, 1540, 766]
+    size = (conf['width'], conf['height'])
+    scale = conf['width'] / 1600
+    universe = Image.new('L', size, 0)
+    ImageDraw.Draw(universe).rectangle(tuple(round(x*scale) for x in (70,180,1540,766)), fill=255)
+    x, y, r = (float(conf['good_circle'][k]) for k in ('x','y','radius'))
+    good = Image.new('L', size, 0)
+    ImageDraw.Draw(good).ellipse(tuple(round(v*scale) for v in (x-r,y-r,x+r,y+r)), fill=255)
+    with Image.open(root / receipt['complement_mask']) as image:
+        observed = image.copy()
+    require_complement(observed, universe, good)
+    # Reject the previous mistake at every growth milestone, not just one frame.
+    rejected = 0
+    for row in receipt['milestone_frames'].values():
+        cx, cr = x + row['center_separation'], row['circle_radius']
+        college = Image.new('L', size, 0)
+        ImageDraw.Draw(college).ellipse(tuple(round(v*scale) for v in (cx-cr,y-cr,cx+cr,y+cr)), fill=255)
+        for wrong in (ImageChops.multiply(observed,college),
+                      ImageChops.subtract(observed,college), universe):
+            try:
+                require_complement(wrong,universe,good)
+            except ValueError:
+                rejected += 1
+            else:
+                raise AssertionError('incorrect complement accepted')
+    return rejected
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--config',required=True,type=Path)
@@ -87,7 +128,7 @@ def main():
     conf=json.loads(args.config.read_text())
     root=args.output_dir
     receipt=json.loads((root/(conf['filename']+'-receipt.json')).read_text())
-    assert receipt['schema_version']==2
+    assert receipt['schema_version']==3
     assert receipt['config_sha256']==sha(args.config)
     assert receipt['generator_sha256']==sha(Path(__file__).resolve().parents[1]/receipt['generator'])
     assert receipt['title']=="You can't get a good job without a college degree"
@@ -125,6 +166,7 @@ def main():
         file=root/name
         assert file.is_file() and file.stat().st_size==meta['bytes']
         assert sha(file)==meta['sha256']
+    complement_rejected=check_complement(receipt,conf,root)
     video=root/(conf['filename']+'.mp4')
     stream=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-select_streams','v:0',
         '-show_entries','stream=width,height,nb_read_frames,r_frame_rate','-of','json',str(video)],text=True))['streams'][0]
@@ -137,7 +179,8 @@ def main():
         assert frame.size==(conf['width'],conf['height'])
     print(json.dumps({'status':'PASS','video_sha256':sha(video),'frames':receipt['frames'],
         'footer_labels':LABELS,'final_percentages':rows[-1]['footer_display'],
-        'incorrect_footer_regressions_rejected':rejected},sort_keys=True))
+        'incorrect_footer_regressions_rejected':rejected,
+        'incorrect_complement_regressions_rejected':complement_rejected},sort_keys=True))
 
 
 if __name__=='__main__':

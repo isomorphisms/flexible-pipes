@@ -19,6 +19,9 @@ import sys
 from PIL import Image, ImageChops, ImageDraw, ImageFont, __version__ as pillow_version
 
 DESIGN_WIDTH, DESIGN_HEIGHT = 1600, 900
+UNIVERSE_BBOX = (70, 180, 1540, 766)
+COMPLEMENT_LABEL = 'BAD JOB OR NO JOB'
+COMPLEMENT_DEFINITION = 'universe minus good jobs; independent of college membership'
 FONT_BOLD = [
     '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf',
     '/usr/share/fonts/opentype/inter/Inter-Bold.otf',
@@ -215,7 +218,20 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
     good_layer=Image.new('RGBA',(width,height),rgba(c['good']))
     good_layer.putalpha(good_mask.point([int(i*.78) for i in range(256)]))
     bg.alpha_composite(good_layer)
-    bad_layer_color=rgba(c['college'])
+    # The complement is all of U minus G, not just the college-only crescent.
+    universe_mask=Image.new('L',(width,height),0)
+    universe_box=tuple(round(v*scale) for v in UNIVERSE_BBOX)
+    ImageDraw.Draw(universe_mask).rectangle(universe_box,fill=255)
+    complement_mask=ImageChops.subtract(universe_mask,good_mask)
+    complement_path=output_dir/f"{config['filename']}-complement-mask.png"
+    complement_mask.save(complement_path)
+    complement_layer=Image.new('RGBA',(width,height),(0,0,0,0))
+    hatch=ImageDraw.Draw(complement_layer)
+    for x in range(-DESIGN_HEIGHT,DESIGN_WIDTH+DESIGN_HEIGHT,36):
+        hatch.line((round(x*scale),0,round((x-DESIGN_HEIGHT)*scale),height),
+                   fill=rgba(c['college_outline'])[:3]+(45,),width=max(1,round(scale)))
+    complement_layer.putalpha(ImageChops.multiply(complement_layer.getchannel('A'),complement_mask))
+    college_layer_color=rgba(c['college'])
     overlap_color=rgba(c['intersection'])
     milestone_frames={}
     frame_statistics=[]
@@ -246,7 +262,7 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         box=circle_bbox(cx,good_y,r,scale)
         college_mask=Image.new('L',(width,height),0)
         ImageDraw.Draw(college_mask).ellipse(box,fill=255)
-        college_layer=Image.new('RGBA',(width,height),bad_layer_color)
+        college_layer=Image.new('RGBA',(width,height),college_layer_color)
         college_layer.putalpha(college_mask.point([int(i*.75) for i in range(256)]))
         frame=bg.copy()
         frame.alpha_composite(college_layer)
@@ -254,7 +270,12 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         inter_layer=Image.new('RGBA',(width,height),overlap_color)
         inter_layer.putalpha(intersection_mask.point([int(i*.97) for i in range(256)]))
         frame.alpha_composite(inter_layer)
+        # The same hatching covers both C \ G and U \ (C union G).
+        frame.alpha_composite(complement_layer)
         draw=ImageDraw.Draw(frame)
+        draw.rectangle(universe_box,outline=c['secondary_text'],width=max(1,round(scale)))
+        draw.rectangle((88*scale,194*scale,238*scale,230*scale),fill=c['background'])
+        draw.text((98*scale,201*scale),'ALL PEOPLE',font=fonts['disc'],fill=c['main_text'])
         # The two outlines remain visible through their overlap.
         draw.ellipse(good_box,outline=c['good_outline'],width=max(2,round(4*scale)))
         draw.ellipse(box,outline=c['college_outline'],width=max(2,round(4*scale)))
@@ -264,16 +285,13 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         draw.rounded_rectangle((round(516*scale),round(570*scale),round(658*scale),round(605*scale)),
                                radius=16*scale,fill='#0A4651',outline='#83CECF',width=max(1,round(scale)))
         label_center(draw,(587,581),'OVERLAP',fonts['overlap'],'#E8FCF8',scale)
-        # The coral region to the right of blue is the bad-job part of college.
-        arrow_start=round(1162*scale)
-        arrow_end=round((cx+r+18)*scale)
-        arrow_y=round(470*scale)
-        draw.line((arrow_start,arrow_y,arrow_end,arrow_y),fill=c['college_outline'],width=max(2,round(3*scale)))
-        draw.polygon([(arrow_end,arrow_y),(arrow_end+round(14*scale),arrow_y-round(8*scale)),
-                      (arrow_end+round(14*scale),arrow_y+round(8*scale))],fill=c['college_outline'])
-        draw.text((1180*scale,402*scale),'BAD JOBS',font=fonts['callout'],fill=c['college_outline'])
-        draw.text((1180*scale,451*scale),'College graduates',font=fonts['callout_sub'],fill=c['main_text'])
-        draw.text((1180*scale,480*scale),'outside the blue circle',font=fonts['callout_sub'],fill=c['secondary_text'])
+        # Label the entire exterior of G. No arrow singles out the college crescent.
+        draw.multiline_text((1180*scale,360*scale),COMPLEMENT_LABEL.replace(' OR ','\nOR '),
+                            font=fonts['callout'],fill=c['college_outline'],spacing=5*scale)
+        draw.text((1180*scale,466*scale),'Everything outside',font=fonts['callout_sub'],fill=c['main_text'])
+        draw.text((1180*scale,495*scale),'the good-job circle.',font=fonts['callout_sub'],fill=c['main_text'])
+        draw.text((1180*scale,543*scale),'With or without a degree.',font=fonts['callout_sub'],fill=c['secondary_text'])
+        draw.text((1180*scale,580*scale),'The hatched area',font=fonts['callout_sub'],fill=c['secondary_text'])
         # Two conditional percentages, each bound to its whole-circle population.
         # The right counter stays constant because good jobs and overlap are fixed.
         draw.line((800*scale,794*scale,800*scale,860*scale),fill='#37506B',width=max(1,round(scale)))
@@ -321,7 +339,7 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
     if stream['r_frame_rate'] != f'{fps}/1':
         raise AssertionError(f'video fps mismatch: {stream}')
     manifest={
-        'schema_version':2,
+        'schema_version':3,
         'generator':'scripts/render-college-job-venn.py',
         'generator_sha256':sha256(Path(__file__)),
         'title':title,
@@ -332,6 +350,10 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         'geometry_ratio_definition':'area(college minus good jobs) / area(college intersect good jobs); not a footer statistic',
         'footer_labels':{key:value.replace('\n',' ') for key,value in footer_labels.items()},
         'frame_statistics':frame_statistics,
+        'universe_design_bbox':list(UNIVERSE_BBOX),
+        'complement_label':COMPLEMENT_LABEL,
+        'complement_definition':COMPLEMENT_DEFINITION,
+        'complement_mask':complement_path.name,
         'data_status':'schematic; no empirical counts asserted',
         'constant_good_job_radius':good_r,
         'constant_good_job_overlap_area':area,
@@ -342,7 +364,7 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         'runtime':{'python':platform.python_version(),'pillow':pillow_version,
                    'ffmpeg':subprocess.run(['ffmpeg','-version'],capture_output=True,text=True,check=True).stdout.splitlines()[0]},
         'frames':count,'fps':fps,'width':width,'height':height,'duration_seconds':count/fps,
-        'files':{p.name:{'sha256':sha256(p),'bytes':p.stat().st_size} for p in (mp4,gif,preview)},
+        'files':{p.name:{'sha256':sha256(p),'bytes':p.stat().st_size} for p in (mp4,gif,preview,complement_path)},
     }
     receipt_path=output_dir/f'{stem}-receipt.json'
     receipt_path.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
