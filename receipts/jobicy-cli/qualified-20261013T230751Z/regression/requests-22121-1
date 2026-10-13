@@ -1,0 +1,6 @@
+GET /api/v2/remote-jobs/status?ids=123456,123456,123457,123458 HTTP/1.0
+Host: 127.0.0.1:22121
+Connection: close
+Accept-Encoding: identity
+User-Agent: idric-net/0.1
+

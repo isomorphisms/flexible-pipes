@@ -1,0 +1,5 @@
+#!/workspace/scratch/30b0a80117bc/grease-runtime/_bin/cxx-asan/ysh
+# Relocation adapter for the verified Cat Food Chez runtime; no application logic.
+setglobal ENV.ASAN_OPTIONS = 'detect_leaks=0'
+setglobal ENV.SCHEMEHEAPDIRS = '/tmp/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/chez-10.4.1/lib/csv10.4.1/ta6le'
+exec /tmp/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/chez-10.4.1/bin/scheme "$@"

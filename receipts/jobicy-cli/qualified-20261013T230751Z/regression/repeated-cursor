@@ -1,0 +1,2 @@
+200	/workspace/scratch/30b0a80117bc/idric-cli/checkpoints/jobicy/fixtures/first.json	/api/v2/remote-jobs?count=20&geo=usa&industry=engineering&tag=mathematics
+200	/workspace/scratch/30b0a80117bc/idric-cli/checkpoints/jobicy/fixtures/repeated-cursor.json	/api/v2/remote-jobs?count=20&geo=usa&industry=engineering&tag=mathematics&cursor=opaque%2F%CF%80%20%2B%3F%3D

@@ -1,0 +1,4 @@
+source	provenance	id	status	checkedAt	observedAt	requestUrl	apiVersion
+Jobicy	offline-fixture	123456	active	2026-10-13T09:00:00Z		/workspace/scratch/30b0a80117bc/idric-cli/checkpoints/jobicy/fixtures/status.json	2.2.19
+Jobicy	offline-fixture	123457	closed	2026-10-13T09:00:00Z		/workspace/scratch/30b0a80117bc/idric-cli/checkpoints/jobicy/fixtures/status.json	2.2.19
+Jobicy	offline-fixture	123458	unknown	2026-10-13T09:00:00Z		/workspace/scratch/30b0a80117bc/idric-cli/checkpoints/jobicy/fixtures/status.json	2.2.19
