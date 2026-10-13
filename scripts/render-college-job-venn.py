@@ -183,8 +183,11 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
     subtitle=str(config['subtitle'])
     if '\n' in title or '\n' in subtitle:
         raise ValueError('single-line title and subtitle required')
+    # Fit the title across supported fonts (DejaVu is wider than Inter).
+    while fonts['title'].getlength(title)>1450*scale and fonts['title'].size>round(32*scale):
+        fonts['title']=ImageFont.truetype(bold,fonts['title'].size-1)
     if fonts['title'].getlength(title)>1450*scale:
-        raise ValueError('title is too long for chosen font/size')
+        raise ValueError('title is too long even at minimum display size')
     bg=Image.new('RGBA',(width,height),rgba(c['background']))
     grid=ImageDraw.Draw(bg)
     # Background grid and divider, generated once.
