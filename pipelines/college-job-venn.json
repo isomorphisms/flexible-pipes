@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "college-job-venn",
+  "required_stages": ["render", "verify"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "render",
+      "argv": ["python3", "scripts/render-college-job-venn.py", "--config", "examples/college-job-venn.json"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "verify",
+      "argv": ["python3", "tests/check-college-job-venn.py", "--config", "examples/college-job-venn.json", "--output-dir", ".flexible-pipes/artifacts/college-job-venn"],
+      "cwd": "."
+    }
+  ]
+}
