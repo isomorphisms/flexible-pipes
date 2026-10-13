@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "indeed-cli-acceptance",
+  "description": "SUN INDEED-CLI-01: source-bound Kitchen acceptance of the installed Idriç executable, local ICU transport and independent ai-ci proof oracle. Live provider acceptance stays separate.",
+  "parameters": {
+    "grease": {"required": true, "pattern": "/[^\\n]+"},
+    "kitchen-task": {"required": true, "pattern": "/[^\\n]+/tasks/indeed-cli/1\\.grease"},
+    "cli-root": {"required": true, "pattern": "/[^\\n]+"},
+    "cli-head": {"required": true, "pattern": "[0-9a-f]{40}"},
+    "program": {"required": true, "pattern": "/[^\\n]+/indeed"},
+    "aici-root": {"required": true, "pattern": "/[^\\n]+"},
+    "aici-head": {"required": true, "pattern": "[0-9a-f]{40}"},
+    "aici": {"required": true, "pattern": "/[^\\n]+"}
+  },
+  "required_stages": ["installed-indeed-kitchen-and-aici"],
+  "stages": [
+    {"kind":"command","name":"installed-indeed-kitchen-and-aici",
+     "argv":["{{grease}}","{{kitchen-task}}","{{cli-root}}","{{cli-head}}","{{program}}","{{grease}}","{{aici-root}}","{{aici-head}}","{{aici}}"],"cwd":"."}
+  ]
+}
