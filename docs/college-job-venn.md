@@ -1,31 +1,70 @@
-# College and good jobs — an area-correct animated Venn diagram
+# College and good jobs — conditional percentages
 
-An illustrative counterpoint to the title **“You can't get a good job without a college degree”**: a fixed good-job circle and a growing college circle whose good-job overlap stays fixed. The growing area represents college graduates with bad jobs. The footer shows *college graduates with bad jobs : college graduates with good jobs*, moving through 2:1, 3:1 and 4:1.
+Keep editing `scripts/render-college-job-venn.py` on the existing college/job
+Venn branch and PR. The repository is the source handoff; send the movie itself,
+not source ZIPs or duplicate scripts.
 
-This is **not empirical labor-market data**. The ratios are chosen for the illustration.
+The header stays **You can't get a good job without a college degree**.
+The footer has two distinct conditional percentages, not a bad-jobs : good-jobs
+count ratio:
 
-The geometry is checked analytically. If the fixed overlap has area *I*, the college circle at ratio *q* has radius `sqrt((q+1) × I / π)`. Bisection finds the center separation giving exactly overlap *I*. It follows that the college-only area is `q × I`, regardless of which frame is shown. All values and timing are in `examples/college-job-venn.json`.
+| Counter | Numerator | Denominator |
+| --- | --- | --- |
+| % of college graduates with a good job | College intersect good jobs | Entire college circle |
+| % of people with a good job who have a college degree | College intersect good jobs | Entire good-job circle |
 
-To render directly from this checkout (Python ≥3.11, Pillow, ffmpeg, ffprobe, Inter or DejaVu fonts):
+Both fractions are multiplied by 100. The exact same per-frame values supply the
+visible numbers and the receipt. Labels are kept intact, split over two lines
+only for layout. The left percentage falls as the college circle expands; the
+right stays constant because the good-job circle and overlap stay fixed.
 
-```sh
-python3 scripts/render-college-job-venn.py --config examples/college-job-venn.json
-python3 tests/check-college-job-venn.py --config examples/college-job-venn.json --output-dir .flexible-pipes/artifacts/college-job-venn
-```
+With the unchanged illustrative geometry, the left counter moves through
+50.0%, 33.3%, 25.0%, and 20.0%. The right stays at 37.9%, computed from
+`100 × 50000 / (π × 205²)`. Neither percentage is an employment statistic.
+Do not replace the right number with a more persuasive invented value while
+leaving the geometry unchanged.
 
-Registered Flexible Pipes invocation:
+## Geometry and inputs
+
+`examples/college-job-venn.json` owns the title, palette, geometry, and timing.
+The existing `start_ratio` and `milestones` remain geometric expansion controls,
+not footer statistics. For overlap area I and college-only / overlap ratio q,
+the college radius is `sqrt((q+1) × I / π)`. Bisection finds the center separation
+giving overlap I. The college-only area reaches 2I, 3I, then 4I, as originally
+requested. This correction changes the footer, not those circles.
+
+## Execution
+
+Python 3.11+, Pillow, ffmpeg, ffprobe, and Inter or DejaVu Sans are required.
+The existing Python renderer and checker are migration debt, not a newly
+approved Python control-plane implementation. This revision repairs their
+existing output; it does not add another runtime or bypass the FP runner.
+
+From the repository checkout:
 
 ```sh
 python3 scripts/run-pipeline college-job-venn
 ```
 
-The checked-in `pipelines/college-job-venn.json` is authoritative: **render** then independent **verify**. Standard FP stage receipts bind argv, exit status, hashes of standard output and standard error, and repository revision. The generator writes a content receipt with the config digest, font and FFmpeg identities, image hashes, exact frame count and the computed milestone intersections. Delivering attachments to ChatGPT's UI is a separate visible-delivery step, **not** proven by local pipeline success.
+`pipelines/college-job-venn.json` remains authoritative: render, then verify.
+The existing workflow checks out the exact PR head and invokes this pipeline.
+A successful ancestor run is not acceptance of a new revision.
 
-Default outputs under `.flexible-pipes/artifacts/college-job-venn/`:
+## Outputs and checks
 
-- `college-good-jobs-venn.mp4` — 16:9 H.264
-- `college-good-jobs-venn.gif` — looped, 720px wide
-- `college-good-jobs-venn-preview.png` — final frame
-- `college-good-jobs-venn-receipt.json` — hashes and acceptance facts
+The renderer writes MP4, GIF, preview PNG, and a version-2 content receipt under
+`.flexible-pipes/artifacts/college-job-venn/`. It records source/config/font
+hashes, runtime identities, every frame's circle geometry, both percentages,
+and both displayed strings. The checker independently recomputes each
+percentage, checks the denominator populations, numerically integrates the
+milestone circle intersections without importing the renderer, and verifies
+encoded frame count and file hashes.
 
-There is no model inference in the renderer. A future model stage may propose claims or visuals, but it must not silently replace the checked mathematical ratio or promote empirical statistics without sourced inputs and a separate validation policy.
+The earlier `1 : 1` footer, swapping either denominator, omitting the factor of
+100, and freezing the left percentage at its initial value are retained as five
+rejected regression cases in the existing checker.
+
+Standard FP receipts record stage results. Local or hosted success does not
+establish independent ai-ci promotion or a trusted ChatGPT attachment-delivery
+receipt. No such adapter or promotion is claimed. No model inference occurs in
+the renderer; the output remains explicitly schematic, not labor-market data.

@@ -175,8 +175,8 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         'title':font(bold,57), 'subtitle':font(normal,20),
         'disc':font(bold,18), 'big':font(bold,36),
         'medium':font(bold,30), 'overlap':font(bold,19),
-        'footer_label':font(bold,22), 'footer_sub':font(normal,18),
-        'ratio':font(bold,112), 'tiny':font(normal,14),
+        'footer_label':font(normal,24), 'footer_sub':font(normal,18),
+        'percentage':font(bold,78), 'tiny':font(normal,14),
         'callout':font(bold,38), 'callout_sub':font(normal,20)
     }
     title=str(config['title'])
@@ -218,11 +218,29 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
     bad_layer_color=rgba(c['college'])
     overlap_color=rgba(c['intersection'])
     milestone_frames={}
+    frame_statistics=[]
+    footer_labels={
+        'college_graduates_with_good_job_pct': '% of college graduates\nwith a good job',
+        'good_job_holders_with_college_degree_pct': '% of people with a good job\nwho have a college degree',
+    }
     for i in range(count):
         elapsed=i/fps
         q=ratio_at(elapsed,segments)
         r,d=solve_college_circle(good_r,area,q)
         cx=good_x+d
+        actual_overlap=overlap_area(good_r,r,d)
+        # Same numerator, different populations in the denominators.
+        percentages={
+            'college_graduates_with_good_job_pct': 100*actual_overlap/(math.pi*r*r),
+            'good_job_holders_with_college_degree_pct': 100*actual_overlap/(math.pi*good_r*good_r),
+        }
+        percentage_texts={key:f'{value:.1f}%' for key,value in percentages.items()}
+        statistics={
+            'frame':i,'ratio':q,'circle_radius':r,'center_separation':d,
+            'actual_overlap_area':actual_overlap,**percentages,
+            'footer_display':percentage_texts,
+        }
+        frame_statistics.append(statistics)
         if cx+r>1150 or good_y+r>772 or good_y-r<180:
             raise ValueError('geometry exceeds diagram viewport; adjust design inputs')
         box=circle_bbox(cx,good_y,r,scale)
@@ -256,25 +274,26 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
         draw.text((1180*scale,402*scale),'BAD JOBS',font=fonts['callout'],fill=c['college_outline'])
         draw.text((1180*scale,451*scale),'College graduates',font=fonts['callout_sub'],fill=c['main_text'])
         draw.text((1180*scale,480*scale),'outside the blue circle',font=fonts['callout_sub'],fill=c['secondary_text'])
-        # Only this numerical ratio changes in the footer.
-        draw.text((85*scale,798*scale),'COLLEGE GRADUATES',font=fonts['footer_label'],fill=c['main_text'])
-        draw.text((85*scale,837*scale),'BAD JOBS  :  GOOD JOBS',font=fonts['footer_label'],fill=c['college_outline'])
-        draw.text((85*scale,874*scale),'ILLUSTRATIVE AREAS — NOT LABOR-MARKET DATA',font=fonts['tiny'],fill=c['secondary_text'])
-        ratio_text=f'{round(q):d} : 1' if abs(q-round(q))<.015 else f'{q:.1f} : 1'
-        bbox=draw.textbbox((0,0),ratio_text,font=fonts['ratio'])
-        ratio_width=bbox[2]-bbox[0]
-        draw.text((1509*scale-ratio_width,771*scale),ratio_text,font=fonts['ratio'],fill=c['college_outline'])
-        # Thin animated progress line below the moving ratio.
-        fraction=(q-float(config['start_ratio']))/(float(config['milestones'][-1])-float(config['start_ratio']))
-        bar_l,bar_r=1050*scale,1510*scale
-        draw.rounded_rectangle((bar_l,886*scale,bar_r,890*scale),radius=3*scale,fill='#293447')
-        draw.rounded_rectangle((bar_l,886*scale,bar_l+max(2,(bar_r-bar_l)*fraction),890*scale),radius=3*scale,fill=c['college_outline'])
+        # Two conditional percentages, each bound to its whole-circle population.
+        # The right counter stays constant because good jobs and overlap are fixed.
+        draw.line((800*scale,794*scale,800*scale,860*scale),fill='#37506B',width=max(1,round(scale)))
+        for key,left,right,color in (
+            ('college_graduates_with_good_job_pct',85,755,c['college_outline']),
+            ('good_job_holders_with_college_degree_pct',840,1515,c['good_outline']),
+        ):
+            draw.multiline_text((left*scale,794*scale),footer_labels[key],
+                                font=fonts['footer_label'],fill=c['main_text'],spacing=7*scale)
+            value_text=percentage_texts[key]
+            value_width=draw.textlength(value_text,font=fonts['percentage'])
+            draw.text((right*scale-value_width,784*scale),value_text,
+                      font=fonts['percentage'],fill=color)
+        draw.text((85*scale,878*scale),'ILLUSTRATIVE AREAS — NOT LABOR-MARKET DATA',
+                  font=fonts['tiny'],fill=c['secondary_text'])
         path=frames/f'frame-{i:04}.png'
         frame.convert('RGB').save(path,optimize=False,compress_level=3)
         for target in [float(config['start_ratio'])]+[float(k) for k in config['milestones']]:
             if target not in milestone_frames and abs(q-target)<.0000001:
-                milestone_frames[target]={'frame':i,'ratio':q,'circle_radius':r,
-                                          'center_separation':d,'actual_overlap_area':overlap_area(good_r,r,d)}
+                milestone_frames[target]=statistics.copy()
         if i==count-1:
             final_frame=path
     stem=config['filename']
@@ -302,9 +321,17 @@ def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
     if stream['r_frame_rate'] != f'{fps}/1':
         raise AssertionError(f'video fps mismatch: {stream}')
     manifest={
-        'schema_version':1,
+        'schema_version':2,
         'generator':'scripts/render-college-job-venn.py',
-        'title':title,'semantic_definition':'ratio = area(college minus good jobs) / area(college intersect good jobs)',
+        'generator_sha256':sha256(Path(__file__)),
+        'title':title,
+        'semantic_definition':{
+            'college_graduates_with_good_job_pct':'100 * area(college intersect good jobs) / area(college)',
+            'good_job_holders_with_college_degree_pct':'100 * area(college intersect good jobs) / area(good jobs)',
+        },
+        'geometry_ratio_definition':'area(college minus good jobs) / area(college intersect good jobs); not a footer statistic',
+        'footer_labels':{key:value.replace('\n',' ') for key,value in footer_labels.items()},
+        'frame_statistics':frame_statistics,
         'data_status':'schematic; no empirical counts asserted',
         'constant_good_job_radius':good_r,
         'constant_good_job_overlap_area':area,
