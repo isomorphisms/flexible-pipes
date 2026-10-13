@@ -167,7 +167,13 @@ def check_type_model(compiler,output):
         (output/'frames').rmdir()
     logdir=output/'type-checks'
     logdir.mkdir(exist_ok=True)
+    for name in ('positive.log','Positive.log','model-compile.log','positive-control.log','Positive.idric'):
+        (logdir/name).unlink(missing_ok=True)
+    for name in NEGATIVES:
+        for suffix in ('.log','.idric'):
+            (logdir/(name+suffix)).unlink(missing_ok=True)
     compiler=compiler.resolve()
+    require(compiler.is_file(),'Idriç compiler is unavailable: '+str(compiler))
     runtime=ROOT/'runtime/idric'
     observed=subprocess.check_output(['git','-C',str(runtime),'rev-parse','HEAD'],text=True).strip()
     require(observed==PIN,'wrong compiler source revision')
@@ -178,6 +184,12 @@ def check_type_model(compiler,output):
     environment={key:value for key,value in os.environ.items() if not key.startswith('IDRIS2_')}
     environment['IDRIS2_PREFIX']=str((runtime/'bootstrap-build').resolve())
     require((runtime/'bootstrap-build').is_dir(),'missing bootstrapped library prefix')
+    runtime_files={}
+    for directory in (compiler.parent/'idris2_app',runtime/'bootstrap-build',runtime/'_/.tools/chez-10.4.1'):
+        require(directory.is_dir(),'missing compiler runtime component: '+str(directory))
+        for path in sorted(directory.rglob('*')):
+            if path.is_file():
+                runtime_files[str(path.resolve().relative_to(runtime.resolve()))]=digest(path)
     executable=ROOT/'build/exec/college-venn-model'
     executable.unlink(missing_ok=True)
     compile_argv=[compiler,'--source-dir','models','--cg','node','-o','college-venn-model','models/CollegeVenn.idric']
@@ -191,13 +203,13 @@ def check_type_model(compiler,output):
     with tempfile.TemporaryDirectory(prefix='venn-type-cases-') as directory:
         work=Path(directory)
         shutil.copyfile(SOURCE,work/'CollegeVenn.idric')
-        positive='module Positive\nimport CollegeVenn\nimport Data.Nat\n'+'''same : Percentage symmetric good_job college → Percentage symmetric good_job college
+        positive='module Positive\nimport CollegeVenn\nimport Data.Nat\n%unbound_implicits off\n'+'''same : Percentage CollegeVenn.symmetric CollegeVenn.good_job CollegeVenn.college → Percentage CollegeVenn.symmetric CollegeVenn.good_job CollegeVenn.college
 same answer = answer
 empty_ok : BoundedFraction 0 0
 empty_ok = EmptyPopulation
 bound_ok : BoundedFraction 2 5
 bound_ok = NonemptyPopulation 2 5 ItIsSucc (LTESucc (LTESucc LTEZero))
-complement_ok : complement (the (Region "people") good_job) = Cells False True False True
+complement_ok : complement (the (Region "people") CollegeVenn.good_job) = Cells False True False True
 complement_ok = Refl
 '''
         (work/'Positive.idric').write_text(positive)
@@ -205,7 +217,11 @@ complement_ok = Refl
         control=run_logged([compiler,'--check','Positive.idric'],logdir/'positive-control.log',cwd=work,env=environment)
         require_compiler_success(control,'positive control for rejection tests')
         for name,body in NEGATIVES.items():
-            code=f'module {name}\nimport CollegeVenn\nimport Data.Nat\n'+body
+            code=f'module {name}\nimport CollegeVenn\nimport Data.Nat\n%unbound_implicits off\n'+body
+            # Qualify concrete semantic indices; implicit lowercase binders
+            # otherwise turn the fixtures into different propositions.
+            for constant in ('symmetric','asymmetric','good_job','college'):
+                code=re.sub(r'\b'+constant+r'\b','CollegeVenn.'+constant,code)
             source=work/(name+'.idric')
             source.write_text(code)
             (logdir/(name+'.idric')).write_text(code)
@@ -239,6 +255,8 @@ complement_ok = Refl
         else:
             raise ValueError('incorrect model serialization accepted')
     receipt={'status':'PASS','compiler_revision':observed,'compiler_sha256':digest(compiler),
+        'compiler_runtime_files':runtime_files,'compiler_environment':{'IDRIS2_PREFIX':environment['IDRIS2_PREFIX']},
+        'checker_source_sha256':digest(__file__),
         'model_source_sha256':digest(SOURCE),'model_output_sha256':digest(output/'model.tsv'),
         'executable_sha256':digest(executable),'compile_argv':list(map(str,compile_argv)),
         'backend':'Idriç-generated Node host evaluator; not native/device acceptance',

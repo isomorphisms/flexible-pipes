@@ -1,9 +1,13 @@
 # Venn movie: derive the picture and every fraction from one model
 
-Status: replacement design, not an implemented or type-checked rewrite.
+Status: the Idriç implementation now compiles and executes locally through its
+host Node backend. The repaired checker rejects nine invalid programs and checks
+768 oracle queries. See `college-job-venn-recovery.md` for evidence and limits.
+The specification below remains normative; local execution does not prove all
+of its stronger proposed guarantees.
 Continue the existing script and PR #104, “Add reproducible animated college/job
 Venn pipeline”. Do not create another movie implementation or send source ZIPs.
-The current source at f6c2ebc69b37dc63b12848d907205c64fbb2e40b still contains
+The historical source at f6c2ebc69b37dc63b12848d907205c64fbb2e40b contains
 separate handwritten percentage formulas, footer labels, and mask operations.
 Its successful tests do not establish the dependent guarantees below.
 

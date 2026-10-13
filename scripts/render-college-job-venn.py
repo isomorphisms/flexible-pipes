@@ -25,6 +25,7 @@ def digest(path):
 def load_checked_model(root):
     proof = json.loads((root/'model-check.json').read_text())
     checks = {
+        'checker_source_sha256': ROOT/'tests/check-college-job-venn.py',
         'model_source_sha256': ROOT/'models/CollegeVenn.idric',
         'model_output_sha256': root/'model.tsv',
         'executable_sha256': ROOT/'build/exec/college-venn-model',
