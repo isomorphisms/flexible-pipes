@@ -76,14 +76,16 @@ while read -r name diagnostic; do
     if test "$name" = positive; then continue; fi
     fixture=$aici/research/fulton-cnc-01/fixtures/$name
     capture "$aici/research/fulton-cnc-01/accept.m2" "$evidence/research/negative-$name" 1 "$fixture"
-    head -n 1 "$evidence/research/negative-$name.stderr.txt" | grep -F "$diagnostic" >/dev/null || fail "wrong first diagnostic: $name"
+    head -n 1 "$evidence/research/negative-$name.stderr.txt" > "$evidence/first-diagnostic.txt"
+    grep -F "$diagnostic" "$evidence/first-diagnostic.txt" >/dev/null || fail "wrong first diagnostic: $name"
 done < "$aici/research/fulton-cnc-01/cases.tsv"
 while read -r name fixturePath expected diagnostic; do
     if test "$name" = case_id; then continue; fi
     fixture=$aici/research/fulton-cnc-02/$fixturePath
     capture "$aici/research/fulton-cnc-02/accept.m2" "$evidence/pole/fixture-$name" "$expected" "$fixture"
     if test "$expected" -ne 0; then
-        head -n 1 "$evidence/pole/fixture-$name.stderr.txt" | grep -F "$diagnostic" >/dev/null || fail "wrong first diagnostic: $name"
+        head -n 1 "$evidence/pole/fixture-$name.stderr.txt" > "$evidence/first-diagnostic.txt"
+        grep -F "$diagnostic" "$evidence/first-diagnostic.txt" >/dev/null || fail "wrong first diagnostic: $name"
     fi
 done < "$aici/research/fulton-cnc-02/cases.tsv"
 
