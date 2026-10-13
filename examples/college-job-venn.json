@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "title": "You can't get a good job without a college degree",
   "subtitle": "COLLEGE KEEPS EXPANDING. GOOD JOBS DON'T.",
   "filename": "college-good-jobs-venn",
@@ -7,13 +7,6 @@
   "height": 900,
   "fps": 24,
   "good_circle": {"x": 465, "y": 466, "radius": 205},
-  "constant_overlap_area": 50000,
-  "start_ratio": 1,
-  "milestones": [2, 3, 4],
-  "start_hold_seconds": 0.55,
-  "transition_seconds": 1.6,
-  "milestone_hold_seconds": 0.75,
-  "end_hold_seconds": 1.3,
   "palette": {
     "background": "#0B1324",
     "good": "#27568E",

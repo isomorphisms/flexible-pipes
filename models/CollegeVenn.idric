@@ -3,8 +3,7 @@ module CollegeVenn
 import Data.Nat
 import Data.List
 
--- These are the four disjoint cells induced by college and good-job membership.
--- Universe and measurement unit are type indices, not free-form receipt fields.
+-- The four disjoint cells induced by college and good-job membership.
 public export
 record Region (universe : Text) where
   constructor Cells
@@ -50,8 +49,8 @@ measure (Population time a b c d) (Cells e f g h) =
   selected_weight e a + selected_weight f b +
   selected_weight g c + selected_weight h d
 
--- The constructor cannot represent a positive numerator over zero, nor a
--- percentage above 100. The two proofs are erased, not trusted Boolean flags.
+-- No positive numerator over zero and no value above 100 percent.
+-- These are erased proofs, not trusted Boolean flags.
 public export
 data BoundedFraction : Number → Number → Type where
   EmptyPopulation : BoundedFraction 0 0
@@ -67,11 +66,11 @@ bounded_fraction 0 0 = Just EmptyPopulation
 bounded_fraction (S numerator) 0 = Nothing
 bounded_fraction numerator (S denominator) =
   case isLTE numerator (S denominator) of
-    Yes bounded → Just (NonemptyPopulation numerator (S denominator) ItIsSucc bounded)
-    No _ → Nothing
+    Yes bounded ⇒ Just (NonemptyPopulation numerator (S denominator) ItIsSucc bounded)
+    No _ ⇒ Nothing
 
--- Nominal indices preserve query meaning even when different queries happen
--- to have numerically equal answers. Neither number is supplied by the caller.
+-- Nominal indices preserve the question even when answers are numerically
+-- equal. Neither the numerator nor denominator is supplied by the caller.
 public export
 data Percentage : (frame : PopulationFrame universe unit) →
                   (event, among : Region universe) → Type where
@@ -94,7 +93,7 @@ public export
 region_code : Region universe → Text
 region_code (Cells a b c d) = bit_text a ++ bit_text b ++ bit_text c ++ bit_text d
 
--- Atomic vocabulary is selected from the event, never beside a numeric answer.
+-- Vocabulary is selected from the event, never beside a numeric answer.
 public export
 population_text : Region universe → Text
 population_text (Cells True True False False) = "college graduates"
@@ -130,8 +129,8 @@ query_line : Text → (frame : PopulationFrame universe unit) →
              (event, among : Region universe) → Text
 query_line kind frame event among =
   case percentage frame event among of
-    Nothing → "ERROR\tintersection is not a bounded portion of its population"
-    Just answer → kind ++ "\t" ++ show (frame_number frame) ++ "\t" ++
+    Nothing ⇒ "ERROR\tintersection is not a bounded portion of its population"
+    Just answer ⇒ kind ++ "\t" ++ show (frame_number frame) ++ "\t" ++
       region_code event ++ "\t" ++ region_code among ++ "\t" ++
       answer_fields answer ++ "\t" ++ percentage_label event among
 
@@ -140,8 +139,8 @@ all_regions : List (Region universe)
 all_regions = [Cells a b c d | a ← [False, True], b ← [False, True],
                               c ← [False, True], d ← [False, True]]
 
--- Common integer weights are exact rational measures up to a common scale.
--- Smoothstep is evaluated with integer arithmetic. Fixed U: b grows, d shrinks.
+-- Common integer weights represent exact rational measures up to common scale.
+-- Fixed universe: b grows and d shrinks by exactly the same amount.
 smooth_growth : Number → Number → Number
 smooth_growth elapsed duration =
   let t = min elapsed duration in

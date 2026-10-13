@@ -1,8 +1,14 @@
 {
   "schema_version": 1,
   "name": "college-job-venn",
-  "required_stages": ["render", "verify"],
+  "required_stages": ["dependent-model", "render", "verify"],
   "stages": [
+    {
+      "kind": "command",
+      "name": "dependent-model",
+      "argv": ["python3", "tests/check-college-job-venn.py", "--typecheck", "--compiler", "runtime/idric/build/exec/idris2"],
+      "cwd": "."
+    },
     {
       "kind": "command",
       "name": "render",
@@ -12,7 +18,7 @@
     {
       "kind": "command",
       "name": "verify",
-      "argv": ["python3", "tests/check-college-job-venn.py", "--config", "examples/college-job-venn.json", "--output-dir", ".flexible-pipes/artifacts/college-job-venn"],
+      "argv": ["python3", "tests/check-college-job-venn.py", "--config", "examples/college-job-venn.json"],
       "cwd": "."
     }
   ]

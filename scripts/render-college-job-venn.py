@@ -1,393 +1,259 @@
 #!/usr/bin/env python3
-"""Deterministic, area-accurate conceptual Venn video; independent of ML inference.
+"""Existing raster adapter; all event names and percentages come from Idriç.
 
-Requirements: Python 3.11+, Pillow, FFmpeg and ffprobe.
+Python/Pillow remains inherited rendering debt. This is not the type checker.
+The checked model owns the population, membership, query meaning and numbers.
 """
 from __future__ import annotations
-
 import argparse
 import hashlib
 import json
 import math
-import os
 from pathlib import Path
-import platform
 import shutil
 import subprocess
-import sys
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 
-from PIL import Image, ImageChops, ImageDraw, ImageFont, __version__ as pillow_version
-
-DESIGN_WIDTH, DESIGN_HEIGHT = 1600, 900
-UNIVERSE_BBOX = (70, 180, 1540, 766)
-COMPLEMENT_LABEL = 'BAD JOB OR NO JOB'
-COMPLEMENT_DEFINITION = 'universe minus good jobs; independent of college membership'
-FONT_BOLD = [
-    '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf',
-    '/usr/share/fonts/opentype/inter/Inter-Bold.otf',
-    '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-]
-FONT_NORMAL = [
-    '/usr/share/fonts/opentype/inter/Inter-Regular.otf',
-    '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-]
+ROOT = Path(__file__).resolve().parents[1]
+PIN = '2734ac5a86610eddfab73b1644d72b4ac85a65ee'
 
 
-def sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open('rb') as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b''):
-            h.update(chunk)
-    return h.hexdigest()
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def overlap_area(a: float, b: float, separation: float) -> float:
-    """Exact Euclidean area shared by two disks of radii a, b."""
-    if separation >= a + b:
-        return 0.0
-    if separation <= abs(a - b):
-        return math.pi * min(a, b) ** 2
-    cosine_a = (separation**2 + a**2 - b**2) / (2 * separation * a)
-    cosine_b = (separation**2 + b**2 - a**2) / (2 * separation * b)
-    return (
-        a*a * math.acos(max(-1.0, min(1.0, cosine_a)))
-        + b*b * math.acos(max(-1.0, min(1.0, cosine_b)))
-        - 0.5 * math.sqrt(max(0, (-separation+a+b)*(separation+a-b)
-                                   *(separation-a+b)*(separation+a+b)))
-    )
+def load_checked_model(root):
+    proof = json.loads((root/'model-check.json').read_text())
+    checks = {
+        'model_source_sha256': ROOT/'models/CollegeVenn.idric',
+        'model_output_sha256': root/'model.tsv',
+        'executable_sha256': ROOT/'build/exec/college-venn-model',
+    }
+    if proof['status'] != 'PASS' or proof['compiler_revision'] != PIN:
+        raise ValueError('missing successful pinned model check')
+    for key, path in checks.items():
+        if proof[key] != digest(path):
+            raise ValueError('changed checked input: '+key)
+    frames, regions, answers = {}, {}, {}
+    header = None
+    for raw in (root/'model.tsv').read_text().splitlines():
+        fields = raw.split('\t')
+        if fields[0] == 'model':
+            if header is not None or fields[1] != 'college-venn-dependent-v1':
+                raise ValueError('duplicate or unsupported model header')
+            header = tuple(map(int, fields[2:]))
+        elif fields[0] == 'region':
+            _, name, code, label = fields
+            if name in regions or len(code) != 4 or set(code)-{'0','1'}:
+                raise ValueError('invalid region')
+            regions[name] = {'code':code, 'label':label}
+        elif fields[0] == 'frame':
+            time, *weights = map(int, fields[1:])
+            if time in frames or len(weights) != 4 or min(weights) < 0:
+                raise ValueError('invalid population frame')
+            frames[time] = weights
+        elif fields[0] == 'answer':
+            _, time, event, among, numerator, denominator, displayed, label = fields
+            answers.setdefault(int(time), []).append({
+                'event':event, 'among':among, 'numerator':int(numerator),
+                'denominator':int(denominator), 'displayed':displayed, 'label':label})
+        elif fields[0] != 'oracle':
+            raise ValueError('unexpected model output: '+raw)
+    if header is None:
+        raise ValueError('model did not emit a header')
+    count, fps, total = header
+    if set(regions) != {'college','good','complement'}:
+        raise ValueError('missing declared region')
+    if regions['college']['code'] != '1100' or regions['good']['code'] != '1010':
+        raise ValueError('this layout requires the declared two-predicate cell order')
+    if regions['complement']['code'] != ''.join('1' if b == '0' else '0' for b in regions['good']['code']):
+        raise ValueError('incorrect complement in model output')
+    for time in range(count):
+        if sum(frames[time]) != total or len(answers.get(time, [])) != 2:
+            raise ValueError('incomplete movie frame')
+    return proof, regions, frames, answers, count, fps, total
 
 
-def solve_college_circle(good_radius: float, constant_overlap: float, bad_good_ratio: float) -> tuple[float, float]:
-    """Return college radius and center separation for the requested area ratio.
+def font_path(bold):
+    candidates = ([ '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf',
+                    '/usr/share/fonts/opentype/inter/Inter-Bold.otf',
+                    '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'] if bold else
+                  ['/usr/share/fonts/opentype/inter/Inter-Regular.otf',
+                   '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'])
+    for candidate in candidates:
+        if Path(candidate).is_file():
+            return candidate
+    raise RuntimeError('Inter or DejaVu Sans is required')
 
-    College area = (1+ratio)×intersection. Bisection keeps the intersection
-    itself fixed. Therefore college-only area / overlap = ratio exactly.
-    """
-    college_radius = math.sqrt((bad_good_ratio + 1.0)*constant_overlap/math.pi)
-    lower = abs(good_radius-college_radius)
-    upper = good_radius+college_radius
-    if constant_overlap >= math.pi*min(good_radius,college_radius)**2:
-        raise ValueError('overlap too large for college and good job disks')
-    for _ in range(68):
-        middle = (lower+upper)/2
-        if overlap_area(good_radius, college_radius, middle) > constant_overlap:
-            lower = middle
+
+def wrap_words(text, font, width):
+    lines = ['']
+    for word in text.split():
+        trial = (lines[-1]+' '+word).strip()
+        if lines[-1] and font.getlength(trial) > width:
+            lines.append(word)
         else:
-            upper = middle
-    separation = (lower + upper)/2
-    actual = overlap_area(good_radius, college_radius, separation)
-    calculated_ratio = (math.pi*college_radius**2-actual)/actual
-    if abs(calculated_ratio-bad_good_ratio) > 1e-8:
-        raise AssertionError(f'area solver error: {calculated_ratio} vs {bad_good_ratio}')
-    return college_radius, separation
+            lines[-1] = trial
+    return '\n'.join(lines)
 
 
-def smooth(t: float) -> float:
-    t = max(0.0, min(1.0, t))
-    return t*t*(3-2*t)
+def selected_area(weights, code):
+    return sum(weight for weight, bit in zip(weights, code) if bit == '1')
 
 
-def schedule(config: dict) -> tuple[list[tuple[float, float, float]], float]:
-    """Return (start_seconds,end_seconds,ratio) for holds and transitions.
-
-    Negative ratios are rejected, and durations are explicit inputs.
-    """
-    start = float(config['start_ratio'])
-    marks = [float(x) for x in config['milestones']]
-    if start < 0 or any(b <= a for a,b in zip([start]+marks,marks)):
-        raise ValueError('ratios must grow strictly and be nonnegative')
-    hold0 = float(config['start_hold_seconds'])
-    transition = float(config['transition_seconds'])
-    hold = float(config['milestone_hold_seconds'])
-    last_hold = float(config['end_hold_seconds'])
-    if min(hold0, transition, hold, last_hold) <= 0:
-        raise ValueError('all timing durations must be positive')
-    out = [(0.0, hold0, start, start)]
-    now = hold0
-    previous = start
-    for i, next_ratio in enumerate(marks):
-        out.append((now, now+transition, previous, next_ratio))
-        now += transition
-        h = last_hold if i == len(marks)-1 else hold
-        out.append((now, now+h, next_ratio, next_ratio))
-        now += h
-        previous = next_ratio
-    return out, now
+def right_cap_cut(radius, target_area):
+    low, high = -radius, radius
+    for _ in range(70):
+        cut = (low+high)/2
+        area = radius*radius*math.acos(cut/radius)-cut*math.sqrt(max(0,radius*radius-cut*cut))
+        if area > target_area:
+            low = cut
+        else:
+            high = cut
+    return (low+high)/2
 
 
-def ratio_at(time_s: float, segments: list) -> float:
-    for start,end,r0,r1 in segments:
-        if time_s <= end + 1e-10:
-            return r0 + (r1-r0)*smooth((time_s-start)/(end-start))
-    return segments[-1][3]
+def union_cells(code, cells):
+    result = Image.new('L', cells[0].size, 0)
+    for bit, cell in zip(code, cells):
+        if bit == '1':
+            result = ImageChops.lighter(result, cell)
+    return result
 
 
-def rgba(color: str) -> tuple[int,int,int,int]:
-    h=color.lstrip('#')
-    if len(h)!=6:
-        raise ValueError('palette colors must be six-digit hex')
-    return tuple(int(h[i:i+2],16) for i in (0,2,4))+(255,)
-
-
-def choose_font(paths: list[str]) -> str:
-    for path in paths:
-        if Path(path).is_file():
-            return path
-    raise RuntimeError('no compatible system font (Inter or DejaVu Sans)')
-
-
-def circle_bbox(cx: float, cy: float, radius: float, scale: float) -> tuple[int,int,int,int]:
-    return tuple(round(v*scale) for v in (cx-radius,cy-radius,cx+radius,cy+radius))
-
-
-def label_center(draw: ImageDraw.ImageDraw, xy: tuple[float,float], content: str,
-                 font: ImageFont.FreeTypeFont, fill: str, scale: float, spacing: float = 1.08):
-    lines=content.split('\n')
-    line_height=font.size*spacing
-    start_y=xy[1]*scale - len(lines)*line_height/2
-    for i,line in enumerate(lines):
-        box=draw.textbbox((0,0),line,font=font)
-        text_width=box[2]-box[0]
-        draw.text((xy[0]*scale-text_width/2, start_y+i*line_height),line,font=font,fill=fill)
-
-
-def render(config: dict, output_dir: Path, retain_frames: bool) -> dict:
-    width, height, fps = [int(config[k]) for k in ('width','height','fps')]
-    if width < 640 or height*16 != width*9 or fps < 10 or fps > 60:
-        raise ValueError('expected 16:9 output, width >= 640, fps 10–60')
-    scale = width / DESIGN_WIDTH
-    c = config['palette']
-    for field in ('background','good','good_outline','college','college_outline','intersection','main_text','secondary_text'):
-        rgba(c[field])
+def render(config, output):
+    proof, regions, frames, answers, count, fps, total = load_checked_model(output)
+    width, height = int(config['width']), int(config['height'])
+    if width < 640 or width % 2 or height % 2 or height*16 != width*9 or config['fps'] != fps:
+        raise ValueError('layout must be even-sized 16:9; frame rate comes from the model')
+    scale = width/1600
+    palette = config['palette']
+    bold, regular = font_path(True), font_path(False)
+    font = lambda path, size: ImageFont.truetype(path, max(9, round(size*scale)))
+    fonts = {name:font(path,size) for name,path,size in (
+        ('title',bold,57),('subtitle',regular,20),('large',bold,36),
+        ('small',bold,18),('callout',bold,38),('detail',regular,20),
+        ('label',regular,24),('percentage',bold,72),('tiny',regular,14))}
+    while fonts['title'].getlength(config['title']) > 1400*scale:
+        if fonts['title'].size <= 20*scale:
+            raise ValueError('title does not fit')
+        fonts['title'] = ImageFont.truetype(bold,fonts['title'].size-1)
     good = config['good_circle']
-    good_x,good_y,good_r = (float(good[k]) for k in ('x','y','radius'))
-    area=float(config['constant_overlap_area'])
-    if area <= 0 or good_r<=0 or area>=math.pi*good_r**2:
-        raise ValueError('invalid fixed overlap / good job circle')
-    segments,duration=schedule(config)
-    count=round(duration*fps)
-    if count<1:
-        raise ValueError('empty animation')
-    output_dir.mkdir(parents=True,exist_ok=True)
-    frames=output_dir/'frames'
-    frames.mkdir(exist_ok=True)
-    bold=choose_font(FONT_BOLD)
-    normal=choose_font(FONT_NORMAL)
-    font=lambda path,pts: ImageFont.truetype(path,max(9,round(pts*scale)))
-    fonts={
-        'title':font(bold,57), 'subtitle':font(normal,20),
-        'disc':font(bold,18), 'big':font(bold,36),
-        'medium':font(bold,30), 'overlap':font(bold,19),
-        'footer_label':font(normal,24), 'footer_sub':font(normal,18),
-        'percentage':font(bold,78), 'tiny':font(normal,14),
-        'callout':font(bold,38), 'callout_sub':font(normal,20)
-    }
-    title=str(config['title'])
-    subtitle=str(config['subtitle'])
-    if '\n' in title or '\n' in subtitle:
-        raise ValueError('single-line title and subtitle required')
-    # Fit the title across supported fonts (DejaVu is wider than Inter).
-    while fonts['title'].getlength(title)>1450*scale and fonts['title'].size>round(32*scale):
-        fonts['title']=ImageFont.truetype(bold,fonts['title'].size-1)
-    if fonts['title'].getlength(title)>1450*scale:
-        raise ValueError('title is too long even at minimum display size')
-    bg=Image.new('RGBA',(width,height),rgba(c['background']))
-    grid=ImageDraw.Draw(bg)
-    # Background grid and divider, generated once.
-    for x in range(75,1580,72):
-        sx=round(x*scale)
-        grid.line((sx,round(195*scale),sx,round(760*scale)),fill='#18283E',width=max(1,round(scale)))
-    for y in range(198,760,72):
-        sy=round(y*scale)
-        grid.line((round(70*scale),sy,round(1540*scale),sy),fill='#18283E',width=max(1,round(scale)))
-    for x in range(110,1500,180):
-        for y in range(218,760,180):
-            r=max(1,round(1.5*scale))
-            grid.ellipse((x*scale-r,y*scale-r,x*scale+r,y*scale+r),fill='#40506A')
-    grid.rectangle((0,round(775*scale),width,height),fill='#070E1D')
-    grid.line((round(85*scale),round(174*scale),round(1515*scale),round(174*scale)),fill='#2B3E55',width=2)
-    grid.line((0,round(774*scale),width,round(774*scale)),fill='#37506B',width=2)
-    grid.rectangle((round(86*scale),round(51*scale),round(94*scale),round(123*scale)),fill=c['college_outline'])
-    grid.text((114*scale,51*scale),title,font=fonts['title'],fill=c['main_text'])
-    grid.text((114*scale,132*scale),subtitle,font=fonts['subtitle'],fill=c['secondary_text'])
-    grid.text((1430*scale,142*scale),'SCHEMATIC',font=fonts['disc'],fill=c['secondary_text'])
-    # Static good job area.
-    good_box=circle_bbox(good_x,good_y,good_r,scale)
-    good_mask=Image.new('L',(width,height),0)
+    gx, gy, radius = (float(good[k]) for k in ('x','y','radius'))
+    initial = frames[0]
+    good_weight = selected_area(initial,regions['good']['code'])
+    intersection_code = ''.join('1' if a == b == '1' else '0' for a,b in
+                                zip(regions['good']['code'], regions['college']['code']))
+    overlap_weight = selected_area(initial,intersection_code)
+    area_per_weight = math.pi*radius*radius/good_weight
+    cut = gx+right_cap_cut(radius,area_per_weight*overlap_weight)
+    universe = (70,180,1540,180+total*area_per_weight/1470)
+    if universe[3] > 766:
+        raise ValueError('the population does not fit the fixed viewport')
+    xy = lambda values: tuple(round(v*scale) for v in values)
+    good_box = xy((gx-radius,gy-radius,gx+radius,gy+radius))
+    universe_mask = Image.new('L',(width,height),0)
+    ImageDraw.Draw(universe_mask).rectangle(xy(universe),fill=255)
+    good_mask = Image.new('L',(width,height),0)
     ImageDraw.Draw(good_mask).ellipse(good_box,fill=255)
-    good_layer=Image.new('RGBA',(width,height),rgba(c['good']))
-    good_layer.putalpha(good_mask.point([int(i*.78) for i in range(256)]))
-    bg.alpha_composite(good_layer)
-    # The complement is all of U minus G, not just the college-only crescent.
-    universe_mask=Image.new('L',(width,height),0)
-    universe_box=tuple(round(v*scale) for v in UNIVERSE_BBOX)
-    ImageDraw.Draw(universe_mask).rectangle(universe_box,fill=255)
-    complement_mask=ImageChops.subtract(universe_mask,good_mask)
-    complement_path=output_dir/f"{config['filename']}-complement-mask.png"
-    complement_mask.save(complement_path)
-    complement_layer=Image.new('RGBA',(width,height),(0,0,0,0))
-    hatch=ImageDraw.Draw(complement_layer)
-    for x in range(-DESIGN_HEIGHT,DESIGN_WIDTH+DESIGN_HEIGHT,36):
-        hatch.line((round(x*scale),0,round((x-DESIGN_HEIGHT)*scale),height),
-                   fill=rgba(c['college_outline'])[:3]+(45,),width=max(1,round(scale)))
-    complement_layer.putalpha(ImageChops.multiply(complement_layer.getchannel('A'),complement_mask))
-    college_layer_color=rgba(c['college'])
-    overlap_color=rgba(c['intersection'])
-    milestone_frames={}
-    frame_statistics=[]
-    footer_labels={
-        'college_graduates_with_good_job_pct': '% of college graduates\nwith a good job',
-        'good_job_holders_with_college_degree_pct': '% of people with a good job\nwho have a college degree',
-    }
-    for i in range(count):
-        elapsed=i/fps
-        q=ratio_at(elapsed,segments)
-        r,d=solve_college_circle(good_r,area,q)
-        cx=good_x+d
-        actual_overlap=overlap_area(good_r,r,d)
-        # Same numerator, different populations in the denominators.
-        percentages={
-            'college_graduates_with_good_job_pct': 100*actual_overlap/(math.pi*r*r),
-            'good_job_holders_with_college_degree_pct': 100*actual_overlap/(math.pi*good_r*good_r),
-        }
-        percentage_texts={key:f'{value:.1f}%' for key,value in percentages.items()}
-        statistics={
-            'frame':i,'ratio':q,'circle_radius':r,'center_separation':d,
-            'actual_overlap_area':actual_overlap,**percentages,
-            'footer_display':percentage_texts,
-        }
-        frame_statistics.append(statistics)
-        if cx+r>1150 or good_y+r>772 or good_y-r<180:
-            raise ValueError('geometry exceeds diagram viewport; adjust design inputs')
-        box=circle_bbox(cx,good_y,r,scale)
-        college_mask=Image.new('L',(width,height),0)
-        ImageDraw.Draw(college_mask).ellipse(box,fill=255)
-        college_layer=Image.new('RGBA',(width,height),college_layer_color)
-        college_layer.putalpha(college_mask.point([int(i*.75) for i in range(256)]))
-        frame=bg.copy()
-        frame.alpha_composite(college_layer)
-        intersection_mask=ImageChops.multiply(good_mask,college_mask)
-        inter_layer=Image.new('RGBA',(width,height),overlap_color)
-        inter_layer.putalpha(intersection_mask.point([int(i*.97) for i in range(256)]))
-        frame.alpha_composite(inter_layer)
-        # The same hatching covers both C \ G and U \ (C union G).
-        frame.alpha_composite(complement_layer)
-        draw=ImageDraw.Draw(frame)
-        draw.rectangle(universe_box,outline=c['secondary_text'],width=max(1,round(scale)))
-        draw.rectangle((88*scale,194*scale,238*scale,230*scale),fill=c['background'])
-        draw.text((98*scale,201*scale),'ALL PEOPLE',font=fonts['disc'],fill=c['main_text'])
-        # The two outlines remain visible through their overlap.
-        draw.ellipse(good_box,outline=c['good_outline'],width=max(2,round(4*scale)))
-        draw.ellipse(box,outline=c['college_outline'],width=max(2,round(4*scale)))
-        label_center(draw,(355,430),'GOOD\nJOB',fonts['big'],c['main_text'],scale)
-        label_center(draw,(cx+r*.43,435),'WENT TO\nCOLLEGE',fonts['medium'],'#FFE4D9',scale)
-        # Intersection stays fixed in area, though its boundary adjusts slightly.
-        draw.rounded_rectangle((round(516*scale),round(570*scale),round(658*scale),round(605*scale)),
-                               radius=16*scale,fill='#0A4651',outline='#83CECF',width=max(1,round(scale)))
-        label_center(draw,(587,581),'OVERLAP',fonts['overlap'],'#E8FCF8',scale)
-        # Label the entire exterior of G. No arrow singles out the college crescent.
-        draw.multiline_text((1180*scale,360*scale),COMPLEMENT_LABEL.replace(' OR ','\nOR '),
-                            font=fonts['callout'],fill=c['college_outline'],spacing=5*scale)
-        draw.text((1180*scale,466*scale),'Everything outside',font=fonts['callout_sub'],fill=c['main_text'])
-        draw.text((1180*scale,495*scale),'the good-job circle.',font=fonts['callout_sub'],fill=c['main_text'])
-        draw.text((1180*scale,543*scale),'With or without a degree.',font=fonts['callout_sub'],fill=c['secondary_text'])
-        draw.text((1180*scale,580*scale),'The hatched area',font=fonts['callout_sub'],fill=c['secondary_text'])
-        # Two conditional percentages, each bound to its whole-circle population.
-        # The right counter stays constant because good jobs and overlap are fixed.
-        draw.line((800*scale,794*scale,800*scale,860*scale),fill='#37506B',width=max(1,round(scale)))
-        for key,left,right,color in (
-            ('college_graduates_with_good_job_pct',85,755,c['college_outline']),
-            ('good_job_holders_with_college_degree_pct',840,1515,c['good_outline']),
-        ):
-            draw.multiline_text((left*scale,794*scale),footer_labels[key],
-                                font=fonts['footer_label'],fill=c['main_text'],spacing=7*scale)
-            value_text=percentage_texts[key]
-            value_width=draw.textlength(value_text,font=fonts['percentage'])
-            draw.text((right*scale-value_width,784*scale),value_text,
+    if ImageChops.subtract(good_mask,universe_mask).getbbox():
+        raise ValueError('good-job region escapes the universe')
+    frames_dir = output/'frames'
+    frames_dir.mkdir(exist_ok=False)
+    layouts = []
+    previous_college = Image.new('L',(width,height),0)
+    for time in range(count):
+        weights = frames[time]
+        if selected_area(weights,regions['good']['code']) != good_weight or selected_area(weights,intersection_code) != overlap_weight:
+            raise ValueError('this layout requires fixed good jobs and fixed intersection')
+        college_weight = selected_area(weights,regions['college']['code'])
+        right = cut+college_weight*area_per_weight/(2*radius)
+        if right < gx+radius or right > 1150:
+            raise ValueError('requested measures do not fit this monotone rectangle/circle layout')
+        college_mask = Image.new('L',(width,height),0)
+        ImageDraw.Draw(college_mask).rectangle(xy((cut,gy-radius,right,gy+radius)),fill=255)
+        if ImageChops.subtract(previous_college,college_mask).getbbox():
+            raise ValueError('college membership shrank')
+        previous_college = college_mask.copy()
+        both = ImageChops.multiply(college_mask,good_mask)
+        cells = [both,ImageChops.subtract(college_mask,good_mask),
+                 ImageChops.subtract(good_mask,college_mask),
+                 ImageChops.subtract(universe_mask,ImageChops.lighter(good_mask,college_mask))]
+        complement = union_cells(regions['complement']['code'],cells)
+        frame = Image.new('RGB',(width,height),palette['background'])
+        frame.paste(palette['good'],(0,0),union_cells(regions['good']['code'],cells))
+        frame.paste(palette['college'],(0,0),union_cells(regions['college']['code'],cells))
+        frame.paste(palette['intersection'],(0,0),both)
+        hatching = Image.new('RGBA',(width,height),(0,0,0,0))
+        hd = ImageDraw.Draw(hatching)
+        for x in range(-900,2500,36):
+            hd.line(xy((x,0,x-900,900)),fill=(255,189,159,45),width=max(1,round(scale)))
+        hatching.putalpha(ImageChops.multiply(hatching.getchannel('A'),complement))
+        frame = Image.alpha_composite(frame.convert('RGBA'),hatching).convert('RGB')
+        draw = ImageDraw.Draw(frame)
+        draw.rectangle(xy(universe),outline=palette['secondary_text'],width=max(1,round(scale)))
+        draw.ellipse(good_box,outline=palette['good_outline'],width=max(2,round(4*scale)))
+        draw.rectangle(xy((cut,gy-radius,right,gy+radius)),outline=palette['college_outline'],width=max(2,round(4*scale)))
+        draw.rectangle(xy((0,775,1600,900)),fill='#070E1D')
+        draw.line(xy((0,774,1600,774)),fill='#37506B',width=2)
+        draw.rectangle(xy((86,51,94,123)),fill=palette['college_outline'])
+        draw.text((114*scale,51*scale),config['title'],font=fonts['title'],fill=palette['main_text'])
+        draw.text((114*scale,132*scale),config['subtitle'],font=fonts['subtitle'],fill=palette['secondary_text'])
+        draw.text((1410*scale,142*scale),'SCHEMATIC',font=fonts['small'],fill=palette['secondary_text'])
+        draw.rectangle(xy((88,194,238,230)),fill=palette['background'])
+        draw.text((98*scale,201*scale),'ALL PEOPLE',font=fonts['small'],fill=palette['main_text'])
+        draw.multiline_text((302*scale,410*scale),regions['good']['label'].replace(' ','\n'),font=fonts['large'],fill=palette['main_text'],spacing=4*scale)
+        college_title = regions['college']['label']
+        title_width = fonts['small'].getlength(college_title)
+        draw.text(((cut+right)*scale/2-title_width/2,232*scale),college_title,font=fonts['small'],fill=palette['college_outline'])
+        complement_title = wrap_words(regions['complement']['label'],fonts['callout'],335*scale)
+        draw.multiline_text((1180*scale,352*scale),complement_title,font=fonts['callout'],fill=palette['college_outline'],spacing=5*scale)
+        draw.text((1180*scale,466*scale),'Everything outside',font=fonts['detail'],fill=palette['main_text'])
+        draw.text((1180*scale,495*scale),'the good-job region.',font=fonts['detail'],fill=palette['main_text'])
+        draw.text((1180*scale,543*scale),'With or without a degree.',font=fonts['detail'],fill=palette['secondary_text'])
+        draw.line(xy((800,794,800,860)),fill='#37506B',width=max(1,round(scale)))
+        for index,(left,right_edge,color) in enumerate(((85,755,palette['college_outline']),(840,1515,palette['good_outline']))):
+            answer = answers[time][index]
+            label = wrap_words(answer['label'],fonts['label'],410*scale)
+            if len(label.splitlines()) > 2:
+                raise ValueError('conditional population label does not fit')
+            draw.multiline_text((left*scale,794*scale),label,font=fonts['label'],fill=palette['main_text'],spacing=7*scale)
+            text = answer['displayed']
+            draw.text((right_edge*scale-fonts['percentage'].getlength(text),784*scale),text,
                       font=fonts['percentage'],fill=color)
-        draw.text((85*scale,878*scale),'ILLUSTRATIVE AREAS — NOT LABOR-MARKET DATA',
-                  font=fonts['tiny'],fill=c['secondary_text'])
-        path=frames/f'frame-{i:04}.png'
-        frame.convert('RGB').save(path,optimize=False,compress_level=3)
-        for target in [float(config['start_ratio'])]+[float(k) for k in config['milestones']]:
-            if target not in milestone_frames and abs(q-target)<.0000001:
-                milestone_frames[target]=statistics.copy()
-        if i==count-1:
-            final_frame=path
-    stem=config['filename']
-    mp4=output_dir/f'{stem}.mp4'
-    gif=output_dir/f'{stem}.gif'
-    preview=output_dir/f'{stem}-preview.png'
-    shutil.copyfile(final_frame,preview)
-    # Use exactly enumerated frames and reject any failed encoder.
-    framerate=str(fps)
-    pattern=str(frames/'frame-%04d.png')
-    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',framerate,
-                    '-i',pattern,'-c:v','libx264','-preset','fast','-crf','22',
+        draw.text((85*scale,878*scale),'ILLUSTRATIVE WEIGHTS — NOT LABOR-MARKET DATA',font=fonts['tiny'],fill=palette['secondary_text'])
+        frame.save(frames_dir/f'{time:04}.png',compress_level=3)
+        layouts.append({'frame':time,'college_right':right,'weights':weights,'answers':answers[time]})
+        if time in (0,count-1):
+            frame.save(output/('initial.png' if time==0 else 'college-good-jobs-venn-preview.png'))
+            for index,mask in enumerate(cells):
+                mask.save(output/f'cell-{time}-{index}.png')
+            complement.save(output/f'complement-{time}.png')
+    mp4 = output/'college-good-jobs-venn.mp4'
+    subprocess.run(['ffmpeg','-v','error','-y','-framerate',str(fps),'-i',str(frames_dir/'%04d.png'),
+                    '-frames:v',str(count),'-c:v','libx264','-preset','fast','-crf','20',
                     '-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
-    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(mp4),
-                    '-filter_complex',('fps=10,scale=720:-2:flags=lanczos,split[s0][s1];'
-                        '[s0]palettegen=max_colors=64:stats_mode=diff[p];'
-                        '[s1][p]paletteuse=dither=bayer:bayer_scale=4'),
-                    '-loop','0',str(gif)],check=True)
-    probe=json.loads(subprocess.run(['ffprobe','-v','error','-count_frames','-select_streams','v:0',
-                                     '-show_entries','stream=width,height,nb_read_frames,r_frame_rate',
-                                     '-of','json',str(mp4)],capture_output=True,text=True,check=True).stdout)
-    stream=probe['streams'][0]
-    if int(stream['width'])!=width or int(stream['height'])!=height or int(stream['nb_read_frames'])!=count:
-        raise AssertionError(f'encoded video mismatch: {stream}')
-    if stream['r_frame_rate'] != f'{fps}/1':
-        raise AssertionError(f'video fps mismatch: {stream}')
-    manifest={
-        'schema_version':3,
-        'generator':'scripts/render-college-job-venn.py',
-        'generator_sha256':sha256(Path(__file__)),
-        'title':title,
-        'semantic_definition':{
-            'college_graduates_with_good_job_pct':'100 * area(college intersect good jobs) / area(college)',
-            'good_job_holders_with_college_degree_pct':'100 * area(college intersect good jobs) / area(good jobs)',
-        },
-        'geometry_ratio_definition':'area(college minus good jobs) / area(college intersect good jobs); not a footer statistic',
-        'footer_labels':{key:value.replace('\n',' ') for key,value in footer_labels.items()},
-        'frame_statistics':frame_statistics,
-        'universe_design_bbox':list(UNIVERSE_BBOX),
-        'complement_label':COMPLEMENT_LABEL,
-        'complement_definition':COMPLEMENT_DEFINITION,
-        'complement_mask':complement_path.name,
-        'data_status':'schematic; no empirical counts asserted',
-        'constant_good_job_radius':good_r,
-        'constant_good_job_overlap_area':area,
-        'milestone_frames':{str(k):v for k,v in sorted(milestone_frames.items())},
-        'config_sha256':sha256(Path(config['_config_path'])),
-        'font_sha256':{'bold':sha256(Path(bold)),'normal':sha256(Path(normal))},
-        'font_paths':{'bold':bold,'normal':normal},
-        'runtime':{'python':platform.python_version(),'pillow':pillow_version,
-                   'ffmpeg':subprocess.run(['ffmpeg','-version'],capture_output=True,text=True,check=True).stdout.splitlines()[0]},
-        'frames':count,'fps':fps,'width':width,'height':height,'duration_seconds':count/fps,
-        'files':{p.name:{'sha256':sha256(p),'bytes':p.stat().st_size} for p in (mp4,gif,preview,complement_path)},
-    }
-    receipt_path=output_dir/f'{stem}-receipt.json'
-    receipt_path.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
-    if not retain_frames:
-        shutil.rmtree(frames)
-    return manifest
+    manifest = {'schema_version':4,'status':'rendered-not-yet-verified','frames':count,'fps':fps,
+        'width':width,'height':height,'model_output_sha256':digest(output/'model.tsv'),
+        'model_check_sha256':digest(output/'model-check.json'),'renderer_sha256':digest(__file__),
+        'config_sha256':digest(config['_path']),'bold_font':bold,'regular_font':regular,
+        'bold_font_sha256':digest(bold),'regular_font_sha256':digest(regular),
+        'universe':universe,'good_circle':good,'college_cut':cut,'area_per_weight':area_per_weight,
+        'layout':'fixed good-job disk; monotonically expanding college rectangle',
+        'regions':regions,'frame_layouts':layouts,'mp4_sha256':digest(mp4)}
+    (output/'render-receipt.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    print(json.dumps({'status':'rendered','video':str(mp4),'frames':count,'model':proof['compiler_revision']}))
 
 
-def main() -> int:
-    parser=argparse.ArgumentParser()
+def main():
+    parser = argparse.ArgumentParser()
     parser.add_argument('--config',required=True,type=Path)
-    parser.add_argument('--output-dir',type=Path,default=Path('.flexible-pipes/artifacts/college-job-venn'))
-    parser.add_argument('--retain-frames',action='store_true')
-    args=parser.parse_args()
-    config=json.loads(args.config.read_text(encoding='utf-8'))
-    if config.get('schema_version')!=1:
-        raise ValueError('unsupported config schema_version')
-    config['_config_path']=str(args.config.resolve())
-    manifest=render(config,args.output_dir,args.retain_frames)
-    print(json.dumps({'result':'rendered-and-probed','video':str(args.output_dir/(config['filename']+'.mp4')),
-                      'frames':manifest['frames'],'milestones':manifest['milestone_frames']},sort_keys=True))
-    return 0
+    parser.add_argument('--output-dir',type=Path,default=ROOT/'.flexible-pipes/artifacts/college-job-venn')
+    args = parser.parse_args()
+    config = json.loads(args.config.read_text())
+    config['_path'] = str(args.config.resolve())
+    render(config,args.output_dir.resolve())
 
 
-if __name__=='__main__':
-    sys.exit(main())
+if __name__ == '__main__':
+    main()
