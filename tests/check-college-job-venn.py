@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -65,11 +66,19 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def run_logged(argv, path, cwd=ROOT, timeout=900):
+def run_logged(argv, path, cwd=ROOT, timeout=900, env=None):
     result = subprocess.run([str(x) for x in argv],cwd=cwd,stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,timeout=timeout)
+                            stderr=subprocess.STDOUT,timeout=timeout,env=env)
     path.write_bytes(result.stdout)
     return result
+
+
+def require_compiler_success(result, phase):
+    diagnostic=result.stdout.decode(errors='replace')
+    # The pinned compiler can return zero for a source-less loading error.
+    # Such a diagnostic is never evidence that a positive control passed.
+    require(result.returncode==0 and not re.search(r'(?m)^Error:|^Uncaught error:',diagnostic),
+            phase+' failed (compiler exit '+str(result.returncode)+'):\n'+diagnostic)
 
 
 def expected_percent(numerator,denominator):
@@ -148,6 +157,14 @@ def check_model_text(text):
 
 def check_type_model(compiler,output):
     output.mkdir(parents=True,exist_ok=True)
+    # Invalidate previous success before attempting any new compiler work.
+    for name in ('model-check.json','render-receipt.json','acceptance.json','model.tsv',
+                 'college-good-jobs-venn.mp4','initial.png','college-good-jobs-venn-preview.png'):
+        (output/name).unlink(missing_ok=True)
+    for path in (output/'frames').glob('[0-9][0-9][0-9][0-9].png'):
+        path.unlink()
+    if (output/'frames').is_dir():
+        (output/'frames').rmdir()
     logdir=output/'type-checks'
     logdir.mkdir(exist_ok=True)
     compiler=compiler.resolve()
@@ -156,11 +173,17 @@ def check_type_model(compiler,output):
     require(observed==PIN,'wrong compiler source revision')
     require(not subprocess.check_output(['git','-C',str(runtime),'status','--porcelain','--untracked-files=no']),
             'modified compiler sources')
+    # Bootstrap installs its libraries under this prefix; the final compiler's
+    # default prefix is the builder's home, which is not a consumer runtime.
+    environment={key:value for key,value in os.environ.items() if not key.startswith('IDRIS2_')}
+    environment['IDRIS2_PREFIX']=str((runtime/'bootstrap-build').resolve())
+    require((runtime/'bootstrap-build').is_dir(),'missing bootstrapped library prefix')
+    executable=ROOT/'build/exec/college-venn-model'
+    executable.unlink(missing_ok=True)
     compile_argv=[compiler,'--source-dir','models','--cg','node','-o','college-venn-model','models/CollegeVenn.idric']
-    result=run_logged(compile_argv,logdir/'positive.log')
-    if result.returncode:
-        print(result.stdout.decode(errors='replace'))
-        raise ValueError('the real Idriç compiler rejected the model')
+    result=run_logged(compile_argv,logdir/'model-compile.log',env=environment)
+    require_compiler_success(result,'model compilation')
+    require(executable.is_file() and executable.stat().st_size>0,'compiler emitted no fresh model executable')
     source_text=SOURCE.read_text()
     for forbidden in ('believe_me','assert_total','assert_smaller','%unsafe','%foreign'):
         require(forbidden not in source_text,'untrusted escape in semantic source')
@@ -178,15 +201,18 @@ complement_ok : complement (the (Region "people") good_job) = Cells False True F
 complement_ok = Refl
 '''
         (work/'Positive.idric').write_text(positive)
-        control=run_logged([compiler,'--check','Positive.idric'],logdir/'Positive.log',cwd=work)
-        require(control.returncode==0,'positive control for rejection tests did not typecheck: '+control.stdout.decode(errors='replace'))
+        (logdir/'Positive.idric').write_text(positive)
+        control=run_logged([compiler,'--check','Positive.idric'],logdir/'positive-control.log',cwd=work,env=environment)
+        require_compiler_success(control,'positive control for rejection tests')
         for name,body in NEGATIVES.items():
             code=f'module {name}\nimport CollegeVenn\nimport Data.Nat\n'+body
             source=work/(name+'.idric')
             source.write_text(code)
             (logdir/(name+'.idric')).write_text(code)
-            result=run_logged([compiler,'--check',source.name],logdir/(name+'.log'),cwd=work)
+            result=run_logged([compiler,'--check',source.name],logdir/(name+'.log'),cwd=work,env=environment)
             diagnostic=result.stdout.decode(errors='replace')
+            require(not re.search(r'(Parse error|parse error|Module .*not found|Unsolved holes|Undefined name)',diagnostic),
+                    'unrelated compiler failure in '+name+' (exit '+str(result.returncode)+'):\n'+diagnostic)
             require(result.returncode!=0,'invalid program accepted: '+name)
             require(re.search(r'(Mismatch|mismatch|unify|constraint|Type mismatch)',diagnostic),
                     'rejection was not a type/index mismatch: '+name+'\n'+diagnostic)
@@ -195,7 +221,6 @@ complement_ok = Refl
             require('bad' in diagnostic,'wrong declaration failed in '+name)
             outcomes.append({'case':name,'exit_code':result.returncode,'source_sha256':digest(source),
                              'log_sha256':digest(logdir/(name+'.log'))})
-    executable=ROOT/'build/exec/college-venn-model'
     result=run_logged(['node',executable],output/'model.tsv')
     require(result.returncode==0,'compiled model execution failed')
     text=(output/'model.tsv').read_text()
