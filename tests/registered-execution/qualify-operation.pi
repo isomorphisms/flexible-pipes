@@ -152,10 +152,18 @@ for repository in repositories:
     checkout ∈ str ← str(repository["checkout"])
     commit ∈ str ← git(checkout, ["rev-parse", "HEAD"])
     origin ∈ str ← git(checkout, ["config", "--local", "--get", "remote.origin.url"])
+    published_ref ∈ str ← str(repository["ref"])
+    if checkout == fp:
+        # A stacked operation candidate must itself be published; the retained
+        # parent branch cannot prove availability of its newer source.
+        containing_refs ∈ list[str] ← git(checkout, ["for-each-ref", "--contains=" + commit, "--format=%(refname)", "refs/remotes/origin/"]).splitlines()
+        if len(containing_refs) == 0:
+            raise ValueError("FP_CANDIDATE_UNPUBLISHED")
+        published_ref ← containing_refs[0]
     files ∈ list[str] ← list(repository["files"])
     for relative in files:
         path ∈ str ← checkout + "/" + relative
-        materials.append({"path": path, "checkout": checkout, "relative_path": relative, "commit": commit, "origin": origin, "published_ref": repository["ref"], "sha256": digest(path)})
+        materials.append({"path": path, "checkout": checkout, "relative_path": relative, "commit": commit, "origin": origin, "published_ref": published_ref, "sha256": digest(path)})
 
 tools ∈ list[dict[str, object]] ← []
 for path in [python, grease_python, grease_entry, "/usr/bin/git", "/usr/bin/grep", "/usr/bin/dirname", "/usr/bin/chmod", "/usr/bin/cat", "/usr/bin/head", "/usr/bin/curl", "/usr/bin/sha256sum", "/usr/bin/mktemp", "/usr/bin/mkdir", "/usr/bin/mv", "/usr/bin/rm", "/usr/bin/id", "/usr/bin/stat", "/usr/bin/cp", "/usr/bin/openssl", "/usr/bin/gh", "/lib/x86_64-linux-gnu/libseccomp.so.2"]:

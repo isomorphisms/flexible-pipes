@@ -19,13 +19,26 @@ import base64
 import ithon_frontend
 from pathlib import Path
 from typing import Iterable
-from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError
+from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError, FileNotFoundError
 
 REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "fixture-destination-authentication", "fixture-destination-api", "fixture-wrong-login", "fixture-wrong-source", "fixture-wrong-repository", "fixture-wrong-destination", "fixture-organization-membership", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
 MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "accepted-still-pending", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network", "destination-authentication", "destination-api", "wrong-login", "wrong-source", "wrong-repository", "wrong-destination", "organization-membership"]
 OPERATION_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256", "acquisition_probe", "compact_recipe"]
 OUTPUTS ∈ list[dict[str, str]] ← [{"role": "standalone-transfer-script", "type": "grease-script", "suffix": ".sh"}, {"role": "human-transfer-paste", "type": "grease-paste", "suffix": ".paste.grease"}]
+EXPORTER ∈ str ← "chatgpt-exporter-regression-acceptance"
+EXPORTER_CHECKS ∈ list[str] ← ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"]
+EXPORTER_OUTPUTS ∈ list[dict[str, str]] ← [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]
+EXPORTER_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "worker", "watchdog", "node", "test_runner", "baseline_root", "candidate_root", "baseline_commit", "candidate_commit", "corpus_commit", "matrix", "case_verifier", "contract_sha256", "worker_environment"]
+
+def required_checks(config ∈ dict[str, object]) → list[str]:
+    return EXPORTER_CHECKS if config["operation"] == EXPORTER else REQUIRED
+
+def output_roles(config ∈ dict[str, object]) → list[dict[str, str]]:
+    return EXPORTER_OUTPUTS if config["operation"] == EXPORTER else OUTPUTS
+
+def operation_fields(config ∈ dict[str, object]) → list[str]:
+    return EXPORTER_FIELDS if config["operation"] == EXPORTER else OPERATION_FIELDS
 
 def interrupt(number ∈ int, frame ∈ object) → None:
     raise KeyboardInterrupt("supervisor interrupted")
@@ -119,7 +132,7 @@ def checked_request(raw ∈ bytes) → dict[str, object]:
     request ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
     if not isinstance(request, dict) or set(request) != set(["schema_version", "request_id", "pipeline", "inputs"]):
         raise ValueError("REQUEST_FIELDS")
-    if type(request["schema_version"]) != int or request["schema_version"] != 1 or request["pipeline"] != "kitchen-transfer-script":
+    if type(request["schema_version"]) != int or request["schema_version"] != 1 or request["pipeline"] != "kitchen-transfer-script" and request["pipeline"] != EXPORTER:
         raise ValueError("UNKNOWN_OPERATION")
     import re
     if not isinstance(request["request_id"], str):
@@ -130,6 +143,17 @@ def checked_request(raw ∈ bytes) → dict[str, object]:
     if not isinstance(request["inputs"], dict):
         raise ValueError("INPUT_OBJECT")
     inputs ∈ dict[str, object] ← dict(request["inputs"])
+    if request["pipeline"] == EXPORTER:
+        if set(inputs) != set(["source_ref", "scope"]):
+            raise ValueError("INPUT_FIELDS")
+        if not isinstance(inputs["source_ref"], str):
+            raise ValueError("INPUT_SOURCE_REF")
+        matched ← re.fullmatch("[a-f0-9]{40}", str(inputs["source_ref"]))
+        if matched == None:
+            raise ValueError("INPUT_SOURCE_REF")
+        if inputs["scope"] != "all":
+            raise ValueError("UNQUALIFIED_ACCEPTANCE_SCOPE")
+        return request
     if set(inputs) != set(FIELDS):
         raise ValueError("INPUT_FIELDS")
     for name in ["source_owner", "repository", "destination_owner", "expected_login"]:
@@ -163,9 +187,9 @@ def protected_file(path ∈ str, private ∈ bool) → None:
             raise ValueError("UNPROTECTED_AUTHORITY_DIRECTORY")
 
 def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → None:
-    if config["schema_version"] != 1 or config["operation"] != "kitchen-transfer-script" or config["qualified"] != True:
+    if config["schema_version"] != 1 or config["operation"] != "kitchen-transfer-script" and config["operation"] != EXPORTER or config["qualified"] != True:
         raise ValueError("UNQUALIFIED_ADAPTER")
-    if config["required_checks"] != REQUIRED:
+    if config["required_checks"] != required_checks(config):
         raise ValueError("MANDATORY_CHILD_MISSING")
     if not diagnostic and config["authority"] != "deployed-trusted":
         raise ValueError("DEPLOYMENT_INACTIVE")
@@ -221,30 +245,35 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
             raise ValueError("MISSING_EXECUTABLE: " + executable)
         if digest(Path(executable).read_bytes()) != tool["sha256"]:
             raise ValueError("TOOL_CHANGED")
-    for role in ["worker", "watchdog", "generator", "parent_probe", "fixture_server", "api_validator", "seal_validator", "acquisition_probe", "compact_recipe"]:
+    roles ∈ list[str] ← ["worker", "watchdog", "matrix", "case_verifier"] if config["operation"] == EXPORTER else ["worker", "watchdog", "generator", "parent_probe", "fixture_server", "api_validator", "seal_validator", "acquisition_probe", "compact_recipe"]
+    for role in roles:
         selected ∈ str ← str(config[role])
         if not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
     commands ∈ list[str] ← list(config["ithon"])
-    grease_command ∈ list[str] ← list(config["grease"])
-    commands.extend(grease_command[:2])
+    if config["operation"] == EXPORTER:
+        commands.extend([str(config["node"]), str(config["test_runner"])])
+    else:
+        grease_command ∈ list[str] ← list(config["grease"])
+        commands.extend(grease_command[:2])
     for selected in commands:
         if not tool_paths.__contains__(selected) and not bound_paths.__contains__(selected):
             raise ValueError("UNBOUND_RUNTIME")
     contract ∈ dict[str, object] ← read(str(config["contract"]))
-    if contract["required_checks"] != REQUIRED or contract["operation"] != "kitchen-transfer-script":
+    if contract["required_checks"] != required_checks(config) or contract["operation"] != config["operation"]:
         raise ValueError("CONTRACT_CHANGED")
-    if contract["outputs"] != OUTPUTS:
+    if contract["outputs"] != output_roles(config):
         raise ValueError("OUTPUT_CONTRACT_CHANGED")
     if digest(Path(str(config["contract"])).read_bytes()) != config["contract_sha256"]:
         raise ValueError("CONTRACT_CHANGED")
     qualification ∈ dict[str, object] ← read(str(config["qualification"]))
     if qualification["status"] != "PASS" or qualification["scope"] != config["authority"] or qualification["materials_sha256"] != digest(encode(materials)):
         raise ValueError("STALE_QUALIFICATION")
-    if qualification["tools_sha256"] != digest(encode(tools)) or qualification["environment_sha256"] != digest(encode(config["grease_environment"])):
+    environment_field ∈ str ← "worker_environment" if config["operation"] == EXPORTER else "grease_environment"
+    if qualification["tools_sha256"] != digest(encode(tools)) or qualification["environment_sha256"] != digest(encode(config[environment_field])):
         raise ValueError("STALE_RUNTIME_QUALIFICATION")
     operation_identity ∈ dict[str, object] ← {}
-    for field in OPERATION_FIELDS:
+    for field in operation_fields(config):
         operation_identity[field] ← config[field]
     if qualification["operation_sha256"] != digest(encode(operation_identity)):
         raise ValueError("STALE_OPERATION_QUALIFICATION")
@@ -254,9 +283,10 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
 def release_identity(config ∈ dict[str, object]) → str:
     # Identity of already verified authority; hashing does not approve a release.
     selected ∈ dict[str, object] ← {}
-    for field in OPERATION_FIELDS:
+    for field in operation_fields(config):
         selected[field] ← config[field]
-    for field in ["materials", "tools", "grease_environment", "qualification_sha256"]:
+    release_fields ∈ list[str] ← ["materials", "tools", "worker_environment", "qualification_sha256"] if config["operation"] == EXPORTER else ["materials", "tools", "grease_environment", "qualification_sha256"]
+    for field in release_fields:
         selected[field] ← config[field]
     return digest(encode(selected))
 
@@ -281,7 +311,7 @@ def validate_cached_result(config ∈ dict[str, object], raw ∈ bytes, result �
     if result["source"] != config["materials"] or result["dependencies"] != config["tools"] or result["qualification_sha256"] != config["qualification_sha256"] or result["contract_sha256"] != config["contract_sha256"]:
         raise ValueError("CACHED_EVIDENCE_MISMATCH")
     promotion ∈ dict[str, object] ← dict(result["promotion"])
-    scope ∈ str ← "local-fixture-qualification" if diagnostic else "generated-script"
+    scope ∈ str ← "local-fixture-qualification" if diagnostic else ("exporter-regression-transition" if config["operation"] == EXPORTER else "generated-script")
     state ∈ str ← "candidate-verified" if diagnostic else "accepted"
     if result["acceptance_scope"] != scope or promotion["state"] != state or promotion["trusted_identity"] != config["authority"]:
         raise ValueError("CACHED_AUTHORITY_MISMATCH")
@@ -291,16 +321,17 @@ def validate_cached_result(config ∈ dict[str, object], raw ∈ bytes, result �
         names.append(str(stage["check_id"]))
         if type(stage["required"]) != bool or stage["required"] != True or stage["state"] != "PASS" or stage["implementation_sha256"] != control["executable_sha256"] or stage["contract_sha256"] != config["contract_sha256"]:
             raise ValueError("CACHED_CHECKS_MISMATCH")
-    if names != REQUIRED or promotion["decision_sha256"] != digest(encode(stages)):
+    if names != required_checks(config) or promotion["decision_sha256"] != digest(encode(stages)):
         raise ValueError("CACHED_CHECKS_MISMATCH")
     artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
-    if len(artifacts) != len(OUTPUTS):
+    if len(artifacts) != len(output_roles(config)):
         raise ValueError("STALE_ACCEPTED_ARTIFACT")
     inputs ∈ dict[str, object] ← dict(request["inputs"])
-    basename ∈ str ← "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
-    for index in range(len(OUTPUTS)):
+    basename ∈ str ← "exporter-regression-transition" if config["operation"] == EXPORTER else "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
+    selected_outputs ∈ list[dict[str, str]] ← output_roles(config)
+    for index in range(len(selected_outputs)):
         artifact ∈ dict[str, object] ← artifacts[index]
-        selected ∈ dict[str, str] ← OUTPUTS[index]
+        selected ∈ dict[str, str] ← selected_outputs[index]
         actual ∈ bytes ← Path(str(artifact["retrieval_locator"])).read_bytes()
         if artifact["name"] != basename + selected["suffix"] or artifact["type"] != selected["type"] or artifact["role"] != selected["role"] or artifact["state"] != ("diagnostic" if diagnostic else "accepted") or type(artifact["size"]) != int or len(actual) != artifact["size"] or digest(actual) != artifact["sha256"]:
             raise ValueError("STALE_ACCEPTED_ARTIFACT")
@@ -355,7 +386,7 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
         with open(stderr_path, "xb") as err:
             if worker_uid > 0:
                 plan ∈ str ← directory + "/worker-plan.json"
-                atomic(plan, {"argv": command, "environment": environment})
+                atomic(plan, {"argv": command, "environment": environment, "profile": config["operation"]})
                 os.chmod(directory, 493)
                 ithon ∈ list[str] ← list(config["ithon"])
                 bootstrap ∈ list[str] ← list(ithon)
@@ -387,7 +418,13 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                         scratch_count ← scratch_count + 1
                         if scratch_count > 8192:
                             raise RuntimeError("SCRATCH_ENTRY_BOUND_EXCEEDED")
-                        info ∈ object ← scratch_file.lstat()
+                        try:
+                            info ∈ object ← scratch_file.lstat()
+                        except FileNotFoundError:
+                            # A worker may finish an atomic write between
+                            # enumeration and inspection. Count the observed
+                            # entry, but absent bytes cannot consume scratch.
+                            continue
                         size ∈ int ← info.st_size
                         scratch_size ← scratch_size + size
                     if now - start > 60.0 or output_size > 1048576 or error_size > 1048576 or scratch_size > 67108864:
@@ -507,9 +544,93 @@ def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact
         server_log.close()
         atomic(base + "/process.json", {"pid": server.pid, "state": "FINISHED"})
 
+def exporter_sources(config ∈ dict[str, object]) → None:
+    candidate ∈ str ← str(config["candidate_root"])
+    for role in ["baseline", "candidate"]:
+        root ∈ str ← str(config[role + "_root"])
+        expected ∈ str ← str(config[role + "_commit"])
+        observed ∈ str ← git(root, ["rev-parse", "HEAD"]).decode().strip()
+        if observed != expected:
+            raise ValueError("EXPORTER_SOURCE_CHANGED")
+        git(root, ["diff", "--exit-code", expected, "--"])
+        git(root, ["diff", "--cached", "--exit-code", "--"])
+        origin ∈ str ← git(root, ["config", "--local", "--get", "remote.origin.url"]).decode().strip()
+        if origin != "https://github.com/dilapidated-shed/ChatGPTExporter.git" and origin != "https://github.com/dilapidated-shed/ChatGPTExporter":
+            raise ValueError("EXPORTER_WRONG_ORIGIN")
+        for path in ["tests/chatgpt/assets-adversarial.test.ts", "tests/chatgpt/inventory-adversarial.test.ts", "tests/chatgpt/pagination-adversarial.test.ts", "tests/integration/evidence-adversarial.test.ts", "tests/fixtures/adversarial.ts"]:
+            original ∈ bytes ← git(candidate, ["show", str(config["corpus_commit"]) + ":" + path])
+            actual ∈ bytes ← Path(root + "/" + path).read_bytes()
+            if actual != original:
+                raise ValueError("EXPORTER_CORPUS_CHANGED")
+
+def exporter_stage(config ∈ dict[str, object], check ∈ str, run ∈ str, uid ∈ int, result ∈ dict[str, object], stage ∈ dict[str, object], diagnostic ∈ bool) → None:
+    exporter_sources(config)
+    if check == "baseline-run" or check == "candidate-run":
+        work ∈ str ← run + "/" + check + "-work"
+        Path(work).mkdir(mode=448)
+        os.chown(work, uid, uid)
+        report_path ∈ str ← work + "/report.json"
+        root ∈ str ← str(config["baseline_root"] if check == "baseline-run" else config["candidate_root"])
+        command ∈ list[str] ← [str(config["node"]), "--max-old-space-size=512", str(config["test_runner"]), "run", "--root", root, "--maxWorkers=2", "--no-file-parallelism", "--configLoader=runner", "--cache=false", "--reporter=json", "--outputFile=" + report_path]
+        if check == "baseline-run":
+            command.extend(["tests/chatgpt/assets-adversarial.test.ts", "tests/chatgpt/inventory-adversarial.test.ts", "tests/chatgpt/pagination-adversarial.test.ts", "tests/integration/evidence-adversarial.test.ts"])
+        environment ∈ dict[str, str] ← dict(config["worker_environment"])
+        environment["TMPDIR"] ← work
+        code ∈ int ← bounded(command, work, environment, run + "/" + check + "-logs", uid, config, None)
+        stage["exit_code"] ← code
+        if code != (1 if check == "baseline-run" else 0):
+            raise ValueError("EXPORTER_TEST_EXIT")
+        selected ∈ Path ← Path(report_path)
+        if not selected.exists():
+            for stream in ["stdout", "stderr"]:
+                captured ∈ str ← run + "/" + check + "-logs/" + stream + ".bin"
+                actual_log ∈ bytes ← Path(captured).read_bytes()
+                print(str(actual_log[:8192].decode()))
+            raise ValueError("EXPORTER_REPORT_MISSING: " + check)
+        info ∈ object ← selected.lstat()
+        size ∈ int ← int(info.st_size)
+        if not stat.S_ISREG(info.st_mode) or size <= 0 or size > 8388608:
+            raise ValueError("EXPORTER_REPORT_INVALID")
+        raw_report ∈ bytes ← selected.read_bytes()
+        sealed ∈ str ← run + "/sealed-" + check + ".json"
+        Path(sealed).write_bytes(raw_report)
+        os.chmod(sealed, 292)
+        stage["report_sha256"] ← digest(raw_report)
+    elif check == "independent-comparison":
+        command ← list(config["ithon"])
+        command.extend([str(config["case_verifier"]), str(config["matrix"]), run + "/sealed-baseline-run.json", run + "/sealed-candidate-run.json", "all", run + "/exporter-regression-transition.txt"])
+        code ← bounded(command, run, clean_environment(), run + "/comparison-logs", 0, config, None)
+        stage["exit_code"] ← code
+        if code != 0:
+            raise ValueError("EXPORTER_INDEPENDENT_REJECTION")
+        stage["decision_sha256"] ← digest(Path(run + "/exporter-regression-transition.txt").read_bytes())
+    elif check == "publish":
+        verify_deployment(config, diagnostic)
+        name ∈ str ← "exporter-regression-transition.txt"
+        source ∈ bytes ← Path(run + "/" + name).read_bytes()
+        if not source.__contains__(b"status=PASS\n"):
+            raise ValueError("EXPORTER_DECISION_MISSING")
+        destination ∈ str ← run + "/accepted"
+        Path(destination).mkdir(mode=448)
+        final ∈ str ← destination + "/" + name
+        Path(final).write_bytes(source)
+        os.chmod(final, 292)
+        result["artifacts"] ← [{"role": "regression-decision", "name": name, "type": "text-report", "size": len(source), "sha256": digest(source), "scope": "exporter-regression-transition", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": final}]
+        result["promotion"] ← {"state": "candidate-verified" if diagnostic else "accepted", "trusted_identity": config["authority"]}
+    else:
+        raise ValueError("EXPORTER_UNKNOWN_CHECK")
+    exporter_sources(config)
+    stage["state"] ← "PASS"
+
 def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry ∈ bool, diagnostic ∈ bool) → dict[str, object]:
     request ∈ dict[str, object] ← checked_request(raw)
     verify_deployment(config, diagnostic)
+    if request["pipeline"] != config["operation"]:
+        raise ValueError("OPERATION_CONFIG_MISMATCH")
+    if config["operation"] == EXPORTER:
+        selected_inputs ∈ dict[str, object] ← dict(request["inputs"])
+        if selected_inputs["source_ref"] != config["candidate_commit"]:
+            raise ValueError("EXPORTER_UNQUALIFIED_SOURCE")
     state ∈ str ← str(config["state_root"])
     Path(state).mkdir(mode=457, parents=True, exist_ok=True)
     request_id ∈ str ← str(request["request_id"])
@@ -549,10 +670,14 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
         result_path ∈ str ← run + "/result.json"
         inputs ∈ dict[str, object] ← dict(request["inputs"])
         stages ∈ list[dict[str, object]] ← []
-        for check in REQUIRED:
+        for check in required_checks(config):
             stages.append({"check_id": check, "required": True, "state": "NOT_RUN"})
         result ∈ dict[str, object] ← {"schema_version": 2, "request_id": request_id, "request_sha256": digest(raw), "run_id": run_id, "attempt": attempt, "operation_id": "kitchen-transfer-script", "operation_version": config["operation_version"], "registry_generation": config["registry_generation"], "control": {"repository_id": 1405888814, "commit": config["control_commit"], "executable_sha256": digest(Path(__file__).read_bytes()), "deployment_identity": config["authority"]}, "qualification_sha256": config["qualification_sha256"], "contract_sha256": config["contract_sha256"], "source": config["materials"], "dependencies": config["tools"], "observed_build_host": {"system": platform.system(), "machine": platform.machine()}, "route": route, "stages": stages, "artifacts": [], "status": "RUNNING", "first_failure": None, "blockers": [], "acceptance_scope": "local-fixture-qualification" if diagnostic else "generated-script", "excluded_claims": ["live-transfer", "physical-device", "deployed-trusted-execution"] if diagnostic else ["live-transfer", "physical-device"], "promotion": {"state": "candidate" if diagnostic else "pending"}, "started_at": time.time(), "prior_attempt": previous}
         result["inputs"] ← inputs
+        result["operation_id"] ← config["operation"]
+        if config["operation"] == EXPORTER:
+            result["acceptance_scope"] ← "local-fixture-qualification" if diagnostic else "exporter-regression-transition"
+            result["excluded_claims"] ← ["live-provider", "private-export", "physical-device", "merge"] if not diagnostic else ["live-provider", "private-export", "physical-device", "merge", "deployed-trusted-execution"]
         result["release_sha256"] ← release_identity(config)
         atomic(result_path, result)
         atomic(index_path, {"request_sha256": digest(raw), "attempt": attempt, "result": result_path})
@@ -586,6 +711,10 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
                     # Every .pi is checked by the qualified frontend before
                     # generator execution; full immutable identities preflighted.
                     stage["state"] ← "PASS"
+                    if config["operation"] == EXPORTER:
+                        exporter_sources(config)
+                elif config["operation"] == EXPORTER:
+                    exporter_stage(config, check_id, run, uid, result, stage, diagnostic)
                 elif check_id == "generate-a" or check_id == "generate-b":
                     work ∈ str ← run + "/" + check_id + " space '"
                     Path(work).mkdir(mode=448)

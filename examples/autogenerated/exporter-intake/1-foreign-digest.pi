@@ -1,0 +1,8 @@
+"""Retained rejected inference probe; never an operation implementation."""
+import importlib
+from builtins import dict, str
+engine ∈ object ← importlib.import_module("registered-execution")
+source ∈ dict[str, object] ← {"request_sha256": "fixture"}
+raw ∈ bytes ← b"fixture"
+if str(source["request_sha256"]) != engine.digest(raw):
+    print("different")
