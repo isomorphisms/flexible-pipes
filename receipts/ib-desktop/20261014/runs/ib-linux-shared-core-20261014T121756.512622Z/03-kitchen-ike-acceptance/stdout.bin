@@ -1,0 +1,9 @@
+Idris 2, version 0.8.0-94dfd99bd
+u'/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease' u'/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/5.grease' check u'/workspace/scratch/65d93ecc1fc0/ib' u'/workspace/scratch/65d93ecc1fc0/ai-ci' u'/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0' u'/workspace/scratch/65d93ecc1fc0/quoted core it\'s 東京'
+Idris 2, version 0.8.0-94dfd99bd
+clean=True
+disposable-tab=False
+utf16-one-unit=False
+unbound-source=False
+recovery=True
+/workspace/scratch/65d93ecc1fc0/quoted core it's 東京/Ikefile: OK

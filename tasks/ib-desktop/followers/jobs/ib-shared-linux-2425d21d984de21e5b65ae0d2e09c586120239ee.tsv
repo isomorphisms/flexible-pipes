@@ -1,0 +1,25 @@
+schema	aici-follower-job-v1
+job_id	ib-shared-linux-2425d21d984de21e5b65ae0d2e09c586120239ee
+repository	isomorphisms/ib
+branch	work/linux-shared-contract
+pr	148
+trigger_commit	2425d21d984de21e5b65ae0d2e09c586120239ee
+leader_platform	linux-build-container
+leader_arch	x86_64
+leader_evidence	receipts/ib-desktop/20261014/final-native/evidence.tsv
+artifact	ib-linux-foundation-check.so
+artifact_sha256	bba174481696726c34cfded5f9d05b7ce00b17eed1274952bbca3f6893cbf704
+follower_platform	linux-build-container
+follower_arch	x86_64
+required	yes
+action	Execute the 38 shared semantic cases and 8 Linux ABI cases
+acceptance_kind	runtime
+acceptance_action	Kitchen 8.grease through FP and Ike
+state	accepted
+last_attempt_commit	2425d21d984de21e5b65ae0d2e09c586120239ee
+blocker	-
+evidence	ib-shared-linux-2425d21d984de21e5b65ae0d2e09c586120239ee.tsv
+depends_on	-
+reason	Required exact-source acceptance for the bounded shared-core slice; not full desktop milestone or whole SUN job acceptance
+superseded_by	-
+follow_policy	exact
