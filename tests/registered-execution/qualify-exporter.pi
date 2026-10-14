@@ -23,6 +23,11 @@ aici ∈ str ← workspace + "/ai-ci"
 ithon ∈ str ← workspace + "/ithon"
 exporter ∈ str ← workspace + "/exporter"
 Path(output).mkdir(mode=493, parents=True, exist_ok=False)
+delivery_probe ∈ object ← subprocess.run([sys.executable, ithon + "/ithon_host.py", fp + "/tests/registered-execution/qualify-delivery.pi", fp, output + "/client-delivery"], capture_output=True, timeout=30)
+Path(output + "/client-delivery.stdout.bin").write_bytes(delivery_probe.stdout)
+Path(output + "/client-delivery.stderr.bin").write_bytes(delivery_probe.stderr)
+if int(delivery_probe.returncode) != 0:
+    raise ValueError("CLIENT_DELIVERY_UNQUALIFIED: " + str(delivery_probe.stderr.decode()))
 sys.path.insert(0, fp + "/scripts")
 engine ∈ object ← importlib.import_module("registered-execution")
 
@@ -136,7 +141,7 @@ def material(root ∈ str, path ∈ str, actual ∈ str) → None:
     origin ∈ str ← git(root, ["config", "--local", "--get", "remote.origin.url"])
     materials.append({"path": actual, "sha256": hash_file(actual), "checkout": root, "commit": commit, "relative_path": path, "origin": origin, "published_ref": "HEAD"})
 
-for path in ["scripts/registered-execution.pi", "registry/chatgpt-exporter-regression-acceptance.contract.json"]:
+for path in ["scripts/registered-execution.pi", "scripts/registered-service.pi", "scripts/delivery.pi", "tests/registered-execution/qualify-exporter-transport.pi", "registry/chatgpt-exporter-regression-acceptance.contract.json"]:
     material(fp, path, fp + "/" + path)
 for path in ["registered-worker.pi", "registered-watchdog.pi"]:
     material(fp, "scripts/" + path, bootstrap + "/" + path)
@@ -146,7 +151,7 @@ for path in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "L
     material(ithon, path, runtime + "/" + path)
 
 tools ∈ list[dict[str, object]] ← []
-for path in [sys.executable, node]:
+for path in [sys.executable, node, "/usr/bin/openssl"]:
     tools.append({"path": path, "sha256": hash_file(path)})
 # Bind the complete installed foreign test dependency tree, not one launcher.
 dependency_paths ∈ list[Path] ← list(Path(candidate + "/node_modules").rglob("*"))
@@ -192,7 +197,17 @@ branch_result ∈ dict[str, object] ← engine.execute(intake_config, branch_int
 if branch_result["status"] != "PASS" or str(branch_result["run_id"]) != str(outcome["run_id"]):
     raise ValueError("REQUEST_ROUTE_DID_NOT_REUSE_VERIFIED_RESULT")
 engine.atomic(output + "/request-source.json", branch_intake[1])
+engine.atomic(output + "/transport-config.json", intake_config)
+engine.atomic(output + "/dispatch-envelope.json", envelope)
+engine.atomic(output + "/branch-envelope.json", {"request_commit": request_revision})
+transport ∈ object ← subprocess.run([sys.executable, ithon + "/ithon_host.py", fp + "/tests/registered-execution/qualify-exporter-transport.pi", workspace, output], capture_output=True, timeout=180)
+Path(output + "/transport.stdout.bin").write_bytes(transport.stdout)
+Path(output + "/transport.stderr.bin").write_bytes(transport.stderr)
+if int(transport.returncode) != 0:
+    raise ValueError("EXPORTER_TLS_DELIVERY_UNQUALIFIED: " + str(transport.stderr.decode()))
 print("PASS registered exporter baseline, candidate, independent comparison and sealed diagnostic output")
 print("PASS exact-request replay reused the same verified attempt")
 print("PASS both diagnostic public adapters resolve the same request and verified result")
+print("PASS actual diagnostic TLS service and client deliver the exact sealed decision through both routes")
+print("PASS Kitchen and exporter client delivery regression controls")
 print("Production deployment INACTIVE; no installed promotion, TLS activation, authenticated platform dispatch or merge")

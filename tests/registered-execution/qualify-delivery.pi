@@ -246,5 +246,79 @@ if partial_bytes_present:
     if observed_partial != payload:
         raise ValueError("PARTIAL_BYTES_CHANGED")
 rows.append({"case": "partial-publication", "status": "PASS", "observed_status": partial_receipt["status"], "failure": partial_failure, "partial_bytes_present": partial_bytes_present, "accepted_artifact_count": 0})
+
+# The second fixed operation exports exactly one independent decision. These
+# inert response controls certify byte/identity validation, never admission.
+payload ← b"status=PASS\nscope=behavioral-report-comparison\ntrusted_admission=NOT_VERIFIED\n"
+digest ← hashlib.sha256(payload).hexdigest()
+full_name ← "exporter-regression-transition.txt"
+expected_payloads ← {full_name: payload}
+artifact ← {"name": full_name, "sha256": digest, "role": "regression-decision", "type": "text-report", "size": len(payload)}
+delivery ← {"name": full_name, "sha256": digest, "bytes_base64": base64.b64encode(payload).decode()}
+inputs ← {"source_ref": "5555555555555555555555555555555555555555", "scope": "all"}
+request ← {"schema_version": 1, "request_id": "exporter-fixture", "pipeline": "chatgpt-exporter-regression-acceptance", "inputs": inputs}
+raw ← json.dumps(request, sort_keys=True)
+expected_release["outputs"] ← [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]
+expected_release["required_checks"] ← ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"]
+envelope["request"] ← raw
+accepted ← copy(accepted)
+accepted["request_id"] ← request["request_id"]
+accepted["request_sha256"] ← hashlib.sha256(raw.encode()).hexdigest()
+accepted["operation_id"] ← request["pipeline"]
+accepted["inputs"] ← inputs
+accepted["artifacts"] ← [artifact]
+exporter_stages ∈ list[dict[str, object]] ← []
+for check_id in ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"]:
+    exporter_stages.append({"check_id": check_id, "required": True, "state": "PASS", "contract_sha256": contract_digest})
+accepted["stages"] ← exporter_stages
+valid ← {"result": accepted, "delivery": [delivery]}
+dispatch("exporter-valid", valid, "PASS")
+changed ← dict(delivery)
+changed["bytes_base64"] ← base64.b64encode(b"changed decision").decode()
+dispatch("exporter-changed-bytes", {"result": accepted, "delivery": [changed]}, "DELIVERY_DIGEST_MISMATCH")
+dispatch("exporter-missing-delivery", {"result": accepted, "delivery": empty}, "MISSING_DELIVERY")
+for field in ["operation_id", "release_sha256", "request_sha256"]:
+    altered ← copy(accepted)
+    altered[field] ← "unrelated"
+    code ← "RESULT_OPERATION_MISMATCH" if field == "operation_id" else "RESULT_RELEASE_MISMATCH" if field == "release_sha256" else "RESULT_REQUEST_BYTES_MISMATCH"
+    dispatch("exporter-wrong-" + field, {"result": altered, "delivery": [delivery]}, code)
+for field in ["source_ref", "scope"]:
+    altered ← copy(accepted)
+    changed_inputs ∈ dict[str, object] ← dict(inputs)
+    changed_inputs[field] ← "unrelated"
+    altered["inputs"] ← changed_inputs
+    dispatch("exporter-wrong-input-" + field, {"result": altered, "delivery": [delivery]}, "RESULT_PARAMETERS_MISMATCH")
+for scope in ["X2", "partial"]:
+    changed_inputs ← dict(inputs)
+    changed_inputs["scope"] ← scope
+    bad_request ∈ dict[str, object] ← copy(request)
+    bad_request["inputs"] ← changed_inputs
+    bad_raw ∈ str ← json.dumps(bad_request, sort_keys=True)
+    bad_envelope ∈ dict[str, object] ← copy(envelope)
+    bad_envelope["request"] ← bad_raw
+    altered ← copy(accepted)
+    altered["inputs"] ← changed_inputs
+    altered["request_sha256"] ← hashlib.sha256(bad_raw.encode()).hexdigest()
+    exercise("exporter-narrowed-" + scope, {"result": altered, "delivery": [delivery]}, "RESULT_EXPORTER_INPUTS", "workflow_dispatch", bad_envelope)
+altered ← copy(accepted)
+altered["stages"] ← [exporter_stages[0], exporter_stages[1], exporter_stages[2], exporter_stages[4]]
+dispatch("exporter-missing-independent-check", {"result": altered, "delivery": [delivery]}, "RESULT_MISSING_CHECK_EVIDENCE")
+altered ← copy(accepted)
+altered["promotion"] ← {"state": "accepted", "trusted_identity": "deployed-trusted"}
+dispatch("exporter-diagnostic-claims-trusted", {"result": altered, "delivery": [delivery]}, "RESULT_AUTHORITY_SCOPE_MISMATCH")
+for field in ["role", "type"]:
+    changed_artifact ∈ dict[str, object] ← dict(artifact)
+    changed_artifact[field] ← "unrelated"
+    altered ← copy(accepted)
+    altered["artifacts"] ← [changed_artifact]
+    dispatch("exporter-wrong-output-" + field, {"result": altered, "delivery": [delivery]}, "RESULT_OUTPUT_CONTRACT_MISMATCH")
+branch ← copy(accepted)
+branch["route"] ← "pipeline-requests"
+branch["request_commit"] ← request_commit
+branch["request_bytes_base64"] ← base64.b64encode(raw.encode()).decode()
+raw_bytes ← raw.encode()
+blob_header ← ("blob " + str(len(raw_bytes)) + "\x00").encode()
+branch["request_source"] ← {"repository_id": 1405888814, "commit": request_commit, "path": "requests/exporter.json", "blob_sha1": hashlib.sha1(blob_header + raw_bytes).hexdigest(), "request_sha256": accepted["request_sha256"]}
+exercise("exporter-valid-request-branch", {"result": branch, "delivery": [delivery]}, "PASS", "pipeline-requests", branch_envelope)
 Path(output + "/checks.json").write_text(json.dumps({"scope": "local-client-delivery-regression", "status": "PASS", "checks": rows, "excluded_claims": ["TLS", "deployment", "live-transfer"]}, sort_keys=True))
 print("client delivery regression passed")

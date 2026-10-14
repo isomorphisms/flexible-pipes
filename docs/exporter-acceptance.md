@@ -55,3 +55,19 @@ request-branch intake against the same verified result. Both additions need a
 fresh hosted run. The operator still must establish the production host, TLS
 endpoint/certificate, approved actors and installed-context promotion described
 in [deployment/README.md](../deployment/README.md).
+
+At a5ca40e20656066cee856e060baff5f352713909 the fresh exporter qualification
+[38572058686](https://github.com/isomorphisms/flexible-pipes/actions/runs/38572058686)
+and existing Kitchen qualification
+[38572058642](https://github.com/isomorphisms/flexible-pipes/actions/runs/38572058642)
+both pass. The exporter request-branch adapter resolves the exact same immutable
+bytes and verified execution as dispatch.
+
+The transport client is also extended for the one fixed exporter decision;
+the independently installed output contract selects the operation. It rejects
+changed decision bytes, request inputs, missing independent checks, wrong output
+roles and diagnostic results claiming production authority. The added TLS
+qualification exercises the actual existing service and client through both
+routes and compares the delivered bytes with the sealed decision. The new
+transport changes require their own fresh hosted result. Diagnostic TLS fixtures
+never certify signed production admission or a native ChatGPT visible message.

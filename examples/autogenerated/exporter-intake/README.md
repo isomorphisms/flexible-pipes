@@ -13,6 +13,13 @@ qualification converts both foreign digest values to string before comparison.
 No unchecked or Python fallback was introduced. Source checking now passes;
 isolated local execution still correctly refuses the single-UID namespace.
 
+The TLS delivery extension exposed the same precision issue for an inline
+`hashlib.sha256(delivered).hexdigest()` comparison. Its maintained version names
+the digest with a `str` annotation before comparing it. The delivery fixture also
+required an explicit `dict[str, object]` annotation for copied foreign input
+metadata. Both failed checks were caught before execution and corrected in
+checked Ithon, without changing any acceptance expectation.
+
 The existing owner-selected checked Ithon controller is retained. This exercise
 exposes foreign-return precision as language work; it does not certify Idriç
 support or manufacture a runtime result.

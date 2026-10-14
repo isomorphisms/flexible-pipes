@@ -18,6 +18,14 @@ def unique_object(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
         answer[key] ← pair[1]
     return answer
 
+def release_operation(expected ∈ dict[str, object]) → str:
+    # Operation identity is selected by the independently installed output
+    # contract, never by a submitted request or server declaration.
+    outputs ∈ list[dict[str, object]] ← list(expected["outputs"])
+    if len(outputs) == 1 and outputs[0]["role"] == "regression-decision":
+        return "chatgpt-exporter-regression-acceptance"
+    return "kitchen-transfer-script"
+
 def checked_release(expected ∈ dict[str, object]) → None:
     # These requirements come from the installed authority, never the request.
     if set(expected) != set(["release_sha256", "control_commit", "authority", "required_checks", "contract_sha256", "operation_version", "registry_generation", "outputs"]):
@@ -47,7 +55,11 @@ def checked_release(expected ∈ dict[str, object]) → None:
         roles.append(role)
         types.append(kind)
         suffixes.append(suffix)
-    if set(roles) != set(["standalone-transfer-script", "human-transfer-paste"]):
+    if release_operation(expected) == "chatgpt-exporter-regression-acceptance":
+        fixed_outputs ∈ list[dict[str, object]] ← [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]
+        if outputs != fixed_outputs or checks != ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"]:
+            raise ValueError("CLIENT_OUTPUT_CONTRACT")
+    elif set(roles) != set(["standalone-transfer-script", "human-transfer-paste"]):
         raise ValueError("CLIENT_OUTPUT_CONTRACT")
 
 def checked_outputs(result ∈ dict[str, object], expected ∈ dict[str, object]) → None:
@@ -58,7 +70,7 @@ def checked_outputs(result ∈ dict[str, object], expected ∈ dict[str, object]
     if len(artifacts) != len(outputs):
         raise ValueError("RESULT_OUTPUT_CONTRACT_MISMATCH")
     inputs ∈ dict[str, object] ← dict(result["inputs"])
-    base ∈ str ← "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
+    base ∈ str ← "exporter-regression-transition" if release_operation(expected) == "chatgpt-exporter-regression-acceptance" else "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
     seen ∈ list[str] ← []
     for artifact in artifacts:
         role ∈ str ← str(artifact["role"])
@@ -82,7 +94,9 @@ def checked_acceptance(result ∈ dict[str, object], route ∈ str, envelope ∈
         raise ValueError("RESULT_OPERATION_VERSION_MISMATCH")
     promotion ∈ dict[str, object] ← dict(result["promotion"])
     trusted ∈ bool ← expected["authority"] == "deployed-trusted"
-    if result["acceptance_scope"] != ("generated-script" if trusted else "local-fixture-qualification") or promotion["state"] != ("accepted" if trusted else "candidate-verified") or promotion["trusted_identity"] != expected["authority"]:
+    operation ∈ str ← release_operation(expected)
+    trusted_scope ∈ str ← "exporter-regression-transition" if operation == "chatgpt-exporter-regression-acceptance" else "generated-script"
+    if result["acceptance_scope"] != (trusted_scope if trusted else "local-fixture-qualification") or promotion["state"] != ("accepted" if trusted else "candidate-verified") or promotion["trusted_identity"] != expected["authority"]:
         raise ValueError("RESULT_AUTHORITY_SCOPE_MISMATCH")
     raw ∈ bytes ← b""
     if route == "workflow_dispatch":
@@ -114,8 +128,15 @@ def checked_acceptance(result ∈ dict[str, object], route ∈ str, envelope ∈
     request ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
     if set(request) != set(["schema_version", "request_id", "pipeline", "inputs"]) or type(request["schema_version"]) != int or request["schema_version"] != 1:
         raise ValueError("RESULT_REQUEST_FIELDS")
-    if request["pipeline"] != "kitchen-transfer-script" or result["operation_id"] != request["pipeline"]:
+    if request["pipeline"] != operation or result["operation_id"] != request["pipeline"]:
         raise ValueError("RESULT_OPERATION_MISMATCH")
+    if operation == "chatgpt-exporter-regression-acceptance":
+        exporter_inputs ∈ dict[str, object] ← dict(request["inputs"])
+        if set(exporter_inputs) != set(["source_ref", "scope"]) or exporter_inputs["scope"] != "all":
+            raise ValueError("RESULT_EXPORTER_INPUTS")
+        source_match ∈ object ← re.fullmatch("[a-f0-9]{40}", str(exporter_inputs["source_ref"]))
+        if source_match == None:
+            raise ValueError("RESULT_EXPORTER_INPUTS")
     requested_inputs ∈ str ← json.dumps(request["inputs"], sort_keys=True, separators=(",", ":"))
     reported_inputs ∈ str ← json.dumps(result["inputs"], sort_keys=True, separators=(",", ":"))
     if result["request_id"] != request["request_id"] or requested_inputs != reported_inputs:
