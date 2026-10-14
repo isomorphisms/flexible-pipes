@@ -8,6 +8,11 @@ Research owner: `bl4ckb4ll/blackball/FAANG/amazon`.
 Independent gate: `isomorphisms/ai-ci`.
 
 `amazon-jobs-org-open.json` opens the human assignment before any work.
+`amazon-org-query.json` is the reusable question/search entrypoint, preserving the
+question, requested phrase and location in the receipt and using the same
+Kitchen + Cat Food installed CLI + AICI admission before retrieval.
+A CLI search result supports only a time-scoped requisition claim; it cannot
+by itself prove reporting lines, employer headcount, AI-driven layoffs or hiring.
 `amazon-jobs-org-audit.json` records the host command's source, baseline,
 offline test, independent verdict and live source-only queries. These are
 **workflow definitions**, not executed receipts. The independent admission stage calls the actual ai-ci verifier against
