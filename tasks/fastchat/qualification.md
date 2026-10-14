@@ -97,7 +97,7 @@ created the four new affected Android/artifact jobs at planning source
 ancestor obligations. Unaffected target jobs retain their exact older source.
 Physical Android, container and Hetzner evidence remain separate.
 
-Fresh current-head Cat Food checks:
+Fresh current-head Cat Food reconciliation, provisioning and runtime checks passed:
 https://github.com/isomorphisms/catfood/actions/runs/38599416626
 
 ## Device and provider boundaries
