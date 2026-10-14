@@ -3,7 +3,7 @@
   "name": "subriemannian-01",
   "parameters": {
     "compiler": {"required": true, "pattern": "^/[^\\n]+$"},
-    "driver-source": {"required": true, "pattern": "^/[^\\n]+$"},
+    "driver-source-directory": {"required": true, "pattern": "^/[^\\n]+$"},
     "driver-ttc": {"required": true, "pattern": "^/[^\\n]+$"},
     "driver-directory": {"required": true, "pattern": "^/[^\\n]+$"},
     "driver": {"required": true, "pattern": "^/[^\\n]+$"},
@@ -18,7 +18,7 @@
   "stages": [
     {
       "kind": "command", "name": "compile-kitchen-driver",
-      "argv": ["{{compiler}}", "--cg", "chez", "--build-dir", "{{driver-ttc}}", "--output-dir", "{{driver-directory}}", "-o", "kitchen-build", "{{driver-source}}"],
+      "argv": ["{{compiler}}", "--cg", "chez", "--source-dir", "{{driver-source-directory}}", "--build-dir", "{{driver-ttc}}", "--output-dir", "{{driver-directory}}", "-o", "kitchen-build", "Build.idric"],
       "cwd": "."
     },
     {
