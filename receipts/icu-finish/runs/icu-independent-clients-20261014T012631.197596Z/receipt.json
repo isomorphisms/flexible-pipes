@@ -1,0 +1,58 @@
+{
+  "finished_at": "2026-10-14T01:26:31.681732+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-independent-clients",
+  "pipeline_path": "pipelines/icu-independent-clients.json",
+  "pipeline_sha256": "1b039ab38427c83910e70889e84d58db575d9958fb9a7a2bfabf70f083dfe3e8",
+  "repository_commit": "2e5594ee0ba6975645868315fca65afd61b7c706",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:26:31.206575+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:26:31.203335+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci/icu/clients.grease",
+        "/tmp/icu-finish-clients",
+        "/workspace/scratch/c866ed8dc5cd/idric-cli",
+        "/workspace/scratch/c866ed8dc5cd/indeed-client",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "/workspace/scratch/c866ed8dc5cd/aici-indeed",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:26:31.681608+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "independent-installed-client-oracles",
+      "started_at": "2026-10-14T01:26:31.206634+00:00",
+      "stderr_sha256": "aea1e67f9134b621f66dea07b8156e683e2c249d9272840453b41d5ce3af9c6d",
+      "stdout_sha256": "babc19c85498cde6b3e06e05d78e94cedaa296f80c0384717659f25f0cd7fb15"
+    }
+  ],
+  "started_at": "2026-10-14T01:26:31.203175+00:00",
+  "status": "PASS"
+}

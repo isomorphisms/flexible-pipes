@@ -1,0 +1,50 @@
+{
+  "finished_at": "2026-10-14T00:49:52.630146+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-finish-open",
+  "pipeline_path": "pipelines/icu-finish-open.json",
+  "pipeline_sha256": "8a4c02d66af3b1b3123301b376cdc3bf994e466c612a6bd82079cc13397a676c",
+  "repository_commit": "38e674015fa4ed7a20453589088e6dfe40e9bd9f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T00:49:52.628553+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T00:49:52.626378+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "uname",
+        "-sm"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T00:49:52.630133+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "host-identity",
+      "started_at": "2026-10-14T00:49:52.628607+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e0109ce4bb09317acfe73f0503e7a62845d527bbceef3fd629b64be2778a1c7c"
+    }
+  ],
+  "started_at": "2026-10-14T00:49:52.626295+00:00",
+  "status": "PASS"
+}

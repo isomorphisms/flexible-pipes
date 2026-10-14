@@ -1,0 +1,54 @@
+{
+  "finished_at": "2026-10-14T01:18:20.761093+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-live-jobicy",
+  "pipeline_path": "pipelines/icu-live-jobicy.json",
+  "pipeline_sha256": "e3589cb4b5e4e04c0fd6036ca103a4fe7983899762d2345ea87b1152c3d817fa",
+  "repository_commit": "2e5594ee0ba6975645868315fca65afd61b7c706",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:17:59.850689+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:17:59.849024+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/kitchen/tasks/jobicy-cli/live.grease",
+        "/tmp/icu-finish-clients/bin/jobicy",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:18:20.761036+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "live-public-jobicy",
+      "started_at": "2026-10-14T01:17:59.850887+00:00",
+      "stderr_sha256": "f835023c18e8da2a1fd5db20c8a68a5489371fdac258933104325637c1cab565",
+      "stdout_sha256": "2c199546bd6ac5560c5af53f10e80922002af56abe86d2a4e2b7e981fd70315d"
+    }
+  ],
+  "started_at": "2026-10-14T01:17:59.848945+00:00",
+  "status": "PASS"
+}

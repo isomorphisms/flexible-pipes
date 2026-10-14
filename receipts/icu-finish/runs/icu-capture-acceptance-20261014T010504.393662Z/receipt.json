@@ -1,0 +1,56 @@
+{
+  "finished_at": "2026-10-14T01:05:41.319434+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-capture-acceptance",
+  "pipeline_path": "pipelines/icu-capture-acceptance.json",
+  "pipeline_sha256": "94809be86bcf40bccaf88a6945809b15dc1cc9c4f07e33f480a4af3c1009fe45",
+  "repository_commit": "b61495388ea26ff6ee002b594a573f65dc9ab882",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:05:04.397996+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:05:04.396263+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease",
+        "/tmp/icu-finish-installed",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "capture"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:05:41.319404+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "independent-installed-acceptance",
+      "started_at": "2026-10-14T01:05:04.398046+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "aa9b17d67ab1a6002f51d60e0be3a294f64648ca346265d9344354978e69c911"
+    }
+  ],
+  "started_at": "2026-10-14T01:05:04.396187+00:00",
+  "status": "PASS"
+}

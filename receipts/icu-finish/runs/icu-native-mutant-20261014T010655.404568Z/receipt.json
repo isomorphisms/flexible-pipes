@@ -1,0 +1,56 @@
+{
+  "finished_at": "2026-10-14T01:06:59.507038+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-native-mutant",
+  "pipeline_path": "pipelines/icu-native-mutant.json",
+  "pipeline_sha256": "ff57232f9e051d02fff4a2c7f8d7bc12ac83c296094e72718f5e8f4a4b096495",
+  "repository_commit": "b61495388ea26ff6ee002b594a573f65dc9ab882",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:06:55.409360+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:06:55.406996+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/mutant.grease",
+        "/workspace/scratch/c866ed8dc5cd/icu",
+        "/tmp/icu-finish-installed",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:06:59.506998+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "reject-compiled-native-mutant",
+      "started_at": "2026-10-14T01:06:55.409400+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "2bc066e30291723eb7a439821009398369268cf897313aebc825aef37b137c3a"
+    }
+  ],
+  "started_at": "2026-10-14T01:06:55.406930+00:00",
+  "status": "PASS"
+}

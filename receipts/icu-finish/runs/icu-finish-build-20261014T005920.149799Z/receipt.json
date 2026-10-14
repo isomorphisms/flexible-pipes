@@ -1,0 +1,57 @@
+{
+  "failed_stage": "kitchen-build-install",
+  "finished_at": "2026-10-14T00:59:22.580765+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-finish-build",
+  "pipeline_path": "pipelines/icu-finish-build.json",
+  "pipeline_sha256": "d34fbfcf325c6ca9aceee710b094c54ea4f990091c18837d834f1e34095a17d7",
+  "repository_commit": "38e674015fa4ed7a20453589088e6dfe40e9bd9f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T00:59:20.153929+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T00:59:20.152151+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/build.grease",
+        "/workspace/scratch/c866ed8dc5cd/icu",
+        "/tmp/icu-finish-installed",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-14T00:59:22.580683+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "kitchen-build-install",
+      "started_at": "2026-10-14T00:59:20.153979+00:00",
+      "stderr_sha256": "93292b5c8752758e83793a15ac0fe22e1d2bd8fb267ffb22b9a26cbe6e70fe3c",
+      "stdout_sha256": "9295751ee75b644c8f7ef52048a9bbc16646eafe07b1211cac9eb7342e62844a"
+    }
+  ],
+  "started_at": "2026-10-14T00:59:20.152072+00:00",
+  "status": "FAIL"
+}

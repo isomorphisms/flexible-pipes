@@ -1,0 +1,32 @@
+SUN ICU-FINISH-01 — Finish and merge ICU HTTP transport
+
+Authority: explicit human assignment in this conversation, 2026-10-13.
+Primary repository: dilapidated-shed/icu, target icu.
+Companions: dilapidated-shed/Idric-Net, dilapidated-shed/idric-cli.
+Execution: Flexible Pipes → Kitchen / Ike, pinned ICK.
+Independent acceptance: isomorphisms/ai-ci.
+
+Finish response capture PR #32 and HTTPS proxy PR #33. Compile and execute the
+actual Idriç implementation and installed commands. Preserve native socket /
+OpenSSL implementation; preserve stdout commands. Merge in dependency order
+only after independent acceptance. No refC, hidden curl implementation,
+Python/C++/Java replacement, or TLS verification weakening.
+
+Required capture checks: status and body, binary bytes, 8 MiB limit, private
+temporary files and cleanup, explicit UTF-8/encoding failure, 401/403/429/500
+and malformed distinctions, credential-safe diagnostics.
+Required proxy checks: HTTPS_PROXY/https_proxy precedence, HTTP CONNECT,
+IPv4/IPv6 proxy parsing, refusal/rejection, original-hostname TLS verification,
+direct loopback, credential policy across redirects.
+Required installed checks: HTTP/HTTPS GET/POST, proxy HTTPS, same/cross-origin
+redirects, empty/nonempty/binary responses, timeout/refusal/TLS/truncation/limit,
+repetition/cleanup, real Jobicy search and cursor pagination, Indeed local
+fixtures. Live Indeed only with authorized credentials.
+
+Record exact revisions, compiler/library pins, commands, executable digests,
+fixtures/results, real network observations, failure states, merge commits and
+final icu head. Android physical execution is NOT_RUN unless actually executed.
+Document Idric-Net issue #11 migration without undertaking the whole migration.
+If blocked, retain exact command/output/correction; complete independent work.
+
+This file records the execution scope; it is not a claim of completed work.

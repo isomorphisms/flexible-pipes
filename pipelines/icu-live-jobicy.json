@@ -1,0 +1,9 @@
+{
+  "schema_version":1,
+  "name":"icu-live-jobicy",
+  "description":"Separately execute live public Jobicy search, status and bounded two-page cursor traversal through the installed Idriç client and accepted native ICU.",
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"live-public-jobicy","argv":["/workspace/scratch/30b0a80117bc/tool-bin/grease","tasks/icu-finish/host-environment.grease","/workspace/scratch/30b0a80117bc/tool-bin/grease","/workspace/scratch/c866ed8dc5cd/kitchen/tasks/jobicy-cli/live.grease","/tmp/icu-finish-clients/bin/jobicy","/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"],"cwd":"."}
+  ]
+}

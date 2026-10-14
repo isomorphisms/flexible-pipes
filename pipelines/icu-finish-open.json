@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "icu-finish-open",
+  "description": "Open the explicit ICU finish-and-merge assignment before implementation.",
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"host-identity","argv":["uname","-sm"],"cwd":"."}
+  ]
+}

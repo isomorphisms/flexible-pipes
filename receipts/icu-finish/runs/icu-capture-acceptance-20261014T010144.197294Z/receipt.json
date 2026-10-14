@@ -1,0 +1,57 @@
+{
+  "failed_stage": "independent-installed-acceptance",
+  "finished_at": "2026-10-14T01:02:06.102365+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-capture-acceptance",
+  "pipeline_path": "pipelines/icu-capture-acceptance.json",
+  "pipeline_sha256": "94809be86bcf40bccaf88a6945809b15dc1cc9c4f07e33f480a4af3c1009fe45",
+  "repository_commit": "38e674015fa4ed7a20453589088e6dfe40e9bd9f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:01:44.202319+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:01:44.200193+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease",
+        "/tmp/icu-finish-installed",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "capture"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-14T01:02:06.102335+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "independent-installed-acceptance",
+      "started_at": "2026-10-14T01:01:44.202381+00:00",
+      "stderr_sha256": "88e8cc19574c769b4e8c9960add909ce7db4662b8068e353556e389a31fd7f52",
+      "stdout_sha256": "6fdf83b1f9cecca37cc2ce511bad665021efd38cc4dde7fad106b648de34d4d8"
+    }
+  ],
+  "started_at": "2026-10-14T01:01:44.200094+00:00",
+  "status": "FAIL"
+}

@@ -1,0 +1,51 @@
+{
+  "finished_at": "2026-10-14T01:30:22.985746+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "icu-finish-close",
+  "pipeline_path": "pipelines/icu-finish-close.json",
+  "pipeline_sha256": "62968779cc48d789d1b53cb8d892f0d6504baffc2521794e1412acb2acd0430a",
+  "repository_commit": "02f8f04aa0b1eabf98fb9e4ed449f7a964741a63",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:30:22.770771+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:30:22.768919+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/collect.grease",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:30:22.985645+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "collect-execution-and-acceptance-receipts",
+      "started_at": "2026-10-14T01:30:22.770904+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "6e4b59004537ac87498bfc6c39d65ed2c53ccceb0edb4a547a4bfad8ce4467f6"
+    }
+  ],
+  "started_at": "2026-10-14T01:30:22.768836+00:00",
+  "status": "PASS"
+}

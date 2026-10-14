@@ -1,0 +1,9 @@
+{
+  "schema_version":1,
+  "name":"icu-independent-clients",
+  "description":"AICI independently checks installed Indeed and Jobicy outputs against its own existing oracles and rejects known-wrong classifications.",
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"independent-installed-client-oracles","argv":["/workspace/scratch/30b0a80117bc/tool-bin/grease","tasks/icu-finish/host-environment.grease","/workspace/scratch/30b0a80117bc/tool-bin/grease","/workspace/scratch/c866ed8dc5cd/ai-ci/icu/clients.grease","/tmp/icu-finish-clients","/workspace/scratch/c866ed8dc5cd/idric-cli","/workspace/scratch/c866ed8dc5cd/indeed-client","/workspace/scratch/c866ed8dc5cd/ai-ci","/workspace/scratch/c866ed8dc5cd/aici-indeed","/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"],"cwd":"."}
+  ]
+}

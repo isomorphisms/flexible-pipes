@@ -1,0 +1,29 @@
+#!/usr/bin/env grease
+if (int($#) !== 1) { echo 'requires ABSOLUTE_FP_ROOT' >&2; exit 2 }
+var root = $1
+var evidence = "$root/evidence/icu-finish"
+var receipt = "$root/receipts/icu-finish"
+mkdir -p "$receipt/runs" "$receipt/artifacts" "$receipt/live"
+var run_directories = glob("$root/.flexible-pipes/runs/icu-*")
+for run in (run_directories) {
+  var run_name = "$(basename "$run")"
+  mkdir -p "$receipt/runs/$run_name"
+  cp -R "$run/." "$receipt/runs/$run_name/"
+}
+for name in artifact-digests.tsv client-artifact-digests.tsv source-digests.tsv native-mutant.stdout native-mutant.stderr {
+  cp "$evidence/$name" "$receipt/artifacts/"
+}
+var live_directories = glob("$evidence/jobicy-*")
+for run in (live_directories) {
+  var live_name = "$(basename "$run")"
+  mkdir -p "$receipt/live/$live_name"
+  cp -R "$run/." "$receipt/live/$live_name/"
+}
+var accepted = "$(find "$evidence/proxy-acceptance" -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -printf '%T@ %p\n' | sort -rn | head -n 1 | cut -d ' ' -f2-)"
+test -s "$accepted/actual.tsv"
+cp "$accepted/actual.tsv" "$receipt/artifacts/transport-results.tsv"
+cp "$accepted/loader-witness.txt" "$accepted/native-symbols.txt" "$receipt/artifacts/"
+var execution_sources = glob("$root/tasks/icu-finish/*.grease") ++ glob("$root/pipelines/icu-*.json")
+sha256sum @execution_sources > "$receipt/artifacts/execution-source-digests.tsv"
+sha256sum /workspace/scratch/c866ed8dc5cd/ai-ci/icu/*.grease /workspace/scratch/c866ed8dc5cd/ai-ci/icu/fixture.c > "$receipt/artifacts/acceptance-source-digests.tsv"
+printf 'receipts-collected\tPASS\n'

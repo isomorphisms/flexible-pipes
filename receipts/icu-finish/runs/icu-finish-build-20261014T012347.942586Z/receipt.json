@@ -1,0 +1,58 @@
+{
+  "finished_at": "2026-10-14T01:23:55.702204+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "icu-root": "/workspace/scratch/c866ed8dc5cd/icu-published"
+  },
+  "pipeline": "icu-finish-build",
+  "pipeline_path": "pipelines/icu-finish-build.json",
+  "pipeline_sha256": "a28887781d50ffd706504ca6ebf17be561f1bbab965cba6ca2d3b1db9dda5f5c",
+  "repository_commit": "2e5594ee0ba6975645868315fca65afd61b7c706",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/icu-finish/SUN-ICU-FINISH-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:23:47.946978+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T01:23:47.945185+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d7040aeac8c78ad45719cbdc380c94e740b20c73e530097fb09fbd5e2e434196"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tasks/icu-finish/host-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/build.grease",
+        "/workspace/scratch/c866ed8dc5cd/icu-published",
+        "/tmp/icu-finish-installed",
+        "/workspace/scratch/c866ed8dc5cd/ai-ci",
+        "/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T01:23:55.702157+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "kitchen-build-install",
+      "started_at": "2026-10-14T01:23:47.947057+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "fd6b6f108ca59b1af674c8c48751595d651e85467bd7ee8f0eaac770b1d3d474"
+    }
+  ],
+  "started_at": "2026-10-14T01:23:47.945108+00:00",
+  "status": "PASS"
+}

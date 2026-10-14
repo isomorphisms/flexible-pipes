@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "icu-finish-build",
+  "description": "Kitchen builds and installs actual ICU and its binary response probe with pinned Idriç/ICK, then builds independent AICI fixtures.",
+  "parameters": {"icu-root":{"required":true,"pattern":"/[^\\n]+"}},
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"kitchen-build-install","argv":["/workspace/scratch/30b0a80117bc/tool-bin/grease","tasks/icu-finish/host-environment.grease","/workspace/scratch/30b0a80117bc/tool-bin/grease","/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/build.grease","{{icu-root}}","/tmp/icu-finish-installed","/workspace/scratch/c866ed8dc5cd/ai-ci","/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"],"cwd":"."}
+  ]
+}

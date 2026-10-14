@@ -1,0 +1,9 @@
+{
+  "schema_version":1,
+  "name":"icu-proxy-acceptance",
+  "description":"Independent AICI executes the installed client through native CONNECT tunnels and verifies original destination TLS and credential policies.",
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"independent-installed-proxy-acceptance","argv":["/workspace/scratch/30b0a80117bc/tool-bin/grease","tasks/icu-finish/host-environment.grease","/workspace/scratch/30b0a80117bc/tool-bin/grease","/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease","/tmp/icu-finish-installed","/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish","/workspace/scratch/c866ed8dc5cd/ai-ci","proxy"],"cwd":"."}
+  ]
+}

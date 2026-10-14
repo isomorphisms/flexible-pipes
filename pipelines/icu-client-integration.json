@@ -1,0 +1,9 @@
+{
+  "schema_version":1,
+  "name":"icu-client-integration",
+  "description":"Kitchen builds and installs the real Idriç Jobicy and Indeed clients against the accepted ICU artifact and executes their local HTTP fixture suites.",
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/icu-finish/SUN-ICU-FINISH-01.txt"],"cwd":"."},
+    {"kind":"command","name":"kitchen-installed-client-integration","argv":["/workspace/scratch/30b0a80117bc/tool-bin/grease","tasks/icu-finish/host-environment.grease","/workspace/scratch/30b0a80117bc/tool-bin/grease","/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/clients.grease","/workspace/scratch/c866ed8dc5cd/idric-cli","/workspace/scratch/c866ed8dc5cd/indeed-client","/tmp/icu-finish-installed","/tmp/icu-finish-clients","/workspace/scratch/c866ed8dc5cd/flexible-pipes/evidence/icu-finish"],"cwd":"."}
+  ]
+}
