@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "name": "amazon-jobs-org-audit",
+  "description": "Pinned Idriç Amazon.jobs CLI is the sole source of new Amazon jobs evidence. The complete Software Development census fails closed when incomplete. AICI acceptance is independent.",
+  "parameters": {
+    "program": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs"
+    },
+    "cli-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/AmazonJobs\\.idric"
+    },
+    "cli-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "catfood-manifest": {
+      "required": true,
+      "pattern": "/[^\\n]+/tools\\.tsv"
+    },
+    "historic-snapshot": {
+      "required": true,
+      "pattern": "/[^\\n]+/jobs\\.tsv"
+    },
+    "aici-verdict": {
+      "required": true,
+      "pattern": "/[^\\n]+\\.tsv"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "catfood-inventory",
+    "source-identity",
+    "historical-inventory",
+    "offline-self-test",
+    "independent-acceptance",
+    "current-software-census",
+    "current-datacenter-access",
+    "current-graduate-sde"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/amazon-jobs/SUN-AMAZON-JOBS-ORG-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-inventory",
+      "argv": [
+        "sha256sum",
+        "{{catfood-manifest}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-identity",
+      "argv": [
+        "sha256sum",
+        "{{cli-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "historical-inventory",
+      "argv": [
+        "sha256sum",
+        "{{historic-snapshot}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "offline-self-test",
+      "argv": [
+        "{{program}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-acceptance",
+      "argv": [
+        "grep",
+        "-Fx",
+        "PASS",
+        "{{aici-verdict}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-software-census",
+      "argv": [
+        "{{program}}",
+        "--category",
+        "software-development",
+        "--sort",
+        "relevant",
+        "--all",
+        "--max-pages",
+        "100",
+        "--pause",
+        "1",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-datacenter-access",
+      "argv": [
+        "{{program}}",
+        "data center technician",
+        "--country",
+        "USA",
+        "--limit",
+        "50",
+        "--max-pages",
+        "5",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-graduate-sde",
+      "argv": [
+        "{{program}}",
+        "graduate software development engineer",
+        "--country",
+        "USA",
+        "--limit",
+        "50",
+        "--max-pages",
+        "5",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    }
+  ]
+}
