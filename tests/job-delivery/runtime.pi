@@ -27,6 +27,8 @@ def surface_send(response ∈ bytes) → dict[str, object]:
         actual ← b"The job exists.\n"
     elif mutation == "truncate":
         actual ← response[:-25]
+    elif mutation == "placeholder" or (mutation == "android-codeblock" and (response.startswith(b"```") or response.__contains__(b"\n```"))):
+        actual ← b"This content is unavailable in this version of the app.\n"
     captured.append(actual)
     return {"bytes": actual, "message_id": "fixture-message", "surface": "fixture-visible-chat"}
 
@@ -71,7 +73,7 @@ for fixture in ["young-tableaux", "a1-c67"]:
         if effects != wanted or delivered["delivery_status"] != "PASS":
             raise AssertionError("wrong effect order")
         passed(fixture + " " + mode)
-    for bad in ["summary", "truncate", "dispatch"]:
+    for bad in ["summary", "truncate", "placeholder", "dispatch"]:
         mutation ← bad
         effects.clear()
         caught ∈ bool ← False
@@ -87,6 +89,8 @@ for fixture in ["young-tableaux", "a1-c67"]:
     captured.clear()
     delivered ← handoff.deliver(fresh(payload, "display-and-dispatch"), payload, sink, dispatcher, gate, "")
     recovered ∈ dict[str, object] ← handoff.recover(delivered, "Where’s the text?")
+    if str(recovered.get("delivery_status")) != "AWAITING_HANDOFF_DELIVERY":
+        raise AssertionError("failed delivery retained PASS")
     delivered ← handoff.deliver(recovered, payload, sink, dispatcher, gate, "Recovered assignment follows.")
     if effects != ["visible", "dispatch", "visible"]:
         raise AssertionError("recovery dispatched twice")
@@ -109,6 +113,39 @@ for fixture in ["young-tableaux", "a1-c67"]:
     if not caught:
         raise AssertionError("review bypassed deterministic failure")
     passed(fixture + " review rejects hidden artifact")
+
+    # Reproduce the recorded Android CodeBlock failure, then redeliver the
+    # identical assignment as ordinary text. This is a fixture, not device proof.
+    mutation ← "android-codeblock"
+    effects.clear()
+    captured.clear()
+    stage ← fresh(payload, "display-and-dispatch")
+    caught ← False
+    try:
+        handoff.deliver(stage, payload, sink, dispatcher, gate, "")
+    except ValueError:
+        caught ← True
+    if caught or captured != [payload] or effects != ["visible", "dispatch"]:
+        raise AssertionError("default text selected an unavailable CodeBlock")
+    passed(fixture + " default delivery preserves ordinary text bytes")
+
+    effects.clear()
+    captured.clear()
+    caught_message ∈ str ← ""
+    try:
+        handoff.deliver(stage, payload, sink, dispatcher, gate, "Complete assignment follows.")
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != "HANDOFF_VISIBLE_MISSING" or effects != ["visible"]:
+        raise AssertionError("unavailable CodeBlock was accepted or dispatched")
+    recovered ← handoff.recover(stage, "The CodeBlock is unavailable; show ordinary text.")
+    delivered ← handoff.deliver(recovered, payload, sink, dispatcher, gate, "")
+    old ← dict(stage["handoff"])
+    new ← dict(delivered["handoff"])
+    if captured[-1] != payload or effects != ["visible", "visible", "dispatch"] or old["id"] != new["id"]:
+        raise AssertionError("plain-text recovery changed the assignment or effect order")
+    passed(fixture + " unavailable CodeBlock recovers same artifact before dispatch")
+    mutation ← "none"
 
 attachment_bytes ∈ bytes ← b"PK\x03\x04fixture-signed-apk\x00\xff"
 attachment_name ∈ str ← "young-tableaux-arm64-v8a.apk"
@@ -224,6 +261,8 @@ with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
         result ∈ dict[str, object] ← json.loads(child.stdout)
         if int(child.returncode) == 0 or result["status"] != "AWAITING_HANDOFF_DELIVERY" or bool(Path(marker).exists()):
             raise AssertionError("internal composition passed/delivered/dispatched")
+        if bytes(Path(str(result["response_artifact"])).read_bytes()) != payload:
+            raise AssertionError("runner did not prepare exact ordinary text")
         passed("real pipeline holds at delivery boundary")
         spec["unknown_policy"] ← "unsafe"
         pipeline.write_text(json.dumps(plan))

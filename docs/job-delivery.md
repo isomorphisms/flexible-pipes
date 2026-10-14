@@ -24,10 +24,17 @@ and `dispatch_id`. A declaration that sending succeeded is insufficient.
 The gate examines those captures before dispatch and after completion.
 States and sequenced events keep visible delivery distinct from dispatch.
 
-The response uses a top-level literal text block with a delimiter longer than
-any delimiter in the assignment. ai-ci checks its full bytes against the stage
-artifact. Plain full-text responses are also supported without HTML markup.
-Summaries may surround a literal block. Nested/quoted blocks, hidden HTML,
+The maintained runner prepares the exact assignment as ordinary text, without
+adding a CodeBlock. `deliver(..., summary="")` sends those same bytes. This
+avoids the added component that the Android client rejected on October 9; it
+does not attest how a client rendered the payload itself. The ordinary-text
+form still excludes HTML markup under the independent gate.
+
+A nonempty summary explicitly selects the existing top-level literal block,
+with a delimiter longer than any delimiter in the assignment. Use that form
+only when the controller knows the client supports CodeBlocks. `render` remains
+the literal-block helper. ai-ci checks the complete observed response against
+the stage artifact. Nested/quoted blocks, hidden HTML,
 links, altered/truncated assignments, swapped captures and wrong dispatches
 are rejected. These are bounded supported response forms, not a general
 Markdown renderer or screenshot-based proof of human perception.
@@ -44,7 +51,12 @@ type or mutated payload is not an observed attachment.
 
 `recover(stage, correction)` retains the same payload/contract identity and
 records `delivery-failed`. A new delivery follows that event. Accepted dispatch
-is not repeated. “Where’s the text?” without recovered context is rejected by
+is not repeated. Recovery resets `delivery_status` to
+`AWAITING_HANDOFF_DELIVERY`; a previous PASS cannot survive the reported failure.
+When the client reports an unavailable CodeBlock, recover the same stage and
+redeliver with an empty summary to send the original ordinary-text bytes.
+An observed unavailable-component placeholder fails before dispatch.
+“Where’s the text?” without recovered context is rejected by
 ai-ci. The original request is retained rather than overwritten by the
 correction.
 
@@ -91,3 +103,8 @@ Tracked work: [#35](https://github.com/isomorphisms/flexible-pipes/issues/35),
 The independent ai-ci response matrix and FP runtime/effect suite both retain
 the sanitized October 6 recurrences, with complete visible positive twins.
 Their transport is explicitly `fixture-visible-chat`, not actual ChatGPT.
+The runtime suite also reproduces an unavailable-CodeBlock sink, rejection
+before dispatch, recovery through complete ordinary text with the same artifact
+identity, and removal of stale PASS on recovery. These are transport regression
+tests; actual Android rendering and trusted platform acknowledgements remain
+unverified by this suite. Issue #35 remains open for that adoption boundary.

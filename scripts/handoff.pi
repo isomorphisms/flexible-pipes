@@ -244,6 +244,7 @@ def recover(stage ∈ dict[str, object], correction ∈ str) → dict[str, objec
     handoff["delivery_mode"] ← "display-only" if handoff["dispatch_state"] == "ACCEPTED" else "display-and-dispatch" if handoff["delivery_mode"] == "display-and-dispatch" else "display-only"
     handoff["visible_state"] ← "PENDING"
     result["handoff"] ← handoff
+    result["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
     return result
 
 def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str) → dict[str, object]:
@@ -264,7 +265,10 @@ def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dis
                 raise ValueError("HANDOFF_ATTACHMENT_SINK_METADATA")
             event ← {"kind": "attachment", "sequence": len(events) + 1, "payload_sha256": digest(delivered), "payload_size": len(delivered), "file_id": plain(observed["file_id"]), "file_name": file_name(observed["file_name"]), "mime_type": plain(observed["mime_type"]), "surface": plain(observed["surface"])}
         else:
-            response ← render(payload, summary)
+            # No wrapper is needed for a complete ordinary-text assignment.
+            # A nonempty summary explicitly selects the literal-block form;
+            # controllers must use it only on clients supporting CodeBlocks.
+            response ← payload if summary == "" else render(payload, summary)
             # Sink returns the bytes actually accepted on its visible surface,
             # not a success flag copied from the producing model.
             observed ← sink.send(response)
@@ -333,4 +337,4 @@ def main() → None:
     if int(composed_handoff["version"]) == 2:
         Path(args[2] + ".attachment").write_bytes(materialize(composed, payload))
     else:
-        Path(args[2] + ".response.txt").write_bytes(render(payload, ""))
+        Path(args[2] + ".response.txt").write_bytes(payload)
