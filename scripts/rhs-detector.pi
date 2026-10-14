@@ -8,6 +8,7 @@ from pathlib import Path
 from builtins import ValueError, Exception, globals
 
 MODELS ∈ dict[str, str] ← {"qwen-1.5b": "Qwen/Qwen2.5-Coder-1.5B-Instruct", "qwen-3b": "Qwen/Qwen2.5-Coder-3B-Instruct"}
+REVISIONS ∈ dict[str, str] ← {"qwen-1.5b": "2e1fd397ee46e1388853d2af2c993145b0f1098a", "qwen-3b": "488639f1ff808d1d3d0ba301aef8c11461451ec5"}
 INSTRUCTION ∈ str ← "Compare the explicit CLAIM with the supplied OBSERVATION. Decide only whether those recorded inputs, outputs and side effects contradict the claim. SOURCE, when supplied, is context. A vague or unsupported claim requires UNKNOWN. Answer with exactly one first line: AGREEMENT, CONTRADICTION, or UNKNOWN. No explanation."
 
 def digest(data ∈ bytes) → str:
@@ -49,10 +50,11 @@ def compare(candidate ∈ str, output ∈ str, model_key ∈ str, mode ∈ str) 
         raise ValueError("Comparison requires all 104 retained baseline packets")
     model_name ∈ str ← MODELS[model_key]
     api ∈ object ← HfApi()
-    info ∈ object ← api.model_info(model_name, revision="main", files_metadata=True)
+    expected_revision ∈ str ← REVISIONS[model_key]
+    info ∈ object ← api.model_info(model_name, revision=expected_revision, files_metadata=True)
     revision ∈ str ← info.sha
-    if len(revision) != 40:
-        raise ValueError("Candidate model revision was not resolved before inference")
+    if revision != expected_revision:
+        raise ValueError("Candidate model revision does not match the frozen comparison")
     write(output + "/resolved-revision.txt", revision + "\n")
     torch.set_num_threads(2)
     torch.manual_seed(1701)
