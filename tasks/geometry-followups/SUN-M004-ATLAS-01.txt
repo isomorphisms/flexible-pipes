@@ -1,0 +1,9 @@
+SUN M004-ATLAS-01
+Origin: https://github.com/isomorphisms/flexible-pipes/issues/133
+Target: isomorphismes/knot-complement
+Dependency: checked H3 head ed2938fab243741a0380d920289cd7377eb2106b.
+
+Implement all eight regular ideal tetrahedron face maps for m004, exact permutations and algebraic construction, inverse maps, first events, full-frame transformations, accumulated travel and declared event/range statuses. Compare independently with executed SnapPy, developed paths and inverse/edge-cycle tests. Mutate permutation and tangent transform. Preserve upstream. Distinguish finite-distance traversal from recentering. Authoritative camera and metric survive drawing changes.
+
+Run actual ICK consumer builds and existing Flexible Pipes command stages. Cat Food owns acquired runtime, Kitchen owns acceptance invocation, AI-CI owns independent mathematical verdicts. Bound source/compiler/runtime/output identities in receipts. New source remains draft; no merge/release. Host, software raster, GPU, A1/C67 and human evidence are separate.
+
