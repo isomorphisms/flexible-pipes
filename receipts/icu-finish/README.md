@@ -1,6 +1,8 @@
 # SUN ICU-FINISH-01
 
-Host acceptance: PASS. Merge integration: pending final exact-head merge.
+Host acceptance: PASS. Merge integration: MERGED.
+Final icu head: 468355b780d17f9b0838c8ac975962596811c484.
+Its complete source tree equals the independently accepted source tree.
 The actual installed Idriç programs ran on Linux x86-64.
 
 ## Source and tools
@@ -9,6 +11,7 @@ The actual installed Idriç programs ran on Linux x86-64.
 |---|---|
 | ICU accepted head | c056ca2d588329272580ca30a8b619c6ebdf455d |
 | ICU accepted tree | 3084878d421261f3c493410fd8e4a7a2afa3f287 |
+| Final icu merge head | 468355b780d17f9b0838c8ac975962596811c484 |
 | Idriç compiler | 2734ac5a86610eddfab73b1644d72b4ac85a65ee |
 | Idric-Net | 2f6ea92c25c9b5a7286d1ca226fa3d1e12fe303e |
 | ICK | c61e448251744a2f40ad743ebef1a027bdcd2f9d |
@@ -100,6 +103,11 @@ This job's additional capture/proxy hardening is
 [dilapidated-shed/icu PR #34, “Finish binary response capture and verify installed HTTPS proxy transport”](https://github.com/dilapidated-shed/icu/pull/34).
 Its exact head is c056ca2d588329272580ca30a8b619c6ebdf455d and base is
 05446e958599c297481b05f12fe7f05fc2144750.
+It was merged by this job at
+[468355b780d17f9b0838c8ac975962596811c484](https://github.com/dilapidated-shed/icu/commit/468355b780d17f9b0838c8ac975962596811c484).
+The verified destination tree is 3084878d421261f3c493410fd8e4a7a2afa3f287,
+exactly the accepted tree. Its parents are the recorded live base and accepted
+head. No branch was deleted and no issue was closed.
 All four hosted workflows reported success; their legacy checkout is synthetic
 merge evidence. Independent FP/Kitchen/AICI acceptance uses the actual head.
 

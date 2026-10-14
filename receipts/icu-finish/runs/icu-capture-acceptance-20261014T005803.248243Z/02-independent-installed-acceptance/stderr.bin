@@ -1,0 +1,6 @@
+  trap cleanup EXIT
+  ^~~~
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:20: 'trap' expected --add, --remove, -l, or -p (simple_trap_builtin)
+  trap cleanup EXIT
+  ^~~~
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:20: errexit PID 7: Command failed with status 2

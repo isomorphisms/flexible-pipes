@@ -1,0 +1,5 @@
+  var child_pids = "$(cat "/proc/$hold_pid/task/$hold_pid/children")"
+                          ^
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:107: Can't open '/proc/235/task/235/children': No such file or directory
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:107: errexit PID 242: Command failed with status 1
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:107: errexit PID 7: Command Sub exited with status 1

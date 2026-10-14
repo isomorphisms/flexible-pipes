@@ -1,0 +1,3 @@
+  for run in "$root/.flexible-pipes/runs"/icu-* {
+             ^
+tasks/icu-finish/collect.grease:7: Invalid quoted word part in YSH (OILS-ERR-17)

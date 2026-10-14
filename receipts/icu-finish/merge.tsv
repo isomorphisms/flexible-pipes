@@ -1,0 +1,27 @@
+field	value
+result	MERGED
+repository	dilapidated-shed/icu
+target_branch	icu
+pull_request	34
+title	Finish binary response capture and verify installed HTTPS proxy transport
+url	https://github.com/dilapidated-shed/icu/pull/34
+authority_kind	explicit-task
+authority_source	SUN ICU-FINISH-01: finish and merge HTTP transport into icu; complete merges after acceptance
+accepted_head	c056ca2d588329272580ca30a8b619c6ebdf455d
+live_base	05446e958599c297481b05f12fe7f05fc2144750
+accepted_tree	3084878d421261f3c493410fd8e4a7a2afa3f287
+merge_commit	468355b780d17f9b0838c8ac975962596811c484
+verified_destination_head	468355b780d17f9b0838c8ac975962596811c484
+verified_destination_tree	3084878d421261f3c493410fd8e4a7a2afa3f287
+independent_host_acceptance	PASS
+installed_transport_cases	47 PASS
+installed_client_checks	125 PASS
+native_size_limit_mutant	REJECTED
+client_oracles_and_mutations	PASS
+live_jobicy	PASS: four HTTP 200 requests including sequential cursor pages
+live_indeed	NOT_RUN: no authorized credentials
+android_a1	NOT_RUN
+android_c67	NOT_RUN
+pull_request_32_merge	2d37c3e523a1d55f6a5a1bda91cba8222f0e36b5
+pull_request_33_merge	05446e958599c297481b05f12fe7f05fc2144750
+original_merge_order	32 then 33, completed by another concurrent session

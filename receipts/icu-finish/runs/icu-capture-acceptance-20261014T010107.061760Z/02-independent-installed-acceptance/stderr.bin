@@ -1,0 +1,3 @@
+    pass (label)
+    ^~~~
+/workspace/scratch/c866ed8dc5cd/ai-ci/icu/accept.grease:45: fatal: proc 'pass' wasn't passed word param 'label'

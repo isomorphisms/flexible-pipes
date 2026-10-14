@@ -1,0 +1,3 @@
+  $[ENV.IDRIC] --build response-probe.ipkg
+  ^~
+/workspace/scratch/c866ed8dc5cd/kitchen/tasks/icu-finish/build.grease:16: errexit PID 7: Command failed with status 1

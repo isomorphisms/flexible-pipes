@@ -1,0 +1,9 @@
+{"kind":"assertion","status":"pass","code":"JOBICY-STATUS-DISTINCTIONS","operation":"equal","detail":"expected.tsv == actual.tsv"}
+{"kind":"summary","status":"pass","assertions":1,"failures":0}
+{"kind":"assertion","status":"pass","code":"INDEED-PROOF-CLASSIFICATION","operation":"equal","detail":"expected.tsv == actual.tsv"}
+{"kind":"summary","status":"pass","assertions":1,"failures":0}
+c1f74aec9400204ce4540c5b2147022d7c8755b7
+independent-installed-jobicy	PASS
+jobicy-mutant	REJECTED
+independent-installed-indeed	PASS
+indeed-mutant	REJECTED
