@@ -9,10 +9,12 @@ Independent gate: `isomorphisms/ai-ci`.
 `amazon-jobs-org-open.json` opens the human assignment before any work.
 `amazon-jobs-org-audit.json` records the host command's source, baseline,
 offline test, independent verdict and live source-only queries. These are
-**workflow definitions**, not executed receipts. The acceptance verdict
-passed to the pipeline must come from a real independent ai-ci check of the
-compiled executable, full output and an adversarial known-bad case; a caller
-must not create a bare `PASS` file.
+**workflow definitions**, not executed receipts. The independent admission stage calls the actual ai-ci verifier against
+`contracts/amazon-jobs-cli-v0.contract.tsv`, whose five semantic-boundary
+assertions each have a deliberately broken fixture. The verifier revision
+is recorded. This is **structural acceptance only**: compiler execution,
+real-provided fixture behavior and complete feed integrity remain separate
+admission obligations before Blackball accepts a current map.
 
 The separate Software Development stage requires `--all`, stable `hits`
 and distinct numeric requisition IDs. Failed transport, endpoint changes or
