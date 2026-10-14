@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "name": "catfood-fp-kitchen-merge",
+  "parameters": {
+    "grease":{"required":true,"pattern":"/.*"},
+    "aici":{"required":true,"pattern":"/.*"},
+    "kitchen":{"required":true,"pattern":"/.*"},
+    "catfood":{"required":true,"pattern":"/.*"},
+    "a1":{"required":true,"pattern":"/.*"},
+    "c67":{"required":true,"pattern":"/.*"},
+    "output":{"required":true,"pattern":"/.*"}
+  },
+  "required_stages":["job-envelope","source-pins","native-transfer-effects","arm-payload-rejection","android-delivery","device-targets","c67-delivery","target-mutants"],
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/catfood-fp-kitchen/STAR-CATFOOD-FP-KITCHEN-01.txt"],"cwd":"."},
+    {"kind":"command","name":"source-pins","argv":["{{grease}}","{{aici}}/tests/transfer-source-pins.grease","{{catfood}}","{{kitchen}}","{{aici}}",".","{{grease}}","{{output}}"],"cwd":"."},
+    {"kind":"command","name":"native-transfer-effects","argv":["{{grease}}","{{aici}}/tests/transfer-handoff.grease","{{kitchen}}","{{grease}}","{{output}}/cases","."],"cwd":"."},
+    {"kind":"command","name":"arm-payload-rejection","argv":["{{grease}}","{{aici}}/tests/grease-package-payloads.grease","{{catfood}}","{{a1}}","{{c67}}","{{output}}/packages"],"cwd":"."},
+    {"kind":"command","name":"android-delivery","argv":["sh","{{catfood}}/tests/android-delivery.sh"],"cwd":"."},
+    {"kind":"command","name":"device-targets","argv":["sh","{{catfood}}/tests/targets.sh"],"cwd":"."},
+    {"kind":"command","name":"c67-delivery","argv":["sh","{{catfood}}/tests/c67-delivery.sh"],"cwd":"."},
+    {"kind":"command","name":"target-mutants","argv":["sh","{{catfood}}/tests/target-mutations.sh"],"cwd":"."}
+  ]
+}

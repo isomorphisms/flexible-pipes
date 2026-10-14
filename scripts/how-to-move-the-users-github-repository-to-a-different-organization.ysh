@@ -11,6 +11,17 @@ lower() {
     printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
 
+# The six-argument route binds immutable ID/upstream and uses persistent state.
+# Existing four-argument consumers retain their historical recipe until migrated.
+if test "$#" -eq 6; then
+    runtime=$[get(ENV, 'GREASE_BINARY', '')]
+    kitchen=$[get(ENV, 'KITCHEN_ROOT', '')]
+    aici=$[get(ENV, 'AICI_ROOT', '')]
+    state=$[get(ENV, 'FP_TRANSFER_JOB_ROOT', '')]
+    here=$(dirname "$0")
+    exec "$runtime" "$here/github-transfer-session.grease" "$kitchen" "$aici" "$runtime" "$state" "$@"
+fi
+
 test "$#" -eq 4 || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN'
 source_owner=$1
 repository=$2

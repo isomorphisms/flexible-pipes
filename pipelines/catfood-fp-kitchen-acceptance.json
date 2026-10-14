@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "catfood-fp-kitchen-acceptance",
+  "parameters": {
+    "grease":{"required":true,"pattern":"/.*"},
+    "aici":{"required":true,"pattern":"/.*"},
+    "kitchen":{"required":true,"pattern":"/.*"},
+    "output":{"required":true,"pattern":"/.*"}
+  },
+  "required_stages":["job-envelope","native-generated-program-acceptance"],
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/catfood-fp-kitchen/STAR-CATFOOD-FP-KITCHEN-01.txt"],"cwd":"."},
+    {"kind":"command","name":"native-generated-program-acceptance","argv":["{{grease}}","{{aici}}","{{kitchen}}","{{grease}}","{{output}}","."],"cwd":"."}
+  ]
+}
