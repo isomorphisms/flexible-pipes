@@ -23,9 +23,17 @@
       "required": true,
       "pattern": "/[^\\n]+/jobs\\.tsv"
     },
-    "aici-verdict": {
+    "aici": {
       "required": true,
-      "pattern": "/[^\\n]+\\.tsv"
+      "pattern": "/[^\\n]+/aici"
+    },
+    "aici-contract": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli-v0\\.contract\\.tsv"
+    },
+    "aici-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/src/aici\\.c"
     }
   },
   "required_stages": [
@@ -34,7 +42,8 @@
     "source-identity",
     "historical-inventory",
     "offline-self-test",
-    "independent-acceptance",
+    "independent-aici-source",
+    "independent-aici-revision",
     "current-software-census",
     "current-datacenter-access",
     "current-graduate-sde"
@@ -87,12 +96,21 @@
     },
     {
       "kind": "command",
-      "name": "independent-acceptance",
+      "name": "independent-aici-source",
       "argv": [
-        "grep",
-        "-Fx",
-        "PASS",
-        "{{aici-verdict}}"
+        "{{aici}}",
+        "verify",
+        "{{aici-contract}}",
+        "{{cli-root}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-revision",
+      "argv": [
+        "sha256sum",
+        "{{aici-source}}"
       ],
       "cwd": "."
     },
