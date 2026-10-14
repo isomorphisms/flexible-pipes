@@ -1,0 +1,158 @@
+"""Qualify the fixed exporter operation; never install or activate a service."""
+import os
+import sys
+import json
+import hashlib
+import shutil
+import subprocess
+import importlib
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+
+args ∈ list[str] ← sys.argv
+workspace ∈ str ← args[1]
+output ∈ str ← args[2]
+node ∈ str ← args[3]
+if node == "auto":
+    resolved_node ∈ object ← shutil.which("node")
+    if resolved_node == None:
+        raise ValueError("NODE_UNAVAILABLE")
+    node ← str(resolved_node)
+fp ∈ str ← workspace + "/flexible-pipes"
+aici ∈ str ← workspace + "/ai-ci"
+ithon ∈ str ← workspace + "/ithon"
+exporter ∈ str ← workspace + "/exporter"
+Path(output).mkdir(mode=493, parents=True, exist_ok=False)
+sys.path.insert(0, fp + "/scripts")
+engine ∈ object ← importlib.import_module("registered-execution")
+
+def git(root ∈ str, arguments ∈ list[str]) → str:
+    command ∈ list[str] ← ["/usr/bin/git", "-c", "safe.directory=" + root, "-C", root]
+    command.extend(arguments)
+    child ∈ object ← subprocess.run(command, capture_output=True, timeout=30)
+    if int(child.returncode) != 0:
+        raise ValueError("QUALIFICATION_GIT: " + str(child.stderr.decode()))
+    return str(child.stdout.decode()).strip()
+
+def hash_file(path ∈ str) → str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+candidate_commit ∈ str ← git(exporter, ["rev-parse", "HEAD"])
+baseline_commit ∈ str ← "274d878041403460a1249aa55b13d40769815bf2"
+corpus_commit ∈ str ← "6085ac22225dfd49f4356c5612ccf81de6d45b1c"
+control_commit ∈ str ← git(fp, ["rev-parse", "HEAD"])
+checker_commit ∈ str ← git(aici, ["rev-parse", "HEAD"])
+runtime_commit ∈ str ← git(ithon, ["rev-parse", "HEAD"])
+if runtime_commit != "d6e83969f82512e920fb17b44326cb54f31d015c":
+    raise ValueError("ITHON_PIN_MISMATCH")
+
+# Fixed request and rejected twins reach the actual maintained parser.
+request ∈ dict[str, object] ← {"schema_version": 1, "request_id": "exporter-qualification", "pipeline": "chatgpt-exporter-regression-acceptance", "inputs": {"source_ref": candidate_commit, "scope": "all"}}
+raw ∈ bytes ← engine.encode(request)
+engine.checked_request(raw)
+for key in ["argv", "shell", "policy", "checker", "environment", "skip"]:
+    bad ∈ dict[str, object] ← dict(request)
+    bad[key] ← "injected"
+    observed ∈ str ← ""
+    try:
+        engine.checked_request(engine.encode(bad))
+    except Exception as error:
+        observed ← str(error)
+    if observed != "REQUEST_FIELDS":
+        raise ValueError("REQUEST_REJECTION_FAILED: " + key)
+    print("PASS exporter request refuses " + key)
+for scope in ["X2", "partial", ""]:
+    bad ← dict(request)
+    bad["inputs"] ← {"source_ref": candidate_commit, "scope": scope}
+    observed ← ""
+    try:
+        engine.checked_request(engine.encode(bad))
+    except Exception as error:
+        observed ← str(error)
+    if observed != "UNQUALIFIED_ACCEPTANCE_SCOPE":
+        raise ValueError("SCOPE_REJECTION_FAILED")
+    print("PASS exporter request refuses a narrowed scope")
+
+uid_map ∈ list[str] ← Path("/proc/self/uid_map").read_text().split()
+if len(uid_map) == 3 and uid_map[2] == "1":
+    minimal ∈ dict[str, object] ← {"schema_version": 1, "operation": "chatgpt-exporter-regression-acceptance", "qualified": True, "authority": "local-qualification", "required_checks": list(engine.EXPORTER_CHECKS)}
+    observed ← ""
+    try:
+        engine.verify_deployment(minimal, True)
+    except Exception as error:
+        observed ← str(error)
+    if not observed.startswith("SECURITY_BOUNDARY_UNAVAILABLE"):
+        raise ValueError("SINGLE_UID_REFUSAL_FAILED: " + observed)
+    Path(output + "/status.txt").write_text("BLOCKED " + observed + "\nNine request-schema rejection controls passed; isolated execution NOT_RUN.\n")
+    print("BLOCKED " + observed)
+    sys.exit(2)
+
+# Source acquisition is already complete before this script. A root-owned
+# disposable copy keeps application workers away from the runner checkout.
+inputs ∈ str ← output + "-inputs"
+Path(inputs).mkdir(mode=493)
+candidate ∈ str ← inputs + "/candidate"
+baseline ∈ str ← inputs + "/baseline"
+shutil.copytree(exporter, candidate, symlinks=True)
+ignored ∈ object ← shutil.ignore_patterns("node_modules", "dist", "*.json-report")
+shutil.copytree(exporter, baseline, symlinks=True, ignore=ignored)
+git(baseline, ["checkout", "--detach", baseline_commit])
+for path in ["tests/chatgpt/assets-adversarial.test.ts", "tests/chatgpt/inventory-adversarial.test.ts", "tests/chatgpt/pagination-adversarial.test.ts", "tests/integration/evidence-adversarial.test.ts", "tests/fixtures/adversarial.ts"]:
+    target ∈ Path ← Path(baseline + "/" + path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(candidate + "/" + path, str(target))
+Path(baseline + "/node_modules").symlink_to(candidate + "/node_modules")
+runtime ∈ str ← inputs + "/ithon"
+Path(runtime + "/Lib").mkdir(mode=493, parents=True)
+for path in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
+    shutil.copyfile(ithon + "/" + path, runtime + "/" + path)
+
+materials ∈ list[dict[str, object]] ← []
+def material(root ∈ str, path ∈ str, actual ∈ str) → None:
+    commit ∈ str ← git(root, ["rev-parse", "HEAD"])
+    origin ∈ str ← git(root, ["config", "--local", "--get", "remote.origin.url"])
+    materials.append({"path": actual, "sha256": hash_file(actual), "checkout": root, "commit": commit, "relative_path": path, "origin": origin, "published_ref": "HEAD"})
+
+for path in ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi", "registry/chatgpt-exporter-regression-acceptance.contract.json"]:
+    material(fp, path, fp + "/" + path)
+material(aici, "validators/regression_transition.pi", aici + "/validators/regression_transition.pi")
+material(exporter, "ci/exporter-original-failures.tsv", exporter + "/ci/exporter-original-failures.tsv")
+for path in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
+    material(ithon, path, runtime + "/" + path)
+
+tools ∈ list[dict[str, object]] ← []
+for path in [sys.executable, node]:
+    tools.append({"path": path, "sha256": hash_file(path)})
+# Bind the complete installed foreign test dependency tree, not one launcher.
+dependency_paths ∈ list[Path] ← list(Path(candidate + "/node_modules").rglob("*"))
+for selected in dependency_paths:
+    if selected.is_file() and not selected.is_symlink():
+        tools.append({"path": str(selected), "sha256": hash_file(str(selected))})
+contract_path ∈ str ← fp + "/registry/chatgpt-exporter-regression-acceptance.contract.json"
+contract ∈ dict[str, object] ← json.loads(Path(contract_path).read_bytes())
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent", "CI": "1"}
+qualification_path ∈ str ← output + "/qualification.json"
+config ∈ dict[str, object] ← {"schema_version": 1, "operation": "chatgpt-exporter-regression-acceptance", "operation_version": "1", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "control_commit": control_commit, "ithon": [sys.executable, runtime + "/ithon_host.py"], "worker": fp + "/scripts/registered-worker.pi", "watchdog": fp + "/scripts/registered-watchdog.pi", "node": node, "test_runner": candidate + "/node_modules/vitest/vitest.mjs", "baseline_root": baseline, "candidate_root": candidate, "baseline_commit": baseline_commit, "candidate_commit": candidate_commit, "corpus_commit": corpus_commit, "matrix": exporter + "/ci/exporter-original-failures.tsv", "case_verifier": aici + "/validators/regression_transition.pi", "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": hash_file(contract_path), "worker_environment": environment, "qualification": qualification_path, "state_root": output + "/state", "request_mirror": fp, "request_base": control_commit}
+operation ∈ dict[str, object] ← {}
+fields ∈ list[str] ← list(engine.EXPORTER_FIELDS)
+for field in fields:
+    operation[field] ← config[field]
+qualification ∈ dict[str, object] ← {"status": "PASS", "scope": "local-qualification", "materials_sha256": engine.digest(engine.encode(materials)), "tools_sha256": engine.digest(engine.encode(tools)), "environment_sha256": engine.digest(engine.encode(environment)), "operation_sha256": engine.digest(engine.encode(operation)), "excluded_claims": ["installed-promotion", "deployed-service", "authenticated-platform-dispatch", "merge"]}
+engine.atomic(qualification_path, qualification)
+config["qualification_sha256"] ← hash_file(qualification_path)
+engine.atomic(output + "/deployment-diagnostic.json", config)
+engine.atomic(output + "/request.json", request)
+envelope ∈ dict[str, object] ← {"repository_id": 1405888814, "workflow_ref": "refs/heads/main", "workflow_sha": control_commit, "request": raw.decode()}
+intake ∈ tuple[bytes, dict[str, object]] ← engine.adapter(config, "workflow_dispatch", envelope)
+if intake[0] != raw:
+    raise ValueError("PUBLIC_ADAPTER_CHANGED_REQUEST")
+outcome ∈ dict[str, object] ← engine.execute(config, raw, "workflow_dispatch", False, True)
+engine.atomic(output + "/result.json", outcome)
+if outcome["status"] != "PASS":
+    raise ValueError("EXPORTER_QUALIFICATION_FAILED: " + str(outcome["first_failure"]))
+repeated ∈ dict[str, object] ← engine.execute(config, raw, "workflow_dispatch", False, True)
+if repeated["run_id"] != outcome["run_id"]:
+    raise ValueError("EXPORTER_DUPLICATE_REEXECUTED")
+print("PASS registered exporter baseline, candidate, independent comparison and sealed diagnostic output")
+print("PASS exact-request replay reused the same verified attempt")
+print("Production deployment INACTIVE; no installed promotion, TLS activation, authenticated platform dispatch or merge")

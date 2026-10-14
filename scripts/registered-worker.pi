@@ -30,7 +30,15 @@ resource.setrlimit(resource.RLIMIT_CPU, (60, 60))
 resource.setrlimit(resource.RLIMIT_FSIZE, (67108864, 67108864))
 # The pinned Grease runtime reserves its internal descriptors from 100.
 resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
-resource.setrlimit(resource.RLIMIT_AS, (536870912, 536870912))
+profile ∈ str ← str(plan.get("profile", "kitchen-transfer-script"))
+if profile == "chatgpt-exporter-regression-acceptance":
+    # V8 reserves a large virtual address range; the maintained command fixes
+    # its actual old-space heap to 512 MiB. No caller chooses this profile.
+    resource.setrlimit(resource.RLIMIT_AS, (4398046511104, 4398046511104))
+elif profile == "kitchen-transfer-script":
+    resource.setrlimit(resource.RLIMIT_AS, (536870912, 536870912))
+else:
+    raise RuntimeError("UNQUALIFIED_WORKER_PROFILE")
 resource.setrlimit(resource.RLIMIT_NPROC, (64, 64))
 command ∈ list[str] ← list(plan["argv"])
 environment ∈ dict[str, str] ← dict(plan["environment"])

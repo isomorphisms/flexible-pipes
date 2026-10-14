@@ -1,0 +1,64 @@
+name: Exporter registered acceptance qualification
+on:
+  pull_request:
+  push:
+    branches: [repair/exporter-registered-acceptance]
+permissions:
+  contents: read
+jobs:
+  exporter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: flexible-pipes
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: ithon
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 38a33b4e0e3c5b0f608cf3b94d5c9d063d42245f
+          path: ai-ci
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ChatGPTExporter
+          ref: 9e0f8eeb962dba3ec7ce7bb4adc3437f31acebfe
+          path: exporter
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: exporter/package-lock.json
+      - name: Acquire the existing test dependency closure
+        run: npm --prefix exporter ci --ignore-scripts --no-audit --no-fund
+      - name: Qualify independent positive and rejection controls
+        run: /usr/bin/python3 ithon/ithon_host.py ai-ci/regression-transition/tests/qualify.pi '${{ github.workspace }}/ai-ci' '${{ github.workspace }}/ithon' /tmp/exporter-comparison-controls
+      - name: Qualify the fixed operation in isolated diagnostic workers
+        run: sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-exporter.pi '${{ github.workspace }}' /tmp/fp-exporter-qualification auto
+      - name: Preserve actual comparison controls
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: exporter-controls-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/exporter-comparison-controls/
+          if-no-files-found: error
+      - name: Preserve actual diagnostic stages
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: exporter-operation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/fp-exporter-qualification/
+          if-no-files-found: error
