@@ -37,6 +37,25 @@ def git(root ∈ str, arguments ∈ list[str]) → str:
 def hash_file(path ∈ str) → str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def request_commit(root ∈ str, base ∈ str, payload ∈ bytes) → str:
+    # Immutable data-only objects in the disposable diagnostic mirror. No
+    # request checkout, hook, branch publication or production admission.
+    child ∈ object ← subprocess.run(["/usr/bin/git", "-C", root, "hash-object", "-w", "--stdin"], input=payload, capture_output=True, check=True)
+    blob ∈ str ← str(child.stdout.decode()).strip()
+    child ← subprocess.run(["/usr/bin/git", "-C", root, "mktree"], input=("100644 blob " + blob + "\texporter-qualification.json\n").encode(), capture_output=True, check=True)
+    requests_tree ∈ str ← str(child.stdout.decode()).strip()
+    rows ∈ list[str] ← git(root, ["ls-tree", base]).splitlines()
+    listing ∈ str ← ""
+    for row in rows:
+        if not row.endswith("\trequests"):
+            listing ← listing + row + "\n"
+    listing ← listing + "040000 tree " + requests_tree + "\trequests\n"
+    child ← subprocess.run(["/usr/bin/git", "-C", root, "mktree"], input=listing.encode(), capture_output=True, check=True)
+    tree ∈ str ← str(child.stdout.decode()).strip()
+    identity ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "GIT_AUTHOR_NAME": "Disposable exporter fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid", "GIT_COMMITTER_NAME": "Disposable exporter fixture", "GIT_COMMITTER_EMAIL": "fixture@example.invalid"}
+    child ← subprocess.run(["/usr/bin/git", "-C", root, "commit-tree", tree, "-p", base, "-m", "Data-only exporter intake fixture"], env=identity, capture_output=True, check=True)
+    return str(child.stdout.decode()).strip()
+
 candidate_commit ∈ str ← git(exporter, ["rev-parse", "HEAD"])
 baseline_commit ∈ str ← "274d878041403460a1249aa55b13d40769815bf2"
 corpus_commit ∈ str ← "6085ac22225dfd49f4356c5612ccf81de6d45b1c"
@@ -161,6 +180,19 @@ if outcome["status"] != "PASS":
 repeated ∈ dict[str, object] ← engine.execute(config, raw, "workflow_dispatch", False, True)
 if repeated["run_id"] != outcome["run_id"]:
     raise ValueError("EXPORTER_DUPLICATE_REEXECUTED")
+mirror ∈ str ← inputs + "/request-mirror"
+shutil.copytree(fp, mirror, symlinks=True)
+intake_config ∈ dict[str, object] ← dict(config)
+intake_config["request_mirror"] ← mirror
+request_revision ∈ str ← request_commit(mirror, control_commit, raw)
+branch_intake ∈ tuple[bytes, dict[str, object]] ← engine.adapter(intake_config, "pipeline-requests", {"request_commit": request_revision})
+if branch_intake[0] != raw or str(branch_intake[1]["request_sha256"]) != str(engine.digest(raw)) or str(branch_intake[1]["commit"]) != request_revision:
+    raise ValueError("REQUEST_OBJECT_CHANGED")
+branch_result ∈ dict[str, object] ← engine.execute(intake_config, branch_intake[0], "pipeline-requests", False, True)
+if branch_result["status"] != "PASS" or str(branch_result["run_id"]) != str(outcome["run_id"]):
+    raise ValueError("REQUEST_ROUTE_DID_NOT_REUSE_VERIFIED_RESULT")
+engine.atomic(output + "/request-source.json", branch_intake[1])
 print("PASS registered exporter baseline, candidate, independent comparison and sealed diagnostic output")
 print("PASS exact-request replay reused the same verified attempt")
+print("PASS both diagnostic public adapters resolve the same request and verified result")
 print("Production deployment INACTIVE; no installed promotion, TLS activation, authenticated platform dispatch or merge")

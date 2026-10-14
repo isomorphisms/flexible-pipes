@@ -26,8 +26,8 @@ must run on a host that supports the required separate worker identities.
 Local evidence: Ithon d6e83969f82512e920fb17b44326cb54f31d015c checks the candidate
 controller; the independent comparator passes all 41 original fail-to-pass
 transitions and 16 positive/rejection controls; the original Kitchen cache
-regression passes. Public-route operation execution and installed promotion
-remain NOT_RUN until the hosted qualification runs and production is activated.
+regression passes. Installed promotion and authenticated production dispatch
+remain NOT_RUN.
 
 First hosted attempt at dd45fa36ebf288d37513b838a1ff851e9492d66d failed:
 the baseline child returned 1 but supplied no report, so no assertion failure
@@ -36,3 +36,22 @@ artifact uploader cannot traverse protected supervisor state. The next candidate
 copies worker bootstrap source into the readable diagnostic release and packages
 protected state through the existing root-owned packaging procedure. These
 repairs require a new actual run; the failed attempt remains failure evidence.
+
+The repaired diagnostic at d0b3ea0537edabc8feade6ab7759bbd6f2970af6 passed
+[hosted run 38570548332](https://github.com/isomorphisms/flexible-pipes/actions/runs/38570548332):
+the log witnesses exact checkouts of this controller, Ithon d6e83969, AICI
+38a33b4e and exporter 9e0f8eeb. The actual separate-UID operation and verified
+replay, nine schema rejections and sixteen comparator controls passed. The
+protected diagnostic artifact has archive digest
+`6570d4a4fc731ec00061d63805507b31d2e3e061d896ace459c9d50837c5b154`.
+This is diagnostic execution, not installed promotion or signed dispatch.
+
+The existing Kitchen qualification on that same head stopped at
+`SOURCE_UNAVAILABLE`: its availability check named the retained parent branch,
+which cannot contain a newer stacked candidate. The qualification now selects
+an actual fetched origin ref containing the exact candidate commit; it still
+rejects unpublished source. The exporter qualifier also exercises immutable
+request-branch intake against the same verified result. Both additions need a
+fresh hosted run. The operator still must establish the production host, TLS
+endpoint/certificate, approved actors and installed-context promotion described
+in [deployment/README.md](../deployment/README.md).
