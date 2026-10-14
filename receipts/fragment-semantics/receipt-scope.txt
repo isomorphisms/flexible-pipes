@@ -10,6 +10,9 @@ The primary controller's execution commit corresponds to the published code
 commit 91a52ea354db7f25f51a72a73933611e14695143. The later receipt archival commit
 is publication of evidence, not a claim that the archived tree ran retroactively.
 checker-inputs/receipt.json separately records the passing input refusal fixtures.
+byte-display/receipt.json separately records all six passing byte-framebuffer
+observations and their timings. Historical rotation program names in that raw
+stream do not establish a rotation operator, Givens algorithm or physical GPU.
 source-width/receipt.json records FAIL with the actual compiler diagnostic.
 
 Each per-stage stdout.bin/stderr.bin is a UTF-8 command stream, retained with its
