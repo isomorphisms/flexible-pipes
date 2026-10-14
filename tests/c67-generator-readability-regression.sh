@@ -1,16 +1,19 @@
 #!/bin/sh
-# C67 regression: a downloaded Kitchen generator was readable by head but
-# Grease `test -r` returned false. Verify actual read, not an access predicate.
+# Physical C67 regression: Grease test -r rejected a generator that head read.
+# Cover both the accepted batch path and the standalone transfer wrapper.
 set -eu
 root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
 batch=$root/scripts/move-new-math-repositories-to-isomorphismes.ysh
+single=$root/scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh
 
-if grep -F 'test -r "$generator"' "$batch" >/dev/null; then
-    echo 'batch still relies on the C67-failing test -r generator predicate' >&2
-    exit 1
-fi
-grep -F 'head -n 1 "$generator" > "$generator_probe"' "$batch" >/dev/null
-grep -F 'generator_header=$(cat "$generator_probe")' "$batch" >/dev/null
-grep -F "test \"\$generator_header\" = '#!/usr/bin/env grease'" "$batch" >/dev/null
+for entrypoint in "$batch" "$single"; do
+    if grep -F 'test -r "$generator"' "$entrypoint" >/dev/null; then
+        echo "C67-failing generator readability predicate: $entrypoint" >&2
+        exit 1
+    fi
+    grep -F 'head -n 1 "$generator" > "$generator_probe"' "$entrypoint" >/dev/null
+    grep -F 'generator_header=$(cat "$generator_probe")' "$entrypoint" >/dev/null
+    grep -F "test \"\$generator_header\" = '#!/usr/bin/env grease'" "$entrypoint" >/dev/null
+done
 
-echo 'PASS batch admits the fetched Kitchen generator by an actual read and header identity'
+echo 'PASS batch and single transfer entrypoints admit the generator by an actual read and header identity'
