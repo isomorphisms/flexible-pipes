@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "name": "fp35-live-artifact",
+  "description": "Pinned original Wegert artifact: capture source and materialize exact APK; remain pending client delivery.",
+  "parameters": {
+    "archive": {
+      "required": true,
+      "pattern": "/.+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "workflow-source"
+  ],
+  "stages": [
+    {
+      "name": "job-envelope",
+      "kind": "command",
+      "argv": [
+        "cat",
+        "tasks/fp35-close/SUN-jobs.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "workflow-source",
+      "kind": "command",
+      "argv": [
+        "cat",
+        "{{archive}}"
+      ],
+      "cwd": ".",
+      "handoff": {
+        "audience": "human",
+        "model": "SUN",
+        "source_context": "FP35-S2 live artifact qualification; executor preparation, not authenticated ChatGPT request admission",
+        "request": {
+          "id": "FP35-S2-artifact-11528177870",
+          "text": "Run the exact binary delivery qualification for the original Wegert incident artifact.",
+          "delivery_mode": "display-only"
+        },
+        "attachment": {
+          "file_name": "app-debug.apk",
+          "mime_type": "application/vnd.android.package-archive",
+          "sha256": "a6897b357365b2e59ee653f3e39736ec328aa34eafa532da7e32d444e6e9ed67",
+          "source_name": "wegert-debug-apk.zip",
+          "source_sha256": "7a69447a00e3a674d12aeaa41c3e4895e30f53e6a8c8373775df5e3e19c6478c",
+          "archive_member": "app-debug.apk",
+          "provenance": {
+            "provider": "github-actions",
+            "resource": "isomorphismes/wegert",
+            "revision": "71e6f969b102d70a06ebb2d98b6426f79f287173",
+            "reference": "github-actions:run:37727204424:artifact:11528177870"
+          }
+        }
+      }
+    }
+  ]
+}

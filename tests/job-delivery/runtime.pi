@@ -535,4 +535,160 @@ with tempfile.TemporaryDirectory(prefix="delivery-revalidation-") as temporary:
                 raise AssertionError("valid retry failed or repeated completed effects")
             passed("controller revalidation " + resume_mode + " " + resume_failure + " invalidates success and retries without effects")
 
+# An accepted upload/message must survive interruption before readback.
+presentation_store ∈ dict[str, dict[str, object]] ← {}
+presentation_identity ∈ str ← ""
+presentation_crash ∈ bool ← False
+presentation_read_error ∈ bool ← False
+
+def interrupted_text(response ∈ bytes) → dict[str, object]:
+    receipt ∈ dict[str, object] ← surface_send(response)
+    receipt["status"] ← "ACCEPTED"
+    presentation_store[presentation_identity] ← receipt
+    if presentation_crash:
+        raise RuntimeError("fixture interrupted after presentation acceptance")
+    return receipt
+
+def interrupted_attachment(value ∈ bytes, name ∈ str, mime ∈ str, origin ∈ dict[str, object]) → dict[str, object]:
+    receipt ∈ dict[str, object] ← attachment_send(value, name, mime, origin)
+    receipt["status"] ← "ACCEPTED"
+    presentation_store[presentation_identity] ← receipt
+    if presentation_crash:
+        raise RuntimeError("fixture interrupted after presentation acceptance")
+    return receipt
+
+def presentation_text_once(response ∈ bytes, key ∈ str) → dict[str, object]:
+    if key != presentation_identity:
+        raise AssertionError("wrong presentation effect key")
+    return interrupted_text(response)
+
+def presentation_attachment_once(value ∈ bytes, name ∈ str, mime ∈ str, origin ∈ dict[str, object], key ∈ str) → dict[str, object]:
+    if key != presentation_identity:
+        raise AssertionError("wrong attachment effect key")
+    return interrupted_attachment(value, name, mime, origin)
+
+def presentation_lookup(key ∈ str) → dict[str, object]:
+    return presentation_store.get(key, {"status": "UNKNOWN"})
+
+def interrupted_read_text(message_id ∈ str) → dict[str, object]:
+    if presentation_read_error:
+        raise RuntimeError("fixture presentation readback unavailable")
+    return read_text(message_id)
+
+def interrupted_read_attachment(file_id ∈ str) → dict[str, object]:
+    if presentation_read_error:
+        raise RuntimeError("fixture presentation readback unavailable")
+    return read_attachment(file_id)
+
+interrupted_sink ∈ object ← SimpleNamespace(send=interrupted_text, send_attachment=interrupted_attachment, send_text_once=presentation_text_once, send_attachment_once=presentation_attachment_once, lookup_text=presentation_lookup, lookup_attachment=presentation_lookup)
+interrupted_reader ∈ object ← SimpleNamespace(read_text=interrupted_read_text, read_attachment=interrupted_read_attachment)
+duplicate_presentations ∈ list[str] ← []
+with tempfile.TemporaryDirectory(prefix="presentation-interruption-") as temporary:
+    for transport_case in ["text", "attachment"]:
+        for presentation_failure in ["readback", "accepted-then-error"]:
+            for presentation_mode in ["display-only", "display-and-dispatch"]:
+                effects.clear()
+                captured.clear()
+                remote.clear()
+                remote_calls.clear()
+                presentation_store.clear()
+                mutation ← "none"
+                readback_mutation ← False
+                source ← payload if transport_case == "text" else attachment_bytes
+                stage ← fresh(source, presentation_mode) if transport_case == "text" else attachment_stage(source, attachment_name, "")
+                record ← dict(stage["handoff"])
+                expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+                if transport_case == "attachment":
+                    expected["attachment"] ← record["attachment"]
+                    attachment_request ∈ dict[str, object] ← dict(expected["request"])
+                    attachment_request["delivery_mode"] ← presentation_mode
+                    if presentation_mode == "display-and-dispatch":
+                        attachment_request["explicit_mode"] ← presentation_mode
+                        attachment_request["source"] ← "human"
+                    expected["request"] ← attachment_request
+                    stage ← handoff.compose(stage, source, expected)
+                    record ← dict(stage["handoff"])
+                presentation_identity ← str(record["id"]) + "-presentation-0"
+                state_path ← str(temporary) + "/" + transport_case + "-" + presentation_failure + "-" + presentation_mode + ".json"
+                presentation_crash ← presentation_failure == "accepted-then-error"
+                presentation_read_error ← presentation_failure == "readback"
+                caught_message ← ""
+                try:
+                    handoff.deliver_controlled(stage, source, expected, required, interrupted_sink, interrupted_reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+                except RuntimeError as error:
+                    caught_message ← str(error)
+                expected_interruption ∈ str ← "fixture presentation readback unavailable" if presentation_failure == "readback" else "fixture interrupted after presentation acceptance"
+                if caught_message != expected_interruption or len(presentation_store) != 1 or len(remote_calls) != 0:
+                    raise AssertionError("presentation interruption did not retain one external acceptance before dispatch")
+                presentation_crash ← False
+                presentation_read_error ← False
+                result ← handoff.deliver_controlled(stage, source, expected, required, interrupted_sink, interrupted_reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+                case_name ∈ str ← transport_case + " " + presentation_failure + " " + presentation_mode
+                if int(effects.count("visible")) != 1:
+                    duplicate_presentations.append(case_name)
+                    print("REPRO duplicate accepted presentation: " + case_name)
+                else:
+                    expected_dispatch_count ∈ int ← 1 if presentation_mode == "display-and-dispatch" else 0
+                    if str(result["delivery_status"]) != "FIXTURE_PASS" or len(remote_calls) != expected_dispatch_count:
+                        raise AssertionError("reconciled presentation failed or dispatched more than once")
+                    passed("presentation reconciles " + case_name + " without resend")
+if len(duplicate_presentations) != 0:
+    raise AssertionError("interrupted accepted presentation was sent again")
+
+with tempfile.TemporaryDirectory(prefix="presentation-unknown-") as temporary:
+    for transport_case in ["text", "attachment"]:
+        for outcome_case in ["unknown", "missing-lookup", "wrong-journal"]:
+            effects.clear()
+            remote_calls.clear()
+            presentation_store.clear()
+            source ← payload if transport_case == "text" else attachment_bytes
+            stage ← fresh(source, "display-and-dispatch") if transport_case == "text" else attachment_stage(source, attachment_name, "")
+            record ← dict(stage["handoff"])
+            expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+            if transport_case == "attachment":
+                expected["attachment"] ← record["attachment"]
+            presentation_identity ← str(record["id"]) + "-presentation-0"
+            state_path ← str(temporary) + "/" + transport_case + "-" + outcome_case + ".json"
+            Path(state_path + ".presentation-attempt-0").write_bytes(b"another-stage" if outcome_case == "wrong-journal" else presentation_identity.encode())
+            resumed_sink ∈ object ← sink if outcome_case == "missing-lookup" else interrupted_sink
+            caught_message ← ""
+            try:
+                handoff.deliver_controlled(stage, source, expected, required, resumed_sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+            except ValueError as error:
+                caught_message ← str(error)
+            expected_error ← "HANDOFF_PRESENTATION_JOURNAL_IDENTITY" if outcome_case == "wrong-journal" else "HANDOFF_PRESENTATION_OUTCOME_UNKNOWN"
+            if caught_message != expected_error or len(effects) != 0 or len(remote_calls) != 0:
+                raise AssertionError("unknown or mismatched presentation was sent again")
+            passed("presentation " + transport_case + " refuses " + outcome_case + " before effects")
+
+def only_latest_read_text(message_id ∈ str) → dict[str, object]:
+    if message_id == "obsolete-message":
+        raise RuntimeError("obsolete message is unavailable")
+    return read_text(message_id)
+
+with tempfile.TemporaryDirectory(prefix="latest-presentation-") as temporary:
+    effects.clear()
+    captured.clear()
+    remote_calls.clear()
+    remote.clear()
+    stage ← fresh(payload, "display-and-dispatch")
+    record ← dict(stage["handoff"])
+    expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+    state_path ← str(temporary) + "/latest.json"
+    result ← handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    saved_record ∈ dict[str, object] ← dict(result["handoff"])
+    saved_events ∈ list[dict[str, object]] ← list(saved_record["events"])
+    saved_events[0]["message_id"] ← "obsolete-message"
+    saved_record["events"] ← saved_events
+    result["handoff"] ← saved_record
+    Path(state_path).write_text(str(json.dumps(result, sort_keys=True)) + "\n")
+    recovered ← handoff.recover_controlled(state_path, payload, expected, required, controlled_gate, "Show the same ordinary text again.")
+    result ← handoff.deliver_controlled(recovered, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    previous_effect_count ∈ int ← len(effects)
+    latest_reader ∈ object ← SimpleNamespace(read_text=only_latest_read_text, read_attachment=read_attachment)
+    result ← handoff.deliver_controlled(recovered, payload, expected, required, sink, latest_reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    if str(result["delivery_status"]) != "FIXTURE_PASS" or len(effects) != previous_effect_count or len(remote_calls) != 1:
+        raise AssertionError("recovery read an obsolete message or repeated completed effects")
+    passed("recovered presentation resumes from latest observation only")
+
 print("runtime cases PASS: " + str(len(passed_cases)))

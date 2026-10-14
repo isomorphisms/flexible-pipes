@@ -158,3 +158,42 @@ placeholder recovery, unique member selection and negative provenance/readback
 cases. This qualification does not claim a ChatGPT attachment adapter, actual
 Android presentation, execution on the MIRO C67/A1, or full issue closure.
 
+## Interrupted presentation and live storage
+
+Before a new message/upload, the controlled fixture profile writes an exclusive,
+fsynced presentation attempt journal. The key is the existing handoff identity
+plus the number of recorded delivery failures. A recorded recovery starts the
+next presentation generation; an ordinary retry must reconcile the previous
+generation. Optional send_text_once/send_attachment_once receive that key.
+On restart, lookup_text/lookup_attachment must return an ACCEPTED observation;
+a missing lookup, unknown outcome or different journal identity blocks resend.
+This covers interruption after sink acceptance and before readback. The returned
+observation still undergoes exact byte/metadata and independent AI-CI checks.
+A saved visible state reads only the latest observation after the last failure.
+These journals qualify process interruption, not crash-proof storage hardware.
+
+The fp35-live-artifact pipeline captures the complete authoritative SUN packet
+and the pinned original Wegert archive in existing stage artifacts. It selects
+only app-debug.apk, preserves its bytes/name/MIME and stops at
+AWAITING_HANDOFF_DELIVERY. The compose-workflow CLI additionally checks the
+actual repository/run/commit/artifact observations. AI-CI's stored CLI inspects
+the independently retrieved file without inventing a visible event.
+
+The live source was artifact 11528177870 from run 37727204424, commit
+71e6f969b102d70a06ebb2d98b6426f79f287173 in isomorphismes/wegert. Its archive
+SHA-256 is 7a69447a00e3a674d12aeaa41c3e4895e30f53e6a8c8373775df5e3e19c6478c;
+the exact 1558364-byte APK is
+a6897b357365b2e59ee653f3e39736ec328aa34eafa532da7e32d444e6e9ed67.
+The exposed file interfaces support this source-to-storage path. An initial
+name collision and absent MIME failed acceptance. Recovery kept the same
+storage identity, moved it to a dedicated directory, restored the basename,
+and replaced its backing version through the prepared upload interface.
+Independent retrieval then preserved the exact filename, APK MIME and bytes.
+Private service identifiers remain outside public receipts.
+
+This is live storage qualification and a prepared named attachment, not a
+deployed production controller or proof of client display. The original Young
+Tableaux artifact download returned KeyError for id; its accessibility/expiry
+was not established. Wegert is a separately identified incident specimen,
+not a silent replacement for those missing Young Tableaux bytes.
+

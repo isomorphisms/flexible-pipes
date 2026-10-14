@@ -1,14 +1,20 @@
 boundary	result	evidence
 FP_prior_baseline	LOCAL_PASS	32 runtime cases; 27 materialized source blobs matched declared Git blob identities
-FP_candidate_runtime	LOCAL_PASS	59 checked-Ithon cases including restart, uncertain dispatch, provenance and ordinary-text recovery
-AICI_candidate_matrix	LOCAL_PASS	57 cases plus 9 rejection transitions; old pinned FP contract and composed candidate
+FP_candidate_runtime	LOCAL_PASS	78 checked-Ithon cases; eight interrupted accepted presentations changed from duplicate resend to one reconciled effect
+AICI_candidate_matrix	LOCAL_PASS	66 cases plus 9 preserved rejection transitions; existing 41-case baseline retained
 AICI_binary_CLI	LOCAL_PASS	actual input files opened and hashed; CONTRACT_PASS; platform_delivery_status NOT_VERIFIED
 pipeline_preflight	LOCAL_PASS	existing baseline and candidate corpus/pre-effect tests
 FP_pipeline	LOCAL_PASS	fp35-delivery-acceptance executed envelope/runtime/independent stages
 Ithon_revision	PINNED	d6e83969f82512e920fb17b44326cb54f31d015c; host frontend
-AI_CI_dependency	PINNED	41e3aeefab0e3249bdb743507bd51b5c273eb022
+AI_CI_dependency	PINNED	03e4a9b4a314a2637ae240e5045fb9860737a1a0
 ChatGPT_authenticated_request_and_presentation	BLOCKED	no exposed deployed adapter supplies the required authenticated observations
-ChatGPT_attachment_service_adapter	NOT_DEPLOYED	materialization and read-back contracts do not establish live service acquisition or client presentation
+ChatGPT_attachment_service_adapter	PARTIAL	original Wegert source-to-storage path qualified by actual readback; production controller/client adapter NOT_DEPLOYED
+live_Wegert_archive	LIVE_PASS	artifact 11528177870; run 37727204424 attempt 1; archive digest 7a69447a00e3a674d12aeaa41c3e4895e30f53e6a8c8373775df5e3e19c6478c
+live_Wegert_APK_storage	STORAGE_BYTES_PASS	app-debug.apk; application/vnd.android.package-archive; 1558364 bytes; digest a6897b357365b2e59ee653f3e39736ec328aa34eafa532da7e32d444e6e9ed67
+live_Wegert_initial_service_result	REJECTED	duplicate-safe renamed basename rejected as JOB-STORAGE-NAME; absent MIME rejected by the new independent guard
+live_source_pipeline	AWAITING_HANDOFF_DELIVERY	full authoritative SUN packet and archive captured; selected APK materialized; no visible event or dispatch inferred from storage
+live_Young_Tableaux_archive	ACCESS_UNKNOWN	selected artifact 11429847456 download returned KeyError for id; no expiry conclusion or byte substitution
+local_snapshot_identity	NOT_UPSTREAM_HEAD	local repository_commit is reconstruction 5f52eff463c054546af9f481af9f692eba1f3e1f; source digests and hosted published heads bind qualification separately
 MIRO_C67_current_presentation	NOT_RUN	no physical client observation in this execution
 MIRO_A1_current_presentation	NOT_RUN	separate compatibility qualification required where applicable
 artifact_run_attempt_binding	NOT_PROVIDED	GitHub artifact metadata supplies run identity but no artifact run_attempt field

@@ -1,0 +1,208 @@
+The four SUN jobs are ready. They reuse the existing delivery contracts and the open plain-text repair. The remaining production blocker is a trusted ChatGPT presentation acknowledgement; the available interfaces do not establish that boundary.
+
+Verified on 2026-10-14:
+- Flexible Pipes main b7f944b1391a8a2ea96ee07f6b9c0431311842b0: 32 delivery cases and pipeline preflight passed in https://github.com/isomorphisms/flexible-pipes/actions/runs/38558202189 .
+- AI-CI main 949a60dad5e014cafce2c49619df9bbdbcfaafc0: 41 independent delivery cases passed in https://github.com/isomorphisms/ai-ci/actions/runs/38568599173 .
+- Kitchen main 5a00f0c498c93a6bcacbfc41ccbd320e5a1d2b16: native handoff checks passed in https://github.com/isomorphisms/kitchen/actions/runs/38558183298 .
+- isomorphisms/flexible-pipes PR #127, “Repair plain-text job delivery and invalidate recovered success” (https://github.com/isomorphisms/flexible-pipes/pull/127), remains open at 266c4bd7d974a5d6348546b2c4429e3c67553433. Its exact-head hosted run passed 38 cases: https://github.com/isomorphisms/flexible-pipes/actions/runs/38566286692 . Its existing implementation belongs in S3.
+- Reused merged text work: isomorphisms/flexible-pipes PR #36, “Bind visible job delivery and dispatch to one stage artifact” (https://github.com/isomorphisms/flexible-pipes/pull/36), and isomorphisms/ai-ci PR #220, “Reject hidden or changed authoritative job text” (https://github.com/isomorphisms/ai-ci/pull/220). Merged binary work is identified in S2.
+These are hosted results inspected during this STAR, not newly executed local tests. Each existing delivery workflow uses an older pinned companion revision; joint current-candidate qualification remains required.
+
+Platform finding: current official UI documentation describes message requests, optional file upload/download, tool-result metadata and environment signals. It does not document an authenticated receipt for the final assistant message bytes plus actual Android client presentation. Inspection of the exposed interfaces and plugin search did not identify one. Supported file storage and retrieval can be used for S2, but they do not prove presentation. This is a bounded availability finding, not a claim that such an interface can never exist.
+Official sources: https://developers.openai.com/plugins/reference and https://developers.openai.com/plugins/build/chatgpt-ui .
+
+Canonical assignment map: S1 updates FP issue 35; S2 updates FP issue 39; S3 updates Kitchen issue 43, with FP retaining presentation ownership; S4 updates AI-CI issue 219. Existing BC-FP05 and BC-A08 remain the parent assignments, not separate new campaigns. AI-CI issue 17 is unrelated GPU/vector work; the intended final-review dependency is Flexible Pipes issue 17.
+
+These records describe prepared assignments, not registered dispatch or platform-accepted presentation. The STAR does not execute their implementation campaign.
+
+SUN FP35-S1 — Trusted controller integration
+
+Model: SUN — extra-high reasoning.
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: isomorphisms/ai-ci.
+Authority: Implement this bounded job and prepare reviewable PRs and receipts. Do not merge, close issues, release, activate a service, or dispatch other jobs. Use the existing FP envelope and stage artifact; do not introduce another job-control system. Recheck current heads, instructions and overlapping work before editing. Preserve checked Ithon for existing .pi code and Grease for new shell procedures; resolve required runtimes through their canonical owners.
+
+1. Ownership and dependencies
+Owner: isomorphisms/flexible-pipes, canonical [issue 35](https://github.com/isomorphisms/flexible-pipes/issues/35). AI-CI owns independent rejection in [issue 219](https://github.com/isomorphisms/ai-ci/issues/219). Continue BC-FP05; consume BC-FP01 admission and BC-FP02 retry ownership instead of duplicating them. Coordinate the observation contract with FP35-S4 before wiring it. Kitchen/Ike prepares and runs qualification; Kitchen does not own generic chat policy.
+
+2. Verified baseline and missing behavior
+On 2026-10-14, FP main was b7f944b1391a8a2ea96ee07f6b9c0431311842b0; AI-CI main was 949a60dad5e014cafce2c49619df9bbdbcfaafc0. FP scripts/handoff.pi already binds request, model, audience, payload and contract digests; deliver(), recover() and review_packet() exist. scripts/run-pipeline composes an artifact and stops at AWAITING_HANDOFF_DELIVERY. Current hosted FP coverage passes 32 cases and pipeline preflight; AI-CI passes 41 cases.
+
+The sink and dispatcher are caller-supplied objects. Nonempty message_id/surface fields and self-consistent hashes do not authenticate an observation. No inspected implementation connects an authenticated original ChatGPT request, actual client presentation and resumable execution through a trusted adapter.
+
+3. Implement
+Extend the existing stage lifecycle to COMPOSED → PRESENTED → ACCEPTED → DISPATCHED. PRESENTED requires evidence of the requested client surface; storage or an internal generated response cannot establish it. ACCEPTED requires the independent gate over authenticated observations. Keep transport acceptance separately recorded so server storage cannot masquerade as client presentation.
+
+Display-only ends at ACCEPTED with dispatch NOT_REQUESTED. Display-and-dispatch may dispatch only after required presentation acceptance. Explicit dispatch-only records presentation NOT_REQUESTED and validates original dispatch authority and artifact identity without inventing visible evidence. Existing authority persists; do not add a fresh human approval unless the request requires one.
+
+Bind the original request and ordered corrections from a controller-owned source to model tier, audience, delivery mode, stage identity and response. Reject producer-supplied replacements even when every hash is recomputed. Use a controller-owned observation channel, authenticated provenance and replay protection; a signature made with a worker-controlled key is not platform trust.
+
+Persist transitions through FP's existing execution records. Resume the same stage after interruption. Use the established effect identity and reconcile uncertain dispatcher outcomes before retrying; a crash after an accepted effect must not cause a second effect.
+
+4. Executable tests
+Extend tests/job-delivery/runtime.pi, exercised through checked Ithon with the FP root and Ithon executable as its arguments. Retain .github/workflows/job-delivery.yml and tests/run-pipeline-preflight.sh. Coordinate separate S4 cases in AI-CI.
+
+Positive cases: complete ordinary text; all three authorized modes; exact same-artifact dispatch; restart after presentation; replay of a completed effect without repetition.
+
+Negative cases: hidden response; worker-forged original request; recomputed wrong model/audience contract; arbitrary surface/message ID; stale or cross-conversation acknowledgement; missing/truncated presentation; dispatch before acceptance; changed bytes between acceptance and dispatch; crash after remote effect but before local receipt. Assert both the diagnostic and absence of forbidden downstream effects.
+
+5. Failure and recovery
+Missing trusted capability leaves AWAITING_HANDOFF_DELIVERY or an explicit blocked reason, never PASS. Presentation failure invalidates prior delivery success while preserving payload identity and accepted-dispatch history. Unknown effect outcome remains pending reconciliation; do not blindly resend.
+
+6. Independent acceptance and readiness
+Repository integration and rejecting tests can proceed now. Production ChatGPT acceptance is BLOCKED pending an available host interface that supplies authenticated original-request/correction identity, committed message/file identity, the accepted content or verifiable digest, and client-supported presentation outcome, then allows the original FP stage to resume. The available interfaces inspected do not supply this complete boundary.
+
+Recheck supported interfaces before implementation. Implement only capabilities actually available. Return the exact missing interface and observed evidence if it remains absent; do not substitute a widget callback, screenshot, model output or fixture receipt as platform attestation.
+
+7. Receipts and PR deliverables
+Prepare an FP PR linked to issue 35, with the S4 validator dependency pinned. Retain original-request/correction provenance, contract and payload digests, controller revision, ordered events, authenticated acknowledgement provenance, gate result, dispatch identity and restart/effect counts. Record simulation separately from production. Include exact-head checks, positive/negative results and the remaining platform blocker. Completion of repository code does not close issue 35.
+
+END SUN FP35-S1
+
+SUN FP35-S2 — Exact binary delivery
+
+Model: SUN — extra-high reasoning.
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: isomorphisms/ai-ci.
+Authority: Implement this bounded job and prepare reviewable PRs and receipts. Do not merge, close issues, release, activate a service, or dispatch other jobs. Use the existing FP envelope and stage artifact; do not introduce another job-control system. Recheck current heads, instructions and overlapping work before editing. Preserve checked Ithon for existing .pi code and Grease for new shell procedures; resolve required runtimes through their canonical owners.
+
+1. Ownership and dependencies
+Owner: isomorphisms/flexible-pipes, canonical [issue 39](https://github.com/isomorphisms/flexible-pipes/issues/39). FP35-S1 owns controller trust; FP35-S4 owns independent attachment acceptance. Host retrieval/materialization can proceed before S1; production presentation acceptance depends on its trusted observation boundary. Cat Food supplies relevant package/device facts; leaf projects retain package ownership. Continue BC-FP05 rather than creating another binary-delivery assignment.
+
+2. Verified baseline and missing behavior
+FP main b7f944b1391a8a2ea96ee07f6b9c0431311842b0 contains version-2 attachment contracts, direct-file handling, bounded unique ZIP-member extraction, source/delivered SHA-256, filename, MIME, provenance and sink byte comparison. Reuse isomorphisms/flexible-pipes PR #40, “Deliver exact binary attachments from stage artifacts” ([source 40](https://github.com/isomorphisms/flexible-pipes/pull/40)), and isomorphisms/ai-ci PR #223, “Enforce exact binary attachment delivery” ([source 223](https://github.com/isomorphisms/ai-ci/pull/223)); both are merged.
+
+The missing connection is verified live workflow-artifact retrieval through supported file delivery, followed by independent retrieval of the delivered file. Current AI-CI reconstructs source bytes using FP materialization and checks event fields; that does not prove what a named remote file contains. Provenance fields currently accept strings without independently verifying the workflow relationship.
+
+3. Implement
+Connect authenticated GitHub artifact metadata and archive retrieval to the existing attachment stage. Bind repository identity, workflow run and attempt, source commit, artifact ID/name, archive size/digest, exact archive-member path and delivered size/digest. Reject expired, absent, wrong-run or mismatched artifacts; never silently select “latest.”
+
+Select one exact member on the host. Preserve its bytes, basename and MIME; for APKs use application/vnd.android.package-archive. Reject missing/duplicate members, corruption, encryption, directory entries, unsafe paths and violated size limits. Do not rebuild, rename, re-sign or recompress the APK. Preserve package ID, signer, versionCode, launcher label and ABI facts through the existing package checks without treating them as installation evidence.
+
+Pass the finished member to a supported file service and expose the requested named chat attachment. Keep temporary signed URLs internal. Retain service file/version identity and independently retrievable bytes. If exact filename/MIME, attachment exposure or observation is unsupported, stop at that boundary; a ZIP link or phone-side extraction is not completion.
+
+4. Executable tests
+Extend FP tests/job-delivery/runtime.pi and S4's independent tests/job-delivery/check.pi under the pinned checked-Ithon workflow. Add adapter fixtures for artifact metadata, downloaded archive and returned file object, plus a separately labeled live read-only qualification lane.
+
+Positive cases: exact direct binary and unique nested APK member; both Young Tableaux and Wegert incident shapes; service readback equals the selected member; retry reuses the accepted effect identity.
+
+Negative cases: missing/duplicate member, wrong member with the same basename, wrong repository/run/attempt/commit/artifact ID, expired artifact, corrupted archive/member, digest or size mismatch, wrong MIME/name, returned file containing different bytes, archive-link substitution and partial upload. A receipt with correct metadata but incorrect returned bytes must fail.
+
+Historical artifact IDs from issue 39 are provenance examples, not promises that those archives still exist. Resolve a current explicitly selected specimen or report expiration; do not substitute silently.
+
+5. Failure and recovery
+Preserve the original archive and selected payload identity. Retry transient retrieval/upload failures against the same identified bytes; reconcile an uncertain successful upload before creating another object. Unavailable selected bytes remain BLOCKED. Rebuilds or a different member require a new explicit artifact identity.
+
+6. Independent acceptance and readiness
+Materialization and file-service integration are READY. Complete acceptance requires S4 to independently read the source member and delivered service object and compare exact bytes, size, filename, MIME and provenance. Client presentation and any automated dispatch remain conditional on S1/S3 evidence. File storage, download, installation and physical behavior are distinct results.
+
+7. Receipts and PR deliverables
+Prepare a narrow FP PR and an AI-CI companion only for S4-owned checks. Retain source/run/artifact metadata, both digests and sizes, member path, delivered file/version ID, readback result, client observation class, retry ledger and exact dependency commits. Cross-link issue 39 and issue 35. Preserve existing 32-case FP and 41-case AI-CI baselines, and S3's 38-case candidate when composing the changes.
+
+END SUN FP35-S2
+
+SUN FP35-S3 — Android presentation and recovery
+
+Model: SUN — extra-high reasoning.
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: isomorphisms/ai-ci.
+Authority: Implement this bounded job and prepare reviewable PRs and receipts. Do not merge, close issues, release, activate a service, or dispatch other jobs. Use the existing FP envelope and stage artifact; do not introduce another job-control system. Recheck current heads, instructions and overlapping work before editing. Preserve checked Ithon for existing .pi code and Grease for new shell procedures; resolve required runtimes through their canonical owners.
+
+1. Ownership and dependencies
+FP owns presentation/recovery mechanics under [issue 35](https://github.com/isomorphisms/flexible-pipes/issues/35). Kitchen owns the exact prepared command when the payload is executable; retain its canonical incident record [issue 43](https://github.com/isomorphisms/kitchen/issues/43). AI-CI owns S4 acceptance. Cat Food supplies current target/runtime facts. Offline presentation repairs can proceed now; generic trusted acceptance depends on S1. S2 is needed only for separately requested binary/attachment cases.
+
+2. Verified baseline and existing work
+FP main: b7f944b1391a8a2ea96ee07f6b9c0431311842b0. Kitchen main: 5a00f0c498c93a6bcacbfc41ccbd320e5a1d2b16. Reuse the existing isomorphisms/flexible-pipes PR #127, “Repair plain-text job delivery and invalidate recovered success” ([source 127](https://github.com/isomorphisms/flexible-pipes/pull/127)), head 266c4bd7d974a5d6348546b2c4429e3c67553433. It is open, not merged. Its inspected diff removes the default CodeBlock wrapper, resets stale delivery PASS on recovery and adds placeholder/recovery cases. Hosted exact-head coverage passes 38 cases and pipeline preflight. Do not create a competing repair.
+
+Kitchen issue 43 records the actual unavailable-content failure. The retained FP evidence/github-repository-transfer/2026-10-09-c67-live/receipt.tsv records ordinary-text visibility and physical C67 execution as user-confirmed, GitHub postconditions independently verified, terminal transcript NOT_RETAINED and generic adapter NOT_DEPLOYED. This is a successful historical operation, not proof of current generic presentation.
+
+3. Implement
+Continue the existing repair where changes remain necessary. Select supported ordinary-text delivery without altering the authoritative payload. A nonempty summary must not silently choose a CodeBlock on an unsupported client. Bind presentation choice to observed capability and preserve exact payload identity.
+
+Exercise payloads containing Unicode, blank lines, delimiter-like content and ordinary surrounding explanation. If multiple jobs, chunking or response limits require more than one message, specify ordered byte spans and complete reassembly within the existing FP stage; partial content cannot be accepted. Do not invent a second job schema or rely on arbitrary substring matching.
+
+Treat “This content is unavailable in this version of the app.” as failed presentation. Record the failure and redeliver the same payload using supported ordinary text. Do not generate a replacement shell script, change parameters or erase the earlier failure. A genuine user edit creates a linked new authoritative revision and invalidates obsolete acceptance.
+
+For command specimens, use the maintained Kitchen generator and FP operation. Preserve generate/parse/hash-all-before-mutation and idempotent postcondition verification. Never rerun the historical repository transfers merely to test display.
+
+4. Executable tests
+Retain and extend FP tests/job-delivery/runtime.pi and AI-CI's independent suite through checked Ithon. Preserve the existing native-transfer and pipeline-preflight workflows.
+
+Positive cases: complete ordinary text; unsupported-component failure followed by same-byte recovery; harmless surrounding explanation on a supported form; retained accepted dispatch followed by display-only recovery; complete ordered reconstruction if chunking is implemented.
+
+Negative cases: the exact unavailable-content placeholder; forced CodeBlock from a summary; omitted middle/end, duplicate or reordered chunk; Unicode/newline mutation; stale PASS after failure; changed command parameters; repeated completed effects; nonexistent handoff file. Assert the original payload digest survives recovery and no mutation runs during failed delivery.
+
+Run a new physical MIRO C67 qualification against the actual ChatGPT Android client, recording app version, Android build, device and available ABI/runtime facts. Attempt the failed presentation form with a harmless specimen and report whether it reproduces now; do not pretend a historical failure must recur on an updated client. Then verify complete readable/copyable ordinary text. Qualify A1 compatibility separately where applicable; C67 evidence does not prove A1 rendering or execution.
+
+5. Failure and recovery
+Absent device access leaves physical qualification NOT_RUN. A placeholder or incomplete copy fails presentation. A lost acknowledgement remains UNKNOWN, even if bytes exist internally. Recover the retained stage; never ask the user to unpack an APK or run a newly improvised transfer script. Do not add ADB/root setup or a device-side build.
+
+6. Independent acceptance and readiness
+The existing repair and remaining offline cases are READY. Physical C67 qualification requires the actual device/client; generic platform acceptance additionally requires S1. Keep simulated acceptance, observed presentation, user-confirmed execution, exact retained bytes and independently verified postconditions separate. Historical user confirmation cannot supply an absent transcript or arbitrary platform attestation.
+
+7. Receipts and PR deliverables
+Update the existing FP repair PR; use a Kitchen companion only for a demonstrated canonical-recipe defect. Retain original/recovered payload digests, client capability evidence, failed/successful presentation records, copied-byte comparison when obtainable, device/app identity and effect counts. Preserve the October 9 receipt unchanged. Update Kitchen issue 43 with current generic status while retaining the concrete operation's success. No merge or issue closure.
+
+END SUN FP35-S3
+
+SUN FP35-S4 — Independent AI-CI acceptance
+
+Model: SUN — extra-high reasoning.
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: isomorphisms/ai-ci.
+Authority: Implement this bounded job and prepare reviewable PRs and receipts. Do not merge, close issues, release, activate a service, or dispatch other jobs. Use the existing FP envelope and stage artifact; do not introduce another job-control system. Recheck current heads, instructions and overlapping work before editing. Preserve checked Ithon for existing .pi code and Grease for new shell procedures; resolve required runtimes through their canonical owners.
+
+1. Ownership and dependencies
+Owner: isomorphisms/ai-ci, canonical [issue 219](https://github.com/isomorphisms/ai-ci/issues/219). This is the consolidated delivery-enforcement continuation of BC-A08 and consumes BC-FP05/S1–S3; do not emit another overlapping four-job campaign. Draft rejection cases alongside S1, then qualify S2/S3's exact candidate commits. FP owns transport and dispatch; Kitchen owns command preparation.
+
+Reference correction: isomorphisms/ai-ci issue 17 concerns GPU/vector contracts. The relevant final-output review boundary is [issue 17](https://github.com/isomorphisms/flexible-pipes/issues/17). Do not modify the unrelated AI-CI issue.
+
+2. Verified baseline and missing behavior
+AI-CI main: 949a60dad5e014cafce2c49619df9bbdbcfaafc0. FP main: b7f944b1391a8a2ea96ee07f6b9c0431311842b0. validators/job_delivery.pi, validators/check-job-delivery.pi and tests/job-delivery/check.pi already reject many hidden, altered, reordered and mismatched deliveries; the current hosted matrix passes 41 cases.
+
+Current event checks accept nonempty surface/message/file IDs without authenticating their issuer. The wrong-model case mutates an existing contract; it does not show rejection of a freshly composed, internally consistent job that disobeys the original request. Attachment validation reuses FP materialization and does not read the delivered remote object. These are the remaining independent-evidence gaps.
+
+3. Implement
+Consume FP's existing stage schema and S1's trusted observations. Authenticate observation provenance outside worker-controlled fields. Bind original request, corrections, authoritative payload, actual complete response/file, intended model tier/audience and authorized mode.
+
+Compare actual delivered content to the authoritative bytes, then compare the job's meaning and model/audience requirements to the authenticated request. Use deterministic checks for explicit requirements and grounded final review only for irreducible semantics. Retain original inputs and reviewer identity/raw decision. Insufficient semantic evidence blocks; favorable review cannot override deterministic failure.
+
+Independently acquire and hash the delivered attachment; do not accept the producer's digest or call its delivery routine as the oracle. Use separate reference expectations/byte inspection for source-member selection so a shared FP extraction defect cannot make producer and validator agree incorrectly.
+
+Gate dispatch and final delivery success on these results. Preserve display-only, display-and-dispatch and authorized dispatch-only. Reject unsupported client components and late presentation failures even after transport storage succeeded. Coordinate existing postcondition enforcement, including AI-CI issue 245, without duplicating mutation execution.
+
+4. Executable tests
+Extend tests/job-delivery/cases.tsv and check.pi; run through checked Ithon with AI-CI root, FP root and a fresh results directory. Keep validators/check-job-delivery.pi as the delivered-stage CLI and extend it only as necessary for authenticated evidence/readback. Retain .github/workflows/job-delivery.yml and existing host-context, merge-state and native-transfer regressions. Pin Ithon d6e83969f82512e920fb17b44326cb54f31d015c unless a separately qualified owner update is required.
+
+Require targeted negatives for hidden-only, title/summary/link-only, missing/truncated/altered text, recomputed wrong model tier/audience, omitted or contradicted user corrections, forged request/receipt/issuer, replayed acknowledgements, unsupported component, wrong delivered binary, nonexistent parameter-bound file, dispatch before required acceptance, lost-receipt retry and duplicate completed effects.
+
+Positive controls: complete ordinary text; full text with permitted explanation; exact direct attachment and selected archive member; each authorized delivery mode; same-payload recovery without redispatch. Include variants beyond producer fixtures, with exact expected diagnostics and observed effect counts. Demonstrate each added test failing against the corresponding deliberately broken candidate before accepting the repair.
+
+Run fresh composed FP/AI-CI candidates together: current workflows pin older companion revisions, so separate green main runs do not establish current-head interoperability.
+
+5. Failure and recovery
+Missing trusted capture/readback is BLOCKED or UNKNOWN, never a fabricated PASS. Preserve per-stage verdicts, invalidate stale acceptance after a correction/failure, and retain prior accepted effects. Fail closed on changed pins, absent test assertions or missing evidence. No producer-authored “trusted=true” field releases the gate.
+
+6. Independent acceptance and readiness
+Offline enforcement is READY now. End-to-end qualification follows S1–S3 and remains conditional where platform/client capabilities are absent. Run against artifacts retrieved from the actual delivery service, not merely generated fixture declarations. Report offline, hosted, service-byte, client-presentation, execution and postcondition results separately.
+
+7. Receipts and PR deliverables
+Prepare the AI-CI PR linked to issue 219 and pin its FP dependencies. Retain protected expectations, negative-control fail-to-pass results, raw accepted/rejected observations, independently computed hashes, issuer/replay checks, correction/model/audience decisions, exact-head workflow URLs and effect counters. Reconcile BC-A08 and BC-FP05 records without erasing historical evidence. Recommend closure only when the real requested delivery path passes and no mandatory platform boundary remains blocked; do not close anything in this job.
+
+END SUN FP35-S4
+
+Implementation order and closure conditions
+
+1. Agree S1/S4's observation and authority contract; begin S4's independent rejecting tests.
+2. Continue S3's existing plain-text/recovery repair and S2's retrieval/materialization work alongside S1's controller integration. Keep independent scopes and exact dependency commits.
+3. Qualify the composed candidates through S4. Perform actual service-file readback and C67 presentation qualification when the corresponding access exists. Qualify A1 separately where applicable.
+4. Keep platform adoption blocked until authenticated request admission, committed content identity, supported-client presentation outcome and stage resumption are actually available and exercised.
+
+Readiness:
+- S1: READY for repository integration and rejection tests; production acknowledgement BLOCKED.
+- S2: READY for verified retrieval/materialization and supported file-service wiring; full presentation acceptance CONDITIONAL.
+- S3: READY to continue the existing repair; physical C67/A1 qualification NOT_RUN by this STAR and dependent on actual device access; generic attestation BLOCKED.
+- S4: READY for independent enforcement; final end-to-end acceptance depends on S1–S3.
+
+FP issue 35 can be considered for closure only when the maintained request-to-presentation-to-optional-dispatch path is exercised with authentic evidence, supported ordinary text, same-payload recovery, correct authority and no duplicate completed effects. This STAR's combined mission also requires the direct binary path tracked in issue 39 and the generic Android path retained in Kitchen issue 43; unresolved companion conditions must remain explicit.
+
+AI-CI issue 219 can be considered for closure only when independent checks operate on actual delivered text/files, reject every listed failure class, enforce model/audience/corrections and presentation-before-dispatch, and preserve the successful ordinary-text control. An unavailable mandatory platform acknowledgement keeps closure blocked. Final semantic review qualification relevant to job delivery remains with Flexible Pipes issue 17; unrelated creative/visual review and AI-CI GPU issue 17 are not silently folded into this campaign.
+
+No SUN implementation, dispatch, merge, issue closure or deployment was performed by this STAR.
+

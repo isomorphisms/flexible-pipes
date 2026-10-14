@@ -374,15 +374,56 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
     resumed_record ∈ dict[str, object] ← dict(state["handoff"])
     if str(resumed_record["visible_state"]) == "OBSERVED":
         resumed_events ∈ list[dict[str, object]] ← list(resumed_record["events"])
+        latest_presentation ∈ dict[str, object] ← {}
         for resumed_event in resumed_events:
-            if str(resumed_event["kind"]) == "visible":
-                capture ← reader.read_text(str(resumed_event["message_id"]))
-            elif str(resumed_event["kind"]) == "attachment":
-                capture ← reader.read_attachment(str(resumed_event["file_id"]))
+            if str(resumed_event["kind"]) == "delivery-failed":
+                latest_presentation ← {}
+            elif str(resumed_event["kind"]) == "visible" or str(resumed_event["kind"]) == "attachment":
+                latest_presentation ← resumed_event
+        if str(latest_presentation.get("kind")) == "visible":
+            capture ← reader.read_text(str(latest_presentation["message_id"]))
+        elif str(latest_presentation.get("kind")) == "attachment":
+            capture ← reader.read_attachment(str(latest_presentation["file_id"]))
         capture["evidence_class"] ← "fixture"
 
+    def presentation_once(value ∈ bytes, name ∈ str, mime ∈ str, provenance ∈ dict[str, object], attachment ∈ bool) → dict[str, object]:
+        current_record ∈ dict[str, object] ← dict(state["handoff"])
+        generation ∈ int ← 0
+        current_events ∈ list[dict[str, object]] ← list(current_record["events"])
+        for event in current_events:
+            if str(event["kind"]) == "delivery-failed":
+                generation ← generation + 1
+        effect_key ∈ str ← str(current_record["id"]) + "-presentation-" + str(generation)
+        attempted ∈ Path ← Path(state_path + ".presentation-attempt-" + str(generation))
+        if attempted.exists():
+            if bytes(attempted.read_bytes()) != bytes(effect_key.encode()):
+                raise ValueError("HANDOFF_PRESENTATION_JOURNAL_IDENTITY")
+            lookup_name ∈ str ← "lookup_attachment" if attachment else "lookup_text"
+            if not hasattr(sink, lookup_name):
+                raise ValueError("HANDOFF_PRESENTATION_OUTCOME_UNKNOWN")
+            previous ∈ dict[str, object] ← sink.lookup_attachment(effect_key) if attachment else sink.lookup_text(effect_key)
+            if str(previous.get("status")) != "ACCEPTED":
+                raise ValueError("HANDOFF_PRESENTATION_OUTCOME_UNKNOWN")
+            return previous
+        descriptor ∈ int ← os.open(str(attempted), int(os.O_WRONLY) | int(os.O_CREAT) | int(os.O_EXCL), 384)
+        try:
+            written ∈ int ← os.write(descriptor, effect_key.encode())
+            if written != len(effect_key.encode()):
+                raise ValueError("HANDOFF_PRESENTATION_JOURNAL_WRITE")
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        if attachment:
+            if hasattr(sink, "send_attachment_once"):
+                return sink.send_attachment_once(value, name, mime, provenance, effect_key)
+            return sink.send_attachment(value, name, mime, provenance)
+        if hasattr(sink, "send_text_once"):
+            return sink.send_text_once(value, effect_key)
+        return sink.send(value)
+
     def send_text(response ∈ bytes) → dict[str, object]:
-        observed ∈ dict[str, object] ← sink.send(response)
+        empty_provenance ∈ dict[str, object] ← {}
+        observed ∈ dict[str, object] ← presentation_once(response, "", "", empty_provenance, False)
         readback ∈ dict[str, object] ← reader.read_text(str(observed["message_id"]))
         capture.clear()
         capture.update(readback)
@@ -390,7 +431,7 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
         return observed
 
     def send_attachment(payload ∈ bytes, name ∈ str, mime ∈ str, provenance ∈ dict[str, object]) → dict[str, object]:
-        observed ∈ dict[str, object] ← sink.send_attachment(payload, name, mime, provenance)
+        observed ∈ dict[str, object] ← presentation_once(payload, name, mime, provenance, True)
         readback ∈ dict[str, object] ← reader.read_attachment(str(observed["file_id"]))
         capture.clear()
         capture.update(readback)

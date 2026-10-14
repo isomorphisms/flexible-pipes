@@ -35,3 +35,36 @@ request/assignment, Readback carrying exact bytes for the same stage, and an
 AttemptedDispatch that can resume only from independently observed Accepted or
 remain Unknown. Fixture evidence cannot inhabit a platform-presentation proof.
 No fresh Idriç compilation or execution is claimed by these Ithon changes.
+
+## Presentation interruption continuation
+
+Input values are the existing stage, exact source bytes, its independently
+admitted contract, and a sink/readback pair. An AttemptedPresentation is bound
+to the same handoff identity and recovery generation. Its outcome is Accepted,
+Unknown, or a rejected byte/metadata observation. Only a recorded recovery can
+start another generation; an ordinary retry must reconcile the prior effect.
+This uses the existing checked-Ithon transport boundary and retains the Idriç
+compiler/runtime limitation above. No new interpreter fallback is introduced.
+
+The added tests model an external acceptance followed by either a sink error
+or failed readback. They count real fixture sends, independently read the
+accepted bytes through AI-CI, and require zero dispatch until validation.
+The initial test comparison omitted the required int conversion around
+list.count; checked Ithon rejected it before execution. The exact failed
+fragment remains in initial-presentation-count.pi. Its rejection is a test
+typing failure, not evidence about the controller.
+
+Against FP 23d69b30f5a65da6396e05424ed0b7a996a9df59, all existing 63 cases
+passed, but all eight interrupted text/attachment cases sent an already accepted
+presentation again. The corrected controller journals before presentation and
+reconciles by the same effect key; all 78 runtime cases pass. Unknown outcomes,
+missing lookup and a mismatched journal each fail before effects. Recovery
+resumes from the latest observation without reading an obsolete message.
+The initial encoded-key comparison also needed an explicit bytes conversion;
+its failed fragment is preserved beside the initial count comparison.
+
+Actual GitHub archive bytes and a separately acquired stored APK were checked
+by the independent AI-CI storage path, whose reference extraction does not
+call FP materialization. Storage success does not inhabit a presentation proof.
+The Idriç hash/readback/transport boundary above still applies; no new Idriç
+backend acceptance or physical Android execution is claimed.

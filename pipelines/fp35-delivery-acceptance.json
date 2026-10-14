@@ -34,8 +34,8 @@
       "kind": "command",
       "name": "job-envelope",
       "argv": [
-        "sha256sum",
-        "tasks/fp35-close/implementation.txt"
+        "cat",
+        "tasks/fp35-close/SUN-jobs.txt"
       ],
       "cwd": "."
     },
