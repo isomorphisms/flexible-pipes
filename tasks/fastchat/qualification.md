@@ -23,7 +23,7 @@ ARM32 C production through ICK, the separate NDK platform link, stripped library
 and two identical stable-signer APK productions passed:
 https://github.com/isomorphisms/fastchat/actions/runs/38598224322
 
-Exact-head Idriç semantics:
+Exact-head Idriç typechecking and semantic execution passed:
 https://github.com/isomorphisms/fastchat/actions/runs/38598224300
 
 APK SHA-256: 8b046fc486218cac24ba2c75dfb2e8c92371ff813f10bcd6c33f208a8a3bb096.
