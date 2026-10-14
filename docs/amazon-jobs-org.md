@@ -3,6 +3,7 @@
 Pipeline owner: Flexible Pipes.
 CLI implementation owner: `dilapidated-shed/idric-cli`.
 Tool inventory and stable command: `isomorphisms/catfood`.
+Build/installed-command acceptance: `isomorphisms/kitchen/tasks/amazon-jobs-cli/1.grease`.
 Research owner: `bl4ckb4ll/blackball/FAANG/amazon`.
 Independent gate: `isomorphisms/ai-ci`.
 
@@ -15,6 +16,11 @@ assertions each have a deliberately broken fixture. The verifier revision
 is recorded. This is **structural acceptance only**: compiler execution,
 real-provided fixture behavior and complete feed integrity remain separate
 admission obligations before Blackball accepts a current map.
+
+Kitchen checks the exact requested CLI head, compiles the Idriç source against
+a separately provisioned contrib package, and tests that the installed
+Cat Food stable executable resolves to the compiled artifact. This host gate
+is distinct from AICI's independent structural assertions and from live access.
 
 The separate Software Development stage requires `--all`, stable `hits`
 and distinct numeric requisition IDs. Failed transport, endpoint changes or
