@@ -1,0 +1,44 @@
+STAR CATFOOD-FP-KITCHEN-01 — HISTORICAL PRE-PUBLICATION SNAPSHOT
+Observed 2026-10-14 UTC.
+
+Publication status below was superseded after the human's explicit Merge instruction.
+The four candidate repair branches are now published. Current-head acceptance is
+owned by the pinned native-handoff CI workflow; this retained development packet
+does not establish current-head, physical, trusted-admission or live-transfer PASS.
+The six-argument live path now refuses before effects when protected admission is
+unavailable. Fixture receipts explicitly remain unpublishable and NOT_ACCEPTED.
+
+Implemented candidate source:
+Cat Food 2643d6f1e762dddbf752a4133edcbdbf678b1598: stage-zero native acquisition, payload/source/package/ABI verification, owned link repair and probe receipts.
+Kitchen c570ae756444695c5939e67d7e76e8b17aefa273: candidate 7, explicit immutable ID/upstream, preflight and at-most-once attempted POST record.
+AI-CI 3cc916dfcb923a5e98ad3a25e4510ca701fea8b0: independent generated-program effects, handoff byte checks and ARM payload rejection cases.
+FP executable source a8997507c2d4105b97eee5dcc44ba81d6a92aeaf: canonical six-argument dispatch, materialization, hash comparison, preflight, execution and independent destination read. Later receipt/job additions do not change that source claim.
+
+Final committed-source native host run:
+acceptance/catfood-fp-kitchen-acceptance-20261014T033726.592685Z/receipt.json
+Actual exit 0. Thirteen transfer scenarios plus interrupted retry/late convergence, two FP invocations with one total POST, changed delivered bytes and missing-envelope controls passed. GitHub responses were fixtures; interpreter was real native Grease.
+Grease source 5651cf97a1b5042f24f14112a7ade9a1518eb0bc.
+Artifact 11727693085 ZIP SHA-256 20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039.
+ELF SHA-256 7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c.
+ASAN_OPTIONS=detect_leaks=0 because LeakSanitizer cannot inspect this container's process state. This is not leak-check acceptance.
+Generated Conan Wu program SHA-256 045fd91399cefc8b7bd4bd40085fa50e3422b1aed98b6ad05456cd8606e02571.
+
+Cat Food's four existing target/delivery suites passed. Independently verified both actual published ARM archives and their extracted payloads. Six targeted wrong/damaged/missing/redirected payload controls rejected. ARM execution NOT_RUN.
+
+Earlier acceptance receipts name the then-current base HEAD while implementation was uncommitted; they are development runs, not exact-head claims. The interrupted 03:36 run has no final receipt and is NOT_ACCEPTED.
+
+Known unresolved boundaries:
+- Physical C67 PATH, links, current receipts and runtime have not been inspected in this session. No device channel was available. Historical October 9 success is not present-state proof.
+- Fresh Termux complete bootstrap and visible/hidden/absent/recovery matrix NOT_RUN. The source-material.tsv promotion manifest is intentionally absent, so the bootstrap refuses before operation rather than fetching mutable defaults.
+- Local FP envelope checks do not implement protected controller admission or trusted ChatGPT delivery. Missing-envelope tests do not prove forged-envelope resistance. FP issue 35 records platform adoption as unavailable.
+- The full generic Linux jq provisioner defect remains open in Cat Food issue 130.
+- FP issue 67 contains an older explicit ban on C++-implemented Grease distribution. The present assignment explicitly names the earlier native package. No C++-free runtime qualification or policy-resolution claim is made here.
+- Existing four-argument transfer clients retain candidate 6; they are not qualified by the new six-argument acceptance.
+
+Publication:
+GitHub push was rejected by automatic approval review: external egress/publication to github.com was considered unverified and not specifically authorized. No alternate publication route was attempted. Read-only GitHub checks returned Branch not found for all three new branch names. FP PR 117 was not pushed. No new PRs or issue comments were posted, no merges performed.
+
+Live operation:
+Independent API read: isomorphisms/Museum_of_Shaders, ID 1412731191, fork=true, parent and source conanwu777/Museum_of_Shaders. Destination lookup returned 404. No live transfer POST was made. Live transfer and physical acceptance NOT_COMPLETE.
+
+Retained regression: "Missing required tool: grease" and later "Kitchen Grease program generator is unavailable". The later test -r failure is already repaired on FP PR 117; actual file absence was not established. Exact original pasted-command bytes NOT_RETAINED, not reconstructed.

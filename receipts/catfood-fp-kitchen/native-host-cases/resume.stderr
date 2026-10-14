@@ -1,0 +1,3 @@
+{"message":"Not Found","status":"404"}
+mkdir: cannot create directory ‘/workspace/scratch/4742a1c942e7/acceptance-committed-2/interrupted/job/post-attempted’: File exists
+FAIL GitHub transfer: transfer was already attempted; verify only, no second POST

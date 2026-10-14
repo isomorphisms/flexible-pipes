@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "catfood-fp-kitchen-open",
+  "required_stages": ["job-envelope", "host-identity"],
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/catfood-fp-kitchen/STAR-CATFOOD-FP-KITCHEN-01.txt"],"cwd":"."},
+    {"kind":"command","name":"host-identity","argv":["uname","-srm"],"cwd":"."}
+  ]
+}
