@@ -1,5 +1,12 @@
-STAR CATFOOD-FP-KITCHEN-01 — INCOMPLETE / PUBLICATION BLOCKED
+STAR CATFOOD-FP-KITCHEN-01 — HISTORICAL PRE-PUBLICATION SNAPSHOT
 Observed 2026-10-14 UTC.
+
+Publication status below was superseded after the human's explicit Merge instruction.
+The four candidate repair branches are now published. Current-head acceptance is
+owned by the pinned native-handoff CI workflow; this retained development packet
+does not establish current-head, physical, trusted-admission or live-transfer PASS.
+The six-argument live path now refuses before effects when protected admission is
+unavailable. Fixture receipts explicitly remain unpublishable and NOT_ACCEPTED.
 
 Implemented candidate source:
 Cat Food 2643d6f1e762dddbf752a4133edcbdbf678b1598: stage-zero native acquisition, payload/source/package/ABI verification, owned link repair and probe receipts.
