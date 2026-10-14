@@ -58,6 +58,14 @@
     "location": {
       "required": true,
       "pattern": "[^\\n]*"
+    },
+    "catfood-update": {
+      "required": true,
+      "pattern": "/[^\\n]+/update-tools\\.ysh"
+    },
+    "catfood-workspace": {
+      "required": true,
+      "pattern": "/[^\\n]+"
     }
   },
   "required_stages": [
@@ -67,6 +75,7 @@
     "source-identity",
     "kitchen-preflight",
     "kitchen-build",
+    "catfood-link-refresh",
     "kitchen-installed-test",
     "offline-self-test",
     "independent-aici-source",
@@ -137,6 +146,19 @@
         "{{cli-head}}",
         "{{idric-compiler}}",
         "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-link-refresh",
+      "argv": [
+        "{{grease}}",
+        "{{catfood-update}}",
+        "{{catfood-workspace}}",
+        "12",
+        "{{catfood-manifest}}",
+        "1"
       ],
       "cwd": "."
     },
