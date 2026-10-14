@@ -25,10 +25,23 @@ KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
 TRANSFER_ARTIFACT_DIR=$[get(ENV, 'TRANSFER_ARTIFACT_DIR', '')]
 test -n "$KITCHEN_ROOT" || fail 'KITCHEN_ROOT must name a verified Script Kitchen checkout'
 generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
-test -r "$generator" || fail "Kitchen Grease program generator is unavailable: $generator"
-command -v grease >/dev/null 2>&1 || fail 'Grease is not installed'
-command -v gh >/dev/null 2>&1 || fail 'GitHub CLI gh is not installed'
-command -v sha256sum >/dev/null 2>&1 || fail 'sha256sum is not installed'
+# Grease on the physical C67 can reject test -r for an actually readable file.
+# Use a bounded read and the same exact header check as the accepted batch path.
+for tool in grease gh sha256sum head mktemp cat rm cut chmod grep sed tr; do
+    command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
+done
+try { generator_probe=$(mktemp) }
+if (_error.code !== 0) { fail 'could not create private generator probe' }
+if head -n 1 "$generator" > "$generator_probe" 2>/dev/null; then
+    true
+else
+    rm -f "$generator_probe"
+    fail "Kitchen Grease program generator cannot be read: $generator"
+fi
+generator_header=$(cat "$generator_probe")
+rm -f "$generator_probe"
+test "$generator_header" = '#!/usr/bin/env grease' ||
+    fail "Kitchen Grease program generator has invalid header: $generator"
 
 if test -n "${TRANSFER_ARTIFACT_DIR:-}"; then
     test -d "$TRANSFER_ARTIFACT_DIR" || fail "artifact directory does not exist: $TRANSFER_ARTIFACT_DIR"
