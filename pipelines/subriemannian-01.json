@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "subriemannian-01",
+  "parameters": {
+    "compiler": {"required": true, "pattern": "^/[^\\n]+$"},
+    "driver-source": {"required": true, "pattern": "^/[^\\n]+$"},
+    "driver-ttc": {"required": true, "pattern": "^/[^\\n]+$"},
+    "driver-directory": {"required": true, "pattern": "^/[^\\n]+$"},
+    "driver": {"required": true, "pattern": "^/[^\\n]+$"},
+    "project": {"required": true, "pattern": "^/[^\\n]+$"},
+    "idric": {"required": true, "pattern": "^/[^\\n]+$"},
+    "aici": {"required": true, "pattern": "^/[^\\n]+$"},
+    "kitchen": {"required": true, "pattern": "^/[^\\n]+$"},
+    "artifacts": {"required": true, "pattern": "^/[^\\n]+$"},
+    "accept": {"required": true, "pattern": "^/[^\\n]+$"}
+  },
+  "required_stages": ["compile-kitchen-driver", "kitchen-build-and-tests", "independent-aici-artifact-acceptance"],
+  "stages": [
+    {
+      "kind": "command", "name": "compile-kitchen-driver",
+      "argv": ["{{compiler}}", "--cg", "chez", "--build-dir", "{{driver-ttc}}", "--output-dir", "{{driver-directory}}", "-o", "kitchen-build", "{{driver-source}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command", "name": "kitchen-build-and-tests",
+      "argv": ["{{driver}}", "{{project}}", "{{idric}}", "{{aici}}", "{{kitchen}}", "{{artifacts}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command", "name": "independent-aici-artifact-acceptance",
+      "argv": ["{{accept}}", "{{artifacts}}"],
+      "cwd": "."
+    }
+  ]
+}
