@@ -30,7 +30,8 @@ avoids the added component that the Android client rejected on October 9; it
 does not attest how a client rendered the payload itself. The ordinary-text
 form still excludes HTML markup under the independent gate.
 
-A nonempty summary explicitly selects the existing top-level literal block,
+A summary does not change the default ordinary-text presentation. The explicit
+`presentation="literal"` option selects the existing top-level literal block,
 with a delimiter longer than any delimiter in the assignment. Use that form
 only when the controller knows the client supports CodeBlocks. `render` remains
 the literal-block helper. ai-ci checks the complete observed response against
@@ -108,3 +109,52 @@ before dispatch, recovery through complete ordinary text with the same artifact
 identity, and removal of stale PASS on recovery. These are transport regression
 tests; actual Android rendering and trusted platform acknowledgements remain
 unverified by this suite. Issue #35 remains open for that adoption boundary.
+
+
+## Admission, readback and restart qualification
+
+`deliver_controlled` consumes the existing stage plus a supervisor-owned expected
+specification and required literal corrections. It compares that admission
+before any presentation effect. An internally consistent worker rewrite of the
+request, model or audience no longer agrees with the independent admission.
+
+The controller separately asks a reader for the accepted message/file bytes.
+AI-CI's `check_actual` checks those bytes and service metadata; its archive
+reference path uses its own extraction instead of FP's materializer. Merely
+declaring a correct digest or file ID cannot replace the byte input.
+
+COMPOSED, PRESENTED, ACCEPTED and DISPATCHED are checkpoints on the same stage.
+A completed presentation is read back on restart instead of resent. Before
+dispatch the controller creates a durable exclusive attempt journal. If execution
+stops after the remote effect, restart uses `lookup(handoff_id)`; an unknown
+outcome blocks resubmission. Accepted dispatch is never repeated during display
+recovery. These are bounded fixture-controller results, not a deployed isolation
+or platform-security boundary.
+
+Only fixture controller execution is currently implemented. Calling that
+controller with a platform profile fails before effects with
+`HANDOFF_PLATFORM_ADAPTER_UNAVAILABLE`. It returns `FIXTURE_PASS` and
+`platform_delivery_status=NOT_VERIFIED`. The lower-level `deliver` result is
+explicitly labeled `transport-contract-only`. Caller-controlled labels, keys,
+captures and signatures cannot activate a platform verifier.
+
+`compose-workflow` is the checked-Ithon composition interface:
+`compose-handoff.pi compose-workflow STAGE SPEC SELECTED RUN ARTIFACT SOURCE`.
+RUN and ARTIFACT are connector observations; SELECTED binds the selected
+repository ID, run, observed attempt, commit, artifact ID/name, archive digest,
+member, filename, MIME and payload digest. The composer checks their relations,
+successful/nonexpired state and bytes, and emits `STAGE.attachment` containing
+the exact selected member. It does not acquire credentials or attest arbitrary
+caller-created metadata. GitHub artifact metadata does not expose its run
+attempt; that limitation is retained as
+`artifact_attempt_binding=NOT_PROVIDED_BY_ARTIFACT_METADATA`, rather than
+inventing an artifact-to-attempt attestation.
+
+The maintained `fp35-delivery-acceptance` pipeline captures the implementation
+envelope, FP runtime/effect tests and independent AI-CI cases as separate stage
+artifacts. Required inputs name verified absolute source/runtime locations.
+Tests preserve the ordinary-text positive control, all three delivery modes,
+placeholder recovery, unique member selection and negative provenance/readback
+cases. This qualification does not claim a ChatGPT attachment adapter, actual
+Android presentation, execution on the MIRO C67/A1, or full issue closure.
+

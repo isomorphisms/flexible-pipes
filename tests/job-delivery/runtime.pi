@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
-from builtins import dict, list, ValueError, Exception, AssertionError
+from builtins import dict, list, ValueError, Exception, AssertionError, RuntimeError
 import handoff
 import job_delivery
 
@@ -131,9 +131,16 @@ for fixture in ["young-tableaux", "a1-c67"]:
 
     effects.clear()
     captured.clear()
+    delivered ← handoff.deliver(fresh(payload, "display-and-dispatch"), payload, sink, dispatcher, gate, "Complete assignment follows.")
+    if captured != [payload] or effects != ["visible", "dispatch"] or delivered["platform_delivery_status"] != "NOT_VERIFIED":
+        raise AssertionError("summary selected an unavailable component or claimed platform proof")
+    passed(fixture + " summary does not select an unsupported CodeBlock")
+
+    effects.clear()
+    captured.clear()
     caught_message ∈ str ← ""
     try:
-        handoff.deliver(stage, payload, sink, dispatcher, gate, "Complete assignment follows.")
+        handoff.deliver(stage, payload, sink, dispatcher, gate, "Complete assignment follows.", "literal")
     except ValueError as error:
         caught_message ← str(error)
     if caught_message != "HANDOFF_VISIBLE_MISSING" or effects != ["visible"]:
@@ -304,4 +311,180 @@ with tempfile.TemporaryDirectory(prefix="attachment-delivery-") as temporary:
         passed("real pipeline materializes exact archive member and holds")
     finally:
         pipeline.unlink(missing_ok=True)
+# Independently read captured bytes before any dispatcher effect. These are
+# explicitly fixtures; the production entry remains blocked.
+remote ∈ dict[str, dict[str, object]] ← {}
+remote_calls ∈ list[str] ← []
+crash_after_effect ∈ bool ← False
+readback_mutation ∈ bool ← False
+
+def read_text(message_id ∈ str) → dict[str, object]:
+    actual ∈ bytes ← captured[-1]
+    if readback_mutation:
+        actual ← actual + b"changed"
+    return {"bytes": actual, "message_id": message_id, "surface": "fixture-visible-chat"}
+
+def read_attachment(file_id ∈ str) → dict[str, object]:
+    return {"bytes": attachment_bytes, "file_id": file_id, "file_name": attachment_name, "mime_type": attachment_mime, "surface": "fixture-visible-chat"}
+
+def controlled_dispatch(payload ∈ bytes, identity_value ∈ str) → dict[str, object]:
+    remote_calls.append(identity_value)
+    receipt ∈ dict[str, object] ← {"status": "ACCEPTED", "bytes": payload, "dispatch_id": identity_value}
+    remote[identity_value] ← receipt
+    if crash_after_effect:
+        raise RuntimeError("fixture crash after remote acceptance")
+    return receipt
+
+def controlled_lookup(identity_value ∈ str) → dict[str, object]:
+    if remote.__contains__(identity_value):
+        return remote[identity_value]
+    return {"status": "UNKNOWN"}
+
+reader ∈ object ← SimpleNamespace(read_text=read_text, read_attachment=read_attachment)
+controlled_dispatcher ∈ object ← SimpleNamespace(send=controlled_dispatch, lookup=controlled_lookup)
+controlled_gate ∈ object ← SimpleNamespace(check_authority=job_delivery.check_authority, check_actual=job_delivery.check_actual)
+payload ← Path(str(root) + "/regressions/job-delivery/young-tableaux.txt").read_bytes()
+with tempfile.TemporaryDirectory(prefix="delivery-controller-") as temporary:
+    for mode in ["display-only", "display-and-dispatch", "dispatch-only"]:
+        effects.clear()
+        captured.clear()
+        remote_calls.clear()
+        remote.clear()
+        stage ← fresh(payload, mode)
+        record ∈ dict[str, object] ← dict(stage["handoff"])
+        expected ∈ dict[str, object] ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+        required ∈ list[str] ← []
+        state_path ∈ str ← str(temporary) + "/" + mode + ".json"
+        result ← handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+        if result["delivery_status"] != "FIXTURE_PASS" or result["platform_delivery_status"] != "NOT_VERIFIED":
+            raise AssertionError("fixture was promoted to platform acceptance")
+        wanted_phase ∈ str ← "ACCEPTED" if mode == "display-only" else "DISPATCHED"
+        if str(result["delivery_lifecycle"]) != wanted_phase:
+            raise AssertionError("wrong controller lifecycle")
+        before_effects ∈ int ← len(effects)
+        before_calls ∈ int ← len(remote_calls)
+        repeated ∈ dict[str, object] ← handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+        if len(effects) != before_effects or len(remote_calls) != before_calls:
+            raise AssertionError("restart repeated completed presentation or dispatch")
+        passed("controller " + mode + " resumes without repeated effects")
+        if mode == "display-and-dispatch":
+            recovered ← handoff.recover_controlled(state_path, payload, expected, required, controlled_gate, "Where's the text? Show the same assignment.")
+            if str(recovered["delivery_status"]) != "AWAITING_HANDOFF_DELIVERY":
+                raise AssertionError("persisted recovery retained success")
+            before_calls ← len(remote_calls)
+            result ← handoff.deliver_controlled(recovered, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+            if captured[-1] != payload or len(remote_calls) != before_calls:
+                raise AssertionError("persisted recovery changed payload or repeated dispatch")
+            passed("controller persists same-payload recovery without redispatch")
+    effects.clear()
+    stage ← fresh(payload, "display-and-dispatch")
+    record ← dict(stage["handoff"])
+    expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+    caught_message ← ""
+    try:
+        handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, str(temporary) + "/platform.json", "platform")
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != "HANDOFF_PLATFORM_ADAPTER_UNAVAILABLE" or len(effects) != 0:
+        raise AssertionError("caller-created platform claim reached effects")
+    passed("controller blocks unavailable platform before effects")
+
+    remote_calls.clear()
+    remote.clear()
+    effects.clear()
+    crash_after_effect ← True
+    state_path ← str(temporary) + "/crash.json"
+    caught_message ← ""
+    try:
+        handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    except RuntimeError as error:
+        caught_message ← str(error)
+    if caught_message != "fixture crash after remote acceptance" or len(remote_calls) != 1:
+        raise AssertionError("crash specimen did not accept one remote effect")
+    crash_after_effect ← False
+    result ← handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    if len(remote_calls) != 1 or str(result["delivery_lifecycle"]) != "DISPATCHED":
+        raise AssertionError("uncertain dispatch was repeated instead of reconciled")
+    passed("controller reconciles crash after remote acceptance without resend")
+
+    remote_calls.clear()
+    remote.clear()
+    state_path ← str(temporary) + "/unknown.json"
+    Path(state_path + ".dispatch-attempt").write_bytes(str(record["id"]).encode())
+    caught_message ← ""
+    try:
+        handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != "HANDOFF_DISPATCH_OUTCOME_UNKNOWN" or len(remote_calls) != 0:
+        raise AssertionError("unknown dispatch outcome was resubmitted")
+    passed("controller blocks unknown dispatch outcome")
+
+    remote_calls.clear()
+    readback_mutation ← True
+    caught_message ← ""
+    try:
+        handoff.deliver_controlled(stage, payload, expected, required, sink, reader, controlled_dispatcher, controlled_gate, str(temporary) + "/bad-readback.json", "fixture")
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message == "" or len(remote_calls) != 0:
+        raise AssertionError("changed independent readback reached dispatch")
+    readback_mutation ← False
+    passed("controller gates dispatch on independent readback")
+stream ← io.BytesIO()
+archive ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+archive.writestr("c67/" + attachment_name, attachment_bytes)
+archive.close()
+source ← stream.getvalue()
+selected ∈ dict[str, object] ← {"repository": "fixture/repository", "repository_id": 42, "run_id": 7, "run_attempt": 3, "revision": "1111111111111111111111111111111111111111", "artifact_id": 123, "artifact_name": "selected-apk", "archive_sha256": handoff.digest(source), "payload_sha256": handoff.digest(attachment_bytes), "file_name": attachment_name, "source_name": "selected-apk.zip", "archive_member": "c67/" + attachment_name, "mime_type": attachment_mime}
+run_observation ∈ dict[str, object] ← {"repository": {"full_name": "fixture/repository", "id": 42}, "id": 7, "run_attempt": 3, "head_sha": selected["revision"], "status": "completed", "conclusion": "success"}
+artifact_observation ∈ dict[str, object] ← {"id": 123, "name": "selected-apk", "expired": False, "size_in_bytes": len(source), "digest": "sha256:" + str(handoff.digest(source)), "workflow_run": {"id": 7, "repository_id": 42, "head_sha": selected["revision"]}}
+workflow_spec ∈ dict[str, object] ← {"audience": "human", "model": "fixture", "source_context": "issue-39", "request": {"id": "workflow-fixture", "text": "Give me the APK directly."}}
+workflow_stage ∈ dict[str, object] ← {"name": "workflow-fixture", "kind": "command", "exit_code": 0, "stdout_sha256": handoff.digest(source)}
+workflow_result ∈ dict[str, object] ← handoff.compose_workflow_attachment(workflow_stage, source, workflow_spec, selected, run_observation, artifact_observation)
+if bytes(handoff.materialize(workflow_result, source)) != attachment_bytes:
+    raise AssertionError("workflow member did not preserve exact APK bytes")
+passed("workflow artifact metadata connects to exact selected APK")
+for mutation_case in ["repository", "run", "attempt", "revision", "artifact", "expired", "association", "size", "digest", "failed"]:
+    changed_run ∈ dict[str, object] ← json.loads(json.dumps(run_observation))
+    changed_artifact ∈ dict[str, object] ← json.loads(json.dumps(artifact_observation))
+    expected_error ∈ str ← ""
+    if mutation_case == "repository":
+        changed_run["repository"] ← {"full_name": "wrong/repository", "id": 42}
+        expected_error ← "HANDOFF_WORKFLOW_REPOSITORY"
+    elif mutation_case == "run":
+        changed_run["id"] ← 8
+        expected_error ← "HANDOFF_WORKFLOW_RUN"
+    elif mutation_case == "attempt":
+        changed_run["run_attempt"] ← 4
+        expected_error ← "HANDOFF_WORKFLOW_RUN"
+    elif mutation_case == "revision":
+        changed_run["head_sha"] ← "2222222222222222222222222222222222222222"
+        expected_error ← "HANDOFF_WORKFLOW_REVISION"
+    elif mutation_case == "artifact":
+        changed_artifact["id"] ← 124
+        expected_error ← "HANDOFF_WORKFLOW_ARTIFACT"
+    elif mutation_case == "expired":
+        changed_artifact["expired"] ← True
+        expected_error ← "HANDOFF_WORKFLOW_EXPIRED"
+    elif mutation_case == "association":
+        changed_artifact["workflow_run"] ← {"id": 8, "repository_id": 42, "head_sha": selected["revision"]}
+        expected_error ← "HANDOFF_WORKFLOW_ASSOCIATION"
+    elif mutation_case == "size":
+        changed_artifact["size_in_bytes"] ← len(source) + 1
+        expected_error ← "HANDOFF_WORKFLOW_BYTES"
+    elif mutation_case == "digest":
+        changed_artifact["digest"] ← "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        expected_error ← "HANDOFF_WORKFLOW_PROVIDER_DIGEST"
+    elif mutation_case == "failed":
+        changed_run["conclusion"] ← "failure"
+        expected_error ← "HANDOFF_WORKFLOW_NOT_SUCCESSFUL"
+    caught_message ← ""
+    try:
+        handoff.compose_workflow_attachment(workflow_stage, source, workflow_spec, selected, changed_run, changed_artifact)
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != expected_error:
+        raise AssertionError(mutation_case + ": expected " + expected_error + ", got " + caught_message)
+    passed("workflow refuses " + mutation_case)
 print("runtime cases PASS: " + str(len(passed_cases)))

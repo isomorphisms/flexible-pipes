@@ -28,3 +28,10 @@ without adding a Python implementation. Runtime SHA-256 and transport adapters
 remain the first concrete Idriç integration gap. Acceptance for removing this
 boundary is an Idriç program that hashes actual captured bytes and rejects a
 mutation before dispatch through a maintained backend.
+
+The FP35 continuation retains that Idriç boundary and the selected checked-Ithon
+implementation. The new type-level requirements are an independently admitted
+request/assignment, Readback carrying exact bytes for the same stage, and an
+AttemptedDispatch that can resume only from independently observed Accepted or
+remain Unknown. Fixture evidence cannot inhabit a platform-presentation proof.
+No fresh Idriç compilation or execution is claimed by these Ithon changes.
