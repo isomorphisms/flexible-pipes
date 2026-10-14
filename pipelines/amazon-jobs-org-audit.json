@@ -34,6 +34,22 @@
     "aici-source": {
       "required": true,
       "pattern": "/[^\\n]+/src/aici\\.c"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\n]+/grease"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli/1\\.grease"
+    },
+    "cli-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric-compiler": {
+      "required": true,
+      "pattern": "/[^\\n]+/idris2"
     }
   },
   "required_stages": [
@@ -41,9 +57,13 @@
     "catfood-inventory",
     "source-identity",
     "historical-inventory",
+    "kitchen-preflight",
+    "kitchen-build",
+    "kitchen-installed-test",
     "offline-self-test",
     "independent-aici-source",
     "independent-aici-revision",
+    "binary-identity",
     "current-software-census",
     "current-datacenter-access",
     "current-graduate-sde"
@@ -86,6 +106,48 @@
       "cwd": "."
     },
     {
+      "name": "kitchen-preflight",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "preflight",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-build",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "build",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-installed-test",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "test",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
       "kind": "command",
       "name": "offline-self-test",
       "argv": [
@@ -111,6 +173,15 @@
       "argv": [
         "sha256sum",
         "{{aici-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "binary-identity",
+      "kind": "command",
+      "argv": [
+        "sha256sum",
+        "{{program}}"
       ],
       "cwd": "."
     },
