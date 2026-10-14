@@ -106,6 +106,10 @@ runtime ∈ str ← inputs + "/ithon"
 Path(runtime + "/Lib").mkdir(mode=493, parents=True)
 for path in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
     shutil.copyfile(ithon + "/" + path, runtime + "/" + path)
+bootstrap ∈ str ← inputs + "/control"
+Path(bootstrap).mkdir(mode=493)
+for path in ["registered-worker.pi", "registered-watchdog.pi"]:
+    shutil.copyfile(fp + "/scripts/" + path, bootstrap + "/" + path)
 
 materials ∈ list[dict[str, object]] ← []
 def material(root ∈ str, path ∈ str, actual ∈ str) → None:
@@ -113,8 +117,10 @@ def material(root ∈ str, path ∈ str, actual ∈ str) → None:
     origin ∈ str ← git(root, ["config", "--local", "--get", "remote.origin.url"])
     materials.append({"path": actual, "sha256": hash_file(actual), "checkout": root, "commit": commit, "relative_path": path, "origin": origin, "published_ref": "HEAD"})
 
-for path in ["scripts/registered-execution.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi", "registry/chatgpt-exporter-regression-acceptance.contract.json"]:
+for path in ["scripts/registered-execution.pi", "registry/chatgpt-exporter-regression-acceptance.contract.json"]:
     material(fp, path, fp + "/" + path)
+for path in ["registered-worker.pi", "registered-watchdog.pi"]:
+    material(fp, "scripts/" + path, bootstrap + "/" + path)
 material(aici, "validators/regression_transition.pi", aici + "/validators/regression_transition.pi")
 material(exporter, "ci/exporter-original-failures.tsv", exporter + "/ci/exporter-original-failures.tsv")
 for path in ["ithon_host.py", "Lib/ithon_frontend.py", "Lib/ithon_static.py", "Lib/ithon_run.py"]:
@@ -133,6 +139,8 @@ contract ∈ dict[str, object] ← json.loads(Path(contract_path).read_bytes())
 environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent", "CI": "1"}
 qualification_path ∈ str ← output + "/qualification.json"
 config ∈ dict[str, object] ← {"schema_version": 1, "operation": "chatgpt-exporter-regression-acceptance", "operation_version": "1", "registry_generation": 1, "qualified": True, "authority": "local-qualification", "required_checks": contract["required_checks"], "control_commit": control_commit, "ithon": [sys.executable, runtime + "/ithon_host.py"], "worker": fp + "/scripts/registered-worker.pi", "watchdog": fp + "/scripts/registered-watchdog.pi", "node": node, "test_runner": candidate + "/node_modules/vitest/vitest.mjs", "baseline_root": baseline, "candidate_root": candidate, "baseline_commit": baseline_commit, "candidate_commit": candidate_commit, "corpus_commit": corpus_commit, "matrix": exporter + "/ci/exporter-original-failures.tsv", "case_verifier": aici + "/validators/regression_transition.pi", "materials": materials, "tools": tools, "contract": contract_path, "contract_sha256": hash_file(contract_path), "worker_environment": environment, "qualification": qualification_path, "state_root": output + "/state", "request_mirror": fp, "request_base": control_commit}
+config["worker"] ← bootstrap + "/registered-worker.pi"
+config["watchdog"] ← bootstrap + "/registered-watchdog.pi"
 operation ∈ dict[str, object] ← {}
 fields ∈ list[str] ← list(engine.EXPORTER_FIELDS)
 for field in fields:

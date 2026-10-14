@@ -55,10 +55,13 @@ jobs:
           name: exporter-controls-${{ github.run_id }}-${{ github.run_attempt }}
           path: /tmp/exporter-comparison-controls/
           if-no-files-found: error
+      - name: Package protected diagnostic state
+        if: always()
+        run: sudo /usr/bin/python3 ithon/ithon_host.py flexible-pipes/scripts/package-qualification.pi /tmp/fp-exporter-qualification
       - name: Preserve actual diagnostic stages
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: exporter-operation-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/fp-exporter-qualification/
+          path: /tmp/fp-exporter-qualification.tar.gz
           if-no-files-found: error

@@ -28,3 +28,11 @@ controller; the independent comparator passes all 41 original fail-to-pass
 transitions and 16 positive/rejection controls; the original Kitchen cache
 regression passes. Public-route operation execution and installed promotion
 remain NOT_RUN until the hosted qualification runs and production is activated.
+
+First hosted attempt at dd45fa36ebf288d37513b838a1ff851e9492d66d failed:
+the baseline child returned 1 but supplied no report, so no assertion failure
+was inferred from the exit alone. The attempt also exposed that the unprivileged
+artifact uploader cannot traverse protected supervisor state. The next candidate
+copies worker bootstrap source into the readable diagnostic release and packages
+protected state through the existing root-owned packaging procedure. These
+repairs require a new actual run; the failed attempt remains failure evidence.

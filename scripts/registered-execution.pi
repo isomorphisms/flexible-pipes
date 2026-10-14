@@ -575,6 +575,12 @@ def exporter_stage(config ∈ dict[str, object], check ∈ str, run ∈ str, uid
         if code != (1 if check == "baseline-run" else 0):
             raise ValueError("EXPORTER_TEST_EXIT")
         selected ∈ Path ← Path(report_path)
+        if not selected.exists():
+            for stream in ["stdout", "stderr"]:
+                captured ∈ str ← run + "/" + check + "-logs/" + stream + ".bin"
+                actual_log ∈ bytes ← Path(captured).read_bytes()
+                print(str(actual_log[:8192].decode()))
+            raise ValueError("EXPORTER_REPORT_MISSING: " + check)
         info ∈ object ← selected.lstat()
         size ∈ int ← int(info.st_size)
         if not stat.S_ISREG(info.st_mode) or size <= 0 or size > 8388608:
