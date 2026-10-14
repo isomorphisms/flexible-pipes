@@ -1,0 +1,176 @@
+{
+  "failed_stage": "live-provider",
+  "finished_at": "2026-10-13T22:30:06.834823+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/tmp/jobicy-aici",
+    "aici-head": "15ac9a4a9091b4745827772f3bbf8802e8a35bd8",
+    "aici-root": "/workspace/scratch/30b0a80117bc/ai-ci",
+    "aici-source": "/workspace/scratch/30b0a80117bc/ai-ci/src/aici.c",
+    "cli-head": "cdb670f88a728de2d1527d2a88492584b1dd6b83",
+    "cli-root": "/workspace/scratch/30b0a80117bc/idric-cli",
+    "environment": "/tmp/jobicy-environment.grease",
+    "grease": "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+    "ick": "/tmp/jobicy-ick-stage/bin/ick",
+    "install-prefix-argument": "PREFIX=/tmp/jobicy-installed",
+    "kitchen-head": "15b5b5833807ad0b04a53df01161b4a4b06c4b3f",
+    "kitchen-live-task": "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/live.grease",
+    "kitchen-task": "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/accept.grease",
+    "live-evidence": "/tmp/jobicy-live-evidence",
+    "program": "/tmp/jobicy-installed/bin/jobicy"
+  },
+  "pipeline": "jobicy-cli-acceptance",
+  "pipeline_path": "pipelines/jobicy-cli-acceptance.json",
+  "pipeline_sha256": "07e7bbc152437e5884f8194a0c32231f15a7a83277e519c0e2e495c1f3f4c8fa",
+  "repository_commit": "15b3aca7e5d356ce9c3050b661ca87efff4266e1",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/jobicy-cli/SUN-JOBICY-CLI-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:29:54.619814+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-13T22:29:54.617843+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5e1d628ad6e19120acdfe41e88e1cec14e6ebcb6fd22f370ba9e35fa94a0398b"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/tmp/jobicy-environment.grease"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:29:54.621803+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "environment-identity",
+      "started_at": "2026-10-13T22:29:54.619862+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f604ce9f2fc8987ff729612c2f90e9ad2c7bf4321a061926ed63cecd17951d08"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "jobicy"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:29:58.652085+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "kitchen-build",
+      "started_at": "2026-10-13T22:29:54.621844+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "dea087eee4bde36f7fbdb5e1576110d858c1fe4e0d2aacd97b7ed6f3b0f4f970"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "install-jobicy",
+        "PREFIX=/tmp/jobicy-installed"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:29:58.827135+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "kitchen-install",
+      "started_at": "2026-10-13T22:29:58.652159+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f0725da5f4bc8aec269ae5081a179379494898867d7f9f37484dee756d2f2ee0"
+    },
+    {
+      "argv": [
+        "/tmp/jobicy-ick-stage/bin/ick",
+        "-fno-link-libatomic",
+        "-B/usr/lib/gcc/x86_64-linux-gnu/13/",
+        "-static-libgcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "/workspace/scratch/30b0a80117bc/ai-ci/src/aici.c",
+        "-o",
+        "/tmp/jobicy-aici"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:29:59.853320+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "independent-verifier-build",
+      "started_at": "2026-10-13T22:29:58.827213+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/accept.grease",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "cdb670f88a728de2d1527d2a88492584b1dd6b83",
+        "/tmp/jobicy-installed/bin/jobicy",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/ai-ci",
+        "15ac9a4a9091b4745827772f3bbf8802e8a35bd8",
+        "/tmp/jobicy-aici",
+        "15b5b5833807ad0b04a53df01161b4a4b06c4b3f"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T22:30:06.705990+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "installed-acceptance",
+      "started_at": "2026-10-13T22:29:59.853392+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5be1700e4fe0f56527bb6cff19f950e34f7922cb71adfc0e4835f48b7e852ca9"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/live.grease",
+        "/tmp/jobicy-installed/bin/jobicy",
+        "/tmp/jobicy-live-evidence"
+      ],
+      "cwd": ".",
+      "exit_code": 5,
+      "finished_at": "2026-10-13T22:30:06.834795+00:00",
+      "index": 7,
+      "kind": "command",
+      "name": "live-provider",
+      "started_at": "2026-10-13T22:30:06.706065+00:00",
+      "stderr_sha256": "2d3d9464cea034505e05126f4f7eb458dec7ca079aaad1c5f2b91bf5e6ad171e",
+      "stdout_sha256": "d15dcc1f530bebbc3b137abc5f4941fe45d1894a863fbbd371cc023ab55fc301"
+    }
+  ],
+  "started_at": "2026-10-13T22:29:54.617768+00:00",
+  "status": "FAIL"
+}

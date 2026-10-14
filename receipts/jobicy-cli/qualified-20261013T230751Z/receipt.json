@@ -1,0 +1,218 @@
+{
+  "finished_at": "2026-10-13T23:08:27.253249+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/tmp/jobicy-aici",
+    "aici-head": "93b2dd9cf71131cd21535fdbce8f381bf26ab5cc",
+    "aici-root": "/workspace/scratch/30b0a80117bc/ai-ci",
+    "aici-source": "/workspace/scratch/30b0a80117bc/ai-ci/src/aici.c",
+    "cli-head": "9c7c676618bb007845d8e54264256fda8c70a04e",
+    "cli-root": "/workspace/scratch/30b0a80117bc/idric-cli",
+    "environment": "/tmp/jobicy-environment.grease",
+    "grease": "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+    "ick": "/tmp/jobicy-ick-stage/bin/ick",
+    "icu-test-program": "/tmp/jobicy-icu-proxy-tests",
+    "icu-test-source": "/workspace/scratch/30b0a80117bc/icu/tests/RedirectPolicyTests.c",
+    "install-prefix-argument": "PREFIX=/tmp/jobicy-installed",
+    "kitchen-head": "330565b88a6debc39ca364423f3cf20ed2af18b8",
+    "kitchen-live-task": "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/live.grease",
+    "kitchen-task": "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/accept.grease",
+    "live-evidence": "/tmp/jobicy-live-evidence",
+    "program": "/tmp/jobicy-installed/bin/jobicy"
+  },
+  "pipeline": "jobicy-cli-acceptance",
+  "pipeline_path": "pipelines/jobicy-cli-acceptance.json",
+  "pipeline_sha256": "b60e5daac074b3eb17f7398093de32cb00f66c2dc9d53fced8118f9873ef11c0",
+  "repository_commit": "da6944a78e5b0d028865b5c1fce6eabab768e6ac",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/jobicy-cli/SUN-JOBICY-CLI-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:51.268620+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-13T23:07:51.267110+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5e1d628ad6e19120acdfe41e88e1cec14e6ebcb6fd22f370ba9e35fa94a0398b"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/tmp/jobicy-environment.grease"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:51.270020+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "environment-identity",
+      "started_at": "2026-10-13T23:07:51.268666+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f604ce9f2fc8987ff729612c2f90e9ad2c7bf4321a061926ed63cecd17951d08"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "jobicy"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:55.465748+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "kitchen-build",
+      "started_at": "2026-10-13T23:07:51.270221+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "dea087eee4bde36f7fbdb5e1576110d858c1fe4e0d2aacd97b7ed6f3b0f4f970"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "install-jobicy",
+        "PREFIX=/tmp/jobicy-installed"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:55.638940+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "kitchen-install",
+      "started_at": "2026-10-13T23:07:55.465833+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f0725da5f4bc8aec269ae5081a179379494898867d7f9f37484dee756d2f2ee0"
+    },
+    {
+      "argv": [
+        "/tmp/jobicy-ick-stage/bin/ick",
+        "-fno-link-libatomic",
+        "-B/usr/lib/gcc/x86_64-linux-gnu/13/",
+        "-static-libgcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-O2",
+        "/workspace/scratch/30b0a80117bc/ai-ci/src/aici.c",
+        "-o",
+        "/tmp/jobicy-aici"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:56.757642+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "independent-verifier-build",
+      "started_at": "2026-10-13T23:07:55.639026+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/jobicy-ick-stage/bin/ick",
+        "-fno-link-libatomic",
+        "-B/usr/lib/gcc/x86_64-linux-gnu/13/",
+        "-static-libgcc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "/workspace/scratch/30b0a80117bc/icu/tests/RedirectPolicyTests.c",
+        "-o",
+        "/tmp/jobicy-icu-proxy-tests",
+        "-lssl",
+        "-lcrypto"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:57.625910+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "icu-proxy-test-build",
+      "started_at": "2026-10-13T23:07:56.757747+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/jobicy-icu-proxy-tests"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:07:57.628792+00:00",
+      "index": 7,
+      "kind": "command",
+      "name": "icu-proxy-test",
+      "started_at": "2026-10-13T23:07:57.625986+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "edf1380e62d3274a2a6612603b14109fac7c4cb5a24d1d004812210b364dd0e9"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/accept.grease",
+        "/workspace/scratch/30b0a80117bc/idric-cli",
+        "9c7c676618bb007845d8e54264256fda8c70a04e",
+        "/tmp/jobicy-installed/bin/jobicy",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/ai-ci",
+        "93b2dd9cf71131cd21535fdbce8f381bf26ab5cc",
+        "/tmp/jobicy-aici",
+        "330565b88a6debc39ca364423f3cf20ed2af18b8"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:08:04.657553+00:00",
+      "index": 8,
+      "kind": "command",
+      "name": "installed-acceptance",
+      "started_at": "2026-10-13T23:07:57.628847+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ad916253d9276dd7580ba1bf48c5d979a9136faf26966812cedcbb806791f40e"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/tmp/jobicy-environment.grease",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/live.grease",
+        "/tmp/jobicy-installed/bin/jobicy",
+        "/tmp/jobicy-live-evidence"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T23:08:27.253205+00:00",
+      "index": 9,
+      "kind": "command",
+      "name": "live-provider",
+      "started_at": "2026-10-13T23:08:04.657632+00:00",
+      "stderr_sha256": "5946ab05d6eb528851144d6c921bfad72cb2a727d8c5b92703334d1f54dcfdf3",
+      "stdout_sha256": "60f19607c3e3177f9a055180e0113635420e294a613358fd4a0e91b2050cca63"
+    }
+  ],
+  "started_at": "2026-10-13T23:07:51.267035+00:00",
+  "status": "PASS"
+}
