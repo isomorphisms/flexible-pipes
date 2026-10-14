@@ -1,0 +1,18 @@
+Historical failed hosted run: https://github.com/fuego-ironworks/idris-shader-backend/actions/runs/38511663339
+Exact backend head: df3edb19143eb604d23528e76abf7404a3cc32b1
+Stage: Install the Idriç API used by the registered shader compiler
+Observed compiler: upstream Idris 2 0.8.0
+Diagnosis: the wrong compiler rejected Idriç contextual package dependency syntax.
+Correction: bootstrap the pinned Idriç compiler before installing its API.
+This failed run proves no backend or renderer acceptance.
+
+2026-10-14T04:29:58.4474509Z Error: Expected equals.
+2026-10-14T04:29:58.4474912Z 
+2026-10-14T04:29:58.4475128Z "idris2api.ipkg":328:9--328:11
+2026-10-14T04:29:58.4475549Z  324 | 
+2026-10-14T04:29:58.4475794Z  325 |     Yaffle.Main,
+2026-10-14T04:29:58.4476097Z  326 |     Yaffle.REPL
+2026-10-14T04:29:58.4476577Z  327 | 
+2026-10-14T04:29:58.4476819Z  328 | depends on network
+2026-10-14T04:29:58.4477094Z                ^^
+2026-10-14T04:29:58.4581572Z ##[error]Process completed with exit code 1.

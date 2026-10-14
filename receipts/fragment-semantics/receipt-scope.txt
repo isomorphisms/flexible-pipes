@@ -1,0 +1,48 @@
+FRAGMENT-SEMANTICS — source and numerical execution receipt scope
+
+coordinate-final/receipt.json: PASS, eleven required local stages, 2026-10-14.
+This is the final clean producer/checker source run, not an earlier ancestor.
+source-publication-map.tsv records each local execution commit and its published
+commit with identical git tree. Publication via the connected GitHub writer
+changed commit metadata, not tested source bytes. No synthetic merge was tested.
+
+The primary controller's execution commit corresponds to the published code
+commit 91a52ea354db7f25f51a72a73933611e14695143. The later receipt archival commit
+is publication of evidence, not a claim that the archived tree ran retroactively.
+checker-inputs/receipt.json separately records the passing input refusal fixtures.
+source-width/receipt.json records FAIL with the actual compiler diagnostic.
+
+Each per-stage stdout.bin/stderr.bin is a UTF-8 command stream, retained with its
+original bytes and original receipt SHA-256. readback.tsv is genuine renderer
+output. control/swapped/omitted results and the executed shader mutant are the
+actual artifacts from the final hostile test. Checker-only reordered/duplicate
+fixtures are stored separately; they establish no extra shader execution.
+material-artifacts.sha256 includes the actual backend and checker code objects,
+native runner, generated source/interfaces and recorded output. Paths are the
+explicit local build-host profile used for this run, not portable deployment URLs.
+
+coordinate-refusals.ike.tsv covers the final Ike invocation, coordinate-refusals.
+Ike overwrote its shared local receipt at the next invocation; the retained FP
+coordinate-emission stage is the evidence for the earlier emitted recipe. Do
+not read this refusal receipt as an independent receipt of the emission target.
+
+Observed runtime: EGL 1.5, Mesa llvmpipe (LLVM 20.1.2, 256 bits), OpenGL ES 3.2
+Mesa 25.2.8-0ubuntu0.24.04.2. The six byte-framebuffer samples and 1026 RGBA32F
+coordinate results execute generated GLSL. This is software host execution,
+not physical PowerVR/Mali, full floating correctness or a rotation proof.
+
+Native runner build toolchain: ICK at c61e448251744a2f40ad743ebef1a027bdcd2f9d.
+Idriç compiler/API: 2734ac5a86610eddfab73b1644d72b4ac85a65ee. Existing legacy
+Python FP/backend harnesses were exercised as explicit retained debt; the new
+independent mathematical/numerical checks use Idriç and orchestration uses Grease.
+
+The latest hosted backend run at the published head remains a separate gate:
+https://github.com/fuego-ironworks/idris-shader-backend/actions/runs/38512966479
+Head: 4d2fcc4ca3647345941e71fd23756a998c542004. State observed: IN_PROGRESS,
+ICK frontend preparation passed; pinned Idriç bootstrap is running. The earlier
+upstream-compiler API-install failure is retained as historical diagnostic.
+Hosted checks are not promoted to PASS by this local receipt.
+
+Full campaign: BLOCKED at explicit source-width preservation; remaining rotation,
+packing/schema, consumer and physical-target obligations are in migration-status.txt.
+No merge, release, model dispatch, or complete campaign acceptance is claimed.
