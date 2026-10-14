@@ -1,0 +1,28 @@
+
+# PR-JUDGE-01 regression: failed revalidation must invalidate a saved success.
+with tempfile.TemporaryDirectory(prefix="delivery-revalidation-") as temporary:
+    effects.clear()
+    captured.clear()
+    mutation ← "none"
+    readback_mutation ← False
+    stage ← fresh(payload, "display-only")
+    record ← dict(stage["handoff"])
+    expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+    state_path ← str(temporary) + "/revalidate.json"
+    result ← handoff.deliver_controlled(stage, payload, expected, [], sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    if str(result["delivery_status"]) != "FIXTURE_PASS":
+        raise AssertionError("positive control did not establish saved success")
+    readback_mutation ← True
+    caught_message ← ""
+    try:
+        handoff.deliver_controlled(stage, payload, expected, [], sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+    except ValueError as error:
+        caught_message ← str(error)
+    readback_mutation ← False
+    if caught_message == "":
+        raise AssertionError("changed readback was not rejected")
+    persisted ∈ dict[str, object] ← json.loads(Path(state_path).read_bytes())
+    print("revalidation rejected: " + caught_message + "; persisted delivery_status: " + str(persisted["delivery_status"]))
+    if str(persisted["delivery_status"]) == "FIXTURE_PASS" or str(persisted["delivery_status"]) == "PASS":
+        raise AssertionError("revalidation failure retained a saved passing delivery receipt")
+    passed("failed resumed readback invalidates prior success")

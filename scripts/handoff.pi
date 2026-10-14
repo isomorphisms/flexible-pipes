@@ -358,6 +358,18 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
         original_record ∈ dict[str, object] ← dict(stage["handoff"])
         if str(restored_record["id"]) != str(original_record["id"]):
             raise ValueError("HANDOFF_CHECKPOINT_IDENTITY")
+    def checkpoint(current ∈ dict[str, object], phase ∈ str) → None:
+        current["delivery_lifecycle"] ← phase
+        current["acceptance_class"] ← "fixture"
+        current["platform_delivery_status"] ← "NOT_VERIFIED"
+        temporary ∈ Path ← Path(state_path + ".new")
+        temporary.write_text(str(json.dumps(current, sort_keys=True)) + "\n")
+        temporary.replace(path)
+
+    # A saved success qualifies the previous observation only. Invalidate it
+    # durably before readback or validation can fail, retaining effect history.
+    state["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
+    checkpoint(state, str(state.get("delivery_lifecycle", "COMPOSED")))
     capture ∈ dict[str, object] ← {"bytes": b"", "evidence_class": "fixture"}
     resumed_record ∈ dict[str, object] ← dict(state["handoff"])
     if str(resumed_record["visible_state"]) == "OBSERVED":
@@ -368,14 +380,6 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
             elif str(resumed_event["kind"]) == "attachment":
                 capture ← reader.read_attachment(str(resumed_event["file_id"]))
         capture["evidence_class"] ← "fixture"
-
-    def checkpoint(current ∈ dict[str, object], phase ∈ str) → None:
-        current["delivery_lifecycle"] ← phase
-        current["acceptance_class"] ← "fixture"
-        current["platform_delivery_status"] ← "NOT_VERIFIED"
-        temporary ∈ Path ← Path(state_path + ".new")
-        temporary.write_text(str(json.dumps(current, sort_keys=True)) + "\n")
-        temporary.replace(path)
 
     def send_text(response ∈ bytes) → dict[str, object]:
         observed ∈ dict[str, object] ← sink.send(response)
