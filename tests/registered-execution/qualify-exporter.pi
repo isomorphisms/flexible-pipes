@@ -111,6 +111,12 @@ if len(uid_map) == 3 and uid_map[2] == "1":
     print("BLOCKED " + observed)
     sys.exit(2)
 
+scratch_probe ∈ object ← subprocess.run([sys.executable, ithon + "/ithon_host.py", fp + "/tests/registered-execution/qualify-scratch-race.pi", fp, ithon, output + "/scratch-monitor"], capture_output=True, timeout=15)
+Path(output + "/scratch-monitor.stdout.bin").write_bytes(scratch_probe.stdout)
+Path(output + "/scratch-monitor.stderr.bin").write_bytes(scratch_probe.stderr)
+if int(scratch_probe.returncode) != 0:
+    raise ValueError("SCRATCH_MONITOR_UNQUALIFIED: " + str(scratch_probe.stderr.decode()))
+
 # Source acquisition is already complete before this script. A root-owned
 # disposable copy keeps application workers away from the runner checkout.
 inputs ∈ str ← output + "-inputs"

@@ -71,3 +71,11 @@ qualification exercises the actual existing service and client through both
 routes and compares the delivered bytes with the sealed decision. The new
 transport changes require their own fresh hosted result. Diagnostic TLS fixtures
 never certify signed production admission or a native ChatGPT visible message.
+
+The first transport head 2deedb0de10a342c5bd8d75c163d70caa9b3b3a2 exposed
+a monitor race before reaching TLS: a candidate test deleted an enumerated
+temporary file before `lstat`. This remains a failed attempt. The monitor now
+counts that observed entry but ignores only `FileNotFoundError` for its absent
+bytes. A focused actual-monitor control removes a file during inspection and
+separately proves that exceeding the scratch-byte limit still rejects execution.
+All other monitor errors and resource bounds remain active.

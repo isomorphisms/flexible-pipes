@@ -19,7 +19,7 @@ import base64
 import ithon_frontend
 from pathlib import Path
 from typing import Iterable
-from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError
+from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError, FileNotFoundError
 
 REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "fixture-destination-authentication", "fixture-destination-api", "fixture-wrong-login", "fixture-wrong-source", "fixture-wrong-repository", "fixture-wrong-destination", "fixture-organization-membership", "publish"]
 FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
@@ -418,7 +418,13 @@ def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], 
                         scratch_count ← scratch_count + 1
                         if scratch_count > 8192:
                             raise RuntimeError("SCRATCH_ENTRY_BOUND_EXCEEDED")
-                        info ∈ object ← scratch_file.lstat()
+                        try:
+                            info ∈ object ← scratch_file.lstat()
+                        except FileNotFoundError:
+                            # A worker may finish an atomic write between
+                            # enumeration and inspection. Count the observed
+                            # entry, but absent bytes cannot consume scratch.
+                            continue
                         size ∈ int ← info.st_size
                         scratch_size ← scratch_size + size
                     if now - start > 60.0 or output_size > 1048576 or error_size > 1048576 or scratch_size > 67108864:

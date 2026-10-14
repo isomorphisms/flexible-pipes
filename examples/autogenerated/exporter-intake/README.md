@@ -20,6 +20,18 @@ required an explicit `dict[str, object]` annotation for copied foreign input
 metadata. Both failed checks were caught before execution and corrected in
 checked Ithon, without changing any acceptance expectation.
 
+The scratch-limit negative control initially used `b"x" * 67108865`, which the
+checked frontend rejects because byte repetition is not statically defined.
+Its maintained implementation uses the explicit imported `bytes(size)` foreign
+constructor to allocate the same bounded-size control input. This is another
+named frontend precision/operation gap; no unchecked execution was substituted.
+An alias annotated merely as `object` for `Path.lstat` was also rejected as
+not statically callable; the maintained hook uses the inherited `os.lstat`
+interface directly. The local actual-monitor attempt then stopped because
+this namespace's `/proc` does not expose its own process ID. Monitor execution
+therefore remains NOT_RUN locally and follows the real UID preflight in hosted
+qualification; the watchdog was not bypassed.
+
 The existing owner-selected checked Ithon controller is retained. This exercise
 exposes foreign-return precision as language work; it does not certify Idriç
 support or manufacture a runtime result.
