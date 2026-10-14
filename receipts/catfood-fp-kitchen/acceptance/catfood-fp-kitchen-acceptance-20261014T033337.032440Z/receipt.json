@@ -1,0 +1,59 @@
+{
+  "finished_at": "2026-10-14T03:33:44.094162+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/workspace/scratch/4742a1c942e7/ai-ci/tests/transfer-handoff.grease",
+    "grease": "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+    "kitchen": "/workspace/scratch/4742a1c942e7/kitchen",
+    "output": "/workspace/scratch/4742a1c942e7/acceptance-06"
+  },
+  "pipeline": "catfood-fp-kitchen-acceptance",
+  "pipeline_path": "pipelines/catfood-fp-kitchen-acceptance.json",
+  "pipeline_sha256": "29121280ddd2278a3bfa7df6df7bd5a6db68b88d0c733deb71d532b4cb7d45d8",
+  "repository_commit": "7db28213ef8d15e1efd3bd917496492d19e737b7",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.3",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/catfood-fp-kitchen/STAR-CATFOOD-FP-KITCHEN-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T03:33:37.036868+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T03:33:37.034929+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4d000bea98b3d0e6594ef8829f65f329a15a25092335648c2183d66564521aaa"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+        "/workspace/scratch/4742a1c942e7/ai-ci/tests/transfer-handoff.grease",
+        "/workspace/scratch/4742a1c942e7/kitchen",
+        "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+        "/workspace/scratch/4742a1c942e7/acceptance-06",
+        "."
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T03:33:44.094119+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "native-generated-program-acceptance",
+      "started_at": "2026-10-14T03:33:37.036918+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ef1f9cebc7b51ebb29dc717273d24d4907f3e95d904a90072407bb7e6c98bbc8"
+    }
+  ],
+  "started_at": "2026-10-14T03:33:37.034848+00:00",
+  "status": "PASS"
+}
