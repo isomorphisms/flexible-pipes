@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "amazon-jobs-org-open",
+  "description": "Open the original human authorized Amazon.jobs/Blackball source-only cross-check; retain assignment and host identity.",
+  "required_stages": [
+    "job-envelope",
+    "host-identity"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/amazon-jobs/SUN-AMAZON-JOBS-ORG-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    }
+  ]
+}

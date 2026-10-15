@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "name": "amazon-jobs-org-audit",
+  "description": "Pinned Idriç Amazon.jobs CLI is the sole source of new Amazon jobs evidence. The complete Software Development census fails closed when incomplete. AICI acceptance is independent.",
+  "parameters": {
+    "program": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs"
+    },
+    "cli-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/AmazonJobs\\.idric"
+    },
+    "cli-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "catfood-manifest": {
+      "required": true,
+      "pattern": "/[^\\n]+/tools\\.tsv"
+    },
+    "historic-snapshot": {
+      "required": true,
+      "pattern": "/[^\\n]+/jobs\\.tsv"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/[^\\n]+/aici"
+    },
+    "aici-contract": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli-v0\\.contract\\.tsv"
+    },
+    "aici-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/src/aici\\.c"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\n]+/grease"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli/1\\.grease"
+    },
+    "cli-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric-compiler": {
+      "required": true,
+      "pattern": "/[^\\n]+/idris2"
+    },
+    "catfood-update": {
+      "required": true,
+      "pattern": "/[^\\n]+/update-tools\\.ysh"
+    },
+    "catfood-workspace": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "catfood-inventory",
+    "source-identity",
+    "historical-inventory",
+    "kitchen-preflight",
+    "kitchen-build",
+    "catfood-link-refresh",
+    "kitchen-installed-test",
+    "offline-self-test",
+    "independent-aici-source",
+    "independent-aici-revision",
+    "binary-identity",
+    "current-software-census",
+    "current-datacenter-access",
+    "current-graduate-sde"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/amazon-jobs/SUN-AMAZON-JOBS-ORG-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-inventory",
+      "argv": [
+        "sha256sum",
+        "{{catfood-manifest}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-identity",
+      "argv": [
+        "sha256sum",
+        "{{cli-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "historical-inventory",
+      "argv": [
+        "sha256sum",
+        "{{historic-snapshot}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-preflight",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "preflight",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-build",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "build",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-link-refresh",
+      "argv": [
+        "{{grease}}",
+        "{{catfood-update}}",
+        "{{catfood-workspace}}",
+        "12",
+        "{{catfood-manifest}}",
+        "1"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-installed-test",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "test",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "offline-self-test",
+      "argv": [
+        "{{program}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-source",
+      "argv": [
+        "{{aici}}",
+        "verify",
+        "{{aici-contract}}",
+        "{{cli-root}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-revision",
+      "argv": [
+        "sha256sum",
+        "{{aici-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "binary-identity",
+      "kind": "command",
+      "argv": [
+        "sha256sum",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-software-census",
+      "argv": [
+        "{{program}}",
+        "--category",
+        "software-development",
+        "--sort",
+        "relevant",
+        "--all",
+        "--max-pages",
+        "100",
+        "--pause",
+        "1",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-datacenter-access",
+      "argv": [
+        "{{program}}",
+        "data center technician",
+        "--country",
+        "USA",
+        "--limit",
+        "50",
+        "--max-pages",
+        "5",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "current-graduate-sde",
+      "argv": [
+        "{{program}}",
+        "graduate software development engineer",
+        "--country",
+        "USA",
+        "--limit",
+        "50",
+        "--max-pages",
+        "5",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    }
+  ]
+}
