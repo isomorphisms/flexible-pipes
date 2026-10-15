@@ -1,0 +1,60 @@
+SUN NHTSA-VIN-01 — Deliver typed NHTSA vPIC VIN CLI
+
+Model: SUN — extra-high reasoning
+Control plane: isomorphisms/flexible-pipes
+Implementation: dilapidated-shed/idric-cli (cli branch)
+Transport: dilapidated-shed/icu and dilapidated-shed/Idric-Net
+Build/installation: isomorphisms/kitchen, ICK native transport and Idriç app
+Feed: isomorphisms/catfood
+Independent acceptance: isomorphisms/ai-ci
+Date: 2026-10-14
+
+Authorized result
+
+Make an actual CLI command, nhtsa-vin, to decode Honda CR-V and other
+17-character automotive VINs using NHTSA's publicly documented vPIC API.
+Expose it as a Cat Food stable command if and only if it was actually built.
+Use the ICU captured-response API; do not shell out to curl or jq and do not
+write a second native HTTP provider. Keep VIN, decoded vehicle, missing fields,
+and provider status/error semantics typed in Idriç. Plaintext or TSV final
+rendering is acceptable and must be a projection of those types.
+
+Required surfaces
+
+nhtsa-vin decode VIN [--modelyear YYYY] [--tsv]
+nhtsa-vin url VIN [--modelyear YYYY]
+nhtsa-vin fixture VIN JSON_FILE [--tsv]
+nhtsa-vin help | --help | --version
+
+Accept exactly 17 ASCII VIN characters, excluding I/O/Q, case normalized.
+Do not pretend local character validation verifies a VIN check digit. Preserve
+NHTSA ErrorCode and ErrorText; missing fields differ from present but blank
+fields. Validate response JSON structure, exactly one result, and reported VIN
+identity when supplied. Do not infer a specific trim where vPIC omits it.
+
+Independent proof and receipts
+
+- Kitchen checks exact source revision and runs the real Idriç build, ICU
+  native boundary built using ICK, installation, and tests from outside source.
+- ai-ci independently checks schema, identity, missing-vs-empty, malicious
+  input refusal and executable provenance. Reject an intentionally wrong
+  response identity and a non-string field.
+- Flexible Pipes records submitted job identity, exact git heads, executable
+  digests, stdout/stderr, exits, and acceptance identity. Success does not
+  flow from source presence or a self-reported program self-test.
+- Separate synthetic fixture checks from live NHTSA request evidence. vPIC
+  rate limits and server errors are not empty successful decodes.
+- Cat Food already tracks idric-cli in tools.tsv: do not add a second source
+  repository row. Preserve explicit Android package gap for A1 ARM32 and C67
+  ARM64 until actual delivery acceptance for those exact ABIs.
+- Do not acquire dependencies or bootstrap compilers on Android runtime
+  devices. Do not merge an under-evidenced branch merely because GitHub
+  reports that it is mergeable.
+
+Current submission scope: typed implementation, source/offline tests,
+source registration and executable build/install commands. At submission,
+compiled execution, live vPIC request, and physical device acceptance remain
+NOT_RUN until exact bound receipts are actually produced.
+
+Official documentation:
+https://vpic.nhtsa.dot.gov/api/Home/Index
