@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "dirichlet-native-proof-open",
+  "parameters": {
+    "dirichlet": {"required": true, "pattern": "/.+"},
+    "kitchen-task": {"required": true, "pattern": "/.+"},
+    "compiler": {"required": true, "pattern": "/.+"},
+    "compiler-program": {"required": true, "pattern": "/.+"},
+    "grease-engine": {"required": true, "pattern": "/.+"},
+    "ike": {"required": true, "pattern": "/.+"}
+  },
+  "required_stages": ["assignment", "controller-provenance", "dirichlet-source", "runtime-and-recipe-identities"],
+  "stages": [
+    {"kind": "command", "name": "assignment", "argv": ["sha256sum", "tasks/DIR-13-opening.txt"]},
+    {"kind": "command", "name": "controller-provenance", "argv": ["cat", "source-provenance.txt"]},
+    {"kind": "command", "name": "dirichlet-source", "argv": ["git", "-C", "{{dirichlet}}", "rev-parse", "HEAD"]},
+    {"kind": "command", "name": "runtime-and-recipe-identities", "argv": ["sha256sum", "{{kitchen-task}}", "{{compiler}}", "{{compiler-program}}", "{{grease-engine}}", "{{ike}}"]}
+  ]
+}

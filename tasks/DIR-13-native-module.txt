@@ -1,0 +1,7 @@
+SUN DIR-13 — Per-module native proof/compiler continuation
+
+Continue STAR DIRICHLET-ADVANCE-01 with distinct fresh runs for every source candidate. Consume the exact controller-pinned repository base HEAD, relative source path, complete source SHA-256, compiler and runtime identities. For uncommitted source, record its worktree status and content identity; the repository base HEAD is not the uncommitted candidate's commit.
+
+Do not replace or relabel the original signed GeometricFinite attempt. New closed natural-number witnesses or modular coefficient programs have their own module, source digest, attempt and acceptance scope. Record all rejected glyphs/types/operations as exact compiler gaps. Require actual native checking and fresh TTC output from the selected module. Independently test mathematical output and false-theorem rejection before promoting a native checker observation to full mathematical acceptance.
+
+Use the official unchanged Flexible Pipes command runner, Kitchen's numbered Grease task, and real Ike recipe execution. Keep real local execution separate from absent service leases, platform delivery, independent AI-CI promotion and physical devices. This job does not authorize toolchain fallback, reconstruction of historical receipts or service activation.
