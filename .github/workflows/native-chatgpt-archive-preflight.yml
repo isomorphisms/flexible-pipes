@@ -1,0 +1,43 @@
+name: Native ChatGPT archive preflight via Flexible Pipes
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-chatgpt-archive-preflight.yml'
+      - 'pipelines/native-chatgpt-history-preflight.json'
+      - 'pipelines/native-chatgpt-archive-preflight.json'
+      - 'tasks/native-chatgpt-history/**'
+      - 'tasks/native-chatgpt-archive/**'
+      - 'scripts/run-pipeline'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fp-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        pipeline:
+          - native-chatgpt-history-preflight
+          - native-chatgpt-archive-preflight
+    steps:
+      - name: Exact Flexible Pipes candidate source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Run checked-in source-pinned FP specification
+        env:
+          PIPELINE: ${{ matrix.pipeline }}
+        run: python3 scripts/run-pipeline "$PIPELINE"
+      - name: Publish actual stage receipts and deterministic outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fp-${{ matrix.pipeline }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .flexible-pipes/runs/
+          if-no-files-found: error
