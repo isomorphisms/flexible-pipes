@@ -8,6 +8,10 @@ on:
       - "scripts/run-android-apk-preflight"
       - "pipelines/android-apk-preflight.json"
       - "tests/run-pipeline-preflight.sh"
+      - "registry/android-native-applications.tsv"
+      - "pipelines/android-native-apk.json"
+      - "tests/android-native-apk.sh"
+      - "docs/android-native-apk.md"
       - ".github/workflows/pipeline-preflight-self-test.yml"
   push:
     branches:
@@ -18,6 +22,10 @@ on:
       - "scripts/run-android-apk-preflight"
       - "pipelines/android-apk-preflight.json"
       - "tests/run-pipeline-preflight.sh"
+      - "registry/android-native-applications.tsv"
+      - "pipelines/android-native-apk.json"
+      - "tests/android-native-apk.sh"
+      - "docs/android-native-apk.md"
       - ".github/workflows/pipeline-preflight-self-test.yml"
 
 permissions:
@@ -33,4 +41,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Run hostile preflight cases
         shell: bash
-        run: bash tests/run-pipeline-preflight.sh
+        run: |
+          bash tests/run-pipeline-preflight.sh
+          bash tests/android-native-apk.sh
