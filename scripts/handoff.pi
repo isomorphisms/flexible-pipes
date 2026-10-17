@@ -9,8 +9,10 @@ import json
 import sys
 import re
 import zipfile
+import os
+from types import SimpleNamespace
 from pathlib import Path
-from builtins import dict, list, ValueError, KeyError, RuntimeError, isinstance, Exception
+from builtins import dict, list, ValueError, KeyError, RuntimeError, isinstance, Exception, hasattr
 
 MODES ∈ list[str] ← ["display-only", "display-and-dispatch", "dispatch-only"]
 PAYLOAD_LIMIT ∈ int ← 262144
@@ -160,6 +162,39 @@ def compose(stage ∈ dict[str, object], payload ∈ bytes, spec ∈ dict[str, o
     result["handoff"] ← handoff
     return result
 
+def compose_workflow_attachment(stage ∈ dict[str, object], source ∈ bytes, spec ∈ dict[str, object], selected ∈ dict[str, object], run ∈ dict[str, object], artifact ∈ dict[str, object]) → dict[str, object]:
+    """Consume connector observations; verify relations without inventing trust."""
+    repository ∈ dict[str, object] ← dict(run["repository"])
+    association ∈ dict[str, object] ← dict(artifact["workflow_run"])
+    if str(repository["full_name"]) != str(selected["repository"]) or int(repository["id"]) != int(selected["repository_id"]):
+        raise ValueError("HANDOFF_WORKFLOW_REPOSITORY")
+    if int(run["id"]) != int(selected["run_id"]) or int(run["run_attempt"]) != int(selected["run_attempt"]):
+        raise ValueError("HANDOFF_WORKFLOW_RUN")
+    if str(run["status"]) != "completed" or str(run["conclusion"]) != "success":
+        raise ValueError("HANDOFF_WORKFLOW_NOT_SUCCESSFUL")
+    revision ∈ str ← str(selected["revision"])
+    if not bool(re.fullmatch(r"[0-9a-f]{40}", revision)) or str(run["head_sha"]) != revision:
+        raise ValueError("HANDOFF_WORKFLOW_REVISION")
+    if int(artifact["id"]) != int(selected["artifact_id"]) or str(artifact["name"]) != str(selected["artifact_name"]):
+        raise ValueError("HANDOFF_WORKFLOW_ARTIFACT")
+    if not isinstance(artifact["expired"], bool) or bool(artifact["expired"]):
+        raise ValueError("HANDOFF_WORKFLOW_EXPIRED")
+    if int(association["id"]) != int(run["id"]) or int(association["repository_id"]) != int(repository["id"]) or str(association["head_sha"]) != revision:
+        raise ValueError("HANDOFF_WORKFLOW_ASSOCIATION")
+    source_digest ∈ str ← sha256_value(selected["archive_sha256"], "HANDOFF_WORKFLOW_DIGEST")
+    if digest(source) != source_digest or int(artifact["size_in_bytes"]) != len(source):
+        raise ValueError("HANDOFF_WORKFLOW_BYTES")
+    provider_digest ∈ str ← str(artifact.get("digest", ""))
+    if provider_digest != "" and provider_digest != "None" and provider_digest != "sha256:" + source_digest:
+        raise ValueError("HANDOFF_WORKFLOW_PROVIDER_DIGEST")
+    reference ∈ str ← "github-actions:run:" + str(run["id"]) + ":artifact:" + str(artifact["id"])
+    attachment ∈ dict[str, object] ← {"file_name": selected["file_name"], "mime_type": selected["mime_type"], "sha256": selected["payload_sha256"], "source_name": selected["source_name"], "source_sha256": source_digest, "archive_member": selected["archive_member"], "provenance": {"provider": "github-actions", "resource": repository["full_name"], "revision": revision, "reference": reference}}
+    amended ∈ dict[str, object] ← dict(spec)
+    amended["attachment"] ← attachment
+    result ∈ dict[str, object] ← compose(stage, source, amended)
+    result["workflow_artifact"] ← {"repository_id": repository["id"], "run_id": run["id"], "run_attempt": run["run_attempt"], "artifact_id": artifact["id"], "artifact_name": artifact["name"], "revision": revision, "archive_sha256": source_digest, "archive_member": selected["archive_member"], "verification_class": "metadata-and-bytes-contract", "artifact_attempt_binding": "NOT_PROVIDED_BY_ARTIFACT_METADATA"}
+    return result
+
 def identity(stage ∈ dict[str, object], payload ∈ bytes) → dict[str, object]:
     handoff ∈ dict[str, object] ← dict(stage["handoff"])
     version ∈ int ← int(handoff["version"])
@@ -244,16 +279,25 @@ def recover(stage ∈ dict[str, object], correction ∈ str) → dict[str, objec
     handoff["delivery_mode"] ← "display-only" if handoff["dispatch_state"] == "ACCEPTED" else "display-and-dispatch" if handoff["delivery_mode"] == "display-and-dispatch" else "display-only"
     handoff["visible_state"] ← "PENDING"
     result["handoff"] ← handoff
+    result["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
     return result
 
-def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str) → dict[str, object]:
+def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str, presentation ∈ str = "plain") → dict[str, object]:
     handoff ∈ dict[str, object] ← identity(stage, payload)
     delivered ∈ bytes ← materialize(stage, payload)
     result ∈ dict[str, object] ← dict(stage)
     events ∈ list[dict[str, object]] ← list(handoff["events"])
     mode ∈ str ← str(handoff["delivery_mode"])
+    if presentation != "plain" and presentation != "literal":
+        raise ValueError("HANDOFF_PRESENTATION_UNSUPPORTED")
     response ∈ bytes ← b""
-    if mode != "dispatch-only":
+    if mode != "dispatch-only" and str(handoff["visible_state"]) == "OBSERVED":
+        # A resumed accepted presentation is read back by the controller; it
+        # must not be sent/uploaded again merely because execution restarted.
+        for previous_event in events:
+            if str(previous_event["kind"]) == "visible":
+                response ← str(previous_event["response_text"]).encode()
+    elif mode != "dispatch-only":
         event ∈ dict[str, object] ← {}
         if int(handoff["version"]) == 2:
             attachment ∈ dict[str, object] ← dict(handoff["attachment"])
@@ -264,7 +308,9 @@ def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dis
                 raise ValueError("HANDOFF_ATTACHMENT_SINK_METADATA")
             event ← {"kind": "attachment", "sequence": len(events) + 1, "payload_sha256": digest(delivered), "payload_size": len(delivered), "file_id": plain(observed["file_id"]), "file_name": file_name(observed["file_name"]), "mime_type": plain(observed["mime_type"]), "surface": plain(observed["surface"])}
         else:
-            response ← render(payload, summary)
+            # A summary cannot silently select a client component. Literal
+            # blocks require an explicit presentation choice by the controller.
+            response ← render(payload, summary) if presentation == "literal" else payload
             # Sink returns the bytes actually accepted on its visible surface,
             # not a success flag copied from the producing model.
             observed ← sink.send(response)
@@ -294,7 +340,162 @@ def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dis
     else:
         gate.check(result, payload, response, True)
     result["delivery_status"] ← "PASS"
+    result["acceptance_class"] ← "transport-contract-only"
+    result["platform_delivery_status"] ← "NOT_VERIFIED"
     return result
+
+def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected ∈ dict[str, object], required_text ∈ list[str], sink ∈ object, reader ∈ object, dispatcher ∈ object, gate ∈ object, state_path ∈ str, evidence_class ∈ str) → dict[str, object]:
+    """Resume this stage; fixture execution never becomes platform attestation."""
+    if evidence_class != "fixture":
+        raise ValueError("HANDOFF_PLATFORM_ADAPTER_UNAVAILABLE")
+    gate.check_authority(stage, source, expected, required_text)
+    state ∈ dict[str, object] ← stage
+    path ∈ Path ← Path(state_path)
+    if path.exists():
+        state ← json.loads(path.read_bytes())
+        gate.check_authority(state, source, expected, required_text)
+        restored_record ∈ dict[str, object] ← dict(state["handoff"])
+        original_record ∈ dict[str, object] ← dict(stage["handoff"])
+        if str(restored_record["id"]) != str(original_record["id"]):
+            raise ValueError("HANDOFF_CHECKPOINT_IDENTITY")
+    def checkpoint(current ∈ dict[str, object], phase ∈ str) → None:
+        current["delivery_lifecycle"] ← phase
+        current["acceptance_class"] ← "fixture"
+        current["platform_delivery_status"] ← "NOT_VERIFIED"
+        temporary ∈ Path ← Path(state_path + ".new")
+        temporary.write_text(str(json.dumps(current, sort_keys=True)) + "\n")
+        temporary.replace(path)
+
+    # A saved success qualifies the previous observation only. Invalidate it
+    # durably before readback or validation can fail, retaining effect history.
+    state["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
+    checkpoint(state, str(state.get("delivery_lifecycle", "COMPOSED")))
+    capture ∈ dict[str, object] ← {"bytes": b"", "evidence_class": "fixture"}
+    resumed_record ∈ dict[str, object] ← dict(state["handoff"])
+    if str(resumed_record["visible_state"]) == "OBSERVED":
+        resumed_events ∈ list[dict[str, object]] ← list(resumed_record["events"])
+        latest_presentation ∈ dict[str, object] ← {}
+        for resumed_event in resumed_events:
+            if str(resumed_event["kind"]) == "delivery-failed":
+                latest_presentation ← {}
+            elif str(resumed_event["kind"]) == "visible" or str(resumed_event["kind"]) == "attachment":
+                latest_presentation ← resumed_event
+        if str(latest_presentation.get("kind")) == "visible":
+            capture ← reader.read_text(str(latest_presentation["message_id"]))
+        elif str(latest_presentation.get("kind")) == "attachment":
+            capture ← reader.read_attachment(str(latest_presentation["file_id"]))
+        capture["evidence_class"] ← "fixture"
+
+    def presentation_once(value ∈ bytes, name ∈ str, mime ∈ str, provenance ∈ dict[str, object], attachment ∈ bool) → dict[str, object]:
+        current_record ∈ dict[str, object] ← dict(state["handoff"])
+        generation ∈ int ← 0
+        current_events ∈ list[dict[str, object]] ← list(current_record["events"])
+        for event in current_events:
+            if str(event["kind"]) == "delivery-failed":
+                generation ← generation + 1
+        effect_key ∈ str ← str(current_record["id"]) + "-presentation-" + str(generation)
+        attempted ∈ Path ← Path(state_path + ".presentation-attempt-" + str(generation))
+        if attempted.exists():
+            if bytes(attempted.read_bytes()) != bytes(effect_key.encode()):
+                raise ValueError("HANDOFF_PRESENTATION_JOURNAL_IDENTITY")
+            lookup_name ∈ str ← "lookup_attachment" if attachment else "lookup_text"
+            if not hasattr(sink, lookup_name):
+                raise ValueError("HANDOFF_PRESENTATION_OUTCOME_UNKNOWN")
+            previous ∈ dict[str, object] ← sink.lookup_attachment(effect_key) if attachment else sink.lookup_text(effect_key)
+            if str(previous.get("status")) != "ACCEPTED":
+                raise ValueError("HANDOFF_PRESENTATION_OUTCOME_UNKNOWN")
+            return previous
+        descriptor ∈ int ← os.open(str(attempted), int(os.O_WRONLY) | int(os.O_CREAT) | int(os.O_EXCL), 384)
+        try:
+            written ∈ int ← os.write(descriptor, effect_key.encode())
+            if written != len(effect_key.encode()):
+                raise ValueError("HANDOFF_PRESENTATION_JOURNAL_WRITE")
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        if attachment:
+            if hasattr(sink, "send_attachment_once"):
+                return sink.send_attachment_once(value, name, mime, provenance, effect_key)
+            return sink.send_attachment(value, name, mime, provenance)
+        if hasattr(sink, "send_text_once"):
+            return sink.send_text_once(value, effect_key)
+        return sink.send(value)
+
+    def send_text(response ∈ bytes) → dict[str, object]:
+        empty_provenance ∈ dict[str, object] ← {}
+        observed ∈ dict[str, object] ← presentation_once(response, "", "", empty_provenance, False)
+        readback ∈ dict[str, object] ← reader.read_text(str(observed["message_id"]))
+        capture.clear()
+        capture.update(readback)
+        capture["evidence_class"] ← "fixture"
+        return observed
+
+    def send_attachment(payload ∈ bytes, name ∈ str, mime ∈ str, provenance ∈ dict[str, object]) → dict[str, object]:
+        observed ∈ dict[str, object] ← presentation_once(payload, name, mime, provenance, True)
+        readback ∈ dict[str, object] ← reader.read_attachment(str(observed["file_id"]))
+        capture.clear()
+        capture.update(readback)
+        capture["evidence_class"] ← "fixture"
+        return observed
+
+    def accept_text(current ∈ dict[str, object], payload ∈ bytes, response ∈ bytes, complete ∈ bool) → None:
+        current_record ∈ dict[str, object] ← dict(current["handoff"])
+        if str(current_record["delivery_mode"]) != "dispatch-only":
+            checkpoint(current, "PRESENTED")
+        gate.check_actual(current, payload, bytes(capture["bytes"]), capture, expected, required_text, complete)
+        checkpoint(current, "ACCEPTED")
+
+    def accept_attachment(current ∈ dict[str, object], payload ∈ bytes, complete ∈ bool) → None:
+        current_record ∈ dict[str, object] ← dict(current["handoff"])
+        if str(current_record["delivery_mode"]) != "dispatch-only":
+            checkpoint(current, "PRESENTED")
+        gate.check_actual(current, payload, bytes(capture["bytes"]), capture, expected, required_text, complete)
+        checkpoint(current, "ACCEPTED")
+
+    def dispatch_once(payload ∈ bytes, identity_value ∈ str) → dict[str, object]:
+        attempted ∈ Path ← Path(state_path + ".dispatch-attempt")
+        if attempted.exists():
+            if bytes(attempted.read_bytes()) != bytes(identity_value.encode()):
+                raise ValueError("HANDOFF_DISPATCH_JOURNAL_IDENTITY")
+            if not hasattr(dispatcher, "lookup"):
+                raise ValueError("HANDOFF_DISPATCH_OUTCOME_UNKNOWN")
+            previous ∈ dict[str, object] ← dispatcher.lookup(identity_value)
+            if str(previous.get("status")) != "ACCEPTED":
+                raise ValueError("HANDOFF_DISPATCH_OUTCOME_UNKNOWN")
+            if bytes(previous["bytes"]) != payload:
+                raise ValueError("HANDOFF_DISPATCH_IDENTITY")
+            return previous
+        descriptor ∈ int ← os.open(str(attempted), int(os.O_WRONLY) | int(os.O_CREAT) | int(os.O_EXCL), 384)
+        try:
+            os.write(descriptor, identity_value.encode())
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        accepted ∈ dict[str, object] ← dispatcher.send(payload, identity_value)
+        return accepted
+
+    checkpoint(state, str(state.get("delivery_lifecycle", "COMPOSED")))
+    wrapped_sink ∈ object ← SimpleNamespace(send=send_text, send_attachment=send_attachment)
+    wrapped_dispatcher ∈ object ← SimpleNamespace(send=dispatch_once)
+    wrapped_gate ∈ object ← SimpleNamespace(check=accept_text, check_attachment=accept_attachment)
+    result ∈ dict[str, object] ← deliver(state, source, wrapped_sink, wrapped_dispatcher, wrapped_gate, "", "plain")
+    result["delivery_status"] ← "FIXTURE_PASS"
+    record ∈ dict[str, object] ← dict(result["handoff"])
+    checkpoint(result, "DISPATCHED" if str(record["dispatch_state"]) == "ACCEPTED" else "ACCEPTED")
+    return result
+
+def recover_controlled(state_path ∈ str, source ∈ bytes, expected ∈ dict[str, object], required_text ∈ list[str], gate ∈ object, correction ∈ str) → dict[str, object]:
+    """Persist a failure/correction without erasing completed effect history."""
+    stage ∈ dict[str, object] ← json.loads(Path(state_path).read_bytes())
+    gate.check_authority(stage, source, expected, required_text)
+    recovered ∈ dict[str, object] ← recover(stage, correction)
+    recovered["delivery_lifecycle"] ← "COMPOSED"
+    recovered["acceptance_class"] ← "fixture"
+    recovered["platform_delivery_status"] ← "NOT_VERIFIED"
+    temporary ∈ Path ← Path(state_path + ".new")
+    temporary.write_text(str(json.dumps(recovered, sort_keys=True)) + "\n")
+    temporary.replace(Path(state_path))
+    return recovered
 
 def review_packet(stage ∈ dict[str, object], payload ∈ bytes, response ∈ bytes, request ∈ str, corrections ∈ str, gate ∈ object) → dict[str, object]:
     handoff ∈ dict[str, object] ← identity(stage, payload)
@@ -317,6 +518,17 @@ def review_decision(packet ∈ dict[str, object], reviewer ∈ dict[str, object]
 
 def main() → None:
     args ∈ list[str] ← sys.argv
+    if len(args) == 8 and args[1] == "compose-workflow":
+        workflow_stage ∈ dict[str, object] ← json.loads(Path(args[2]).read_bytes())
+        workflow_spec ∈ dict[str, object] ← json.loads(Path(args[3]).read_bytes())
+        selected ∈ dict[str, object] ← json.loads(Path(args[4]).read_bytes())
+        run ∈ dict[str, object] ← json.loads(Path(args[5]).read_bytes())
+        artifact ∈ dict[str, object] ← json.loads(Path(args[6]).read_bytes())
+        source ∈ bytes ← Path(args[7]).read_bytes()
+        result ∈ dict[str, object] ← compose_workflow_attachment(workflow_stage, source, workflow_spec, selected, run, artifact)
+        Path(args[2]).write_text(str(json.dumps(result, sort_keys=True)) + "\n")
+        Path(args[2] + ".attachment").write_bytes(materialize(result, source))
+        return
     if len(args) == 3 and args[1] == "validate-spec":
         spec ∈ dict[str, object] ← json.loads(Path(args[2]).read_bytes())
         validate_spec(spec)
@@ -333,4 +545,4 @@ def main() → None:
     if int(composed_handoff["version"]) == 2:
         Path(args[2] + ".attachment").write_bytes(materialize(composed, payload))
     else:
-        Path(args[2] + ".response.txt").write_bytes(render(payload, ""))
+        Path(args[2] + ".response.txt").write_bytes(payload)

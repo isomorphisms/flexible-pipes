@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: d598fbc97e17df47a618a3a4cb60695525e6beb7
+          ref: 03e4a9b4a314a2637ae240e5045fb9860737a1a0
           path: _aici
           persist-credentials: false
       - name: Check out qualified checked Ithon interface
@@ -32,7 +32,14 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/job-delivery-checked.jsonl
-        run: _ithon/ithon tests/job-delivery/runtime.pi "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_ithon/ithon"
+        run: >-
+          python3 scripts/run-pipeline fp35-delivery-acceptance
+          --param "ithon=$GITHUB_WORKSPACE/_ithon/ithon"
+          --param "fp-root=$GITHUB_WORKSPACE"
+          --param "aici-root=$GITHUB_WORKSPACE/_aici"
+          --param "aici-test=$GITHUB_WORKSPACE/_aici/tests/job-delivery/check.pi"
+          --param "results=$RUNNER_TEMP/fp35-delivery-results"
+          --runs-root "$RUNNER_TEMP/fp35-delivery-runs"
       - name: Preserve existing pipeline handoffs
         run: bash tests/run-pipeline-preflight.sh
       - name: Retain exact checked inputs
@@ -40,5 +47,8 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: job-delivery-runtime-${{ github.event.pull_request.head.sha || github.sha }}
-          path: ${{ runner.temp }}/job-delivery-checked.jsonl
+          path: |
+            ${{ runner.temp }}/job-delivery-checked.jsonl
+            ${{ runner.temp }}/fp35-delivery-results/
+            ${{ runner.temp }}/fp35-delivery-runs/
           if-no-files-found: error
