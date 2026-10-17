@@ -1,0 +1,39 @@
+{
+  "finished_at": "2026-10-14T04:55:39.062528+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "fragment-byte-display-samples",
+  "pipeline_path": "pipelines/fragment-byte-display-samples.json",
+  "pipeline_sha256": "540457013a6aa7f0f348d270365fb741ea78bbfa4bcfbf681d42e279e25e014c",
+  "repository_commit": "84e2499dcba6b28ce1fcc684a3d5fb3f059ca802",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "env",
+        "EGL_PLATFORM=surfaceless",
+        "./build/coordinate-primitives"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:55:39.062497+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "byte-display-samples",
+      "started_at": "2026-10-14T04:55:38.930614+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "fd7b296d29993a5469f9be2266cea2a1d4b66a47a2d56b0845cbce72ca6124bf"
+    }
+  ],
+  "started_at": "2026-10-14T04:55:38.930527+00:00",
+  "status": "PASS"
+}

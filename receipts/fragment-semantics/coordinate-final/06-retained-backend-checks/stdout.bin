@@ -1,0 +1,1 @@
+backend checks passed: source lowering, golden outputs, precision directives and labels, structured branch emission, phase-portrait emission, fixed uniform-array emission, four backend refusals, tuple-width source refusal

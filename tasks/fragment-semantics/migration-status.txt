@@ -1,0 +1,89 @@
+FRAGMENT-SEMANTICS — bounded coordinate repair and remaining migration
+
+Control: https://github.com/isomorphisms/flexible-pipes/issues/116
+The full source audit, vocabulary, tests and five dependency-ordered SUN jobs
+are preserved in semantic-audit.txt. This status does not replace their scope.
+
+Reviewable changes:
+isomorphisms/Idric PR #137, “Add named 32D exact coordinate pairing samples”
+https://github.com/isomorphisms/Idric/pull/137
+isomorphisms/ai-ci PR #263, “Compare coordinate shader readback independently in Idriç”
+https://github.com/isomorphisms/ai-ci/pull/263
+fuego-ironworks/idris-shader-backend PR #72, “Check coordinate pairing roles and distinguish shader tuples”
+https://github.com/fuego-ironworks/idris-shader-backend/pull/72
+
+Implemented bounded boundary:
+- Named dimension/real ambient field and distinct exact vector/covector samples
+  extend the existing Idriç mathematical owner. Integer-coordinate samples do
+  not become a complete executable real field by naming it.
+- Source numerical packets distinguish dual role, dimension and Cartesian
+  frame. coordinate_pairing returns a scalar approximation. Grayscale is a
+  separate rendering operation. General finite-input/rounding contracts are
+  still required before accepting a complete numerical vector-space API.
+- Packing is two fixed scalar arrays, not sixteen unrelated tuple operands.
+  Stable checked-source sidecars record roles before lowering erases them.
+- ShaderFloatTuple and component operations propagate through maintained
+  source, IR, GLSL/mock emitters, native uploads, packages and regression tests.
+  Removed program/type/operation names have no permanent compatibility aliases.
+- Canonical-qualified declaration refusals fail the compiler process. ai-ci
+  independently compares the entire dual-basis case set against its definition.
+
+Evidence classes:
+- Exact source: four specific equality declarations and role/space refusals.
+- Compiler: checked 4D/32D interfaces, generated artifacts and five invalid or
+  spoofed-interface refusals. Retained regression fixtures test the actual
+  registered backend; their text/golden checks are structural assertions.
+- Numerical execution: 1024 basis pairings and two coordinate-change samples
+  from generated GLSL on an RGBA32F framebuffer, actual Mesa llvmpipe.
+- Independent comparison: accepts those 1026 cases; rejects an executed
+  one-operand coordinate-swap shader and an omitted final-coordinate result.
+- Additional input fixtures: reordered, duplicated and unreadable results
+  rejected. These fixtures are checker tests, not additional shader execution.
+- Physical phone/tablet: NOT RUN. llvmpipe is software execution.
+- Source-width preservation: FAIL. The tested compiler rejects Float32 as
+  undefined. The exact diagnostic and nonzero exit are retained, without a
+  Float32-to-Double compatibility alias or a precision-qualifier substitute.
+
+Remaining ordered gates:
+01 PARTIAL: extend the owner from exact samples to the required checked
+   scalar/metric/frame contracts. No all-input real arithmetic claim is accepted.
+02 BLOCKED: genuine format-bearing source scalars and primitive semantics must
+   survive core handoff. Qualify conversion, rounding, exceptional/finite input,
+   bounded indexing, host schema/strides and alternate legal packing. Coordinate
+   shared indexing and IR with FP issue #114 rather than inventing a second IR.
+03 PENDING: repair the small-difference alignment defect. Implement selection
+   and application of an actual fixed orientation-preserving orthogonal map;
+   check full basis, Gram matrix, determinant, zero/axes/scales and adversarial
+   cases. A red framebuffer sample is not a rotation proof or Givens acceptance.
+04 PARTIAL: independent coordinate acceptance exists in ai-ci. The complete
+   precision, packing, rotation, role-erasure and evidence-forgery mutants remain.
+05 PENDING: complete every maintained consumer and regenerate its artifacts.
+
+Consumer obligations, all following the exact published coordinate source:
+- Backend maintained source/IR/GLSL/mock consumers: coordinate slice migrated;
+  old reference evaluator names, precision labels, unchecked indexing and
+  rotation diagnostics remain open under the inventory's specific findings.
+- Backend active Wegert/exp follower branches: migrate their source and checks
+  while preserving their mathematical feature work. Merge no sibling wholesale.
+- Optional real NVIDIA PTX/AMDGPU followers: propagate the accepted carrier and
+  operation contracts into genuine output and their own acceptance fixtures.
+  An assembly qualification is separate from physical hardware execution.
+- Holomorphic checked-live and Fock sources: migrate tuple/component vocabulary,
+  semantic complex/point/colour boundaries and compiler pins together. Then
+  regenerate, prove packaged shader identity and actual renderer selection.
+  Do not change their pins before the whole coordinated consumer path is ready.
+- Wegert: distinguish typed measure/colour roles and handwritten-template output
+  from checked-source generation. Migrate shared source consumers where used.
+- Fourier: keep coefficient/exponent arrays and complex values accurate; its CPU
+  renderer is not GPU-source acceptance. Migrate only actually used boundaries.
+- Surfer mobile/native/Java: audit points, displacements, dual differentials,
+  metric-normal maps and coordinate frames. Migrate actual ABI layouts and all
+  callers together with versioned schemas and rejection of stale interfaces.
+- Idriç mathematical samples: rename or generalize integer quaternion/unit
+  quaternion samples without misrepresenting the full real unit-quaternion group.
+- Phone MIRO A1 and tablet TAB_P10: build/package off-device; target-specific
+  physical acceptance remains separate. No inferred target or emulator receipt.
+
+Acceptance cannot close this campaign until every affected maintained consumer,
+serialized interface, generated asset, document and independent semantic gate
+has its matching exact-source receipt. Draft publication is not merge/release.
