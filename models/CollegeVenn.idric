@@ -1,0 +1,198 @@
+module CollegeVenn
+
+import Data.Nat
+import Data.List
+
+-- The four disjoint cells induced by college and good-job membership.
+public export
+record Region (universe : Text) where
+  constructor Cells
+  both : Bool
+  college_only : Bool
+  job_only : Bool
+  neither : Bool
+
+public export
+record PopulationFrame (universe : Text) (unit : Text) where
+  constructor Population
+  frame_number : Number
+  both_weight : Number
+  college_only_weight : Number
+  job_only_weight : Number
+  neither_weight : Number
+
+public export
+college : Region universe
+college = Cells True True False False
+
+public export
+good_job : Region universe
+good_job = Cells True False True False
+
+public export
+intersection : Region universe → Region universe → Region universe
+intersection (Cells a b c d) (Cells e f g h) =
+  Cells (a && e) (b && f) (c && g) (d && h)
+
+public export
+complement : Region universe → Region universe
+complement (Cells a b c d) = Cells (not a) (not b) (not c) (not d)
+
+public export
+selected_weight : Bool → Number → Number
+selected_weight False weight = 0
+selected_weight True weight = weight
+
+public export
+measure : PopulationFrame universe unit → Region universe → Number
+measure (Population time a b c d) (Cells e f g h) =
+  selected_weight e a + selected_weight f b +
+  selected_weight g c + selected_weight h d
+
+-- No positive numerator over zero and no value above 100 percent.
+-- These are erased proofs, not trusted Boolean flags.
+public export
+data BoundedFraction : Number → Number → Type where
+  EmptyPopulation : BoundedFraction 0 0
+  NonemptyPopulation : (numerator, denominator : Number) →
+    (0 positive : IsSucc denominator) →
+    (0 bounded : LTE numerator denominator) →
+    BoundedFraction numerator denominator
+
+public export
+bounded_fraction : (numerator, denominator : Number) →
+                   Maybe (BoundedFraction numerator denominator)
+bounded_fraction 0 0 = Just EmptyPopulation
+bounded_fraction (S numerator) 0 = Nothing
+bounded_fraction numerator (S denominator) =
+  case isLTE numerator (S denominator) of
+    Yes bounded ⇒ Just (NonemptyPopulation numerator (S denominator) ItIsSucc bounded)
+    No _ ⇒ Nothing
+
+-- Nominal indices preserve the question even when answers are numerically
+-- equal. Neither the numerator nor denominator is supplied by the caller.
+public export
+data Percentage : (frame : PopulationFrame universe unit) →
+                  (event, among : Region universe) → Type where
+  PercentageOf : BoundedFraction (measure frame (intersection event among))
+                                (measure frame among) →
+                 Percentage frame event among
+
+public export
+percentage : (frame : PopulationFrame universe unit) →
+             (event, among : Region universe) → Maybe (Percentage frame event among)
+percentage frame event among =
+  map PercentageOf (bounded_fraction (measure frame (intersection event among))
+                                    (measure frame among))
+
+bit_text : Bool → Text
+bit_text False = "0"
+bit_text True = "1"
+
+public export
+region_code : Region universe → Text
+region_code (Cells a b c d) = bit_text a ++ bit_text b ++ bit_text c ++ bit_text d
+
+-- Vocabulary is selected from the event, never beside a numeric answer.
+public export
+population_text : Region universe → Text
+population_text (Cells True True False False) = "college graduates"
+population_text (Cells True False True False) = "people with a good job"
+population_text (Cells False True False True) = "people with a bad job or no job"
+population_text region = "people in region " ++ region_code region
+
+public export
+condition_text : Region universe → Text
+condition_text (Cells True True False False) = "who have a college degree"
+condition_text (Cells True False True False) = "with a good job"
+condition_text (Cells False True False True) = "with a bad job or no job"
+condition_text region = "who are in region " ++ region_code region
+
+public export
+percentage_label : (event, among : Region universe) → Text
+percentage_label event among = "% of " ++ population_text among ++ " " ++ condition_text event
+
+public export
+fraction_fields : BoundedFraction numerator denominator → Text
+fraction_fields EmptyPopulation = "0\t0\tundefined"
+fraction_fields (NonemptyPopulation numerator denominator positive bounded) =
+  let tenths = (1000 × numerator + (denominator `div` 2)) `div` denominator in
+  show numerator ++ "\t" ++ show denominator ++ "\t" ++
+  show (tenths `div` 10) ++ "." ++ show (tenths `mod` 10) ++ "%"
+
+public export
+answer_fields : Percentage frame event among → Text
+answer_fields (PercentageOf fraction) = fraction_fields fraction
+
+public export
+query_line : Text → (frame : PopulationFrame universe unit) →
+             (event, among : Region universe) → Text
+query_line kind frame event among =
+  case percentage frame event among of
+    Nothing ⇒ "ERROR\tintersection is not a bounded portion of its population"
+    Just answer ⇒ kind ++ "\t" ++ show (frame_number frame) ++ "\t" ++
+      region_code event ++ "\t" ++ region_code among ++ "\t" ++
+      answer_fields answer ++ "\t" ++ percentage_label event among
+
+public export
+all_regions : List (Region universe)
+all_regions = [Cells a b c d | a ← [False, True], b ← [False, True],
+                              c ← [False, True], d ← [False, True]]
+
+-- Common integer weights represent exact rational measures up to common scale.
+-- Fixed universe: b grows and d shrinks by exactly the same amount.
+smooth_growth : Number → Number → Number
+smooth_growth elapsed duration =
+  let t = min elapsed duration in
+  (500 × t × t × minus (3 × duration) (2 × t)) `div` (duration × duration × duration)
+
+public export
+college_growth : Number → Number
+college_growth time =
+  if time <= 12 then 500 else
+  if time <= 52 then 500 + smooth_growth (minus time 12) 40 else
+  if time <= 69 then 1000 else
+  if time <= 109 then 1000 + smooth_growth (minus time 69) 40 else
+  if time <= 126 then 1500 else
+  if time <= 166 then 1500 + smooth_growth (minus time 126) 40 else 2000
+
+public export
+movie_frame : Number → PopulationFrame "movie people" "schematic weight"
+movie_frame time = Population time 500 (college_growth time) 820
+                                     (minus 7280 (college_growth time))
+
+public export
+asymmetric : PopulationFrame "oracle people" "unit weight"
+asymmetric = Population 1000 2 3 5 7
+
+public export
+symmetric : PopulationFrame "oracle people" "unit weight"
+symmetric = Population 1001 2 3 3 7
+
+public export
+empty_frame : PopulationFrame "oracle people" "unit weight"
+empty_frame = Population 1002 0 0 0 0
+
+frame_line : PopulationFrame universe unit → Text
+frame_line (Population time a b c d) =
+  "frame\t" ++ show time ++ "\t" ++ show a ++ "\t" ++ show b ++ "\t" ++ show c ++ "\t" ++ show d
+
+movie_lines : Number → List Text
+movie_lines time =
+  let frame = movie_frame time in
+  [frame_line frame, query_line "answer" frame good_job college,
+                     query_line "answer" frame college good_job]
+
+oracle_lines : PopulationFrame universe unit → List Text
+oracle_lines frame =
+  frame_line frame :: [query_line "oracle" frame event among |
+                        event ← all_regions, among ← all_regions]
+
+main : IO ()
+main = do
+  putStrLn "model\tcollege-venn-dependent-v1\t196\t24\t8600"
+  putStrLn ("region\tcollege\t" ++ region_code (the (Region "movie people") college) ++ "\tWENT TO COLLEGE")
+  putStrLn ("region\tgood\t" ++ region_code (the (Region "movie people") good_job) ++ "\tGOOD JOB")
+  putStrLn ("region\tcomplement\t" ++ region_code (complement (the (Region "movie people") good_job)) ++ "\tBAD JOB OR NO JOB")
+  traverse_ putStrLn (concatMap movie_lines [0..195])
+  traverse_ putStrLn (oracle_lines asymmetric ++ oracle_lines symmetric ++ oracle_lines empty_frame)

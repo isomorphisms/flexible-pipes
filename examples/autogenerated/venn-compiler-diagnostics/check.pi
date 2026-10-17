@@ -1,0 +1,46 @@
+"""Check the inherited Venn acceptance adapter, not the Idriç type system."""
+import importlib.util
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from builtins import dict, list, ValueError, AssertionError, FileNotFoundError
+
+args ∈ list[str] ← sys.argv
+root ∈ Path ← Path(args[1]).resolve()
+spec ∈ object ← importlib.util.spec_from_file_location("venn_checker", str(root) + "/tests/check-college-job-venn.py")
+checker ∈ object ← importlib.util.module_from_spec(spec)
+spec.loader.exec_module(checker)
+cases ∈ list[tuple[int, bytes]] ← [
+    (0, b"Error: Module Prelude not found\n\n(Interactive):1:1--1:1\n"),
+    (0, b"Error: Undefined name unsafePerformIO.\n"),
+    (0, b"Uncaught error: missing support\n"),
+    (1, b"checking failed\n"),
+]
+checker.require_compiler_success(subprocess.CompletedProcess(["diagnostic-fixture"], 0, b"1/1: Building Positive\n"), "positive twin")
+for case in cases:
+    rejected ∈ bool ← False
+    try:
+        checker.require_compiler_success(subprocess.CompletedProcess(["diagnostic-fixture"], case[0], case[1]), "regression")
+    except ValueError:
+        rejected ← True
+    if not rejected:
+        raise AssertionError("compiler error was accepted")
+
+with tempfile.TemporaryDirectory(prefix="venn-stale-evidence-") as directory:
+    output ∈ Path ← Path(directory)
+    names ∈ list[str] ← ["model-check.json", "render-receipt.json", "acceptance.json", "model.tsv", "college-good-jobs-venn.mp4"]
+    for name in names:
+        Path(str(output) + "/" + name).write_text("stale successful output")
+    failed ∈ bool ← False
+    try:
+        checker.check_type_model(Path(str(output) + "/absent-compiler"), output)
+    except (ValueError, FileNotFoundError):
+        failed ← True
+    if not failed:
+        raise AssertionError("missing compiler accepted")
+    for name in names:
+        if Path(str(output) + "/" + name).exists():
+            raise AssertionError("stale success survived: " + name)
+
+print("PASS: clean positive; four compiler failures; stale acceptance invalidated")
