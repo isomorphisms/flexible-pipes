@@ -1,0 +1,635 @@
+{
+  "schema_version": 1,
+  "name": "flower-followup-acceptance",
+  "parameters": {
+    "compiler": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "workspace": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "ithon": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "kitchen_recipe": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "stitch_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "metric_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "topology_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "realization_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "fp-source",
+    "leaf-source",
+    "oracle-source",
+    "kitchen-source",
+    "catfood-source",
+    "ithon-source",
+    "build-directory",
+    "foreign-runtime",
+    "foreign-binary-packages",
+    "foreign-package-manifest",
+    "acquire-grease",
+    "compiler-identity",
+    "compiler-target",
+    "compile-build-verifier",
+    "leaf-build-contract",
+    "compile-stitch",
+    "compile-stitch-tests",
+    "compile-material-geometry",
+    "stitch-tests",
+    "emit-increasing-1",
+    "emit-increasing-2",
+    "emit-control-1",
+    "emit-control-2",
+    "material-tests",
+    "coarse-realization",
+    "fine-realization",
+    "material-markers",
+    "material-edge-distortion",
+    "kitchen-invocation-controls",
+    "stitch-oracle-controls",
+    "independent-increasing-construction",
+    "independent-control-construction",
+    "independent-material-metric",
+    "topology-oracle-controls",
+    "independent-coarse-topology",
+    "independent-fine-topology",
+    "independent-realization",
+    "source-and-output-digests"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/geometry-followups/SUN-FLOWER-JOBS.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fp-source",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "leaf-source",
+      "argv": [
+        "git",
+        "-C",
+        "source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "oracle-source",
+      "argv": [
+        "git",
+        "-C",
+        "oracle",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-source",
+      "argv": [
+        "git",
+        "-C",
+        "kitchen",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-source",
+      "argv": [
+        "git",
+        "-C",
+        "catfood",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ithon-source",
+      "argv": [
+        "git",
+        "-C",
+        "ithon",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "build-directory",
+      "argv": [
+        "mkdir",
+        "-p",
+        "build"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-runtime",
+      "argv": [
+        "python3",
+        "-m",
+        "venv",
+        "foreign-runtime"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-binary-packages",
+      "argv": [
+        "foreign-runtime/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--only-binary=:all:",
+        "--report",
+        "build/foreign-install.json",
+        "snappy==3.3.2",
+        "regina==7.4.1"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-package-manifest",
+      "argv": [
+        "foreign-runtime/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "acquire-grease",
+      "argv": [
+        "ithon/ithon",
+        "catfood/profiles/rhs-evaluation/provision.pi",
+        "grease",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-identity",
+      "argv": [
+        "sha256sum",
+        "{{compiler}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-target",
+      "argv": [
+        "{{compiler}}",
+        "-dumpmachine"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-build-verifier",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "oracle/src/aici.c",
+        "-lm",
+        "-o",
+        "build/aici"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "leaf-build-contract",
+      "argv": [
+        "build/aici",
+        "verify",
+        "oracle/contracts/build-toolchain-v0.contract.tsv",
+        "source"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-stitch",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/crochet/stitch_ledger.c",
+        "source/crochet/stitch_diagram.c",
+        "source/crochet/main.c",
+        "-lm",
+        "-o",
+        "build/flower-stitch"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-stitch-tests",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/crochet/stitch_ledger.c",
+        "source/crochet/stitch_diagram.c",
+        "source/crochet/test_stitch.c",
+        "-lm",
+        "-o",
+        "build/flower-stitch-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-material-geometry",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/crochet/stitch_ledger.c",
+        "source/crochet/material_geometry.c",
+        "source/crochet/test_material_geometry.c",
+        "-lm",
+        "-o",
+        "build/flower-metric"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "stitch-tests",
+      "argv": [
+        "timeout",
+        "60",
+        "build/flower-stitch-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "emit-increasing-1",
+      "argv": [
+        "timeout",
+        "60",
+        "build/flower-stitch",
+        "increasing",
+        "build/increasing-1.tsv",
+        "build/increasing-1.txt",
+        "build/increasing-1.svg",
+        "1"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "emit-increasing-2",
+      "argv": [
+        "timeout",
+        "60",
+        "build/flower-stitch",
+        "increasing",
+        "build/increasing-2.tsv",
+        "build/increasing-2.txt",
+        "build/increasing-2.svg",
+        "2"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "emit-control-1",
+      "argv": [
+        "timeout",
+        "60",
+        "build/flower-stitch",
+        "control",
+        "build/control-1.tsv",
+        "build/control-1.txt",
+        "build/control-1.svg",
+        "1"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "emit-control-2",
+      "argv": [
+        "timeout",
+        "60",
+        "build/flower-stitch",
+        "control",
+        "build/control-2.tsv",
+        "build/control-2.txt",
+        "build/control-2.svg",
+        "2"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "material-tests",
+      "argv": [
+        "timeout",
+        "120",
+        "build/flower-metric",
+        "--emit",
+        "build/metric.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "coarse-realization",
+      "argv": [
+        "timeout",
+        "120",
+        "build/flower-metric",
+        "--mesh",
+        "build/mesh.obj"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fine-realization",
+      "argv": [
+        "timeout",
+        "120",
+        "build/flower-metric",
+        "--mesh-fine",
+        "build/mesh-fine.obj"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "material-markers",
+      "argv": [
+        "timeout",
+        "120",
+        "build/flower-metric",
+        "--markers",
+        "build/markers.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "material-edge-distortion",
+      "argv": [
+        "timeout",
+        "120",
+        "build/flower-metric",
+        "--material-edges",
+        "build/material-edges.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-invocation-controls",
+      "argv": [
+        "ithon/ithon",
+        "oracle/geometry/common/kitchen_controls.pi",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{stitch_checker}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "stitch-oracle-controls",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/stitch-oracle-controls-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{stitch_checker}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-increasing-construction",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-increasing-construction-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{stitch_checker}}",
+        "build",
+        "increasing",
+        "./build/flower-stitch-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-control-construction",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-control-construction-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{stitch_checker}}",
+        "build",
+        "control",
+        "./build/flower-stitch-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-material-metric",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-material-metric-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{metric_checker}}",
+        "build/metric.tsv",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "topology-oracle-controls",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/topology-oracle-controls-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{topology_checker}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-coarse-topology",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-coarse-topology-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{topology_checker}}",
+        "build/mesh.obj",
+        "annulus"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-fine-topology",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-fine-topology-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{topology_checker}}",
+        "build/mesh-fine.obj",
+        "annulus"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-realization",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-realization-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{realization_checker}}",
+        "build/markers.tsv",
+        "build/mesh.obj",
+        "build/mesh-fine.obj",
+        "build/material-edges.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-and-output-digests",
+      "argv": [
+        "sha256sum",
+        "source/crochet/stitch_ledger.c",
+        "source/crochet/stitch_diagram.c",
+        "source/crochet/test_stitch.c",
+        "source/crochet/material_geometry.c",
+        "source/crochet/test_material_geometry.c",
+        "source/crochet/HANDMADE-PROTOCOL.txt",
+        "source/crochet/handmade-measurements-empty.tsv",
+        "oracle/geometry/flower-stitch/accept.pi",
+        "oracle/geometry/flower-metric/accept.pi",
+        "oracle/geometry/flower-metric/math_oracle.pi",
+        "oracle/geometry/flower-metric/topology.pi",
+        "oracle/geometry/flower-metric/realization.pi",
+        "build/increasing-1.tsv",
+        "build/increasing-1.txt",
+        "build/increasing-1.svg",
+        "build/control-1.tsv",
+        "build/metric.tsv",
+        "build/markers.tsv",
+        "build/material-edges.tsv",
+        "build/mesh.obj",
+        "build/mesh-fine.obj"
+      ],
+      "cwd": "."
+    }
+  ]
+}
