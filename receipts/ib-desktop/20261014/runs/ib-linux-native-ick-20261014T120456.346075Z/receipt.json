@@ -1,0 +1,90 @@
+{
+  "failed_stage": "kitchen-ike-bootstrap",
+  "finished_at": "2026-10-14T12:04:56.426370+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "build": "/workspace/scratch/65d93ecc1fc0/ick-build",
+    "grease": "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+    "ick-source": "/workspace/scratch/65d93ecc1fc0/ick",
+    "ike": "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+    "jobs": "6",
+    "kitchen-task": "/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/ick-2.grease",
+    "output": "/workspace/scratch/65d93ecc1fc0/ick-bootstrap-resume",
+    "producer": "/workspace/scratch/65d93ecc1fc0/ai-ci-ick",
+    "stage": "/workspace/scratch/65d93ecc1fc0/ick-stage"
+  },
+  "pipeline": "ib-linux-native-ick",
+  "pipeline_path": "pipelines/ib-linux-native-ick.json",
+  "pipeline_sha256": "1717abb026bbc3489a33b5a54969906b702b00f6a00ee0dfb3c75b4ceedac2a4",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/ib-desktop/first-wave.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T12:04:56.356437+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T12:04:56.351497+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ff03f2fc1f66d10e08d243e7a2fc0addda1a1e7d97c371d2299b5069d677ceca"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/ick-2.grease"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T12:04:56.358807+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "recipe-identities",
+      "started_at": "2026-10-14T12:04:56.356547+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5940b626898386f29dcae1ced5df91e1c3045ffeb315c68454ab388a9cf52afd"
+    },
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "timeout",
+        "3600",
+        "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/ick-2.grease",
+        "/workspace/scratch/65d93ecc1fc0/ai-ci-ick",
+        "/workspace/scratch/65d93ecc1fc0/ick",
+        "/workspace/scratch/65d93ecc1fc0/ick-build",
+        "/workspace/scratch/65d93ecc1fc0/ick-stage",
+        "/workspace/scratch/65d93ecc1fc0/ick-bootstrap-resume",
+        "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "6"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-14T12:04:56.426334+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "kitchen-ike-bootstrap",
+      "started_at": "2026-10-14T12:04:56.358898+00:00",
+      "stderr_sha256": "3fcc1692216342169ce60d98c26e9dda9155253241872c21ae361fb8c9183f6a",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-14T12:04:56.351108+00:00",
+  "status": "FAIL"
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "ib-linux-build-dependencies-root-context",
+  "description": "Retry the exact ICK-host prerequisite feed using the current mapped build-host UID; keep the original UID-switch failure receipt.",
+  "required_stages": [
+    "host-user",
+    "bootstrap-package-index",
+    "compiler-bootstrap-packages"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "host-user",
+      "argv": [
+        "id"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "bootstrap-package-index",
+      "argv": [
+        "apt-get",
+        "-o",
+        "APT::Sandbox::User=root",
+        "update"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-bootstrap-packages",
+      "argv": [
+        "apt-get",
+        "-o",
+        "APT::Sandbox::User=root",
+        "install",
+        "-y",
+        "build-essential",
+        "flex",
+        "bison",
+        "texinfo",
+        "libgmp-dev",
+        "libmpfr-dev",
+        "libmpc-dev"
+      ],
+      "cwd": "."
+    }
+  ]
+}

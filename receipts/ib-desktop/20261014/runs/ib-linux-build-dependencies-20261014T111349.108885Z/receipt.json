@@ -1,0 +1,51 @@
+{
+  "failed_stage": "bootstrap-package-index",
+  "finished_at": "2026-10-14T11:13:49.209047+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "ib-linux-build-dependencies",
+  "pipeline_path": "pipelines/ib-linux-build-dependencies.json",
+  "pipeline_sha256": "dc3f203e498ff1016af808ea615f99e83417b20fa3d80a3040270df6ae7fd746",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "cat",
+        "/etc/os-release"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:13:49.118942+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "os-release",
+      "started_at": "2026-10-14T11:13:49.114882+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3e5851448bae5b36f351becde037a8b13b77307279f484eda808f8177d9a4293"
+    },
+    {
+      "argv": [
+        "apt-get",
+        "update"
+      ],
+      "cwd": ".",
+      "exit_code": 100,
+      "finished_at": "2026-10-14T11:13:49.209012+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "bootstrap-package-index",
+      "started_at": "2026-10-14T11:13:49.119028+00:00",
+      "stderr_sha256": "6951777223d125f6b182e7058aa2e251b4dd6737c1e9d5af5baee07199bba859",
+      "stdout_sha256": "80f57336ba6c8764b6653801e2f7bc732df6287cda3285876775d600826630dd"
+    }
+  ],
+  "started_at": "2026-10-14T11:13:49.114545+00:00",
+  "status": "FAIL"
+}
