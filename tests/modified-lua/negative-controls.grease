@@ -1,0 +1,84 @@
+#!/usr/bin/env grease
+# Actual stock-version/runtime substitutions, not success-printing fixtures.
+set -eu -o pipefail
+if (len(ARGV) !== 6) {
+  echo 'usage: negative-controls.grease LUA_CHECKOUT STOCK_5_5_1_CHECKOUT ICK_DRIVER ICK_LIBEXEC GREASE NEW_OUTPUT_DIRECTORY'
+  exit 2
+}
+var lua = ARGV[0]
+var stock = ARGV[1]
+var compiler = ARGV[2]
+var support = ARGV[3]
+var grease = ARGV[4]
+var output = ARGV[5]
+var directory = $(dirname "$0")
+var repository = $(realpath "$directory/../..")
+test ! -e "$output"
+mkdir -p "$output"
+var receipt = "$output/negative-controls.tsv"
+var host_path = $(printenv PATH)
+printf 'case\tstatus\tevidence\n' > "$receipt"
+var stock_revision = $(git -C "$stock" rev-parse HEAD)
+test "$stock_revision" = 0b29f408433e92953cc72b1d3e06c7ac8139e439
+var stock_status = $(git -C "$stock" status --porcelain)
+test -z "$stock_status"
+var flags = ["-B$support/", '-B/usr/lib/gcc/x86_64-linux-gnu/13/', '-isystem', '/usr/lib/gcc/x86_64-linux-gnu/13/include', '-fno-use-linker-plugin', '-std=c11', '-O2', '-DLUA_USE_POSIX', "-I$stock"]
+"$compiler" @flags "$stock/onelua.c" -lm -ldl -o "$output/stock-lua"
+"$output/stock-lua" -v > "$output/stock-version.stdout"
+rg -q '^Lua 5[.]5[.]1 ' "$output/stock-version.stdout"
+if "$output/stock-lua" "$lua/testes/symbolic-assignment.lua" > "$output/stock-probe.stdout" 2> "$output/stock-probe.stderr" {
+  echo 'FAIL stock Lua accepted the symbolic fixture' >&2
+  exit 1
+}
+printf 'stock_same_version_semantics\tPASS\tstock-probe.stderr\n' >> "$receipt"
+if "$grease" "$repository/scripts/qualify-icky-lua.grease" "$stock" "$compiler" "$support" "$output/stale-source" > "$output/stale.stdout" 2> "$output/stale.stderr" {
+  echo 'FAIL stale source admitted' >&2
+  exit 1
+}
+rg -q 'blocker\twrong_lua_revision' "$output/stale-source/receipt.tsv"
+printf 'stale_fork_source\tPASS\tstale-source/receipt.tsv\n' >> "$receipt"
+mkdir -p "$output/shadow"
+ln -s "$output/stock-lua" "$output/shadow/lua"
+env PATH="$output/shadow:$host_path" "$grease" "$repository/scripts/qualify-icky-lua.grease" "$lua" "$compiler" "$support" "$output/path-shadow" > "$output/shadow.stdout" 2> "$output/shadow.stderr"
+rg -q '^status\tPASS$' "$output/path-shadow/receipt.tsv"
+# Explicit pinned paths choose the modified runtime despite the stock PATH entry.
+printf 'stock_earlier_in_path\tPASS\tpath-shadow/receipt.tsv\n' >> "$receipt"
+"$compiler" @flags -DMAKE_LIB -c "$stock/onelua.c" -o "$output/stock-lua.o"
+"$compiler" @flags "-DFP_LUA_PROBE_SOURCE=\"$lua/testes/symbolic-assignment.lua\"" "$repository/tests/modified-lua/embed-probe.c" "$output/stock-lua.o" -Wl,--unique=.rodata.fp_lua_probe -lm -ldl -o "$output/wrong-linked-runtime"
+if "$output/wrong-linked-runtime" > "$output/wrong-linked.stdout" 2> "$output/wrong-linked.stderr" {
+  echo 'FAIL stock linked object admitted the symbolic fixture' >&2
+  exit 1
+}
+printf 'wrong_linked_runtime_object\tPASS\twrong-linked.stderr\n' >> "$receipt"
+git clone --quiet --shared "$lua" "$output/stale-fork"
+git -C "$output/stale-fork" checkout --quiet 8925e40c
+git -C "$output/stale-fork" remote set-url origin https://github.com/isomorphisms/lua.git
+if "$grease" "$repository/scripts/qualify-icky-lua.grease" "$output/stale-fork" "$compiler" "$support" "$output/stale-fork-rejection" > "$output/stale-fork.stdout" 2> "$output/stale-fork.stderr" {
+  echo 'FAIL older symbolic fork admitted' >&2
+  exit 1
+}
+rg -q 'blocker\twrong_lua_revision' "$output/stale-fork-rejection/receipt.tsv"
+printf 'older_symbolic_fork\tPASS\tstale-fork-rejection/receipt.tsv\n' >> "$receipt"
+git clone --quiet --shared "$lua" "$output/changed-source"
+git -C "$output/changed-source" remote set-url origin https://github.com/isomorphisms/lua.git
+printf 'print("symbolic assignment: ok")\n' > "$output/changed-source/testes/symbolic-assignment.lua"
+if "$grease" "$repository/scripts/qualify-icky-lua.grease" "$output/changed-source" "$compiler" "$support" "$output/substitution" > "$output/substitution.stdout" 2> "$output/substitution.stderr" {
+  echo 'FAIL ordinary Lua probe substitution admitted' >&2
+  exit 1
+}
+rg -q 'blocker\tmodified_lua_checkout' "$output/substitution/receipt.tsv"
+printf 'substituted_ordinary_lua_source\tPASS\tsubstitution/receipt.tsv\n' >> "$receipt"
+if "$grease" "$repository/scripts/qualify-icky-lua.grease" "$lua" "$output/missing-compiler" "$support" "$output/missing-dependency" > "$output/missing.stdout" 2> "$output/missing.stderr" {
+  echo 'FAIL missing producer dependency admitted' >&2
+  exit 1
+}
+rg -q 'blocker\tmissing_ick_driver' "$output/missing-dependency/receipt.tsv"
+printf 'missing_producer_dependency\tPASS\tmissing-dependency/receipt.tsv\n' >> "$receipt"
+if "$grease" "$repository/scripts/qualify-icky-lua.grease" "$lua" /usr/bin/gcc "$support" "$output/wrong-compiler" > "$output/wrong-compiler.stdout" 2> "$output/wrong-compiler.stderr" {
+  echo 'FAIL stock compiler admitted' >&2
+  exit 1
+}
+rg -q 'blocker\twrong_ick_driver' "$output/wrong-compiler/receipt.tsv"
+printf 'stock_compiler_binary\tPASS\twrong-compiler/receipt.tsv\n' >> "$receipt"
+sha256sum "$output/stock-lua" "$output/stock-lua.o" "$output/wrong-linked-runtime" > "$output/negative-artifacts.sha256"
+printf '\033[32mPASS modified Lua negative controls\033[0m\n'

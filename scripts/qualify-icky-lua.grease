@@ -1,0 +1,95 @@
+#!/usr/bin/env grease
+# Host producer qualification. No PATH-selected Lua or C compiler is invoked.
+set -eu -o pipefail
+if (len(ARGV) !== 4) {
+  echo 'usage: qualify-icky-lua.grease LUA_CHECKOUT ICK_DRIVER ICK_LIBEXEC NEW_OUTPUT_DIRECTORY'
+  exit 2
+}
+var lua = ARGV[0]
+var compiler = ARGV[1]
+var support = ARGV[2]
+var output = ARGV[3]
+var directory = $(dirname "$0")
+var repository = $(realpath "$directory/..")
+test ! -e "$output"
+mkdir -p "$output"
+var receipt = "$output/receipt.tsv"
+printf 'key\tvalue\nphysical_device\tNOT_RUN\nandroid_build\tNOT_RUN\n' > "$receipt"
+proc blocked (code) {
+  printf 'status\tBLOCKED\nblocker\t%s\n' "$code" >> "$receipt"
+  printf '\033[31mBLOCKED %s\033[0m\n' "$code" >&2
+  exit 1
+}
+proc digest (name, path) {
+  var value = $(sha256sum "$path")
+  printf '%s\t%s\n' "$name" "$value" >> "$receipt"
+}
+if ! test -x "$compiler" { blocked missing_ick_driver }
+if ! test -x "$support/cc1" { blocked missing_ick_frontend }
+if ! test -x "$support/collect2" { blocked missing_ick_link_driver }
+if ! test -d /usr/lib/gcc/x86_64-linux-gnu/13/include { blocked missing_host_gcc13_link_support }
+var host_identity = $(uname -sm)
+if ! test "$host_identity" = 'Linux x86_64' { blocked unsupported_build_host }
+var lua_revision = $(git -C "$lua" rev-parse HEAD)
+if ! test "$lua_revision" = 87306483cec50f8c750a22dda1d0742246fad756 { blocked wrong_lua_revision }
+var lua_tree = $(git -C "$lua" rev-parse 'HEAD^{tree}')
+if ! test "$lua_tree" = 6b2968928611542c8f82448f49c32ea8bc98b559 { blocked wrong_lua_tree }
+var lua_origin = $(git -C "$lua" remote get-url origin)
+if ! test "$lua_origin" = https://github.com/isomorphisms/lua.git {
+  if ! test "$lua_origin" = https://github.com/isomorphisms/lua { blocked wrong_lua_origin }
+}
+var lua_status = $(git -C "$lua" status --porcelain)
+if ! test -z "$lua_status" { blocked modified_lua_checkout }
+var source_probe = "$lua/testes/symbolic-assignment.lua"
+var probe_digest = $(sha256sum "$source_probe")
+if ! test "${probe_digest%% *}" = cb5c129fb2ab4c61fea7c48725b54eb0227c2ce3352734081fe8dbe7f3540b3a { blocked substituted_source_probe }
+# Exact executable closure published by FastChat core run 37589849631.
+# Its workflow checks out ICK source 515c0f29fe6e2e96e10495fbaf25da93532e7722.
+var driver_digest = $(sha256sum "$compiler")
+var frontend_digest = $(sha256sum "$support/cc1")
+var link_driver_digest = $(sha256sum "$support/collect2")
+if ! test "${driver_digest%% *}" = 86cdbaf8d405d7d05883f20ddcc0ac21a55a48bae20cc9f11aca78f1710867d3 { blocked wrong_ick_driver }
+if ! test "${frontend_digest%% *}" = 5aff3188c58cae7cfffb20bdade56ec3e9ab89667ff6feafcfeed066350f9400 {
+  # objcopy --strip-debug of that exact archive member, with code unchanged.
+  if ! test "${frontend_digest%% *}" = 1ffd0ef82f43fe94384702811b8bb0f2680cd0dd3146eb7a1af8f1315e4abf51 { blocked wrong_ick_frontend }
+}
+if ! test "${link_driver_digest%% *}" = 62e09cd8f93fba0224f0be1d2cd55da01c99d5d83029263d4714151cbe2ea4f9 { blocked wrong_ick_link_driver }
+printf 'lua_repository\tisomorphisms/lua\nlua_revision\t87306483cec50f8c750a22dda1d0742246fad756\nlua_tree\t6b2968928611542c8f82448f49c32ea8bc98b559\nlua_release\t5.5.1\nick_revision\t515c0f29fe6e2e96e10495fbaf25da93532e7722\nick_artifact\t11468256648\nick_run\t37589849631\n' >> "$receipt"
+uname -srm > "$output/host.txt"
+cat /etc/os-release >> "$output/host.txt"
+"$compiler" --version > "$output/compiler.txt"
+"$compiler" -dumpmachine >> "$output/compiler.txt"
+git -C "$lua" archive HEAD | sha256sum > "$output/lua-source-archive.sha256"
+git -C "$lua" ls-files '*.c' '*.h' > "$output/lua-source-paths.txt"
+digest ick_driver "$compiler"
+digest ick_frontend "$support/cc1"
+digest ick_link_driver "$support/collect2"
+digest assembler /usr/bin/as
+digest linker /usr/bin/ld
+digest source_probe "$source_probe"
+digest lua_header "$lua/lua.h"
+digest lua_lexer "$lua/llex.c"
+digest lua_parser "$lua/lparser.c"
+digest lua_entry "$lua/onelua.c"
+digest qualifier_source "$repository/scripts/qualify-icky-lua.grease"
+digest embedded_bridge_source "$repository/tests/modified-lua/embed-probe.c"
+var flags = ["-B$support/", '-B/usr/lib/gcc/x86_64-linux-gnu/13/', '-isystem', '/usr/lib/gcc/x86_64-linux-gnu/13/include', '-fno-use-linker-plugin', '-std=c11', '-O2', '-DLUA_USE_POSIX', "-I$lua"]
+if ! "$compiler" @flags "$lua/onelua.c" -lm -ldl -o "$output/icky-lua" > "$output/interpreter-build.stdout" 2> "$output/interpreter-build.stderr" { blocked interpreter_build_failed }
+if ! "$output/icky-lua" -v > "$output/version.stdout" 2> "$output/version.stderr" { blocked interpreter_version_failed }
+if ! rg -q '^Lua 5[.]5[.]1 ' "$output/version.stdout" { blocked wrong_actual_lua_version }
+if ! "$output/icky-lua" "$source_probe" > "$output/interpreter-probe.stdout" 2> "$output/interpreter-probe.stderr" { blocked interpreter_symbolic_semantics_failed }
+if ! rg -qx 'symbolic assignment: ok' "$output/interpreter-probe.stdout" { blocked incomplete_interpreter_probe }
+if ! "$compiler" @flags -DMAKE_LIB -c "$lua/onelua.c" -o "$output/icky-lua.o" > "$output/library-build.stdout" 2> "$output/library-build.stderr" { blocked runtime_object_build_failed }
+if ! "$compiler" @flags "-DFP_LUA_PROBE_SOURCE=\"$source_probe\"" "$repository/tests/modified-lua/embed-probe.c" "$output/icky-lua.o" -Wl,--unique=.rodata.fp_lua_probe -lm -ldl -o "$output/embedded-probe" > "$output/embed-build.stdout" 2> "$output/embed-build.stderr" { blocked embedded_probe_build_failed }
+if ! "$output/embedded-probe" > "$output/embedded-probe.stdout" 2> "$output/embedded-probe.stderr" { blocked embedded_symbolic_semantics_failed }
+if ! rg -qx 'symbolic assignment: ok' "$output/embedded-probe.stdout" { blocked incomplete_embedded_probe }
+if ! objcopy --dump-section .rodata.fp_lua_probe="$output/embedded-source.lua" "$output/embedded-probe" { blocked embedded_source_inspection_failed }
+if ! cmp "$source_probe" "$output/embedded-source.lua" { blocked substituted_embedded_source }
+readelf -d "$output/embedded-probe" > "$output/embedded-library-objects.txt"
+if rg -iq 'NEEDED.*lua' "$output/embedded-library-objects.txt" { blocked unexpected_dynamic_lua_library }
+digest interpreter "$output/icky-lua"
+digest runtime_object "$output/icky-lua.o"
+digest embedded_executable "$output/embedded-probe"
+digest embedded_source "$output/embedded-source.lua"
+printf 'interpreter_semantics\tPASS\nembedded_semantics\tPASS\nembedded_source_bytes\tPASS\nlinked_lua_runtime\tstatic checked icky-lua.o; no dynamic Lua dependency\nstatus\tPASS\n' >> "$receipt"
+printf '\033[32mPASS Icky Lua interpreter and embedded literal-source semantics\033[0m\n'
