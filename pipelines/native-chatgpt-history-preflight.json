@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "name": "native-chatgpt-history-preflight",
+  "required_stages": [
+    "assignment",
+    "workspace",
+    "clone-exporter",
+    "pin-exporter",
+    "identify-exporter",
+    "clone-fastchat",
+    "pin-fastchat",
+    "identify-fastchat",
+    "exporter-contract-test",
+    "compile-fastchat-consumer",
+    "fastchat-consumer-test",
+    "source-output-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "assignment",
+      "argv": [
+        "sha256sum",
+        "tasks/native-chatgpt-history/authorization.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "workspace",
+      "argv": [
+        "mkdir",
+        "-p",
+        ".flexible-pipes/native-chatgpt-history"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "clone-exporter",
+      "argv": [
+        "git",
+        "clone",
+        "--quiet",
+        "--no-checkout",
+        "https://github.com/dilapidated-shed/ChatGPTExporter.git",
+        ".flexible-pipes/native-chatgpt-history/exporter"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "pin-exporter",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-history/exporter",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "6e856557a1411ba048dad830d7f5b82a89e8422a"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "identify-exporter",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-history/exporter",
+        "rev-parse",
+        "HEAD"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "clone-fastchat",
+      "argv": [
+        "git",
+        "clone",
+        "--quiet",
+        "--no-checkout",
+        "https://github.com/isomorphisms/fastchat.git",
+        ".flexible-pipes/native-chatgpt-history/fastchat"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "pin-fastchat",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-history/fastchat",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "708616f32a1c5dbe45586bb0459dbf63b3f7e531"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "identify-fastchat",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-history/fastchat",
+        "rev-parse",
+        "HEAD"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "exporter-contract-test",
+      "argv": [
+        "make",
+        "-C",
+        ".flexible-pipes/native-chatgpt-history/exporter/native",
+        "check"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "compile-fastchat-consumer",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-I.flexible-pipes/native-chatgpt-history/fastchat/src",
+        "-I.flexible-pipes/native-chatgpt-history/exporter/native",
+        ".flexible-pipes/native-chatgpt-history/fastchat/src/history_web_boundary.c",
+        ".flexible-pipes/native-chatgpt-history/exporter/native/cgw_web.c",
+        ".flexible-pipes/native-chatgpt-history/fastchat/tests/history_web_boundary.c",
+        "-o",
+        ".flexible-pipes/native-chatgpt-history/fastchat-history-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "fastchat-consumer-test",
+      "argv": [
+        ".flexible-pipes/native-chatgpt-history/fastchat-history-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-output-hashes",
+      "argv": [
+        "sha256sum",
+        ".flexible-pipes/native-chatgpt-history/exporter/native/cgw_web.c",
+        ".flexible-pipes/native-chatgpt-history/exporter/native/cgw_web.h",
+        ".flexible-pipes/native-chatgpt-history/fastchat/src/history_web_boundary.c",
+        ".flexible-pipes/native-chatgpt-history/fastchat-history-test"
+      ]
+    }
+  ]
+}
