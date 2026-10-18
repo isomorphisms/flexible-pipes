@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 063d2f5672b0209456424ce9be9b205e644ae7b7
+          ref: 7011a05f19d5977c17e824737d569288d4f43e40
           path: _aici
           persist-credentials: false
       - name: Check out exact Kitchen generator
