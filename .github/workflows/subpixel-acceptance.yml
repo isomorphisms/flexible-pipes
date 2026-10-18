@@ -1,6 +1,7 @@
 name: Subpixel registered host qualification
 on:
-  pull_request:
+  push:
+    branches: ['work/subpixel-registration']
     paths:
       - 'pipelines/subpixel-acceptance.json'
       - 'registry/subpixel-acceptance.json'
