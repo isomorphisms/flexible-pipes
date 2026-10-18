@@ -101,3 +101,4 @@ jobs:
             _subpixel/evidence/
           if-no-files-found: warn
           retention-days: 14
+          include-hidden-files: true
