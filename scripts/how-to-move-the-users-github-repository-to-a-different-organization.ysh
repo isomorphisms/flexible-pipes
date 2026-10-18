@@ -1,126 +1,69 @@
 #!/usr/bin/env grease
-# Flexible Pipes: deterministic Kitchen program generation -> execution -> verified answer.
+# Public FP transfer preparation: exact Kitchen bytes only, never execution.
 set -eu
 
 fail() {
-    printf 'GitHub repository organization move: %s\n' "$*" >&2
+    printf 'GitHub repository organization move preparation: %s\n' "$*" >&2
     exit 1
 }
 
-lower() {
-    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+valid_name() {
+    case $1 in
+        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) return 1 ;;
+        *) return 0 ;;
+    esac
 }
 
-# The six-argument route binds immutable ID/upstream and uses persistent state.
-# Existing four-argument consumers retain their historical recipe until migrated.
-if test "$#" -eq 6; then
-    runtime=$[get(ENV, 'GREASE_BINARY', '')]
-    kitchen=$[get(ENV, 'KITCHEN_ROOT', '')]
-    aici=$[get(ENV, 'AICI_ROOT', '')]
-    state=$[get(ENV, 'FP_TRANSFER_JOB_ROOT', '')]
-    here=$(dirname "$0")
-    exec "$runtime" "$here/github-transfer-session.grease" "$kitchen" "$aici" "$runtime" "$state" "$@"
-fi
-
-test "$#" -eq 4 || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN'
+# Keep the historical, descriptive public entrypoint, but require an explicit
+# identity-bound display contract. Four positional arguments used to select
+# Kitchen candidate 6 and execute its POST path; that route is intentionally
+# gone. Execution has a separate registered operation.
+test "$#" -eq 8 || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REQUESTED_REPOSITORY RESOLVED_REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN KITCHEN_REVISION REPOSITORY_ID UPSTREAM'
 source_owner=$1
-repository=$2
-destination_organization=$3
-for component in "$@"; do
-    case $component in
-        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) fail "invalid GitHub name component: $component" ;;
-    esac
-done
+requested_repository=$2
+resolved_repository=$3
+destination_organization=$4
+expected_login=$5
+kitchen_revision=$6
+repository_id=$7
+upstream=$8
 
-KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
-TRANSFER_ARTIFACT_DIR=$[get(ENV, 'TRANSFER_ARTIFACT_DIR', '')]
-test -n "$KITCHEN_ROOT" || fail 'KITCHEN_ROOT must name a verified Script Kitchen checkout'
-generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
-# Grease on the physical C67 can reject test -r for an actually readable file.
-# Use a bounded read and the same exact header check as the accepted batch path.
-for tool in grease gh sha256sum head mktemp cat rm cut chmod grep sed tr; do
+for tool in grease git grep head cat cut; do
     command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
 done
-try { generator_probe=$(mktemp) }
-if (_error.code !== 0) { fail 'could not create private generator probe' }
-if head -n 1 "$generator" > "$generator_probe" 2>/dev/null; then
-    true
-else
-    rm -f "$generator_probe"
-    fail "Kitchen Grease program generator cannot be read: $generator"
+for component in "$source_owner" "$requested_repository" "$resolved_repository" "$destination_organization" "$expected_login"; do
+    valid_name "$component" || fail "invalid GitHub name component: $component"
+done
+test "$requested_repository" = "$resolved_repository" ||
+    fail "repository name remains unresolved: requested $requested_repository, resolved $resolved_repository"
+printf '%s\n' "$kitchen_revision" | grep -Eq '^[0-9a-f]{40}$' ||
+    fail 'KITCHEN_REVISION must be an exact 40-hex commit'
+printf '%s\n' "$repository_id" | grep -Eq '^[0-9]+$' ||
+    fail 'REPOSITORY_ID must be an immutable decimal GitHub repository ID'
+if test "$upstream" != '-'; then
+    upstream_owner=$(printf '%s\n' "$upstream" | cut -d / -f1)
+    upstream_repository=$(printf '%s\n' "$upstream" | cut -d / -f2)
+    test "$upstream_owner/$upstream_repository" = "$upstream" ||
+        fail 'UPSTREAM must be OWNER/REPOSITORY or -'
+    valid_name "$upstream_owner" && valid_name "$upstream_repository" ||
+        fail 'UPSTREAM must be OWNER/REPOSITORY or -'
 fi
-generator_header=$(cat "$generator_probe")
-rm -f "$generator_probe"
+
+KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
+test -n "$KITCHEN_ROOT" || fail 'KITCHEN_ROOT must name the exact maintained Script Kitchen checkout'
+try { actual_revision=$(git -C "$KITCHEN_ROOT" rev-parse HEAD) }
+if (_error.code !== 0) { fail "cannot read Kitchen revision from $KITCHEN_ROOT" }
+test "$actual_revision" = "$kitchen_revision" ||
+    fail "Kitchen revision differs: expected $kitchen_revision, found $actual_revision"
+
+generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+# Grease on the C67 can reject test -r for an actually readable file. A
+# bounded read retains the established Kitchen readability workaround.
+try { generator_header=$(head -n 1 "$generator") }
+if (_error.code !== 0) { fail "Kitchen Grease program generator cannot be read: $generator" }
 test "$generator_header" = '#!/usr/bin/env grease' ||
     fail "Kitchen Grease program generator has invalid header: $generator"
 
-if test -n "${TRANSFER_ARTIFACT_DIR:-}"; then
-    test -d "$TRANSFER_ARTIFACT_DIR" || fail "artifact directory does not exist: $TRANSFER_ARTIFACT_DIR"
-    artifact_dir=$TRANSFER_ARTIFACT_DIR
-else
-    try { artifact_dir=$(mktemp -d) }
-    if (_error.code !== 0) { fail 'could not create artifact directory' }
-fi
-
-program=$artifact_dir/move-github-repository-$repository-from-$source_owner-to-$destination_organization.ysh
-execution=$artifact_dir/move-github-repository-$repository.execution.txt
-error_log=$artifact_dir/move-github-repository-$repository.stderr.txt
-test ! -e "$program" && test ! -e "$execution" && test ! -e "$error_log" ||
-    fail "refusing to overwrite transfer artifacts in $artifact_dir"
-
-if grease "$generator" "$@" > "$program"; then
-    true
-else
-    fail "Kitchen generator failed; see $program"
-fi
-chmod 700 "$program"
-program_hash=$(sha256sum "$program" | cut -d ' ' -f 1)
-
-if grease "$program" > "$execution" 2> "$error_log"; then
-    true
-else
-    cat "$error_log" >&2
-    cat "$execution" >&2
-    fail "transfer failed or could not be verified; generated program retained at $program"
-fi
-
-grep -Fx 'status=verified' "$execution" >/dev/null || fail 'transfer program did not confirm verification'
-action=$(sed -n 's/^action=//p' "$execution")
-case $action in
-    transferred|already_transferred) ;;
-    *) fail "unrecognized transfer action: $action" ;;
-esac
-repository_id=$(sed -n 's/^repository_id=//p' "$execution")
-repository_url=$(sed -n 's/^repository_url=//p' "$execution")
-case $repository_id in
-    ''|*[!0-9]*) fail "invalid repository ID in receipt: $repository_id" ;;
-esac
-
-# A final, independent read confirms that the success receipt names the actual
-# destination and the SAME immutable repository ID.
-setglobal ENV.GH_TOKEN = null
-setglobal ENV.GITHUB_TOKEN = null
-setglobal ENV.GH_HOST = 'github.com'
-try { canonical_organization=$(gh api "orgs/$destination_organization" --jq '.login') }
-if (_error.code !== 0) { fail 'could not verify destination organization' }
-canonical_destination=$canonical_organization/$repository
-test "$repository_url" = "https://github.com/$canonical_destination" ||
-    fail "receipt URL differs from canonical destination: $repository_url"
-try { destination_full=$(gh api "repos/$canonical_destination" --jq '.full_name') }
-if (_error.code !== 0) { fail "cannot verify destination $canonical_destination" }
-destination_key=$(lower "$destination_full")
-expected_key=$(lower "$canonical_destination")
-test "$destination_key" = "$expected_key" ||
-    fail "destination redirects to $destination_full"
-try { destination_id=$(gh api "repos/$canonical_destination" --jq '.id') }
-if (_error.code !== 0) { fail 'cannot verify repository ID' }
-test "$repository_id" = "$destination_id" || fail 'repository identity changed during verification'
-
-case $action in
-    transferred) message='Repository transferred and verified' ;;
-    already_transferred) message='Repository already transferred; verified without another transfer request' ;;
-esac
-printf '%s: %s\n' "$message" "$repository_url"
-printf 'Repository ID: %s\n' "$repository_id"
-printf 'Generated complete Grease program: %s\n' "$program"
-printf 'Generated program SHA-256: %s\n' "$program_hash"
+# stdout is the exact Kitchen program that the display-only handoff binds. Do
+# not create artifacts, preflight, authenticate, or execute it on this route.
+exec grease "$generator" "$source_owner" "$resolved_repository" "$destination_organization" "$expected_login" "$repository_id" "$upstream"

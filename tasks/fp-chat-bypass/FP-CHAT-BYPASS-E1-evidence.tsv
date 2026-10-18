@@ -1,0 +1,8 @@
+layer	status	boundary
+source_review	COMPLETE	public display-only route, separate execute route, Kitchen pin binding, and incident fixture inspected from this branch
+local_fixture_corpus	PASS	regression-history-smoke validates 14 records; native Grease and checked-Ithon suites are not installed on this host
+host_check	PENDING	exact candidate-head GitHub Actions verification required after publication
+platform_adapter	BLOCKED	no authenticated ChatGPT request/correction/visible-surface adapter is available
+visible_presentation	NOT_VERIFIED	fixture response bytes are not a client presentation acknowledgement
+effect	NOT_RUN	no live transfer attempted; explicit fixture execute remains separately scoped
+postcondition	NOT_RUN	no live destination/postcondition observation was requested or performed

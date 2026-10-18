@@ -15,6 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+PLACEHOLDER_RE = re.compile(r"\{\{([A-Za-z0-9][A-Za-z0-9._-]*)\}\}")
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -40,6 +41,45 @@ def utc_now() -> str:
 def fail(message: str) -> int:
     print(message, file=sys.stderr)
     return 2
+
+
+def resolve_handoff_value(
+    value: object, parameters: dict[str, str], stage_name: str
+) -> object:
+    """Resolve whole-field parameter references before any stage can run.
+
+    Handoff metadata is part of the stage identity.  It must bind the same
+    supplied values as argv, rather than retaining a literal placeholder or
+    interpolating an unchecked sentence fragment.
+    """
+    if isinstance(value, str):
+        match = PLACEHOLDER_RE.fullmatch(value)
+        if match:
+            parameter_name = match.group(1)
+            if parameter_name not in parameters:
+                raise ValueError(
+                    f"stage {stage_name}: missing value for handoff parameter "
+                    f"{parameter_name}"
+                )
+            return parameters[parameter_name]
+        if "{{" in value or "}}" in value:
+            raise ValueError(
+                f"stage {stage_name}: handoff parameter placeholders must occupy "
+                "a whole field"
+            )
+        return value
+    if isinstance(value, list):
+        return [resolve_handoff_value(item, parameters, stage_name) for item in value]
+    if isinstance(value, dict):
+        resolved: dict[str, object] = {}
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ValueError(
+                    f"stage {stage_name}: handoff object keys must be strings"
+                )
+            resolved[key] = resolve_handoff_value(item, parameters, stage_name)
+        return resolved
+    return value
 
 
 def main() -> int:
@@ -172,25 +212,30 @@ def main() -> int:
         if not cwd.is_dir():
             return fail(f"stage {name}: cwd does not exist: {cwd_rel!r}")
 
-        validated_stages.append(
-            {"name": name, "argv": argv, "cwd_rel": cwd_rel, "cwd": cwd,
-             "handoff": stage.get("handoff")}
-        )
+        handoff = stage.get("handoff")
         if "handoff" in stage:
-            if not isinstance(stage["handoff"], dict):
+            if not isinstance(handoff, dict):
                 return fail(f"stage {name}: handoff must be an object")
+            try:
+                handoff = resolve_handoff_value(handoff, parameters, name)
+            except ValueError as exc:
+                return fail(str(exc))
             if not args.ithon or not Path(args.ithon).is_file():
                 return fail("job handoff requires an explicit verified --ithon entrypoint")
             # Whole-plan validation precedes all command effects. New policy
             # lives in checked Ithon; this controller remains migration debt.
             with tempfile.NamedTemporaryFile(mode="w", suffix=".json") as spec_file:
-                json.dump(stage["handoff"], spec_file)
+                json.dump(handoff, spec_file)
                 spec_file.flush()
                 checked = subprocess.run(
                     [args.ithon, str(ROOT / "scripts/compose-handoff.pi"),
                      "validate-spec", spec_file.name], capture_output=True)
             if checked.returncode != 0:
                 return fail(f"stage {name}: invalid handoff: " + checked.stderr.decode(errors="replace"))
+        validated_stages.append(
+            {"name": name, "argv": argv, "cwd_rel": cwd_rel, "cwd": cwd,
+             "handoff": handoff}
+        )
 
     missing_required = [name for name in required_stages if name not in seen_names]
     if missing_required:

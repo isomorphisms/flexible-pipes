@@ -110,8 +110,50 @@ def validate_request(request ∈ dict[str, object]) → str:
             raise ValueError("HANDOFF_DISPATCH_ONLY_NOT_REQUESTED")
     return mode
 
+def github_name(value ∈ object, error ∈ str) → str:
+    text ∈ str ← plain(value)
+    if not bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", text)):
+        raise ValueError(error)
+    return text
+
+def transfer_upstream(value ∈ object) → str:
+    text ∈ str ← plain(value)
+    if text == "-":
+        return text
+    parts ∈ list[str] ← text.split("/")
+    if len(parts) != 2:
+        raise ValueError("HANDOFF_TRANSFER_UPSTREAM")
+    github_name(parts[0], "HANDOFF_TRANSFER_UPSTREAM")
+    github_name(parts[1], "HANDOFF_TRANSFER_UPSTREAM")
+    return text
+
+def validate_operation(operation ∈ dict[str, object]) → None:
+    """Validate the narrow transfer-display contract, not arbitrary chat text."""
+    allowed ∈ list[str] ← ["kind", "authority", "source_owner", "requested_repository", "resolved_repository", "destination_owner", "expected_login", "kitchen_revision", "repository_id", "upstream"]
+    if len(operation) != len(allowed):
+        raise ValueError("HANDOFF_OPERATION_FIELDS")
+    for key in operation:
+        if not allowed.__contains__(key):
+            raise ValueError("HANDOFF_OPERATION_FIELDS")
+    if str(operation["kind"]) != "github-repository-transfer":
+        raise ValueError("HANDOFF_OPERATION_KIND")
+    if str(operation["authority"]) != "display-only":
+        raise ValueError("HANDOFF_TRANSFER_AUTHORITY")
+    github_name(operation["source_owner"], "HANDOFF_TRANSFER_SOURCE_OWNER")
+    requested ∈ str ← github_name(operation["requested_repository"], "HANDOFF_TRANSFER_REQUESTED_REPOSITORY")
+    resolved ∈ str ← github_name(operation["resolved_repository"], "HANDOFF_TRANSFER_RESOLVED_REPOSITORY")
+    if requested != resolved:
+        raise ValueError("HANDOFF_TRANSFER_REPOSITORY_UNRESOLVED")
+    github_name(operation["destination_owner"], "HANDOFF_TRANSFER_DESTINATION_OWNER")
+    github_name(operation["expected_login"], "HANDOFF_TRANSFER_EXPECTED_LOGIN")
+    if not bool(re.fullmatch(r"[0-9a-f]{40}", str(operation["kitchen_revision"]))):
+        raise ValueError("HANDOFF_TRANSFER_KITCHEN_REVISION")
+    if not bool(re.fullmatch(r"[0-9]+", str(operation["repository_id"]))):
+        raise ValueError("HANDOFF_TRANSFER_REPOSITORY_ID")
+    transfer_upstream(operation["upstream"])
+
 def validate_spec(spec ∈ dict[str, object]) → None:
-    allowed ∈ list[str] ← ["audience", "model", "source_context", "execution_target", "request", "attachment"]
+    allowed ∈ list[str] ← ["audience", "model", "source_context", "execution_target", "request", "attachment", "operation"]
     for key in spec:
         if not allowed.__contains__(key):
             raise ValueError("HANDOFF_UNKNOWN_FIELD")
@@ -121,12 +163,18 @@ def validate_spec(spec ∈ dict[str, object]) → None:
         plain(spec["execution_target"])
     if spec.__contains__("attachment"):
         validate_attachment(dict(spec["attachment"]))
-    validate_request(dict(spec["request"]))
+    mode ∈ str ← validate_request(dict(spec["request"]))
+    if spec.__contains__("operation"):
+        validate_operation(dict(spec["operation"]))
+        if mode != "display-only" or str(spec.get("execution_target")) != "display-only":
+            raise ValueError("HANDOFF_TRANSFER_DISPLAY_ONLY")
 
 def contract(record ∈ dict[str, object]) → bytes:
     fields ∈ dict[str, object] ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "execution_target": record.get("execution_target"), "request": record["request"]}
     if record.__contains__("attachment"):
         fields["attachment"] ← record["attachment"]
+    if record.__contains__("operation"):
+        fields["operation"] ← record["operation"]
     encoded ∈ str ← json.dumps(fields, sort_keys=True, separators=(",", ":"))
     return encoded.encode()
 
@@ -154,6 +202,8 @@ def compose(stage ∈ dict[str, object], payload ∈ bytes, spec ∈ dict[str, o
     payload_id ∈ str ← digest((contract_digest + "\n" + digest(delivered)).encode())
     events ∈ list[dict[str, object]] ← []
     handoff ∈ dict[str, object] ← {"version": version, "id": payload_id, "contract_sha256": contract_digest, "audience": spec["audience"], "model": spec["model"], "source_context": spec["source_context"], "execution_target": spec.get("execution_target"), "request": request, "delivery_mode": mode, "payload_sha256": digest(delivered), "payload_size": len(delivered), "visible_state": "PENDING" if mode != "dispatch-only" else "NOT_REQUESTED", "dispatch_state": "NOT_REQUESTED" if mode == "display-only" else "PENDING", "events": events}
+    if spec.__contains__("operation"):
+        handoff["operation"] ← dict(spec["operation"])
     if version == 2:
         handoff["transport"] ← "attachment"
         handoff["source_sha256"] ← digest(payload)

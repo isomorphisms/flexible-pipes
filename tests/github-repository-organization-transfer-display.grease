@@ -1,0 +1,46 @@
+#!/usr/bin/env grease
+# FP public transfer preparation must only render Kitchen bytes.
+set -eu
+
+test "$#" -eq 2 || exit 2
+kitchen=$1
+runtime=$2
+here=$(dirname "$0")
+root=$(CDPATH= cd "$here/.." && pwd)
+test "$runtime" = /* || exit 2
+test -x "$runtime" || exit 2
+revision=$(git -C "$kitchen" rev-parse HEAD)
+scratch=$(mktemp -d)
+try { chmod 700 "$scratch" }
+if (_error.code !== 0) { exit 2 }
+mkdir -p "$scratch/bin" "$scratch/state"
+cp "$kitchen/tests/fixtures/github-transfer/gh" "$scratch/bin/gh"
+ln -s "$runtime" "$scratch/bin/grease"
+chmod 700 "$scratch/bin/gh"
+setglobal ENV.PATH = "$scratch/bin:$[ENV.PATH]"
+setglobal ENV.KITCHEN_ROOT = kitchen
+setglobal ENV.TRANSFER_TEST_STATE = "$scratch/state"
+setglobal ENV.TRANSFER_TEST_SCENARIO = 'normal'
+setglobal ENV.GH_HOST = 'github.com'
+setglobal ENV.GH_TOKEN = null
+setglobal ENV.GITHUB_TOKEN = null
+
+wrapper=$root/scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh
+generator=$kitchen/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+"$runtime" "$generator" isomorphisms mapping-class isomorphismes isomorphisms 1412391052 - > "$scratch/expected.grease"
+"$runtime" "$wrapper" isomorphisms mapping-class mapping-class isomorphismes isomorphisms "$revision" 1412391052 - > "$scratch/display.grease"
+cmp "$scratch/expected.grease" "$scratch/display.grease"
+test ! -e "$scratch/state/post.log"
+printf 'PASS public display path: exact Kitchen bytes, POST attempts=0\n'
+
+try { "$runtime" "$wrapper" isomorphisms mapping-class isomorphismes isomorphisms > "$scratch/four.stdout" 2> "$scratch/four.stderr" }
+if (_error.code === 0) { echo 'FAIL legacy four-argument route remained public'; exit 1 }
+grep -F 'usage:' "$scratch/four.stderr" >/dev/null
+test ! -e "$scratch/state/post.log"
+printf 'PASS legacy four-argument route: rejected before attempts\n'
+
+try { "$runtime" "$wrapper" isomorphisms considered consider isomorphismes isomorphisms "$revision" 1412391052 - > "$scratch/ambiguous.stdout" 2> "$scratch/ambiguous.stderr" }
+if (_error.code === 0) { echo 'FAIL unresolved repository identity was accepted'; exit 1 }
+grep -F 'repository name remains unresolved' "$scratch/ambiguous.stderr" >/dev/null
+test ! -e "$scratch/state/post.log"
+printf 'PASS unresolved considered/consider identity: rejected before attempts\n'

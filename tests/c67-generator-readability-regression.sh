@@ -11,9 +11,10 @@ for entrypoint in "$batch" "$single"; do
         echo "C67-failing generator readability predicate: $entrypoint" >&2
         exit 1
     fi
-    grep -F 'head -n 1 "$generator" > "$generator_probe"' "$entrypoint" >/dev/null
-    grep -F 'generator_header=$(cat "$generator_probe")' "$entrypoint" >/dev/null
-    grep -F "test \"\$generator_header\" = '#!/usr/bin/env grease'" "$entrypoint" >/dev/null
 done
+grep -F 'head -n 1 "$generator" > "$generator_probe"' "$batch" >/dev/null
+grep -F 'generator_header=$(cat "$generator_probe")' "$batch" >/dev/null
+grep -F 'try { generator_header=$(head -n 1 "$generator") }' "$single" >/dev/null
+grep -F "test \"\$generator_header\" = '#!/usr/bin/env grease'" "$batch" "$single" >/dev/null
 
 echo 'PASS batch and single transfer entrypoints admit the generator by an actual read and header identity'

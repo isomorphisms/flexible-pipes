@@ -59,6 +59,70 @@ def passed(name ∈ str) → None:
     passed_cases.append(name)
     print("PASS " + name)
 
+transfer_payload ∈ bytes ← b"#!/usr/bin/env grease\n# fixture display-only transfer bytes\n"
+transfer_operation ∈ dict[str, object] ← {
+    "kind": "github-repository-transfer",
+    "authority": "display-only",
+    "source_owner": "isomorphisms",
+    "requested_repository": "Museum_of_Shaders",
+    "resolved_repository": "Museum_of_Shaders",
+    "destination_owner": "functorial-games",
+    "expected_login": "isomorphisms",
+    "kitchen_revision": "32c3bf2d7c6268b50f1e48395dc972cfbafec7a9",
+    "repository_id": "1412731191",
+    "upstream": "conanwu777/Museum_of_Shaders"
+}
+transfer_stage ∈ dict[str, object] ← {
+    "name": "prepare-kitchen-display-only-handoff",
+    "kind": "command",
+    "exit_code": 0,
+    "stdout_sha256": handoff.digest(transfer_payload)
+}
+transfer_spec ∈ dict[str, object] ← {
+    "audience": "human",
+    "model": "Kitchen-maintained-Grease-transfer-recipe",
+    "source_context": "FP-CHAT-BYPASS-E1",
+    "execution_target": "display-only",
+    "request": {
+        "id": "github-repository-transfer-display-only",
+        "text": "Display the exact Kitchen-generated GitHub repository transfer recipe only.",
+        "delivery_mode": "display-only"
+    },
+    "operation": transfer_operation
+}
+transfer_handoff ∈ dict[str, object] ← handoff.compose(transfer_stage, transfer_payload, transfer_spec)
+if dict(transfer_handoff["handoff"])["operation"] != transfer_operation:
+    raise AssertionError("transfer display-only operation metadata was not retained")
+passed("transfer display-only operation binds identity metadata")
+transfer_invalid_cases ∈ dict[str, str] ← {
+    "authority": "HANDOFF_TRANSFER_AUTHORITY",
+    "unresolved": "HANDOFF_TRANSFER_REPOSITORY_UNRESOLVED",
+    "repository_id": "HANDOFF_TRANSFER_REPOSITORY_ID",
+    "kitchen_revision": "HANDOFF_TRANSFER_KITCHEN_REVISION"
+}
+for invalid_kind in transfer_invalid_cases:
+    expected_error ∈ str ← transfer_invalid_cases[invalid_kind]
+    candidate ∈ dict[str, object] ← dict(transfer_spec)
+    operation ∈ dict[str, object] ← dict(transfer_operation)
+    if invalid_kind == "authority":
+        operation["authority"] ← "execute"
+    elif invalid_kind == "unresolved":
+        operation["requested_repository"] ← "considered"
+        operation["resolved_repository"] ← "consider"
+    elif invalid_kind == "repository_id":
+        operation["repository_id"] ← "not-an-id"
+    else:
+        operation["kitchen_revision"] ← "not-a-commit"
+    candidate["operation"] ← operation
+    caught_message ∈ str ← ""
+    try:
+        handoff.compose(transfer_stage, transfer_payload, candidate)
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != expected_error:
+        raise AssertionError("transfer operation did not reject " + invalid_kind)
+    passed("transfer display-only rejects " + invalid_kind)
+
 sink ∈ object ← SimpleNamespace(send=surface_send, send_attachment=attachment_send)
 dispatcher ∈ object ← SimpleNamespace(send=dispatch_send)
 gate ∈ object ← SimpleNamespace(check=job_delivery.check, check_attachment=job_delivery.check_attachment)

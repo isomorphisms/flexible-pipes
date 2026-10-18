@@ -7,44 +7,42 @@
 Flexible Pipes calls Script Kitchen's Grease generator at
 $KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh.
 The generator deterministically writes a **complete standalone Grease program**.
-Flexible Pipes saves that program, runs it under Grease, independently verifies
-canonical destination and immutable repository ID, and only then renders a response.
-The generated program and its SHA-256 are retained and reported.
+The public named pipeline
+how-to-move-the-users-github-repository-to-a-different-organization now only
+prepares the exact Kitchen bytes for a display-only handoff. It binds the source
+owner, original and resolved repository spelling, destination owner, expected
+login, immutable repository ID/upstream, and exact Kitchen commit. It stops at
+AWAITING_HANDOFF_DELIVERY; it does not authenticate, preflight, run, or verify
+the generated program.
 
-For the already-transferred switch example, execute from a verified
-flexible-pipes checkout with KITCHEN_ROOT set to a verified Kitchen checkout:
+A differing original/resolved name is an unresolved identity, not permission to
+guess. For example, the historical considered/consider mismatch must be
+resolved before this operation can prepare a recipe. The runner retains legacy
+Python receipt machinery only as a named migration boundary; the maintained
+recipe and effect controller use **Grease**, not Python or Bash. KITCHEN_ROOT
+must name the checkout whose HEAD equals the bound Kitchen revision.
 
-~~~console
-grease scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh isomorphisms switch isomorphismes isomorphisms
-~~~
-
-Or use the equivalent named pipeline
-how-to-move-the-users-github-repository-to-a-different-organization
-through the existing pipeline controller (which still uses Python for its
-legacy receipt machinery). The transfer implementation and deterministic program
-generator use **Grease**, not Python or Bash. KITCHEN_ROOT is mandatory; never
-guess a checkout location. Set TRANSFER_ARTIFACT_DIR to an existing directory
-if a specific receipt destination is needed; otherwise a private temporary
-directory is created and retained.
-
-**Safety:** validates arguments, checks the authenticated login, source canonical
-ownership, organization and active membership, permissions, destination collision,
-and transfer POST error; verifies final identity. If the old URL already redirects
-to the new canonical repository with the same numeric ID, it reports
-already_transferred and **does not POST again**. On failure it prints a refusal
-instead of success. It does not require a model to decide whether to transfer.
+**Effectful transfer is separate:** the registered
+execute-github-repository-organization-transfer operation accepts the
+six-bound-identity session (source, repository, destination, expected login,
+immutable ID, upstream). Its maintained FP session calls AICI protected
+publication admission before preflight or an external effect. In the current
+normal live profile that admission is unavailable, so the operation fails before
+any transfer POST. Fixture execution remains a distinct, explicitly scoped test
+path and is not user-visible delivery or production authority.
 
 **Determinism boundary:** program bytes are deterministic for the same Kitchen
-candidate and parameters. Actual transfer execution is a network mutation and
-must not be called deterministic; responses are conditioned on verified state.
+commit and bound values. Displaying those bytes is not execution. Actual
+transfer execution is a network mutation and must not be called deterministic;
+the current protected live path is blocked rather than reported as verified.
 
-**Acceptance:** Kitchen's native-Grease fixture suite includes successful transfer,
-idempotent rerun, redirect, collision, wrong login, missing administrator rights,
-inactive membership, rejected API mutation, real-style REST error bodies, and
-unverified response. Flexible Pipes' integration suite checks Kitchen generation,
-stable identity, no duplicate POST, artifact retention, unsafe input rejection,
-missing checkout refusal, complete batch materialization before mutation, and
-aggregate destination verification.
+**Acceptance:** Kitchen's native-Grease fixture suite includes successful
+fixture transfer, idempotent rerun, redirect, collision, wrong login, missing
+administrator rights, inactive membership, rejected API mutation, real-style
+REST error bodies, and unverified response. Flexible Pipes' display path checks
+exact Kitchen bytes, immutable metadata, unresolved-name refusal, and zero
+fixture POST attempts. The separate execute path checks protected-admission
+failure before preflight/effect and the existing at-most-once recovery behavior.
 
 ## Physical C67 acceptance and lessons
 

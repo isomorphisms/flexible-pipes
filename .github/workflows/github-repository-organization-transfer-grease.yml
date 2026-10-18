@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: 2d5c0afa372bb532750067a1a79194854f7236fb
+          ref: 32c3bf2d7c6268b50f1e48395dc972cfbafec7a9
           path: kitchen
       - name: Validate retained C67 live-transfer evidence
         run: sh tests/c67-live-transfer-evidence.sh
