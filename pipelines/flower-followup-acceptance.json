@@ -37,6 +37,10 @@
     "realization_checker": {
       "required": true,
       "pattern": "/[^\\r\\n]+"
+    },
+    "ikefile_identity": {
+      "required": true,
+      "pattern": "sha256:[0-9a-f]{64}"
     }
   },
   "required_stages": [
@@ -48,14 +52,17 @@
     "kitchen-source",
     "catfood-source",
     "ithon-source",
+    "ike-source",
     "build-directory",
     "foreign-runtime",
-    "foreign-binary-packages",
+    "foreign-regina-package",
     "foreign-package-manifest",
     "acquire-grease",
     "compiler-identity",
     "compiler-target",
     "compile-build-verifier",
+    "compile-ike",
+    "compile-ike-receipt-checker",
     "leaf-build-contract",
     "compile-stitch",
     "compile-stitch-tests",
@@ -79,6 +86,9 @@
     "independent-coarse-topology",
     "independent-fine-topology",
     "independent-realization",
+    "ike-independent-acceptance",
+    "ike-receipt-verification",
+    "ike-receipt-negative-controls",
     "source-and-output-digests"
   ],
   "stages": [
@@ -172,6 +182,18 @@
     },
     {
       "kind": "command",
+      "name": "ike-source",
+      "argv": [
+        "git",
+        "-C",
+        "ike",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
       "name": "build-directory",
       "argv": [
         "mkdir",
@@ -193,7 +215,7 @@
     },
     {
       "kind": "command",
-      "name": "foreign-binary-packages",
+      "name": "foreign-regina-package",
       "argv": [
         "foreign-runtime/bin/python",
         "-m",
@@ -201,8 +223,7 @@
         "install",
         "--only-binary=:all:",
         "--report",
-        "build/foreign-install.json",
-        "snappy==3.3.2",
+        "build/foreign-regina-install.json",
         "regina==7.4.1"
       ],
       "cwd": "."
@@ -263,6 +284,40 @@
         "-lm",
         "-o",
         "build/aici"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-ike",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "ike/ike.c",
+        "-o",
+        "build/ike"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-ike-receipt-checker",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "oracle/geometry/flower-followup/verify_ike_receipt.c",
+        "-o",
+        "build/flower-ike-receipt"
       ],
       "cwd": "."
     },
@@ -604,6 +659,39 @@
     },
     {
       "kind": "command",
+      "name": "ike-independent-acceptance",
+      "argv": [
+        "../../../build/ike",
+        "accept"
+      ],
+      "cwd": "oracle/geometry/flower-followup"
+    },
+    {
+      "kind": "command",
+      "name": "ike-receipt-verification",
+      "argv": [
+        "build/flower-ike-receipt",
+        "verify",
+        "build/ike-accept.tsv",
+        "{{ikefile_identity}}",
+        "{{grease}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ike-receipt-negative-controls",
+      "argv": [
+        "build/flower-ike-receipt",
+        "self-test",
+        "build/ike-accept.tsv",
+        "{{ikefile_identity}}",
+        "{{grease}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
       "name": "source-and-output-digests",
       "argv": [
         "sha256sum",
@@ -614,7 +702,11 @@
         "source/crochet/test_material_geometry.c",
         "source/crochet/HANDMADE-PROTOCOL.txt",
         "source/crochet/handmade-measurements-empty.tsv",
+        "ike/ike.c",
         "oracle/geometry/flower-stitch/accept.pi",
+        "oracle/geometry/flower-followup/Ikefile",
+        "oracle/geometry/flower-followup/README.md",
+        "oracle/geometry/flower-followup/verify_ike_receipt.c",
         "oracle/geometry/flower-metric/accept.pi",
         "oracle/geometry/flower-metric/math_oracle.pi",
         "oracle/geometry/flower-metric/topology.pi",
@@ -627,7 +719,8 @@
         "build/markers.tsv",
         "build/material-edges.tsv",
         "build/mesh.obj",
-        "build/mesh-fine.obj"
+        "build/mesh-fine.obj",
+        "build/ike-accept.tsv"
       ],
       "cwd": "."
     }
