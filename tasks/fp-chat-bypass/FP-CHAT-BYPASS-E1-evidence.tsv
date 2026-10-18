@@ -1,7 +1,7 @@
 layer	status	boundary
 source_review	COMPLETE	public display-only route, separate execute route, Kitchen pin binding, and incident fixture inspected from this branch
-local_fixture_corpus	PASS	regression-history-smoke validates 14 records; native Grease and checked-Ithon suites are not installed on this host
-host_check	PENDING	exact candidate-head GitHub Actions verification required after publication
+local_fixture_corpus	PASS	14 historical records, 83 FP runtime cases, 66 independent delivery cases and nine transitions; native Grease and checked-Ithon controller regressions executed separately
+host_check	HISTORICAL_PASS	E1 head df4e3d268a6915e58be643dc92131e4e8f6fb2b9 passed https://github.com/isomorphisms/flexible-pipes/actions/runs/39089605291; this is not acceptance of a later repair head
 platform_adapter	BLOCKED	no authenticated ChatGPT request/correction/visible-surface adapter is available
 visible_presentation	NOT_VERIFIED	fixture response bytes are not a client presentation acknowledgement
 effect	NOT_RUN	no live transfer attempted; explicit fixture execute remains separately scoped

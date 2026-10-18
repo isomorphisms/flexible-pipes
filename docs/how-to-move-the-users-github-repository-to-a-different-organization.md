@@ -20,7 +20,23 @@ guess. For example, the historical considered/consider mismatch must be
 resolved before this operation can prepare a recipe. The runner retains legacy
 Python receipt machinery only as a named migration boundary; the maintained
 recipe and effect controller use **Grease**, not Python or Bash. KITCHEN_ROOT
-must name the checkout whose HEAD equals the bound Kitchen revision.
+must name the checkout whose HEAD equals the bound Kitchen revision, with no
+tracked changes in its transfer-generator sources.
+
+Preparation is not delivery acceptance. Before sending this operation, the
+existing FP controller requires AI-CI's
+`transfer_command.delivery_gate(kitchen_root, grease_runtime, admitted_spec)`.
+That gate compares supervisor-owned operation authority and regenerates the
+recipe from independently checked Kitchen source. A generic transport gate
+fails before the sink is called. The controlled sender also checks exact
+readback and does not repeat an accepted presentation on restart.
+
+The shell recipe contains redirection characters excluded by the generic plain
+text/HTML check. Its supported fixture presentation explicitly selects
+`presentation="literal"`, with no surrounding summary or extra command text.
+Unsupported plain rendering fails before send. This does not establish current
+Android CodeBlock support; actual chat presentation remains NOT_VERIFIED and
+the unavailable platform profile remains blocked.
 
 **Effectful transfer is separate:** the registered
 execute-github-repository-organization-transfer operation accepts the

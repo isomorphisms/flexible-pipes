@@ -332,7 +332,16 @@ def recover(stage ∈ dict[str, object], correction ∈ str) → dict[str, objec
     result["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
     return result
 
+def admit_candidate(stage ∈ dict[str, object], source ∈ bytes, gate ∈ object, response ∈ bytes = b"") → None:
+    """Operation acceptance is required before presentation, not after send."""
+    record ∈ dict[str, object] ← identity(stage, source)
+    if hasattr(gate, "check_candidate"):
+        gate.check_candidate(stage, source, response)
+    elif record.__contains__("operation"):
+        raise ValueError("HANDOFF_OPERATION_GATE_REQUIRED")
+
 def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str, presentation ∈ str = "plain") → dict[str, object]:
+    admit_candidate(stage, payload, gate, b"")
     handoff ∈ dict[str, object] ← identity(stage, payload)
     delivered ∈ bytes ← materialize(stage, payload)
     result ∈ dict[str, object] ← dict(stage)
@@ -361,6 +370,9 @@ def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dis
             # A summary cannot silently select a client component. Literal
             # blocks require an explicit presentation choice by the controller.
             response ← render(payload, summary) if presentation == "literal" else payload
+            if bytes(extract(response, payload)) != payload:
+                raise ValueError("HANDOFF_RESPONSE_IDENTITY")
+            admit_candidate(stage, payload, gate, response)
             # Sink returns the bytes actually accepted on its visible surface,
             # not a success flag copied from the producing model.
             observed ← sink.send(response)
@@ -394,20 +406,14 @@ def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dis
     result["platform_delivery_status"] ← "NOT_VERIFIED"
     return result
 
-def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected ∈ dict[str, object], required_text ∈ list[str], sink ∈ object, reader ∈ object, dispatcher ∈ object, gate ∈ object, state_path ∈ str, evidence_class ∈ str) → dict[str, object]:
+def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected ∈ dict[str, object], required_text ∈ list[str], sink ∈ object, reader ∈ object, dispatcher ∈ object, gate ∈ object, state_path ∈ str, evidence_class ∈ str, presentation ∈ str = "plain") → dict[str, object]:
     """Resume this stage; fixture execution never becomes platform attestation."""
     if evidence_class != "fixture":
         raise ValueError("HANDOFF_PLATFORM_ADAPTER_UNAVAILABLE")
-    gate.check_authority(stage, source, expected, required_text)
     state ∈ dict[str, object] ← stage
     path ∈ Path ← Path(state_path)
     if path.exists():
         state ← json.loads(path.read_bytes())
-        gate.check_authority(state, source, expected, required_text)
-        restored_record ∈ dict[str, object] ← dict(state["handoff"])
-        original_record ∈ dict[str, object] ← dict(stage["handoff"])
-        if str(restored_record["id"]) != str(original_record["id"]):
-            raise ValueError("HANDOFF_CHECKPOINT_IDENTITY")
     def checkpoint(current ∈ dict[str, object], phase ∈ str) → None:
         current["delivery_lifecycle"] ← phase
         current["acceptance_class"] ← "fixture"
@@ -420,6 +426,14 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
     # durably before readback or validation can fail, retaining effect history.
     state["delivery_status"] ← "AWAITING_HANDOFF_DELIVERY"
     checkpoint(state, str(state.get("delivery_lifecycle", "COMPOSED")))
+    admit_candidate(stage, source, gate, b"")
+    gate.check_authority(stage, source, expected, required_text)
+    admit_candidate(state, source, gate, b"")
+    gate.check_authority(state, source, expected, required_text)
+    restored_record ∈ dict[str, object] ← dict(state["handoff"])
+    original_record ∈ dict[str, object] ← dict(stage["handoff"])
+    if str(restored_record["id"]) != str(original_record["id"]):
+        raise ValueError("HANDOFF_CHECKPOINT_IDENTITY")
     capture ∈ dict[str, object] ← {"bytes": b"", "evidence_class": "fixture"}
     resumed_record ∈ dict[str, object] ← dict(state["handoff"])
     if str(resumed_record["visible_state"]) == "OBSERVED":
@@ -527,8 +541,10 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
     checkpoint(state, str(state.get("delivery_lifecycle", "COMPOSED")))
     wrapped_sink ∈ object ← SimpleNamespace(send=send_text, send_attachment=send_attachment)
     wrapped_dispatcher ∈ object ← SimpleNamespace(send=dispatch_once)
-    wrapped_gate ∈ object ← SimpleNamespace(check=accept_text, check_attachment=accept_attachment)
-    result ∈ dict[str, object] ← deliver(state, source, wrapped_sink, wrapped_dispatcher, wrapped_gate, "", "plain")
+    def accept_candidate(current ∈ dict[str, object], payload ∈ bytes, response ∈ bytes = b"") → None:
+        admit_candidate(current, payload, gate, response)
+    wrapped_gate ∈ object ← SimpleNamespace(check=accept_text, check_attachment=accept_attachment, check_candidate=accept_candidate)
+    result ∈ dict[str, object] ← deliver(state, source, wrapped_sink, wrapped_dispatcher, wrapped_gate, "", presentation)
     result["delivery_status"] ← "FIXTURE_PASS"
     record ∈ dict[str, object] ← dict(result["handoff"])
     checkpoint(result, "DISPATCHED" if str(record["dispatch_state"]) == "ACCEPTED" else "ACCEPTED")

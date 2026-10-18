@@ -55,6 +55,8 @@ try { actual_revision=$(git -C "$KITCHEN_ROOT" rev-parse HEAD) }
 if (_error.code !== 0) { fail "cannot read Kitchen revision from $KITCHEN_ROOT" }
 test "$actual_revision" = "$kitchen_revision" ||
     fail "Kitchen revision differs: expected $kitchen_revision, found $actual_revision"
+try { git -C "$KITCHEN_ROOT" diff --quiet "$kitchen_revision" -- tasks/github-repository-transfer }
+if (_error.code !== 0) { fail 'Kitchen transfer sources differ from the bound revision' }
 
 generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
 # Grease on the C67 can reject test -r for an actually readable file. A
