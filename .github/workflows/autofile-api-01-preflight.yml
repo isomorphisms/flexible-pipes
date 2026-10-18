@@ -48,7 +48,7 @@ jobs:
         uses: isomorphisms/fastchat/.github/actions/pinned-grease@7d70c331862e36cdf26981aa8c2558a5d0758eb4
       - name: Source-qualified ICK producer
         id: ick
-        uses: isomorphisms/ai-ci/ick-host@2843a804c3ee12be0f9176851e6e183db08da14d
+        uses: isomorphisms/ai-ci/ick-host@2843a804fea1bbc4e3e40b6c236064bb1d41f316
       - name: Compile actual Ike through ICK
         run: '"${{ steps.ick.outputs.compiler }}" -fno-link-libatomic -std=c11 -O2 -Wall -Wextra -Wpedantic .qualification/ike/ike.c -o .qualification/ike/ike'
       - name: Owner-private evidence directory
