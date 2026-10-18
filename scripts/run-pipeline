@@ -82,6 +82,25 @@ def resolve_handoff_value(
     return value
 
 
+def resolve_runtime_argv(argv: list[str]) -> list[str]:
+    """Bind a named Grease stage to an explicit checked runtime when supplied.
+
+    The pipeline receipt retains its declared `grease` command.  Only the
+    subprocess receives the absolute GREASE_BINARY override, so a controller
+    can use the same checked runtime as the separate public wrapper without
+    turning an ambient PATH lookup into handoff identity.
+    """
+    if argv[0] != "grease":
+        return argv
+    configured = os.environ.get("GREASE_BINARY")
+    if not configured:
+        return argv
+    runtime = Path(configured)
+    if not runtime.is_absolute() or not runtime.is_file() or not os.access(runtime, os.X_OK):
+        raise ValueError("GREASE_BINARY must name an executable absolute runtime")
+    return [str(runtime), *argv[1:]]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run one checked-in flexible-pipes pipeline")
     parser.add_argument("pipeline", help="pipeline name, without pipelines/ or .json")
@@ -202,6 +221,10 @@ def main() -> int:
                     return fail(f"stage {name}: parameter placeholders must occupy a whole argv element")
                 resolved_argv.append(argument)
         argv = resolved_argv
+        try:
+            execution_argv = resolve_runtime_argv(argv)
+        except ValueError as exc:
+            return fail(f"stage {name}: {exc}")
 
         cwd_rel = stage.get("cwd", ".")
         if not isinstance(cwd_rel, str):
@@ -233,7 +256,8 @@ def main() -> int:
             if checked.returncode != 0:
                 return fail(f"stage {name}: invalid handoff: " + checked.stderr.decode(errors="replace"))
         validated_stages.append(
-            {"name": name, "argv": argv, "cwd_rel": cwd_rel, "cwd": cwd,
+            {"name": name, "argv": argv, "execution_argv": execution_argv,
+             "cwd_rel": cwd_rel, "cwd": cwd,
              "handoff": handoff}
         )
 
@@ -274,6 +298,7 @@ def main() -> int:
         for index, stage in enumerate(validated_stages, start=1):
             name = stage["name"]
             argv = stage["argv"]
+            execution_argv = stage["execution_argv"]
             cwd_rel = stage["cwd_rel"]
             cwd = stage["cwd"]
 
@@ -282,7 +307,7 @@ def main() -> int:
             started = utc_now()
             try:
                 completed = subprocess.run(
-                    argv,
+                    execution_argv,
                     cwd=cwd,
                     text=False,
                     capture_output=True,
