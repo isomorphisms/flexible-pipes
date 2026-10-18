@@ -1,0 +1,80 @@
+SUN EMC-FORTRAN-COVER-01
+
+Exhaustive inventory before further execution
+
+Objective: Determine whether every relevant operation, object, instruction, data region, dependency, and semantic effect is accounted for in English Major Fortran.
+
+Priority: Completeness over execution. Do not extend the QR interpreter as part of this job.
+
+Existing evidence
+
+- x86-64: 2,835 instruction records across overlapping object and executable listings.
+- ARM A32: 1,149 instruction records, 16 literal-pool data words, 43 relocations.
+- x86-64: 64 recorded CALL sites, including unresolved external and indirect targets.
+- Three Fortran routines: "dqrls", "dqrdc2", "dqrsl".
+- Existing work: English Major C PRs #5, #7, #8, #10, #11, #12.
+
+Refresh and pin the exact source commits before auditing. Preserve all original evidence.
+
+Required work
+
+1. Machine inventory
+
+Account for every captured byte, instruction, operand, relocation, literal, data region, padding range and undecoded gap. Distinguish x86-64, ARM A32 and Thumb T32, and do not double-count linked copies.
+
+2. Semantic inventory
+
+For every observed instruction form, record:
+
+- Registers, aliases, widths, and implicit effects.
+- Memory reads, writes, faults and ordering.
+- Flags, predicates, branches and execution-index changes.
+- Floating-point rounding, NaNs, signed zero, denormals and exceptions.
+- Calls, returns, ABI obligations and external effects.
+
+Separate captured evidence from preliminary explanations, independently verified meanings, contradictions and unknowns.
+
+3. External dependencies
+
+Inventory BLAS, libc, libgfortran, libm, dynamic linking, loader behavior, indirect calls and the missing R-side machinery.
+
+Distinguish known interface contracts from actual captured implementation bytes. Never invent missing code.
+
+4. Fortran language coverage
+
+Identify the exact language versions or profiles being described. Record which constructs are exercised, merely documented, absent or deliberately outside scope.
+
+Include procedures, arguments, arrays, types, kinds, intrinsics, storage association, modules, pointers, allocation, I/O, error behavior and concurrency where applicable.
+
+Three QR routines do not establish coverage of the entire Fortran language.
+
+5. Coverage matrix
+
+Produce a machine-readable inventory and a human-readable report connecting:
+
+Original source → machine bytes → English description → semantic evidence → remaining gaps.
+
+Publish separate totals for source coverage, instruction coverage, verified semantic coverage, library closure and Fortran language features. Unknown denominators must remain unknown.
+
+6. Mechanical checks
+
+Test for dropped, duplicated and reordered instructions; altered bytes; missing relocations; data misclassified as instructions; swallowed gaps; false library-coverage claims; and unverified semantics marked complete.
+
+Each corrupted example must be rejected or explicitly reported as missing. No additional QR execution is required.
+
+Deliverables
+
+- One draft PR in "dilapidated-shed/English-major-C".
+- Reproducible coverage tables, provenance records and checking scripts.
+- An explicit list of missing or unresolved elements.
+- Prioritized, bounded follow-up SUN jobs for genuine gaps.
+- Exact-head test receipts and independent "isomorphisms/ai-ci" acceptance results.
+- Documented failure and recovery paths for missing or unverifiable source evidence.
+
+Acceptance: Every item within the declared archived corpus must either be accounted for or explicitly marked missing, with evidence and an independently reproducible check. No 100% completeness claim may conceal unexamined libraries, undefined semantics or language features outside the corpus.
+
+Execution control
+
+Flexible Pipes owns admission and the authoritative job envelope. Kitchen/Ike owns implementation. AI-CI independently checks acceptance.
+
+Filing this issue does not establish dispatch, execution, acceptance or permission to merge.

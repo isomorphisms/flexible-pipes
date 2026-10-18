@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "name": "emc-fortran-cover-01-preflight",
+  "description": "Immutable envelope/source availability check only. Refuses absent Kitchen recipe. No implementation, model dispatch, acceptance, publication or production admission.",
+  "parameters": {
+    "source": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "source-pr-5",
+    "source-pr-7",
+    "source-pr-8",
+    "source-pr-10",
+    "source-pr-11",
+    "source-pr-12",
+    "kitchen-owned-recipe",
+    "independent-aici-checker"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "-c",
+        "tasks/emc-fortran-cover-01/materials.sha256"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-5",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "0655e12c0e19b3dde360ed097ee88ba7b2c6d060^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-7",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "fbd4f352ef9ae5561cf34e87675d0534585fb963^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-8",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "d567d6d9ec3a3b72c288886889bb235160e27ab6^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-10",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "39e5aef087029cf19bc34419af28998cfda41a4c^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-11",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "1418402cf01bd0cdcf58c8350f588b8ee098f4c3^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pr-12",
+      "argv": [
+        "git",
+        "-C",
+        "{{source}}",
+        "cat-file",
+        "-e",
+        "763258c88b43a0b5f0358e345f01818e8e926cf0^{commit}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-owned-recipe",
+      "argv": [
+        "git",
+        "-C",
+        "{{kitchen}}",
+        "cat-file",
+        "-e",
+        "a91df2ef2bf0d37fb32c10be0a2f8208648220e0:tasks/emc-fortran-coverage/1.grease"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-checker",
+      "argv": [
+        "git",
+        "-C",
+        "{{aici}}",
+        "cat-file",
+        "-e",
+        "2843a804fea1bbc4e3e40b6c236064bb1d41f316:fortran-coverage/README.md"
+      ],
+      "cwd": "."
+    }
+  ]
+}
