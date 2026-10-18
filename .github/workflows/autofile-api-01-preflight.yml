@@ -20,14 +20,14 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           repository: isomorphisms/autofile-chatgpt-threads
-          ref: 0b82281375169cf60d8a8de2de9b70046f5007b1
+          ref: 3bf2fa78ea44b483533de8128f9988cbd4762d54
           path: .qualification/autofile
           persist-credentials: false
       - name: Independent ai-ci source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           repository: isomorphisms/ai-ci
-          ref: ac69e043d97fc914ba2733826d9670371e4492d0
+          ref: e5b535193c425fa9bf5f347d66030b477dbf35ab
           path: .qualification/aici
           persist-credentials: false
       - name: Maintained Kitchen procedure
