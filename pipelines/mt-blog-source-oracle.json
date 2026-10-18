@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "name": "mt-blog-source-oracle",
+  "parameters": {
+    "compiler": {"required": true, "pattern": "/.*"}
+  },
+  "required_stages": [
+    "job-envelope",
+    "source-manifest",
+    "source-bytes",
+    "independent-oracle",
+    "hostile-oracle-trace",
+    "aici-toolchain-policy",
+    "leaf-regressions",
+    "a1-host-render",
+    "c67-host-render"
+  ],
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/mock-theta/STAR-MT-BLOG-01.txt"],"cwd":"."},
+    {"kind":"command","name":"source-manifest","argv":["sha256sum","assets/mock-theta-blog/source-manifest.tsv","assets/mock-theta-blog/expected-coefficients.tsv"],"cwd":"."},
+    {"kind":"command","name":"source-bytes","argv":["sha256sum","-c","assets/mock-theta-blog/checksums.sha256"],"cwd":"."},
+    {"kind":"command","name":"leaf-source-identity","argv":["git","-C","source","rev-parse","HEAD"],"cwd":"."},
+    {"kind":"command","name":"leaf-source-exact","argv":["git","-C","source","diff","--exit-code","50b8ee6f8c9fa24e7b20eb777372ad1079fcde2f","HEAD"],"cwd":"."},
+    {"kind":"command","name":"aici-source-identity","argv":["git","-C","oracle-policy","rev-parse","HEAD"],"cwd":"."},
+    {"kind":"command","name":"compiler-version","argv":["{{compiler}}","--version"],"cwd":"."},
+    {"kind":"command","name":"compiler-target","argv":["{{compiler}}","-dumpmachine"],"cwd":"."},
+    {"kind":"command","name":"build-directory","argv":["mkdir","-p","build/mt-blog"],"cwd":"."},
+    {"kind":"command","name":"build-independent-oracle","argv":["{{compiler}}","-std=c11","-O2","-Wall","-Wextra","-Werror","-pedantic","oracle/mock-theta-blog.c","-o","build/mt-blog/mock-theta-blog-oracle"],"cwd":"."},
+    {"kind":"command","name":"independent-oracle","argv":["build/mt-blog/mock-theta-blog-oracle","build/mt-blog/actual-coefficients.tsv"],"cwd":"."},
+    {"kind":"command","name":"hostile-oracle-trace","argv":["cmp","assets/mock-theta-blog/expected-coefficients.tsv","build/mt-blog/actual-coefficients.tsv"],"cwd":"."},
+    {"kind":"command","name":"build-aici","argv":["{{compiler}}","-std=c11","-O2","-Wall","-Wextra","-Werror","-pedantic","oracle-policy/src/aici.c","-o","build/mt-blog/aici"],"cwd":"."},
+    {"kind":"command","name":"aici-toolchain-policy","argv":["build/mt-blog/aici","verify","oracle-policy/contracts/build-toolchain-v0.contract.tsv","source"],"cwd":"."},
+    {"kind":"command","name":"build-leaf-regressions","argv":["{{compiler}}","-fno-link-libatomic","-std=c11","-O2","-Wall","-Wextra","-Werror","-pedantic","-I","source/icky","source/icky/tetris_core.c","source/icky/tests/tetris_core_test.c","-o","build/mt-blog/tetris-core-test"],"cwd":"."},
+    {"kind":"command","name":"leaf-regressions","argv":["build/mt-blog/tetris-core-test"],"cwd":"."},
+    {"kind":"command","name":"a1-host-render","argv":["build/mt-blog/tetris-core-test","576","1152","5","0","build/mt-blog/a1-final.ppm"],"cwd":"."},
+    {"kind":"command","name":"c67-host-render","argv":["build/mt-blog/tetris-core-test","720","1600","4","180","build/mt-blog/c67-drag.ppm"],"cwd":"."},
+    {"kind":"command","name":"evidence-hashes","argv":["sha256sum","build/mt-blog/actual-coefficients.tsv","build/mt-blog/a1-final.ppm","build/mt-blog/c67-drag.ppm"],"cwd":"."}
+  ]
+}
