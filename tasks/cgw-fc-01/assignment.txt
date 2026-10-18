@@ -1,0 +1,38 @@
+SUN CGW-FC-01 — Native history capture and FastChat build closure
+
+Model: SUN, extra-high reasoning.
+Requested mode: DISPLAY-ONLY. This is a complete implementation assignment, not authorization to dispatch, merge, release, close other work, or access a real ChatGPT account.
+Control: "isomorphisms/flexible-pipes" → maintained "isomorphisms/kitchen" / "dilapidated-shed/ike" execution → independent "isomorphisms/ai-ci" acceptance. Cat Food owns any later A1/C67 device facts, not source-build assumptions.
+
+Exact starting evidence
+
+- Exporter owner: "dilapidated-shed/ChatGPTExporter". Unmerged stack: #10 "6e856557a1411ba048dad830d7f5b82a89e8422a" (typed native endpoint planner), #11 "4b983073c0fe092feda055abac54eeeaef181f30" (fixed-origin TLS), #12 "f655c10d3f13af41c410c41b7c3502f8d295525e" (private SHA-256 raw object store). Start new capture work from the exact #12 head, not exporter main. Keep X2–X6/B1 and offline importer #9 separate; consult their proven fixtures rather than quietly rebasing the stack.
+- FastChat owner: "isomorphisms/fastchat". Draft #14 "708616f32a1c5dbe45586bb0459dbf63b3f7e531" pins the native read-only history seam. Draft #15 "b43061a9fe4b580ffb5ce513d11847e15dd048a0" rebuilds exact Grease; A1 workflow run "39044508936" PASS. At that exact #15 head the H2, Icky C and Idriç workflows FAIL at their separate references to expired Grease artifact "11419719229"; do not call the whole FastChat suite green.
+- FP source: "isomorphisms/flexible-pipes" issue #147; draft #148 head "782e3df7f8a204f0c9271cc012e5a5ba59f6c75b". The two pinned preflight pipelines ran successfully in GitHub Actions "39045386923". These are actual preflight stage receipts, not independent ai-ci or production-controller/visible-delivery acceptance.
+- Before editing, refetch heads, open PRs, repository AGENTS.md policies, workflow triggers and test contracts. Record moved heads as drift; do not substitute latest main or an unrelated green ancestor.
+
+Deliverable A — one bounded native capture
+
+In a new draft PR stacked on exporter #12, make "native/cgw_web" + "native/cgw_https" + "native/cgw_object_store" execute one deterministic, resumable, read-only main-and-archived conversation capture for one explicitly selected workspace against a synthetic, local TLS provider. Produce a genuine private on-disk result, not a second endpoint-demo fixture.
+
+1. Add a small typed coordinator and a host-test entrypoint. No token command-line argument, environment-token fallback, browser-cookie scraping, credential file, arbitrary URL/method or general write API. Use a caller-owned short-lived authorization callback only. No real-account invocation is authorized.
+2. Follow main and archived offset pages to a provable termination or mark INCONCLUSIVE. Preserve raw response bytes and hashes before accepting their extracted IDs. Detect repeated/overlapping pages, duplicate or conflicting IDs, premature empty pages, impossible totals, drift across pages, byte/work ceilings, malformed envelopes and provider schema changes. A selected-workspace fingerprint may appear in filenames; a raw workspace ID, token or signed URL may not.
+3. Fetch each inventoried conversation, with bounded batch/detail fallback as needed, and preserve the complete provider graph and unknown fields as raw evidence. Never invent messages from alternating roles or assume the selected visible branch is the whole history. Unresolved parents, pagination uncertainty and incomplete graphs must be recorded, not silently accepted.
+4. Journal inventory identity, expected ID set, completed raw object hash, failure/retry state and deterministic resume decisions. Publish a per-conversation completion marker only after validating that conversation's raw data and durable object hashes. Kill/restart and corrupted-object replay must either repair from valid evidence or remain incomplete. Missing remote conversations remain locally recorded, never automatically deleted.
+5. Emit counts, source/request identities, output hashes and an independent validation report. Since projects, shared scopes, assets and browserless authentication are outside this slice, the report must explicitly say "full_account_export_complete=false" even if main/archived capture succeeds. The working Chromium extension stays intact.
+
+Deliverable B — independent FastChat producer repair
+
+In a separate FastChat draft PR based on #15, replace the expired Grease download step in the H2, Icky C and Idriç workflows with the already source-pinned ".github/actions/pinned-grease" producer from #15. Keep the identical Grease binary SHA-256 check, exact source chain and original test expectations. Do not change FastChat model/provider/UI/runtime semantics to make CI green. Execute all three workflows and the A1 workflow at the new exact head. If a later compiler, Android or dependency gate fails, record its first real error and leave that gate FAIL/BLOCKED rather than relaxing it.
+
+Independent acceptance and adversarial cases
+
+- Native tests must include genuine end-to-end fixture capture, recognized empty history, archived pagination, duplicate/overlap/conflicting IDs, repeated offsets, inconsistent totals, truncated JSON, malformed graph/cycle, 401/403/429/5xx, oversized bytes, token echo crossing chunks, interrupted write, resume, corrupt hash, symlink/private-mode refusal and incomplete-account reporting. Keep failing mutants for premature completion, silent record omission, invalid marker reuse and skipped workflow triggers.
+- Retain and run exporter "npm run check", "make -C native check", "check-store" and "check-https"; add the coordinator/receipt tests to required CI. Compare decoded semantic IDs/branches with independently specified oracles and prior TypeScript fixtures, not a second invocation of the same normalizer. Record peak memory and response/work bounds; no unbounded whole-account accumulation.
+- Any maintained compiled production C must use an explicitly source-pinned ICK or NDK stage under ai-ci's toolchain contract. Host "cc" fixture results remain separately labeled host evidence; do not reclassify them as ICK/Android acceptance.
+- Register the exact source-pinned execution and Kitchen/Ike procedure in Flexible Pipes. Independent "isomorphisms/ai-ci" must inspect exact-head receipts, source hashes, adverse mutants, artifact modes, failure paths and check-trigger coverage. The job text and any dispatch must use the existing FP visible-handoff identity. A new GitHub issue, draft PR, CI green check or response-file path is not a dispatch or acceptance receipt.
+- No merge, release, deployed agent, real ChatGPT session, live export, physical A1/C67, or user data handling without separate explicit authorization and matching evidence.
+
+Required handoff
+
+Return the full human-visible SUN job text and actual result; exact repo/PR heads and dependency pins; commands executed, PASS/FAIL/BLOCKED by stage, tests/mutants and source/output SHA-256 receipts; separate host/loopback/Android/physical evidence; first blockers. Supply ready-to-paste Earth followers for narrowly remaining build/packaging work, Moon followers only where independent modeling is actually required, and state explicitly whether another Sun job remains necessary. Otherwise say "NONE". Do not call this assignment started merely because this issue exists.

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "name": "cgw-fc-01-native-capture-preflight",
+  "parameters": {
+    "exporter": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ike": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ick": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "evidence": {
+      "required": true,
+      "pattern": "/.+"
+    }
+  },
+  "required_stages": [
+    "authorization",
+    "source-pins",
+    "kitchen-ike-qualified-capture",
+    "source-output-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "authorization",
+      "argv": [
+        "sha256sum",
+        "tasks/cgw-fc-01/assignment.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-pins",
+      "argv": [
+        "cat",
+        "tasks/cgw-fc-01/source-pins.tsv"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-qualified-capture",
+      "argv": [
+        "grease/_bin/cxx-asan/ysh",
+        ".qualification/kitchen/tasks/cgw-fc-01/1.grease",
+        "{{exporter}}",
+        "d0f116f7aefe258802584d050a1ef8e883c5b791",
+        "{{aici}}",
+        "42ea494e882cfee8c06b8a1cab7a7a710895399a",
+        "{{kitchen}}",
+        "c15da935730883b803996e766b9e0681b45504e3",
+        "{{ike}}",
+        "93f9eb0aee9094757414df8a7929c89b6a294b0c",
+        "{{ick}}",
+        "{{grease}}",
+        "{{evidence}}",
+        "d0f116f7aefe258802584d050a1ef8e883c5b791"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-output-hashes",
+      "argv": [
+        "sha256sum",
+        ".qualification/exporter/native/cgw_web.c",
+        ".qualification/exporter/native/cgw_web.h",
+        ".qualification/exporter/native/cgw_https.c",
+        ".qualification/exporter/native/cgw_https.h",
+        ".qualification/exporter/native/cgw_object_store.c",
+        ".qualification/exporter/native/cgw_object_store.h",
+        ".qualification/exporter/native/cgw_json.c",
+        ".qualification/exporter/native/cgw_json.h",
+        ".qualification/exporter/native/cgw_capture.c",
+        ".qualification/exporter/native/cgw_capture.h",
+        ".qualification/exporter/native/test_cgw_capture.c",
+        ".qualification/aici/native-capture/check.c",
+        ".qualification/kitchen/tasks/cgw-fc-01/1.grease",
+        ".qualification/kitchen/tasks/cgw-fc-01/Ikefile",
+        ".qualification/ike/ike.c",
+        ".qualification/ike/ike",
+        ".qualification/exporter/native/build/production/cgw_capture.o",
+        ".qualification/exporter/native/build/production/cgw_json.o",
+        ".qualification/exporter/native/build/production/cgw_https.o",
+        ".qualification/evidence/ike.tsv",
+        ".qualification/evidence/independent-check"
+      ]
+    }
+  ]
+}
