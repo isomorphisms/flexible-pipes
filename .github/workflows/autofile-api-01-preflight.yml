@@ -1,0 +1,81 @@
+name: AUTOFILE-API-01 pinned Kitchen and Ike preflight
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  source-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Exact Flexible Pipes registration head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Exact API candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: isomorphisms/autofile-chatgpt-threads
+          ref: 3bf2fa78ea44b483533de8128f9988cbd4762d54
+          path: .qualification/autofile
+          persist-credentials: false
+      - name: Independent ai-ci source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: isomorphisms/ai-ci
+          ref: e5b535193c425fa9bf5f347d66030b477dbf35ab
+          path: .qualification/aici
+          persist-credentials: false
+      - name: Maintained Kitchen procedure
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: isomorphisms/kitchen
+          ref: ccdd00648073b286dd58ddaab11d60fe642ca433
+          path: .qualification/kitchen
+          persist-credentials: false
+      - name: Actual Ike source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: dilapidated-shed/ike
+          ref: 93f9eb0aee9094757414df8a7929c89b6a294b0c
+          path: .qualification/ike
+          persist-credentials: false
+      - name: Reuse exact Grease producer
+        uses: isomorphisms/fastchat/.github/actions/pinned-grease@7d70c331862e36cdf26981aa8c2558a5d0758eb4
+      - name: Source-qualified ICK producer
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@2843a804fea1bbc4e3e40b6c236064bb1d41f316
+      - name: Compile actual Ike through ICK
+        run: '"${{ steps.ick.outputs.compiler }}" -fno-link-libatomic -std=c11 -O2 -Wall -Wextra -Wpedantic .qualification/ike/ike.c -o .qualification/ike/ike'
+      - name: Owner-private evidence directory
+        run: mkdir -m 700 .qualification/evidence
+      - name: Execute only the registered source preflight
+        env:
+          AUTOFILE_ICK: ${{ steps.ick.outputs.compiler }}
+        run: >
+          python3 scripts/run-pipeline autofile-api-01-preflight
+          --param producer="$GITHUB_WORKSPACE/.qualification/autofile"
+          --param aici="$GITHUB_WORKSPACE/.qualification/aici"
+          --param kitchen="$GITHUB_WORKSPACE/.qualification/kitchen"
+          --param ike="$GITHUB_WORKSPACE/.qualification/ike"
+          --param ick="$AUTOFILE_ICK"
+          --param grease="$GITHUB_WORKSPACE/grease/_bin/cxx-asan/ysh"
+          --param evidence="$GITHUB_WORKSPACE/.qualification/evidence"
+      - name: Preserve source-bound receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: autofile-api-01-preflight-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          path: |
+            tasks/autofile-api-01/source-pins.tsv
+            .flexible-pipes/runs/
+            .qualification/evidence/
+            .qualification/autofile/build/
+            .qualification/aici/autofile-api/build/
+            ${{ runner.temp }}/ick-host-stage/qualification/
+            ${{ runner.temp }}/ick-host-stage/host-runtime.sha256

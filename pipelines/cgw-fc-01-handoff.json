@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "cgw-fc-01-handoff",
+  "required_stages": [
+    "sun-cgw-fc-01"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "sun-cgw-fc-01",
+      "argv": [
+        "cat",
+        "tasks/cgw-fc-01/assignment.txt"
+      ],
+      "handoff": {
+        "audience": "Sun",
+        "model": "SUN, extra-high reasoning",
+        "source_context": "https://github.com/isomorphisms/flexible-pipes/issues/147; exact assignment and source-pins.tsv in tasks/cgw-fc-01; source registration follows 782e3df7f8a204f0c9271cc012e5a5ba59f6c75b",
+        "execution_target": "synthetic Ubuntu x86_64 source-build preflight; no real account or physical device",
+        "request": {
+          "id": "CGW-FC-01",
+          "text": "SUN CGW-FC-01 — Native history capture and FastChat build closure\n\nModel: SUN, extra-high reasoning.\nRequested mode: DISPLAY-ONLY. This is a complete implementation assignment, not authorization to dispatch, merge, release, close other work, or access a real ChatGPT account.\nControl: \"isomorphisms/flexible-pipes\" → maintained \"isomorphisms/kitchen\" / \"dilapidated-shed/ike\" execution → independent \"isomorphisms/ai-ci\" acceptance. Cat Food owns any later A1/C67 device facts, not source-build assumptions.",
+          "delivery_mode": "display-only",
+          "source": "human"
+        }
+      }
+    }
+  ]
+}

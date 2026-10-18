@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "name": "cgw-fc-01-native-capture-preflight",
+  "parameters": {
+    "exporter": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ike": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ick": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "evidence": {
+      "required": true,
+      "pattern": "/.+"
+    }
+  },
+  "required_stages": [
+    "authorization",
+    "source-pins",
+    "grease-env-contract",
+    "kitchen-ike-qualified-capture",
+    "bootstrap-toolchain-contract",
+    "source-output-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "authorization",
+      "argv": [
+        "sha256sum",
+        "tasks/cgw-fc-01/assignment.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-pins",
+      "argv": [
+        "cat",
+        "tasks/cgw-fc-01/source-pins.tsv"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "grease-env-contract",
+      "argv": [
+        "grease/_bin/cxx-asan/ysh",
+        ".qualification/kitchen/tasks/cgw-fc-01/3/env-fixture.grease",
+        "{{grease}}"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-qualified-capture",
+      "argv": [
+        "grease/_bin/cxx-asan/ysh",
+        ".qualification/kitchen/tasks/cgw-fc-01/3.grease",
+        "{{exporter}}",
+        "254ac2482a47ddf855d11ff2600288a6babb0f66",
+        "{{aici}}",
+        "e2a809a50fd1649c3a9216f438577592192d2626",
+        "{{kitchen}}",
+        "0634419f202f99cd818478583b55b4ca02826a8b",
+        "{{ike}}",
+        "93f9eb0aee9094757414df8a7929c89b6a294b0c",
+        "{{ick}}",
+        "{{grease}}",
+        "{{evidence}}",
+        "254ac2482a47ddf855d11ff2600288a6babb0f66"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "bootstrap-toolchain-contract",
+      "argv": [
+        ".qualification/evidence/toolchain-check",
+        "verify",
+        ".qualification/aici/contracts/build-toolchain-v0.contract.tsv",
+        "tasks/cgw-fc-01"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-output-hashes",
+      "argv": [
+        "sha256sum",
+        ".qualification/exporter/native/cgw_web.c",
+        ".qualification/exporter/native/cgw_web.h",
+        ".qualification/exporter/native/cgw_https.c",
+        ".qualification/exporter/native/cgw_https.h",
+        ".qualification/exporter/native/cgw_object_store.c",
+        ".qualification/exporter/native/cgw_object_store.h",
+        ".qualification/exporter/native/cgw_json.c",
+        ".qualification/exporter/native/cgw_json.h",
+        ".qualification/exporter/native/cgw_capture.c",
+        ".qualification/exporter/native/cgw_capture.h",
+        ".qualification/exporter/native/test_cgw_capture.c",
+        ".qualification/aici/native-capture/check.c",
+        ".qualification/kitchen/tasks/cgw-fc-01/3.grease",
+        ".qualification/kitchen/tasks/cgw-fc-01/3/Ikefile",
+        ".qualification/ike/ike.c",
+        ".qualification/ike/ike",
+        ".qualification/exporter/native/build/production/cgw_capture.o",
+        ".qualification/exporter/native/build/production/cgw_json.o",
+        ".qualification/exporter/native/build/production/cgw_https.o",
+        ".qualification/evidence/ike.tsv",
+        ".qualification/evidence/independent-check",
+        ".qualification/exporter/native/build/production/cgw_web.o",
+        ".qualification/exporter/native/build/production/cgw_object_store.o",
+        ".qualification/exporter/native/build/test_cgw_capture",
+        ".qualification/exporter/native/build/mutant-premature",
+        ".qualification/exporter/native/build/mutant-omission",
+        ".qualification/exporter/native/build/mutant-marker"
+      ]
+    }
+  ]
+}

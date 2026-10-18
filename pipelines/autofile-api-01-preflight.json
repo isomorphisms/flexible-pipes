@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "name": "autofile-api-01-preflight",
+  "parameters": {
+    "producer": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ike": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "ick": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "evidence": {
+      "required": true,
+      "pattern": "/.+"
+    }
+  },
+  "required_stages": [
+    "authorization",
+    "source-pins",
+    "kitchen-ike-qualified-api",
+    "producer-toolchain-contract",
+    "independent-toolchain-contract",
+    "source-output-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "authorization",
+      "argv": [
+        "sha256sum",
+        "tasks/autofile-api-01/assignment.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-pins",
+      "argv": [
+        "cat",
+        "tasks/autofile-api-01/source-pins.tsv"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-qualified-api",
+      "argv": [
+        "grease/_bin/cxx-asan/ysh",
+        ".qualification/kitchen/tasks/autofile-api-01/1.grease",
+        "{{producer}}",
+        "3bf2fa78ea44b483533de8128f9988cbd4762d54",
+        "{{aici}}",
+        "e5b535193c425fa9bf5f347d66030b477dbf35ab",
+        "{{kitchen}}",
+        "ccdd00648073b286dd58ddaab11d60fe642ca433",
+        "{{ike}}",
+        "93f9eb0aee9094757414df8a7929c89b6a294b0c",
+        "{{ick}}",
+        "{{grease}}",
+        "{{evidence}}"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "producer-toolchain-contract",
+      "argv": [
+        ".qualification/evidence/toolchain-check",
+        "verify",
+        ".qualification/aici/contracts/build-toolchain-v0.contract.tsv",
+        ".qualification/autofile"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "independent-toolchain-contract",
+      "argv": [
+        ".qualification/evidence/toolchain-check",
+        "verify",
+        ".qualification/aici/contracts/build-toolchain-v0.contract.tsv",
+        ".qualification/aici/autofile-api"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-output-hashes",
+      "argv": [
+        "sha256sum",
+        ".qualification/autofile/src/autofile_api.c",
+        ".qualification/autofile/src/autofile_api.h",
+        ".qualification/autofile/src/af_json.c",
+        ".qualification/autofile/src/af_json.h",
+        ".qualification/autofile/tests/test_autofile_api.c",
+        ".qualification/autofile/ci/build-toolchain.tsv",
+        ".qualification/autofile/build/test_autofile_api",
+        ".qualification/aici/autofile-api/check.c",
+        ".qualification/aici/autofile-api/ci/build-toolchain.tsv",
+        ".qualification/aici/autofile-api/build/check",
+        ".qualification/kitchen/tasks/autofile-api-01/1.grease",
+        ".qualification/kitchen/tasks/autofile-api-01/1/Ikefile",
+        ".qualification/ike/ike.c",
+        ".qualification/ike/ike",
+        ".qualification/evidence/toolchain-check",
+        ".qualification/evidence/ike.tsv"
+      ]
+    }
+  ]
+}

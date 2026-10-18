@@ -1,0 +1,92 @@
+name: CGW-FC-01 pinned Kitchen and Ike capture preflight
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  source-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Exact FP registration head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Exact exporter candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: dilapidated-shed/ChatGPTExporter
+          ref: 254ac2482a47ddf855d11ff2600288a6babb0f66
+          path: .qualification/exporter
+          persist-credentials: false
+      - name: Independent ai-ci source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: isomorphisms/ai-ci
+          ref: e2a809a50fd1649c3a9216f438577592192d2626
+          path: .qualification/aici
+          persist-credentials: false
+      - name: Maintained Kitchen procedure
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: isomorphisms/kitchen
+          ref: 0634419f202f99cd818478583b55b4ca02826a8b
+          path: .qualification/kitchen
+          persist-credentials: false
+      - name: Actual Ike source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: dilapidated-shed/ike
+          ref: 93f9eb0aee9094757414df8a7929c89b6a294b0c
+          path: .qualification/ike
+          persist-credentials: false
+      - name: Reuse unchanged exact Grease producer
+        uses: isomorphisms/fastchat/.github/actions/pinned-grease@7d70c331862e36cdf26981aa8c2558a5d0758eb4
+      - name: Source-qualified ICK producer
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@e2a809a50fd1649c3a9216f438577592192d2626
+      - name: Existing Node dependency interface
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Host fixture dependency provisioning
+        run: sudo apt-get install -y pkg-config libcurl4-openssl-dev libssl-dev openssl
+      - name: Retained TypeScript dependency provisioning
+        run: npm --prefix .qualification/exporter ci
+      - name: Compile actual Ike through the declared ICK stage
+        run: '"${{ steps.ick.outputs.compiler }}" -fno-link-libatomic -std=c11 -O2 -Wall -Wextra -Wpedantic .qualification/ike/ike.c -o .qualification/ike/ike'
+      - name: Owner-private evidence directory
+        run: mkdir -m 700 .qualification/evidence
+      - name: Execute only the registered source preflight
+        env:
+          CGW_ICK: ${{ steps.ick.outputs.compiler }}
+        run: >
+          python3 scripts/run-pipeline cgw-fc-01-native-capture-preflight
+          --param exporter="$GITHUB_WORKSPACE/.qualification/exporter"
+          --param aici="$GITHUB_WORKSPACE/.qualification/aici"
+          --param kitchen="$GITHUB_WORKSPACE/.qualification/kitchen"
+          --param ike="$GITHUB_WORKSPACE/.qualification/ike"
+          --param ick="$CGW_ICK"
+          --param grease="$GITHUB_WORKSPACE/grease/_bin/cxx-asan/ysh"
+          --param evidence="$GITHUB_WORKSPACE/.qualification/evidence"
+      - name: Preserve source-bound receipts and synthetic output
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cgw-fc-01-preflight-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          path: |
+            tasks/cgw-fc-01/source-pins.tsv
+            grease-source/_tmp/spec/
+            grease-source/_tmp/soil/
+            .flexible-pipes/runs/
+            .qualification/evidence/
+            .qualification/exporter/native/build/capture-success.path
+            .qualification/exporter/native/build/mutant-*.path
+            ${{ runner.temp }}/ick-host-stage/qualification/
+            ${{ runner.temp }}/ick-host-stage/host-runtime.sha256
+            .qualification/exporter/native/build/capture-*/**
