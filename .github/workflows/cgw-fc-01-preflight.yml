@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           repository: isomorphisms/kitchen
-          ref: 9fa7bf32eaf966135ceee8b95dfb7b77e71b1f68
+          ref: 35ddc640eb85240ae0875cc45f5fa604676121b1
           path: .qualification/kitchen
           persist-credentials: false
       - name: Actual Ike source
