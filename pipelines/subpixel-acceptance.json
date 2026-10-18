@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "name": "subpixel-acceptance",
+  "description": "Pinned host-baseline qualification through Kitchen/Ike, then an independent ai-ci oracle. Not production admission or model-job dispatch.",
+  "parameters": {
+    "workspace": {
+      "required": true,
+      "pattern": "/[^\\s]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "material-identity",
+    "source-preflight",
+    "owned-toolchain-build",
+    "producer-preview",
+    "independent-acceptance",
+    "seal"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/subpixel/assignment.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "material-identity",
+      "argv": [
+        "sha256sum",
+        "-c",
+        "tasks/subpixel/materials.sha256"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-preflight",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "60s",
+        "_subpixel/ysh",
+        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "preflight",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "owned-toolchain-build",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "100m",
+        "_subpixel/ysh",
+        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "bootstrap",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "producer-preview",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "5m",
+        "_subpixel/ysh",
+        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "producer",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "5m",
+        "_subpixel/ysh",
+        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "independent",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "seal",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "60s",
+        "_subpixel/ysh",
+        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "seal",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

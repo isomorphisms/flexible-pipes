@@ -16,3 +16,4 @@ __pycache__/
 # Optional local cache roots.
 models/cache/
 cache/
+_subpixel/

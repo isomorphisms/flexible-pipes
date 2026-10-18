@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "operation": "subpixel-acceptance",
+  "operation_version": "1",
+  "pipeline": "pipelines/subpixel-acceptance.json",
+  "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
+  "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
+  "target_context": "linux-x86_64-host",
+  "sources": {
+    "producer": {
+      "repository": "isomorphisms/rough.framebuffer",
+      "commit": "efff5fbe71d8722d713282c478dbdb52fa280f9b"
+    },
+    "kitchen": {
+      "repository": "isomorphisms/kitchen",
+      "commit": "c35eb82b8cc9143a73498a2344d1c6aefa0a99db",
+      "recipe": "tasks/subpixel/3.grease",
+      "sha256": "9d115a4a001209d002d0d410393265c848c61fba4ef74f632b604e294c5bdf17"
+    },
+    "aici": {
+      "repository": "isomorphisms/ai-ci",
+      "commit": "abcd1a657845badf539b9699da98d1e124ea2c6b"
+    },
+    "ick": {
+      "repository": "dilapidated-shed/ick",
+      "commit": "c61e448251744a2f40ad743ebef1a027bdcd2f9d",
+      "gcc_reference": "6294f1d9e7536e5ffcde09d1528c918d63abfef5"
+    },
+    "ike": {
+      "repository": "dilapidated-shed/ike",
+      "commit": "a92fe68bf8aad8dfcfe9f7a7abd84e07290f7fe0"
+    }
+  },
+  "runtime": {
+    "repository": "dilapidated-shed/grease",
+    "artifact_id": 11727693085,
+    "archive_sha256": "20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039",
+    "entry": "_bin/cxx-asan/ysh",
+    "executable_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c"
+  },
+  "required_stages": [
+    "job-envelope",
+    "material-identity",
+    "source-preflight",
+    "owned-toolchain-build",
+    "producer-preview",
+    "independent-acceptance",
+    "seal"
+  ],
+  "limits": {
+    "build_seconds": 6000,
+    "consumer_seconds": 300,
+    "acceptance_seconds": 300
+  },
+  "outputs": [
+    "producer.tsv",
+    "independent.tsv",
+    "curve-3x3-vs-5x5.ppm",
+    "result.tsv",
+    "result.sha256"
+  ],
+  "authority": "host-qualification-candidate",
+  "production_admission": "NOT_ACCEPTED",
+  "model_dispatch": "NOT_IMPLEMENTED",
+  "physical_A1_C67": "NOT_RUN"
+}
