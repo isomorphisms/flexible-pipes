@@ -34,6 +34,7 @@
   "required_stages": [
     "authorization",
     "source-pins",
+    "grease-env-contract",
     "kitchen-ike-qualified-capture",
     "bootstrap-toolchain-contract",
     "source-output-hashes"
@@ -57,16 +58,25 @@
     },
     {
       "kind": "command",
+      "name": "grease-env-contract",
+      "argv": [
+        "grease/_bin/cxx-asan/ysh",
+        ".qualification/kitchen/tasks/cgw-fc-01/3/env-fixture.grease",
+        "{{grease}}"
+      ]
+    },
+    {
+      "kind": "command",
       "name": "kitchen-ike-qualified-capture",
       "argv": [
         "grease/_bin/cxx-asan/ysh",
-        ".qualification/kitchen/tasks/cgw-fc-01/2.grease",
+        ".qualification/kitchen/tasks/cgw-fc-01/3.grease",
         "{{exporter}}",
         "254ac2482a47ddf855d11ff2600288a6babb0f66",
         "{{aici}}",
         "e2a809a50fd1649c3a9216f438577592192d2626",
         "{{kitchen}}",
-        "35ddc640eb85240ae0875cc45f5fa604676121b1",
+        "0634419f202f99cd818478583b55b4ca02826a8b",
         "{{ike}}",
         "93f9eb0aee9094757414df8a7929c89b6a294b0c",
         "{{ick}}",
@@ -102,8 +112,8 @@
         ".qualification/exporter/native/cgw_capture.h",
         ".qualification/exporter/native/test_cgw_capture.c",
         ".qualification/aici/native-capture/check.c",
-        ".qualification/kitchen/tasks/cgw-fc-01/2.grease",
-        ".qualification/kitchen/tasks/cgw-fc-01/2/Ikefile",
+        ".qualification/kitchen/tasks/cgw-fc-01/3.grease",
+        ".qualification/kitchen/tasks/cgw-fc-01/3/Ikefile",
         ".qualification/ike/ike.c",
         ".qualification/ike/ike",
         ".qualification/exporter/native/build/production/cgw_capture.o",

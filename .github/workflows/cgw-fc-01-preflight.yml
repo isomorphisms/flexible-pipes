@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           repository: isomorphisms/kitchen
-          ref: 35ddc640eb85240ae0875cc45f5fa604676121b1
+          ref: 0634419f202f99cd818478583b55b4ca02826a8b
           path: .qualification/kitchen
           persist-credentials: false
       - name: Actual Ike source
@@ -80,6 +80,9 @@ jobs:
           name: cgw-fc-01-preflight-${{ github.event.pull_request.head.sha || github.sha }}
           if-no-files-found: error
           path: |
+            tasks/cgw-fc-01/source-pins.tsv
+            grease-source/_tmp/spec/
+            grease-source/_tmp/soil/
             .flexible-pipes/runs/
             .qualification/evidence/
             .qualification/exporter/native/build/capture-success.path
