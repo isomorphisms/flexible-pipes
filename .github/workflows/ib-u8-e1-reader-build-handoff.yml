@@ -1,0 +1,201 @@
+name: FP IB-U8-E1 reader-build handoff
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ib-u8-e1-reader-build-handoff.yml'
+      - 'pipelines/ib-u8-e1-reader-build-handoff.json'
+      - 'tasks/ib-u8-e1-reader-build/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-pinned-handoff:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact FP candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check out Kitchen contract
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/kitchen
+          ref: 4a020cea30b5a473f2eb438f5c5bef1779a7fd23
+          path: .deps/kitchen
+          persist-credentials: false
+      - name: Check out IB #129 Material reader candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 8b6a1694ffb168f5e206262eeee89830d0733194
+          path: .deps/ib-129
+          persist-credentials: false
+      - name: Check out IB #147 direct DEX candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 912ae8905ae137868ce6e9aff1a82c915c40ee85
+          path: .deps/ib-147
+          persist-credentials: false
+      - name: Check out IB ICU/Arena/PFD/Prepaint candidates
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: d6c74283fa6bc41462a5af53c022894fe66cad90
+          path: .deps/ib-152
+          persist-credentials: false
+      - name: Check out IB PFD source owner candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: d9f18955801864cce2e8c8ac02df853772b271ac
+          path: .deps/ib-153
+          persist-credentials: false
+      - name: Check out IB typed Prepaint candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 33191f743e2f3bc51ba950f499187db595d43ec2
+          path: .deps/ib-154
+          persist-credentials: false
+      - name: Check out IB Binder ingress candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 43515c98c850a638dcc58fc525d8afe929d5ae72
+          path: .deps/ib-155
+          persist-credentials: false
+      - name: Check out IB Arena promotion candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 119283b18c5e8c2b62f3ee13c5596f87dcafb2e9
+          path: .deps/ib-158
+          persist-credentials: false
+      - name: Check out pinned Idriç compiler
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/Idric
+          ref: 2734ac5a86610eddfab73b1644d72b4ac85a65ee
+          path: .deps/idric
+          persist-credentials: false
+      - name: Check out ICU #35
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/icu
+          ref: 0da041fbe906657f4f705da45a842d96832e5ee1
+          path: .deps/icu
+          persist-credentials: false
+      - name: Check out Android NDK #27
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/android-NDK
+          ref: 78522f32576b7c14f138a875c0c572f8243dc2eb
+          path: .deps/android-ndk
+          persist-credentials: false
+      - name: Check out Cat Food C67 profile
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/catfood
+          ref: b387f90d3973aae39ba19d370a830da627299ab1
+          path: .deps/catfood
+          persist-credentials: false
+      - name: Check out pinned Grease source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/grease
+          ref: ba869518c7d850de6c47d8c6234654575e264e6c
+          path: .deps/grease
+          persist-credentials: false
+      - name: Check out source-oracle AI-CI candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 634626a14834e14b776616440e0a9071708f81b7
+          path: .deps/ai-ci-source-oracle
+          persist-credentials: false
+      - name: Check out independent receipt validator
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: e52f9afecd660410311fa763b4e5cb0013378602
+          path: .deps/ai-ci
+          persist-credentials: false
+      - name: Check out pinned Ithon
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: .deps/ithon
+          persist-credentials: false
+      - name: Check out pinned Ike source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ike
+          ref: 93f9eb0aee9094757414df8a7929c89b6a294b0c
+          path: .deps/ike
+          persist-credentials: false
+      - id: ick
+        uses: isomorphisms/ai-ci/ick-host@015cc7901ae0b3ad262b476f24e129b53c56db95
+      - name: Compile Ike and compose the blocked handoff
+        env:
+          ICK: ${{ steps.ick.outputs.compiler }}
+          ITHON: ${{ github.workspace }}/.deps/ithon/ithon
+          AICI_VALIDATOR: ${{ github.workspace }}/.deps/ai-ci/validators/check-ib-u8-e1-inputs.pi
+          AICI_POLICY: ${{ github.workspace }}/.deps/ai-ci/validators/ib-u8-e1-reader-build-policy.json
+          KITCHEN_MATERIALS: ${{ github.workspace }}/.deps/kitchen/tasks/ib-u8-e1-reader-build/materials.tsv
+          FP_WORKFLOW: ${{ github.workspace }}/.github/workflows/ib-u8-e1-reader-build-handoff.yml
+          IB129: ${{ github.workspace }}/.deps/ib-129
+          IB147: ${{ github.workspace }}/.deps/ib-147
+          IB147_MANIFEST: ${{ github.workspace }}/.deps/ib-147/android-native/AndroidManifest.xml
+          IB152: ${{ github.workspace }}/.deps/ib-152
+          IB153: ${{ github.workspace }}/.deps/ib-153
+          IB154: ${{ github.workspace }}/.deps/ib-154
+          IB155: ${{ github.workspace }}/.deps/ib-155
+          IB158: ${{ github.workspace }}/.deps/ib-158
+          IDRIC: ${{ github.workspace }}/.deps/idric
+          ICU: ${{ github.workspace }}/.deps/icu
+          ANDROID_NDK: ${{ github.workspace }}/.deps/android-ndk
+          CATFOOD: ${{ github.workspace }}/.deps/catfood
+          GREASE: ${{ github.workspace }}/.deps/grease
+          IKE_SOURCE: ${{ github.workspace }}/.deps/ike
+          AICI_SOURCE_ORACLE: ${{ github.workspace }}/.deps/ai-ci-source-oracle
+          KITCHEN: ${{ github.workspace }}/.deps/kitchen
+        run: |
+          set -euo pipefail
+          test -x "$ICK"
+          test -x "$ITHON"
+          "$ICK" -fno-link-libatomic -std=c11 -O2 -Wall -Wextra -Wpedantic .deps/ike/ike.c -o .tools/ike
+          if python3 scripts/run-pipeline ib-u8-e1-reader-build-handoff --ithon "$ITHON"; then
+            echo "expected AWAITING_HANDOFF_DELIVERY" >&2
+            exit 1
+          else
+            status=$?
+          fi
+          test "$status" -eq 1
+      - name: Independently verify the pending receipt
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
+        run: |
+          set -euo pipefail
+          receipt=$(find .flexible-pipes/runs -name receipt.json -print -quit)
+          test -n "$receipt"
+          .deps/ithon/ithon .deps/ai-ci/validators/check-ib-u8-e1-pending.pi \
+            .deps/ai-ci/validators/ib-u8-e1-reader-build-policy.json \
+            .deps/kitchen/tasks/ib-u8-e1-reader-build/materials.tsv \
+            "$receipt" tasks/ib-u8-e1-reader-build/JOB.txt "$RUNNER_TEMP/ib-u8-e1-pending.json"
+          grep -q '"status": "BLOCKED"' "$RUNNER_TEMP/ib-u8-e1-pending.json"
+          grep -q '"blocker": "AWAITING_HANDOFF_DELIVERY"' "$RUNNER_TEMP/ib-u8-e1-pending.json"
+      - name: Retain FP and independent blocked receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ib-u8-e1-reader-build-handoff
+          path: |
+            .flexible-pipes/runs/
+            ${{ runner.temp }}/ib-u8-e1-pending.json
+          if-no-files-found: warn

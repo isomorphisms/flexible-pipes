@@ -1,0 +1,38 @@
+EARTH IB-U8-E1 — source-pinned native reader build handoff
+
+Authority and scope: this is the build-preparation assignment under FP #180 and
+IB-U8-E1. It reconciles the existing IB #129/#147, the recorded IB #151 URL
+requirement, and the #152/#153/#154/#155/#158 ICU→Arena→PFD→Prepaint candidates.
+It does not recast those direct-authored GitHub commits as FP-dispatched work.
+
+Kitchen contract: isomorphisms/kitchen 4a020cea30b5a473f2eb438f5c5bef1779a7fd23,
+tasks/ib-u8-e1-reader-build/materials.tsv, SHA-256
+f24eda79143d42357b44fca57566de1005ddaaca19450f6c2a16ba97fdd9c6f7.
+Read that exact file before selecting any checkout, compiler, signer or target.
+
+FP ran the named Ike preflight with the pinned ICK action and an independent
+AI-CI policy. Treat its result as source selection only. Wrong source epoch,
+Idriç compiler, Android manifest hash, signer, C67 profile, Java/Gradle path,
+network permission, root requirement, or a tee-masked producer failure must
+reject before any package action.
+
+Build gate: do not package until one exact IB tree contains qualified ICU
+metadata, private PFD/Arena ingress and typed Prepaint, and the real retained
+NativeSourceProjection emits direct DEX. Its current collection/record failure
+is a BLOCKED_NATIVE_SOURCE_PROJECTION result. Do not replace it with Java,
+Kotlin, Gradle, RefC, C++, a WebView, a reader-owned HTTP client or a second
+document model. A missing checked Grease runtime is BLOCKED_GREASE_RUNTIME;
+do not bootstrap or substitute another shell.
+
+After those gates only: use pinned Idriç/ICK/Android-NDK inputs for the direct
+DEX/NDK C11 path. Preserve package org.isomorphisms.ib.prepaint and signer
+de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9.
+Prove same-package/signer replacement with nondecreasing versionCode and no
+uninstall using two distinct finished APK digests. Keep ARM32 A1 and ARM64 C67
+build/ART records distinct; emulator evidence is not C67 physical acceptance.
+
+There is no finished URL-capable APK and therefore no APK SHA-256 in this job.
+No merge, release, install, dispatch or physical-device acceptance is authorized
+by this source-pinned assignment. This is a display-only handoff: a composed
+file, GitHub issue or commit is not visible Kitchen delivery. The pipeline must
+remain AWAITING_HANDOFF_DELIVERY until a trusted adapter records this exact text.
