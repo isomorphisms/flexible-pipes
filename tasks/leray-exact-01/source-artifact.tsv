@@ -1,0 +1,12 @@
+key	value
+job	SUN-LERAY-EXACT-01
+priority	FIRST
+repository	walnut-burgundy/leray-overlooking-the-seine
+base	672ea01a7aa6e1d559a1ac55601b65696935caee
+source	leray-verification.zip
+source_library_id	libfile_1383e13f07548191a6313ef6dc97aa1a
+source_version	1
+source_sha256	b804351df2404ee9fbe7c898a4901a45fa07e9615e29083dbd8c2286cdff7df6
+source_bytes	8743
+source_trust	unaccepted-proposal
+import_pipeline	leray-exact-01-import

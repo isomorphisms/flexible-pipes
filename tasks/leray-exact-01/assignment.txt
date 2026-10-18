@@ -1,0 +1,35 @@
+SUN LERAY-EXACT-01
+Repository: walnut-burgundy/leray-overlooking-the-seine
+Base: 672ea01a7aa6e1d559a1ac55601b65696935caee
+Priority: FIRST
+Execution: FP → Kitchen/Ike → SUN/EARTH
+Verification: MOON → independent AI-CI
+
+Recover the existing leray-verification.zip bundle.
+It contains a C11 Beltrami benchmark, README, local
+results, proposed FP job and documentation correction.
+Import only through an FP-recorded source artifact.
+
+Implement:
+- Exact periodic field u₀=(sin z, cos z, 0).
+- ν=0 and ν>0 evolution.
+- Independent spatial and temporal refinement.
+- Velocity, energy, helicity, divergence and particle
+  displacement diagnostics.
+- Continuous and semidiscrete numerical oracles.
+- C11 compiler and runtime reproducibility checks.
+- Correct stale PR #4 status documentation.
+
+Acceptance:
+- Spatial convergence O(h²).
+- Temporal convergence O(Δt).
+- Correct physical energy/helicity decay.
+- Invalid ν, unstable timestep, invalid grid rejected.
+- Deliberately corrupted reference output rejected.
+- Independent MOON recomputation and AI-CI receipts.
+- Draft PR, never an unaccepted direct merge.
+
+Do not describe this reduced exact-flow calculation
+as a general 3-D Navier–Stokes solver.
+
+END SUN LERAY-EXACT-01
