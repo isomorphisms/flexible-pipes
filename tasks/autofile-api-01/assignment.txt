@@ -1,0 +1,37 @@
+STAR-AUTOFILE-API-01 — ChatGPT Projects API adapter (no classifier)
+
+Authorization: implement and register the API layer and its source-bound preflight.
+
+Repository: isomorphisms/autofile-chatgpt-threads
+Issue: https://github.com/isomorphisms/autofile-chatgpt-threads/issues/1
+
+Required primitives:
+- list_projects
+- list_project_threads
+- get_thread
+- move_thread
+
+Move safety contract:
+- bind every read and write response to the expected workspace fingerprint;
+- require an exact source project, exact g-p-* destination, write permission and
+  caller approval digest;
+- default to dry-run;
+- emit at most one non-retryable PATCH;
+- require an independent post-write GET before reporting VERIFIED;
+- reject a 2xx response by itself as proof of success; and
+- keep tokens, cookies, private response bodies and conversation content outside
+  command-line arguments and receipts.
+
+Execution control:
+- Flexible Pipes registers the exact source-pinned preflight.
+- Maintained Kitchen and source-pinned Ike own procedure order and receipts.
+- Independent isomorphisms/ai-ci checks adverse write and verification behavior.
+- Maintained C compilation runs through source-qualified ICK.
+- Grease executes the Kitchen procedure.
+
+Out of scope and not authorized:
+- classifier or automated filing decisions;
+- browser authentication or scraping credentials;
+- a live ChatGPT account, live endpoint call or conversation move;
+- production controller acceptance or visible delivery;
+- merge, release, deployment or issue closure.
