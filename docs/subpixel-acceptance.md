@@ -2,7 +2,7 @@
 
 `subpixel-acceptance` is a concrete named pipeline, not another planning issue.
 Its immutable inputs are recorded in `registry/subpixel-acceptance.json` and
-materialized by `.github/workflows/subpixel-acceptance.yml`. Kitchen version 3
+materialized by `.github/workflows/subpixel-acceptance.yml`. Kitchen version 4
 performs source preflight, builds the pinned ICK compiler and Ike, runs the actual
 producer preview, then runs the independently pinned ai-ci oracle, four compiled
 source mutants and two forged-receipt negatives. FP captures each stage's real

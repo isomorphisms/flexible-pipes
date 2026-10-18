@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: c35eb82b8cc9143a73498a2344d1c6aefa0a99db
+          ref: f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139
           path: _subpixel/kitchen
           persist-credentials: false
       - name: Materialize exact producer
@@ -82,12 +82,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential flex texinfo libgmp-dev libmpfr-dev libmpc-dev libisl-dev libzstd-dev binutils
       - name: Verify refusals before any compiler build
-        shell: '_subpixel/ysh {0}'
+        shell: '/usr/bin/env _subpixel/ysh {0}'
         run: |
           var python = "$(command -v python3)"
           _subpixel/ysh tests/subpixel-registration.grease "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_subpixel/ysh" "$python"
       - name: Execute the named FP pipeline
-        shell: '_subpixel/ysh {0}'
+        shell: '/usr/bin/env _subpixel/ysh {0}'
         run: |
           var python = "$(command -v python3)"
           "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$GITHUB_WORKSPACE"

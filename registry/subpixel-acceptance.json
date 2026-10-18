@@ -13,9 +13,9 @@
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "c35eb82b8cc9143a73498a2344d1c6aefa0a99db",
-      "recipe": "tasks/subpixel/3.grease",
-      "sha256": "9d115a4a001209d002d0d410393265c848c61fba4ef74f632b604e294c5bdf17"
+      "commit": "f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139",
+      "recipe": "tasks/subpixel/4.grease",
+      "sha256": "efe3c372574381befaeef17321703e44b56452b8f78526eec31319c59bf8752c"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",

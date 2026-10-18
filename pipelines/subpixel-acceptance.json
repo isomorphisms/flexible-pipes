@@ -45,7 +45,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "_subpixel/kitchen/tasks/subpixel/4.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -59,7 +59,7 @@
         "--kill-after=10s",
         "100m",
         "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "_subpixel/kitchen/tasks/subpixel/4.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -73,7 +73,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "_subpixel/kitchen/tasks/subpixel/4.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -87,7 +87,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "_subpixel/kitchen/tasks/subpixel/4.grease",
         "independent",
         "{{workspace}}"
       ],
@@ -101,7 +101,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/3.grease",
+        "_subpixel/kitchen/tasks/subpixel/4.grease",
         "seal",
         "{{workspace}}"
       ],
