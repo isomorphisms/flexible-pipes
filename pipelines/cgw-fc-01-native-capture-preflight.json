@@ -35,6 +35,7 @@
     "authorization",
     "source-pins",
     "kitchen-ike-qualified-capture",
+    "bootstrap-toolchain-contract",
     "source-output-hashes"
   ],
   "stages": [
@@ -61,17 +62,27 @@
         "grease/_bin/cxx-asan/ysh",
         ".qualification/kitchen/tasks/cgw-fc-01/1.grease",
         "{{exporter}}",
-        "d0f116f7aefe258802584d050a1ef8e883c5b791",
+        "254ac2482a47ddf855d11ff2600288a6babb0f66",
         "{{aici}}",
-        "42ea494e882cfee8c06b8a1cab7a7a710895399a",
+        "e2a809a50fd1649c3a9216f438577592192d2626",
         "{{kitchen}}",
-        "c15da935730883b803996e766b9e0681b45504e3",
+        "9fa7bf32eaf966135ceee8b95dfb7b77e71b1f68",
         "{{ike}}",
         "93f9eb0aee9094757414df8a7929c89b6a294b0c",
         "{{ick}}",
         "{{grease}}",
         "{{evidence}}",
-        "d0f116f7aefe258802584d050a1ef8e883c5b791"
+        "254ac2482a47ddf855d11ff2600288a6babb0f66"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "bootstrap-toolchain-contract",
+      "argv": [
+        ".qualification/evidence/toolchain-check",
+        "verify",
+        ".qualification/aici/contracts/build-toolchain-v0.contract.tsv",
+        "tasks/cgw-fc-01"
       ]
     },
     {
@@ -99,7 +110,13 @@
         ".qualification/exporter/native/build/production/cgw_json.o",
         ".qualification/exporter/native/build/production/cgw_https.o",
         ".qualification/evidence/ike.tsv",
-        ".qualification/evidence/independent-check"
+        ".qualification/evidence/independent-check",
+        ".qualification/exporter/native/build/production/cgw_web.o",
+        ".qualification/exporter/native/build/production/cgw_object_store.o",
+        ".qualification/exporter/native/build/test_cgw_capture",
+        ".qualification/exporter/native/build/mutant-premature",
+        ".qualification/exporter/native/build/mutant-omission",
+        ".qualification/exporter/native/build/mutant-marker"
       ]
     }
   ]
