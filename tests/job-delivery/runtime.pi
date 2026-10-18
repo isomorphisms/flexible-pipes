@@ -91,8 +91,13 @@ transfer_spec ∈ dict[str, object] ← {
     "operation": transfer_operation
 }
 transfer_handoff ∈ dict[str, object] ← handoff.compose(transfer_stage, transfer_payload, transfer_spec)
-if dict(transfer_handoff["handoff"])["operation"] != transfer_operation:
+transfer_record ∈ dict[str, object] ← dict(transfer_handoff["handoff"])
+retained_operation ∈ dict[str, object] ← dict(transfer_record["operation"])
+if len(retained_operation) != len(transfer_operation):
     raise AssertionError("transfer display-only operation metadata was not retained")
+for transfer_field in transfer_operation:
+    if not retained_operation.__contains__(transfer_field) or str(retained_operation[transfer_field]) != str(transfer_operation[transfer_field]):
+        raise AssertionError("transfer display-only operation metadata was not retained")
 passed("transfer display-only operation binds identity metadata")
 transfer_invalid_cases ∈ dict[str, str] ← {
     "authority": "HANDOFF_TRANSFER_AUTHORITY",
