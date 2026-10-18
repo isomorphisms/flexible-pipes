@@ -1,0 +1,39 @@
+#!/usr/bin/env grease
+set -o errexit -o nounset -o pipefail
+if (int($#) !== 3) { echo 'requires FP_ROOT GREASE PYTHON' >&2; exit 2 }
+var root = $1
+var grease = $2
+var python = $3
+var work = "$(mktemp -d)"
+cd -- "$root"
+
+# Missing parameters must be refused during whole-plan validation.
+try { "$python" "$root/scripts/run-pipeline" subpixel-acceptance --runs-root "$work/missing" > "$work/missing.out" 2> "$work/missing.err" }
+if (_error.code !== 2) { echo 'FAIL missing workspace accepted' >&2; exit 1 }
+grep -F 'missing required pipeline parameter: workspace' "$work/missing.err"
+test ! -e "$work/missing"
+
+# The materials gate precedes every executable supplied by a source checkout.
+mkdir -p "$work/fp/pipelines" "$work/fp/tasks/subpixel" "$work/fp/scripts" "$work/fp/_subpixel"
+cp "$root/pipelines/subpixel-acceptance.json" "$work/fp/pipelines/"
+cp "$root/tasks/subpixel/assignment.txt" "$work/fp/tasks/subpixel/"
+cp "$root/scripts/run-pipeline" "$work/fp/scripts/"
+cp "$root/tasks/subpixel/materials.sha256" "$work/fp/tasks/subpixel/"
+printf '#!%s\ntouch "%s"\n' "$grease" "$work/EXECUTED" > "$work/fp/_subpixel/ysh"
+chmod 755 "$work/fp/_subpixel/ysh"
+try { "$python" "$work/fp/scripts/run-pipeline" subpixel-acceptance --param "workspace=$work/fp" --runs-root "$work/corrupt" > "$work/corrupt.out" 2> "$work/corrupt.err" }
+if (_error.code !== 1) { echo 'FAIL corrupt materials accepted' >&2; exit 1 }
+grep -F '"failed_stage": "material-identity"' "$work/corrupt.out"
+test ! -e "$work/EXECUTED"
+
+# A genuine recipe must still reject a wrong source before creating evidence.
+mkdir -p "$work/wrong/_subpixel/kitchen/tasks/subpixel"
+cp "$root/_subpixel/kitchen/tasks/subpixel/4.grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/"
+git clone --quiet --local "$root/_subpixel/producer" "$work/wrong/_subpixel/producer"
+git -C "$work/wrong/_subpixel/producer" checkout --quiet --detach 3d897f35e015dbe6a914e4a571e3ac94073c1ac4
+try { "$grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/4.grease" preflight "$work/wrong" > "$work/wrong.out" 2> "$work/wrong.err" }
+if (_error.code !== 2) { echo 'FAIL wrong producer revision accepted' >&2; exit 1 }
+grep -F 'producer revision mismatch' "$work/wrong.err"
+test ! -e "$work/wrong/_subpixel/evidence"
+
+printf '\033[32mPASS\033[0m missing parameters, corrupt runtime and wrong source stop before build\n'

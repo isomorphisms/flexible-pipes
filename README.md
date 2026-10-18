@@ -6,6 +6,13 @@ This is a small pipeline substrate, not a general agent framework. Ordinary dete
 
 [Human-visible job delivery](docs/job-delivery.md) extends stage artifacts with separate observed delivery and dispatch. A composed job without its required visible surface blocks later pipeline effects. Text and binary attachments share the handoff identity; first-class attachments preserve their declared bytes, filename, MIME type, provenance, and digest.
 
+## Subpixel host qualification
+
+[`subpixel-acceptance`](docs/subpixel-acceptance.md) registers the pinned
+3×3/5×5 producer, Kitchen/Ike execution and independent ai-ci oracle as one
+named pipeline. Its hosted workflow exercises the candidate and retains actual
+stage receipts and the preview. Production admission and Android remain separate.
+
 ## Common task: transfer a GitHub repository
 
 See [the Grease-first repository-transfer task](docs/how-to-move-the-users-github-repository-to-a-different-organization.md).
