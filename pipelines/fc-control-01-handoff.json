@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "name": "fc-control-01-handoff",
+  "description": "Capture the registered FC-CONTROL-01 assignment and immutable read-only source evidence, then compose the existing FP handoff. No implementation, model dispatch or acceptance is inferred.",
+  "parameters": {
+    "fastchat": {
+      "required": true,
+      "pattern": "/[^\\s]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "source-pins",
+    "fastchat-head",
+    "single-turn-request-evidence",
+    "history-interface-evidence",
+    "fp-handoff-gate",
+    "controller-assignment"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/fc-control-01/assignment.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-pins",
+      "argv": [
+        "cat",
+        "tasks/fc-control-01/source-pins.tsv"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "fastchat-head",
+      "argv": [
+        "git",
+        "-C",
+        "{{fastchat}}",
+        "rev-parse",
+        "HEAD"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "single-turn-request-evidence",
+      "argv": [
+        "git",
+        "-C",
+        "{{fastchat}}",
+        "grep",
+        "-n",
+        "-e",
+        "provider_request_body_for",
+        "-e",
+        "conversation->prompt",
+        "-e",
+        "PROVIDER_RESPONSES",
+        "410ce85df1eebc06c01768bbc0084ce6292c65c2",
+        "--",
+        "src/provider.c",
+        "src/transport_boundary.c"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "history-interface-evidence",
+      "argv": [
+        "git",
+        "-C",
+        "{{fastchat}}",
+        "show",
+        "410ce85df1eebc06c01768bbc0084ce6292c65c2:src/conversation.h"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "fp-handoff-gate",
+      "argv": [
+        "git",
+        "show",
+        "181c6011956a39454fd8b018380c2ea54f0ab8e7:docs/job-delivery.md"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "controller-assignment",
+      "argv": [
+        "cat",
+        "tasks/fc-control-01/assignment.txt"
+      ],
+      "handoff": {
+        "audience": "Sun",
+        "model": "SUN, extra-high reasoning",
+        "source_context": "https://github.com/isomorphisms/flexible-pipes/issues/223; exact original assignment and source-pins.tsv in tasks/fc-control-01. FC-UI-01 is separate.",
+        "execution_target": "Read-only disposable Linux source inspection and handoff composition. SDF.org service, model execution, credentials, production dispatch and physical devices are unverified.",
+        "request": {
+          "id": "FC-CONTROL-01",
+          "text": "Fc-control-01",
+          "delivery_mode": "display-only",
+          "source": "human"
+        }
+      }
+    }
+  ]
+}
