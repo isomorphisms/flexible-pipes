@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: be5cda0bc9ae7f88eb0185be2ed40a020d1bab51
+          ref: 736ebd03994388679329244ecdf13779503fc042
           path: _aici
           persist-credentials: false
       - name: Check out qualified checked Ithon interface
