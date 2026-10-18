@@ -7,10 +7,9 @@ fail() {
     exit 1
 }
 
-valid_name() {
+require_name() {
     case $1 in
-        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) return 1 ;;
-        *) return 0 ;;
+        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) fail "$2" ;;
     esac
 }
 
@@ -28,25 +27,26 @@ kitchen_revision=$6
 repository_id=$7
 upstream=$8
 
-for tool in grease git grep head cat cut; do
+grease_binary=$[get(ENV, 'GREASE_BINARY', 'grease')]
+for tool in "$grease_binary" git grep head cat cut; do
     command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
 done
 for component in "$source_owner" "$requested_repository" "$resolved_repository" "$destination_organization" "$expected_login"; do
-    valid_name "$component" || fail "invalid GitHub name component: $component"
+    require_name "$component" "invalid GitHub name component: $component"
 done
 test "$requested_repository" = "$resolved_repository" ||
     fail "repository name remains unresolved: requested $requested_repository, resolved $resolved_repository"
-printf '%s\n' "$kitchen_revision" | grep -Eq '^[0-9a-f]{40}$' ||
-    fail 'KITCHEN_REVISION must be an exact 40-hex commit'
-printf '%s\n' "$repository_id" | grep -Eq '^[0-9]+$' ||
-    fail 'REPOSITORY_ID must be an immutable decimal GitHub repository ID'
+try { printf '%s\n' "$kitchen_revision" | grep -Eq '^[0-9a-f]{40}$' }
+if (_error.code !== 0) { fail 'KITCHEN_REVISION must be an exact 40-hex commit' }
+try { printf '%s\n' "$repository_id" | grep -Eq '^[0-9]+$' }
+if (_error.code !== 0) { fail 'REPOSITORY_ID must be an immutable decimal GitHub repository ID' }
 if test "$upstream" != '-'; then
     upstream_owner=$(printf '%s\n' "$upstream" | cut -d / -f1)
     upstream_repository=$(printf '%s\n' "$upstream" | cut -d / -f2)
     test "$upstream_owner/$upstream_repository" = "$upstream" ||
         fail 'UPSTREAM must be OWNER/REPOSITORY or -'
-    valid_name "$upstream_owner" && valid_name "$upstream_repository" ||
-        fail 'UPSTREAM must be OWNER/REPOSITORY or -'
+    require_name "$upstream_owner" 'UPSTREAM must be OWNER/REPOSITORY or -'
+    require_name "$upstream_repository" 'UPSTREAM must be OWNER/REPOSITORY or -'
 fi
 
 KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
@@ -66,4 +66,4 @@ test "$generator_header" = '#!/usr/bin/env grease' ||
 
 # stdout is the exact Kitchen program that the display-only handoff binds. Do
 # not create artifacts, preflight, authenticate, or execute it on this route.
-exec grease "$generator" "$source_owner" "$resolved_repository" "$destination_organization" "$expected_login" "$repository_id" "$upstream"
+exec "$grease_binary" "$generator" "$source_owner" "$resolved_repository" "$destination_organization" "$expected_login" "$repository_id" "$upstream"

@@ -7,7 +7,6 @@ kitchen=$1
 runtime=$2
 here=$(dirname "$0")
 root=$(CDPATH= cd "$here/.." && pwd)
-test "$runtime" = /* || exit 2
 test -x "$runtime" || exit 2
 revision=$(git -C "$kitchen" rev-parse HEAD)
 scratch=$(mktemp -d)
@@ -15,10 +14,10 @@ try { chmod 700 "$scratch" }
 if (_error.code !== 0) { exit 2 }
 mkdir -p "$scratch/bin" "$scratch/state"
 cp "$kitchen/tests/fixtures/github-transfer/gh" "$scratch/bin/gh"
-ln -s "$runtime" "$scratch/bin/grease"
 chmod 700 "$scratch/bin/gh"
 setglobal ENV.PATH = "$scratch/bin:$[ENV.PATH]"
 setglobal ENV.KITCHEN_ROOT = kitchen
+setglobal ENV.GREASE_BINARY = runtime
 setglobal ENV.TRANSFER_TEST_STATE = "$scratch/state"
 setglobal ENV.TRANSFER_TEST_SCENARIO = 'normal'
 setglobal ENV.GH_HOST = 'github.com'
