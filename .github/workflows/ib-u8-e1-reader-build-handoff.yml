@@ -145,6 +145,7 @@ jobs:
         env:
           ICK: ${{ steps.ick.outputs.compiler }}
           ITHON: ${{ github.workspace }}/.deps/ithon/ithon
+          PYTHONPATH: ${{ github.workspace }}/scripts
           AICI_VALIDATOR: ${{ github.workspace }}/.deps/ai-ci/validators/check-ib-u8-e1-inputs.pi
           AICI_POLICY: ${{ github.workspace }}/.deps/ai-ci/validators/ib-u8-e1-reader-build-policy.json
           KITCHEN_MATERIALS: ${{ github.workspace }}/.deps/kitchen/tasks/ib-u8-e1-reader-build/materials.tsv
