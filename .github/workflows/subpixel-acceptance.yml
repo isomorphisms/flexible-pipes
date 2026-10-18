@@ -85,12 +85,14 @@ jobs:
         shell: '/usr/bin/env _subpixel/ysh {0}'
         run: |
           var python = "$(command -v python3)"
-          _subpixel/ysh tests/subpixel-registration.grease "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_subpixel/ysh" "$python"
+          var workspace = ENV.GITHUB_WORKSPACE
+          _subpixel/ysh tests/subpixel-registration.grease "$workspace" "$workspace/_subpixel/ysh" "$python"
       - name: Execute the named FP pipeline
         shell: '/usr/bin/env _subpixel/ysh {0}'
         run: |
           var python = "$(command -v python3)"
-          "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$GITHUB_WORKSPACE"
+          var workspace = ENV.GITHUB_WORKSPACE
+          "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$workspace"
       - name: Retain real stage receipts, diagnostics and PPM
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

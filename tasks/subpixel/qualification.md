@@ -15,3 +15,8 @@ interface, not the script interpreter. The failed attempt is not a build pass.
 
 Kitchen's versioned notes retain the native Grease strict-errexit/environment
 findings and exact generated-output boundary. The current recipe is version 4.
+
+A matching native-runtime probe also established that inherited variables are
+read through `ENV`, not as implicit shell locals. The workflow now binds
+`ENV.GITHUB_WORKSPACE` before invoking the recipe; no Bash environment syntax is
+being counted as Grease execution.
