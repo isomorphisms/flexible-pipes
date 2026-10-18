@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "rhs-native-findings",
+  "parameters": {
+    "kitchen_task": {"required": true, "pattern": "/.+"},
+    "rhs": {"required": true, "pattern": "/.+"},
+    "evidence": {"required": true, "pattern": "/.+"},
+    "ithon": {"required": true, "pattern": "/.+"},
+    "checker": {"required": true, "pattern": "/.+"}
+  },
+  "required_stages": ["source-bound-native-findings-and-independent-admission"],
+  "stages": [
+    {"kind": "command", "name": "source-bound-native-findings-and-independent-admission", "argv": ["grease", "{{kitchen_task}}", "{{rhs}}", "{{evidence}}", "{{ithon}}", "{{checker}}"]}
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "name": "amazon-org-query",
+  "description": "Source-only Idriç CLI query to answer a particular Amazon organizational/work/qualification question with an accepted installed executable; never infer layoffs or a formal org-chart edge from feed metadata.",
+  "parameters": {
+    "program": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs"
+    },
+    "cli-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/AmazonJobs\\.idric"
+    },
+    "cli-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "catfood-manifest": {
+      "required": true,
+      "pattern": "/[^\\n]+/tools\\.tsv"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/[^\\n]+/aici"
+    },
+    "aici-contract": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli-v0\\.contract\\.tsv"
+    },
+    "aici-source": {
+      "required": true,
+      "pattern": "/[^\\n]+/src/aici\\.c"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\n]+/grease"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\n]+/amazon-jobs-cli/1\\.grease"
+    },
+    "cli-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric-compiler": {
+      "required": true,
+      "pattern": "/[^\\n]+/idris2"
+    },
+    "question": {
+      "required": true,
+      "pattern": "[^\\n]+"
+    },
+    "search-phrase": {
+      "required": true,
+      "pattern": "[^\\n]+"
+    },
+    "location": {
+      "required": true,
+      "pattern": "[^\\n]*"
+    },
+    "catfood-update": {
+      "required": true,
+      "pattern": "/[^\\n]+/update-tools\\.ysh"
+    },
+    "catfood-workspace": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "question-identity",
+    "catfood-inventory",
+    "source-identity",
+    "kitchen-preflight",
+    "kitchen-build",
+    "catfood-link-refresh",
+    "kitchen-installed-test",
+    "offline-self-test",
+    "independent-aici-source",
+    "independent-aici-revision",
+    "binary-identity",
+    "provider-query"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/amazon-jobs/SUN-AMAZON-JOBS-ORG-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "question-identity",
+      "argv": [
+        "printf",
+        "%s\\n",
+        "{{question}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-inventory",
+      "argv": [
+        "sha256sum",
+        "{{catfood-manifest}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-identity",
+      "argv": [
+        "sha256sum",
+        "{{cli-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-preflight",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "preflight",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-build",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "build",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-link-refresh",
+      "argv": [
+        "{{grease}}",
+        "{{catfood-update}}",
+        "{{catfood-workspace}}",
+        "12",
+        "{{catfood-manifest}}",
+        "1"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "kitchen-installed-test",
+      "kind": "command",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "test",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric-compiler}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "offline-self-test",
+      "argv": [
+        "{{program}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-source",
+      "argv": [
+        "{{aici}}",
+        "verify",
+        "{{aici-contract}}",
+        "{{cli-root}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-revision",
+      "argv": [
+        "sha256sum",
+        "{{aici-source}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "binary-identity",
+      "kind": "command",
+      "argv": [
+        "sha256sum",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "provider-query",
+      "argv": [
+        "{{program}}",
+        "{{search-phrase}}",
+        "--location",
+        "{{location}}",
+        "--max-pages",
+        "10",
+        "--limit",
+        "50",
+        "--format",
+        "jsonl"
+      ],
+      "cwd": "."
+    }
+  ]
+}

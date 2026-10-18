@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "rhs-autonomous-open",
+  "parameters": {
+    "assignment": {"required": true, "pattern": "/.+"},
+    "rhs": {"required": true, "pattern": "/.+"},
+    "catfood": {"required": true, "pattern": "/.+"},
+    "aici": {"required": true, "pattern": "/.+"},
+    "kitchen": {"required": true, "pattern": "/.+"}
+  },
+  "required_stages": ["assignment", "rhs-source", "catfood-source", "aici-source", "kitchen-source"],
+  "stages": [
+    {"kind": "command", "name": "assignment", "argv": ["sha256sum", "{{assignment}}"]},
+    {"kind": "command", "name": "rhs-source", "argv": ["git", "-C", "{{rhs}}", "rev-parse", "HEAD"]},
+    {"kind": "command", "name": "catfood-source", "argv": ["git", "-C", "{{catfood}}", "rev-parse", "HEAD"]},
+    {"kind": "command", "name": "aici-source", "argv": ["git", "-C", "{{aici}}", "rev-parse", "HEAD"]},
+    {"kind": "command", "name": "kitchen-source", "argv": ["git", "-C", "{{kitchen}}", "rev-parse", "HEAD"]}
+  ]
+}

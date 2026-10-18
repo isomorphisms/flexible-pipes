@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "rhs-detector-comparison",
+  "parameters": {
+    "kitchen_task": {"required": true, "pattern": "/.+"},
+    "ithon": {"required": true, "pattern": "/.+"},
+    "engine": {"required": true, "pattern": "/.+"},
+    "candidate": {"required": true, "pattern": "/.+"},
+    "evidence": {"required": true, "pattern": "/.+"},
+    "model": {"required": true, "pattern": "qwen-(1.5b|3b)"},
+    "presentation": {"required": true, "pattern": "source|observations"},
+    "checker": {"required": true, "pattern": "/.+"},
+    "baseline": {"required": true, "pattern": "/.+"},
+    "grading": {"required": true, "pattern": "/.+"}
+  },
+  "required_stages": ["model-inference", "independent-grading"],
+  "stages": [
+    {"kind": "command", "name": "model-inference", "argv": ["grease", "{{kitchen_task}}", "{{ithon}}", "{{engine}}", "{{candidate}}", "{{evidence}}", "{{model}}", "{{presentation}}"]},
+    {"kind": "command", "name": "independent-grading", "argv": ["{{ithon}}", "{{checker}}", "{{baseline}}", "{{evidence}}", "{{grading}}"]}
+  ]
+}

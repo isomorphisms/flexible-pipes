@@ -1,0 +1,11 @@
+RHS — Autonomous SUN Jobs
+Execution: Flexible Pipes → Kitchen / Ike
+Independent acceptance: isomorphisms/ai-ci
+
+RHS-OWNER-01: Recover the PR 16 pipeline. Inspect owner builds, replace the expired Grease artifact through Cat Food, verify Ithon/ICK/QEMU/model receipts, reproduce 96 supported and eight unsupported packets, fail closed without stock compiler fallback.
+RHS-GLYPH-01: Complete existing draft PR 17. Independently prove exactly seven arithmetic division substitutions, unchanged other bytes, pinned ICK compilation, byte-identical fixed output, compiler and fixture hashes. Merge only after independent acceptance. No physical keyboard claim.
+RHS-DETECTOR-02: Preserve the 0.5B baseline; compare stronger models and alternate claim presentations with no labels/oracles/provenance in inputs, held-out families, separate recall/precision/false positives/abstentions/execution failures, constant and rule baselines, raw response and revision hashes. Negative findings are valid.
+RHS-RELATIONS-02: Implement exact independently specified byte/element counts, call order/effects, array/vector dimensions, reflection/rotation/linear transformations and repeated-call serialization/state relations. Provide positive, counterexample and boundary tests; unsupported meaning is UNKNOWN.
+RHS-AICI-01: Implement typed source/claim/observation/scope/hash findings, distinguish observed exact contradictions from model estimates, independently validate provenance, reject invalid/missing/expired/forged evidence, and execute real positive/negative integration examples.
+
+Recover existing work; preserve ownership; add no Python application logic or C++ dependency. Exact final commit tests and retained receipts. AI-CI acceptance before merge. Record concrete blockers and continue independent work. No routine user decisions required.

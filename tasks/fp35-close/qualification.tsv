@@ -6,7 +6,7 @@ AICI_binary_CLI	LOCAL_PASS	actual input files opened and hashed; CONTRACT_PASS; 
 pipeline_preflight	LOCAL_PASS	existing baseline and candidate corpus/pre-effect tests
 FP_pipeline	LOCAL_PASS	fp35-delivery-acceptance executed envelope/runtime/independent stages
 Ithon_revision	PINNED	d6e83969f82512e920fb17b44326cb54f31d015c; host frontend
-AI_CI_dependency	PINNED	03e4a9b4a314a2637ae240e5045fb9860737a1a0
+AI_CI_dependency	PINNED	998116f88bf3df20a1409382468a59e825018557
 ChatGPT_authenticated_request_and_presentation	BLOCKED	no exposed deployed adapter supplies the required authenticated observations
 ChatGPT_attachment_service_adapter	PARTIAL	original Wegert source-to-storage path qualified by actual readback; production controller/client adapter NOT_DEPLOYED
 live_Wegert_archive	LIVE_PASS	artifact 11528177870; run 37727204424 attempt 1; archive digest 7a69447a00e3a674d12aeaa41c3e4895e30f53e6a8c8373775df5e3e19c6478c
