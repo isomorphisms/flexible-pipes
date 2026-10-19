@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "name": "nhtsa-vin-acceptance",
+  "description": "Exact clean source heads must be enforced before any Kitchen build. After source validation: source-bound Idriç/ICU build/install, independent ai-ci rejection oracle, separately captured live NHTSA decode.",
+  "parameters": {
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "cli-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "cli-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "icu-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "icu-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric": {
+      "required": true,
+      "pattern": "/[^\\n]+/[^\\n]+"
+    },
+    "ick": {
+      "required": true,
+      "pattern": "/[^\\n]+/[^\\n]+"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\n]+/tasks/nhtsa-vin/1\\.grease"
+    },
+    "kitchen-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "kitchen-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "install-prefix": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "program": {
+      "required": true,
+      "pattern": "/[^\\n]+/nhtsa-vin"
+    },
+    "aici-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "aici-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "aici-oracle": {
+      "required": true,
+      "pattern": "/[^\\n]+/nhtsa/vin-cli-acceptance\\.sh"
+    },
+    "idric-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "idric-json-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "idric-net-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "ick-root": {
+      "required": true,
+      "pattern": "/[^\\n]+"
+    },
+    "idric-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric-json-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "idric-net-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "ick-head": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "cli-head-observed",
+    "icu-head-observed",
+    "kitchen-head-observed",
+    "aici-head-observed",
+    "enforced-source-pins",
+    "kitchen-preflight",
+    "kitchen-build",
+    "kitchen-install",
+    "kitchen-installed-test",
+    "independent-aici",
+    "live-provider"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/nhtsa-vin/SUN-NHTSA-VIN-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "cli-head-observed",
+      "argv": [
+        "git",
+        "-C",
+        "{{cli-root}}",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "icu-head-observed",
+      "argv": [
+        "git",
+        "-C",
+        "{{icu-root}}",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-head-observed",
+      "argv": [
+        "git",
+        "-C",
+        "{{kitchen-root}}",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "aici-head-observed",
+      "argv": [
+        "git",
+        "-C",
+        "{{aici-root}}",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "enforced-source-pins",
+      "argv": [
+        "sh",
+        "scripts/check-nhtsa-source-pins.sh",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{icu-root}}",
+        "{{icu-head}}",
+        "{{idric-root}}",
+        "{{idric-head}}",
+        "{{idric-json-root}}",
+        "{{idric-json-head}}",
+        "{{idric-net-root}}",
+        "{{idric-net-head}}",
+        "{{ick-root}}",
+        "{{ick-head}}",
+        "{{kitchen-root}}",
+        "{{kitchen-head}}",
+        "{{aici-root}}",
+        "{{aici-head}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-preflight",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "preflight",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric}}",
+        "{{ick}}",
+        "{{icu-root}}",
+        "{{icu-head}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-build",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "build",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric}}",
+        "{{ick}}",
+        "{{icu-root}}",
+        "{{icu-head}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-install",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "install",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric}}",
+        "{{ick}}",
+        "{{icu-root}}",
+        "{{icu-head}}",
+        "{{program}}",
+        "{{install-prefix}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-installed-test",
+      "argv": [
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "test",
+        "{{cli-root}}",
+        "{{cli-head}}",
+        "{{idric}}",
+        "{{ick}}",
+        "{{icu-root}}",
+        "{{icu-head}}",
+        "{{program}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici",
+      "argv": [
+        "sh",
+        "{{aici-oracle}}",
+        "{{program}}",
+        "{{cli-root}}",
+        "{{cli-head}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "live-provider",
+      "argv": [
+        "{{program}}",
+        "decode",
+        "1HGCM82633A004352",
+        "--modelyear",
+        "2003",
+        "--tsv"
+      ],
+      "cwd": "."
+    }
+  ]
+}
