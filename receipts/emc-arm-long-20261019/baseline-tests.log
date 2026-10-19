@@ -1,0 +1,41 @@
+A32_IDRIC_SOURCE_HEAD 1e87879ae655110998142ab5aac9676755014a17
+✔ all 23 original dqrls A32 words match independently checked typed operands (62.70837ms)
+✔ source headers, symbol declarations and relocation rows are not instructions (56.87471ms)
+✔ physical alias sl identifies register r10 and ip identifies r12 (72.857158ms)
+✔ an incorrect printed source operand cannot survive a correct machine word (122.814844ms)
+✔ register type restrictions reject PC and SP when disallowed (213.615641ms)
+✔ reject incorrect opcode, flag variant, unknown shift and bad immediate (363.79412ms)
+✔ reject duplicate push registers and malformed machine word (144.984373ms)
+✖ unknown BL/relocation remains unsupported rather than silently parsed (140.806112ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1267.702916
+
+✖ failing tests:
+
+test at research/a32-typed/test-a32.mjs:107:1
+✖ unknown BL/relocation remains unsupported rather than silently parsed (140.806112ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Unsupported/. Input:
+  
+  'Malformed hexadecimal instruction address: /tmp/r-qr-arm-capture/dqrls.armv7-a32.o | source: /tmp/r-qr-arm-capture/dqrls.armv7-a32.o:     file format elf32-littlearm\n'
+  
+      at rejected (file:///workspace/scratch/a17a779c0b0f/emc-baseline/research/a32-typed/test-a32.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/a17a779c0b0f/emc-baseline/research/a32-typed/test-a32.mjs:109:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Malformed hexadecimal instruction address: /tmp/r-qr-arm-capture/dqrls.armv7-a32.o | source: /tmp/r-qr-arm-capture/dqrls.armv7-a32.o:     file format elf32-littlearm\n',
+    expected: /Unsupported/,
+    operator: 'match',
+    diff: 'simple'
+  }
