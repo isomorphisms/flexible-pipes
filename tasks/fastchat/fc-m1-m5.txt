@@ -1,0 +1,15 @@
+FC-M1 through FC-M5
+User request: Run FC-M1 through FC-M5
+Authority: implementation and qualification; no new merge, release, live credentials, or experimental-alternative integration.
+Application: isomorphisms/fastchat
+Initial main: 442e8135c018ee003021f1c3f681686c80be9fd0
+Execution: Flexible Pipes envelope; existing Grease producer recipes; shared paired production requires its approved predecessor closure. Independent acceptance belongs to isomorphisms/ai-ci.
+Targets: Linux x86-64 host qualification, MIRO A1 primary ARM32, MIRO C67 companion ARM64. No on-device compilation.
+
+FC-M1: qualify the merged native convergence candidate; preserve independent comparisons and existing hostile tests.
+FC-M2: recheck and repair the authorized production route without bypassing S2/S4/S5/S3 predecessor requirements or creating a parallel C67 producer.
+FC-M3: advance the existing native interface: scrolling, selectable text, Markdown, history navigation, streaming and IME; no application Java.
+FC-M4: automate exact-device installation/launch and process-death/replay acceptance with memory/latency measurements and source/artifact/device-bound receipts. No physical PASS without actual handset execution.
+FC-M5: qualify real provider request/event formats with deterministic credential-free fixtures. Live account/provider acceptance is separate.
+
+Stop a dependent stage at its first real external blocker. Continue independent authorized work. Missing, stale, skipped or synthetic evidence never becomes PASS.

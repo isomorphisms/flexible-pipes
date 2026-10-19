@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "fastchat-mechanical-open",
+  "description": "Open the authorized FC-M1 through FC-M5 source/qualification work; this envelope grants no paired-production or physical acceptance.",
+  "parameters": {"APPLICATION_ROOT": {"required": true, "pattern": "/.+"}},
+  "required_stages": ["job-envelope", "host-identity", "application-revision"],
+  "stages": [
+    {"kind": "command", "name": "job-envelope", "argv": ["sha256sum", "tasks/fastchat/fc-m1-m5.txt"], "cwd": "."},
+    {"kind": "command", "name": "host-identity", "argv": ["uname", "-srm"], "cwd": "."},
+    {"kind": "command", "name": "application-revision", "argv": ["git", "-C", "{{APPLICATION_ROOT}}", "rev-parse", "HEAD"], "cwd": "."}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "name": "execute-github-repository-organization-transfer",
+  "description": "Explicit six-argument effectful transfer operation. The maintained FP session requires protected admission before preflight or an external effect.",
+  "parameters": {
+    "source_owner": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "repository": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "destination_organization": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "expected_login": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "repository_id": {
+      "required": true,
+      "pattern": "[0-9]+"
+    },
+    "upstream": {
+      "required": true,
+      "pattern": "(?:-|[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*)"
+    }
+  },
+  "required_stages": [
+    "protected-six-argument-execution"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "protected-six-argument-execution",
+      "argv": [
+        "grease",
+        "scripts/execute-github-repository-organization-transfer.grease",
+        "{{source_owner}}",
+        "{{repository}}",
+        "{{destination_organization}}",
+        "{{expected_login}}",
+        "{{repository_id}}",
+        "{{upstream}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

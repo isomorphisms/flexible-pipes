@@ -1,0 +1,1 @@
+e79327890a20c2577e09ee1e19c6e8920f8ef627b7fad16b9bc2d96524700b2d  tasks/indeed-cli/SUN-INDEED-CLI-01.txt

@@ -1,0 +1,183 @@
+SUN INDEED-CLI-01 — Finish the Indeed CLI
+
+Model: SUN — extra-high reasoning
+Primary repository: "dilapidated-shed/idric-cli"
+Default branch: "cli" — "b710708e9fc1426f10bca2d426fbb210fc729c20"
+Existing Indeed branch: "indeed" — "639f5507a9e42835efa59f42b54ddb4059f06294"
+Companions: "isomorphisms/Idric", ICU/Idric-Net, "isomorphisms/kitchen", "isomorphisms/flexible-pipes", "isomorphisms/ai-ci".
+
+Objective
+
+Turn the existing Indeed API checkpoint into an installable, executable, tested Idriç command-line program for investigating actual employer demand.
+
+Do not deliver another API survey, stub, or simulated successful search.
+
+The immediate research case is finding jobs whose descriptions explicitly require constructing correct, original mathematical proofs, distinguishing those from software verification, AI proof evaluation, ordinary quantitative work, and academic teaching.
+
+1. Recover and integrate existing work
+
+Read repository instructions, issues, branches, PRs, build requirements, and acceptance records.
+
+Preserve:
+
+- "Indeed.idric"
+- "checkpoints/indeed/"
+- Existing API inventory and provenance
+- The earlier "Ashtray-Archer/az" "indeed-api" branch
+
+The "indeed" and "cli" branches have diverged. Base new implementation on the current "cli" head, incorporating existing Indeed work without discarding newer repository instructions.
+
+Inspect the existing Handshake, SEC, Reddit, and Stripe integrations for usable Idriç JSON parsing, ICU networking, credentials, and fixture-test patterns.
+
+2. Implement a working CLI
+
+Target commands:
+
+indeed doctor
+indeed help
+indeed search --what WORDS --where LOCATION
+indeed url --what WORDS --where LOCATION
+indeed inspect JOB_ID
+indeed fixture FILE
+indeed audit-proofs --input FILE
+
+"search"
+
+Use the documented Indeed "jobSearch" GraphQL operation where the application's actual permissions allow it.
+
+Verify the current schema, inputs, pagination, returned fields, authorization requirements, and error formats against official documentation before coding.
+
+Support exact keyword phrases, geographic scope, result limits, pagination where provided, and unambiguous provider attribution.
+
+"url"
+
+Generate a correctly encoded, publicly usable Indeed search URL without credentials. This command produces a URL, not fabricated search results.
+
+"inspect"
+
+Retrieve complete job descriptions only when the authenticated API actually exposes them. Otherwise report that the field or resource is inaccessible.
+
+"fixture"
+
+Run the real response parser on saved, permitted JSON responses, including synthetic fixtures. Preserve the distinction between fixture execution and live provider retrieval.
+
+"audit-proofs"
+
+Classify retrieved or supplied descriptions into:
+
+1. Original mathematical proof construction explicitly required.
+2. Mathematical proof construction required, but originality unspecified.
+3. Formal verification or proof of software/hardware correctness.
+4. Reviewing, teaching, translating, or evaluating existing proofs.
+5. No proof-construction requirement.
+
+Record the exact supporting requirement, job identifier, employer, source URL, and observation date. Return "unknown" when the description is incomplete.
+
+Do not turn a vague requirement for mathematical ability into evidence that proof construction is demanded.
+
+3. Handle API restrictions correctly
+
+Indeed's older public Publisher Search API is retired. The currently documented "jobSearch" operation is permissioned.
+
+Implement the supported credential and GraphQL path rather than assuming access.
+
+Requirements:
+
+- Never commit credentials or expose them in logs.
+- Distinguish HTTP failures, GraphQL errors, absent permissions, empty results, and malformed responses.
+- Reject expired or unauthorized requests with useful diagnostics.
+- Use ICU/Idric-Net for the maintained networking path.
+- Do not bypass access restrictions, replay browser cookies, or impersonate an approved partner.
+- Do not substitute another job provider while labeling its results Indeed.
+
+If official access is unavailable, leave live search explicitly ACCESS_BLOCKED, but complete the offline parser, useful search-URL generation, executable build, and tests.
+
+Determine whether any currently permitted public access method offers actual result retrieval. Implement it only if its authorization and usage conditions can be verified.
+
+4. Finish the executable build
+
+Use the existing Idriç/ICK build architecture, with declared toolchain and dependency revisions.
+
+Implement the missing code rather than maintaining named holes indefinitely.
+
+Provide:
+
+- A genuine "indeed" executable
+- Installation target
+- "--help" and "--version"
+- Defined exit codes
+- Stable TSV output, with JSON where useful
+- Source-pinned reproducible build instructions
+
+Make the CLI runnable on the supported Linux host. Treat Android/Termux compatibility as a separate tested target, not an assumed consequence.
+
+No Python or C++ substitute for the client implementation.
+
+5. Acceptance tests
+
+Build fixtures before claiming successful functionality.
+
+Test:
+
+- Correct GraphQL request generation and escaping.
+- Quoted searches and Unicode.
+- Normal results, empty results, missing fields, duplicates, and pagination.
+- Expired credentials, missing authorization, forbidden GraphQL fields, throttling, network failures, and malformed JSON.
+- Complete descriptions versus truncated excerpts.
+- Correctly distinguishing original proofs from verification and proof evaluation.
+- Correct URL encoding.
+- Stable output across repeated executions.
+- No secret disclosure.
+- Install and run the actual built executable.
+
+Use a deterministic local HTTP server to exercise the real transport and parser against positive and rejecting responses.
+
+A fixture PASS cannot be reported as a successful live Indeed search.
+
+6. Run the motivating employment test
+
+Use this search family:
+
+"construct mathematical proofs"
+"original mathematical proofs"
+"prove new theorems"
+"develop rigorous mathematical proofs"
+"theorem proving"
+
+Search nationwide where the authorized search surface supports that geographic scope.
+
+Classify each unique posting by its actual requirements. Report the exact search scope, returned count, examined count, qualifying count, rejected count, unknown count, and access restrictions.
+
+Do not claim that search hits are the total number of nationwide openings.
+
+If live access remains blocked, produce the equivalent classification from labeled fixtures, explicitly distinguishing that from actual employment evidence.
+
+7. Flexible Pipes, Kitchen, and ai-ci
+
+Use Flexible Pipes as the authoritative job envelope and preserve the exact source and run identities.
+
+Use Kitchen for reproducible command preparation and preflight. Use independent ai-ci acceptance for the executed implementation.
+
+Produce receipts distinguishing:
+
+- Source recovered
+- Implementation compiled
+- Executable installed
+- Fixture tests passed
+- Transport exercised
+- Live Indeed search authorized
+- Real job results retrieved and classified
+
+Never collapse these into one generic PASS.
+
+8. Delivery
+
+Push implementation on a distinct branch and open a PR against "cli".
+
+Provide the changed source, executable tests, installation procedure, exact revision, and actual command output.
+
+Update the original Indeed checkpoint and reconcile outdated status statements.
+
+Completion requires a useful, runnable CLI. If provider authorization remains unavailable, deliver the working uncredentialed portions and independently demonstrate that restriction. Leave the live-search acceptance explicitly blocked.
+
+Do not replace unfinished implementation with another research document or declare simulated job retrieval successful.

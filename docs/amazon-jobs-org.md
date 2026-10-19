@@ -3,7 +3,7 @@
 Pipeline owner: Flexible Pipes.
 CLI implementation owner: `dilapidated-shed/idric-cli`.
 Tool inventory and stable command: `isomorphisms/catfood`.
-Build/installed-command acceptance: `isomorphisms/kitchen/tasks/amazon-jobs-cli/1.grease`.
+Build/installed-command acceptance: `isomorphisms/kitchen/tasks/amazon-jobs-cli/2.grease`.
 Research owner: `bl4ckb4ll/blackball/FAANG/amazon`.
 Independent gate: `isomorphisms/ai-ci`.
 
@@ -44,3 +44,8 @@ command-stage output captures stdout/stderr/exit code and source hashes.
 A new Blackball claim is admitted only after the exact receipt and
 independent AICI verification are attached. Hosted execution and live
 Amazon.jobs access remain NOT_VERIFIED until performed.
+
+Version 2 retains the original build and installed-command interface and repairs
+the version-1 Grease expression refusal. Its versioned failure and refusal
+checks remain in Kitchen. Selecting the repaired producer does not itself
+establish compiled, installed, live-provider or managed-service acceptance.

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "name": "fastchat-mechanical-close",
+  "description": "Capture the FC-M1 through FC-M5 outcomes and candidate revision; successful capture does not turn blocked jobs or unrun acceptance into PASS.",
+  "parameters": {"APPLICATION_ROOT": {"required": true, "pattern": "/.+"}},
+  "required_stages": ["job-outcomes", "candidate-revision"],
+  "stages": [
+    {"kind": "command", "name": "job-outcomes", "argv": ["cat", "tasks/fastchat/outcomes.tsv"], "cwd": "."},
+    {"kind": "command", "name": "candidate-revision", "argv": ["git", "-C", "{{APPLICATION_ROOT}}", "rev-parse", "HEAD"], "cwd": "."}
+  ]
+}
