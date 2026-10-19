@@ -1,0 +1,66 @@
+{
+  "finished_at": "2026-10-13T05:03:19.811878+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/workspace/scratch/5650fa073c64/aici",
+    "aici-head": "c1f74aec9400204ce4540c5b2147022d7c8755b7",
+    "aici-root": "/workspace/scratch/5650fa073c64/ai-ci-published",
+    "cli-head": "a6230ee2f42bc07ea5223b445a9b21899d2f3087",
+    "cli-root": "/workspace/scratch/5650fa073c64/idric-cli-published",
+    "grease": "/workspace/scratch/5650fa073c64/grease-runtime/_bin/cxx-asan/ysh",
+    "kitchen-task": "/workspace/scratch/5650fa073c64/kitchen-published/tasks/indeed-cli/1.grease",
+    "program": "/workspace/scratch/5650fa073c64/indeed-installed/bin/indeed"
+  },
+  "pipeline": "indeed-cli-acceptance",
+  "pipeline_path": "pipelines/indeed-cli-acceptance.json",
+  "pipeline_sha256": "442e08ec75e3ef2ea7eaee22388fa42ebc458974c872f05a6df241eb324e82ef",
+  "repository_commit": "84ea4287d713980ed2e54bd8f7655b3dde72d2ff",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/indeed-cli/SUN-INDEED-CLI-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T05:03:12.834242+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-13T05:03:12.832061+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4ebbcde693b7c1cf11a3d1e97feff5b1209060bd11a2727b05352fa083f4ca15"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/5650fa073c64/grease-runtime/_bin/cxx-asan/ysh",
+        "/workspace/scratch/5650fa073c64/kitchen-published/tasks/indeed-cli/1.grease",
+        "/workspace/scratch/5650fa073c64/idric-cli-published",
+        "a6230ee2f42bc07ea5223b445a9b21899d2f3087",
+        "/workspace/scratch/5650fa073c64/indeed-installed/bin/indeed",
+        "/workspace/scratch/5650fa073c64/grease-runtime/_bin/cxx-asan/ysh",
+        "/workspace/scratch/5650fa073c64/ai-ci-published",
+        "c1f74aec9400204ce4540c5b2147022d7c8755b7",
+        "/workspace/scratch/5650fa073c64/aici"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-13T05:03:19.811839+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "installed-indeed-kitchen-and-aici",
+      "started_at": "2026-10-13T05:03:12.834287+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f8f5df010d9327487ca0c22ea79fcdedeb40e9faa33af84d9438925ad78e7df4"
+    }
+  ],
+  "started_at": "2026-10-13T05:03:12.831978+00:00",
+  "status": "PASS"
+}
