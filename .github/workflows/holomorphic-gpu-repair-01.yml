@@ -131,6 +131,24 @@ jobs:
         id: ick
         uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
 
+      - name: Derive the provider's exact qualified-runtime cache key
+        id: qualified_ick_key
+        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        run: |
+          set -o errexit -o nounset -o pipefail
+          var runtime_material = "$[ENV.RUNNER_TEMP]/ick-host-build/host-runtime-key-input.tsv"
+          test -s "$runtime_material"
+          var runtime_key = "$(sha256sum "$runtime_material" | cut -d ' ' -f1)"
+          printf '%s\n' "$runtime_key" | grep -Eq '^[0-9a-f]{64}$'
+          printf 'key=ick-host-v1-%s-%s-c61e448251744a2f40ad743ebef1a027bdcd2f9d-%s\n' \
+              "$[ENV.RUNNER_OS]" "$[ENV.RUNNER_ARCH]" "$runtime_key" >> "$[ENV.GITHUB_OUTPUT]"
+
+      - name: Save the already qualified ICK stage before any consumer can fail
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/ick-host-stage
+          key: ${{ steps.qualified_ick_key.outputs.key }}
+
       - name: Preserve the qualified native compiler before consumer stages
         shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
         env:
