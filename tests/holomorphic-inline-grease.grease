@@ -1,0 +1,68 @@
+#!/usr/bin/env grease
+# Test the exact YAML literal run bodies, not a duplicate of their shell code.
+# The line extractor is deliberately scoped to this reviewed workflow layout;
+# it rejects a nonliteral run rather than pretending to implement general YAML.
+set -o errexit -o nounset -o pipefail
+if (int($#) !== 3) { echo 'requires ABSOLUTE_GREASE ABSOLUTE_FP_ROOT ABSOLUTE_NEW_OUTPUT' >&2; exit 2 }
+var grease = $1
+var root = $2
+var output = $3
+for path in "$grease" "$root" "$output" { case "$path" in /*) ;; *) exit 2 ;; esac }
+test -x "$grease"
+test "$root" = "$(realpath -- "$root")"
+test ! -e "$output"
+mkdir -m 700 "$output"
+var workflow = "$root/.github/workflows/holomorphic-gpu-repair-01.yml"
+awk -v directory="$output" '
+    function close_block() { if (capture) close(filename); capture=0 }
+    capture && ($0 ~ /^          / || $0 ~ /^[[:space:]]*$/) {
+        sub(/^          /, ""); print > filename; next
+    }
+    { close_block() }
+    /^      - name:/ { name=$0; sub(/^      - name: /, "", name); grease=0 }
+    /^        shell:.*_holomorphic\/runtime\/ysh/ { grease=1; shells++ }
+    /^        run:/ && grease {
+        if ($0 !~ /^        run: \|$/) { print "unsupported nonliteral Grease run" > "/dev/stderr"; exit 1 }
+        count++; filename=sprintf("%s/block-%02d.grease", directory, count)
+        print name "\t" filename >> (directory "/blocks.tsv"); capture=1
+    }
+    END { close_block(); if (count == 0 || count != shells) exit 1 }
+' "$workflow"
+while read -r line {
+    var block = "$(printf '%s\n' "$line" | cut -f2)"
+    "$grease" -n "$block" > "$block.parse" 2> "$block.stderr"
+} < "$output/blocks.tsv"
+test -s "$output/blocks.tsv"
+var pins = "$(awk -F '\t' '$1 == "Load reviewed immutable source pins" { print $2 }' "$output/blocks.tsv")"
+var key = "$(awk -F '\t' '$1 == "Derive the provider\047s exact qualified-runtime cache key" { print $2 }' "$output/blocks.tsv")"
+test -s "$pins"
+test -s "$key"
+var head = "$(git -C "$root" rev-parse HEAD)"
+cd -- "$root"
+env HOLOMORPHIC_CONTROL_HEAD="$head" HOLOMORPHIC_APPLICATION_HEAD='' \
+    GITHUB_OUTPUT="$output/pins.output" "$grease" "$pins"
+test "$(wc -l < "$output/pins.output" | tr -d '[:space:]')" = 7
+mkdir -p "$output/runtime/ick-host-build"
+printf 'fixture\tcache-key-string-contract\n' > "$output/runtime/ick-host-build/host-runtime-key-input.tsv"
+env RUNNER_TEMP="$output/runtime" RUNNER_OS=Linux RUNNER_ARCH=X64 \
+    GITHUB_OUTPUT="$output/key.output" "$grease" "$key"
+var digest = "$(sha256sum "$output/runtime/ick-host-build/host-runtime-key-input.tsv" | cut -d ' ' -f1)"
+grep -Fxq "key=ick-host-v1-Linux-X64-c61e448251744a2f40ad743ebef1a027bdcd2f9d-$digest" "$output/key.output"
+var preservation = "$(awk -F '\t' '$1 == "Preserve the qualified native compiler before consumer stages" { print $2 }' "$output/blocks.tsv")"
+test -s "$preservation"
+printf 'var compiler_stage = ENV.HOLO_TEST_STAGE\nvar frontend = ENV.HOLO_TEST_FRONTEND\n' > "$output/containment.grease"
+awk '/^var canonical_stage =/ { copy=1 } copy { print } /^test -x "\$frontend"$/ { exit }' \
+    "$preservation" >> "$output/containment.grease"
+grep -Fq 'case "$relative_frontend" in ../*|..|/*)' "$output/containment.grease"
+mkdir -p "$output/stage with spaces/libexec" "$output/stage with spaces sibling"
+touch "$output/stage with spaces/libexec/cc1" "$output/stage with spaces sibling/cc1"
+chmod 755 "$output/stage with spaces/libexec/cc1" "$output/stage with spaces sibling/cc1"
+env HOLO_TEST_STAGE="$output/stage with spaces" \
+    HOLO_TEST_FRONTEND="$output/stage with spaces/libexec/cc1" \
+    "$grease" "$output/containment.grease" > "$output/contained.log" 2>&1
+try { env HOLO_TEST_STAGE="$output/stage with spaces" \
+    HOLO_TEST_FRONTEND="$output/stage with spaces sibling/cc1" \
+    "$grease" "$output/containment.grease" > "$output/escape.log" 2>&1 }
+if (_error.code !== 1) { echo 'sibling frontend escape was not rejected' >&2; exit 1 }
+grep -Fxq 'ICK frontend escaped the qualified native stage' "$output/escape.log"
+printf '\033[32mPASS\033[0m all literal Grease run blocks parse; exact pin/key blocks and contained/sibling path fragments execute\n'

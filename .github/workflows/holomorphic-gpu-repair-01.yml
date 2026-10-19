@@ -22,6 +22,7 @@ on:
       - 'pipelines/holomorphic-gpu-repair-01.json'
       - 'registry/holomorphic-gpu-repair-01.json'
       - 'tasks/holomorphic-gpu-repair/**'
+      - 'tests/holomorphic-inline-grease.grease'
       - '.github/workflows/holomorphic-gpu-repair-01.yml'
 
 permissions:
@@ -76,6 +77,15 @@ jobs:
               printf '%s\n' "$hash" | grep -Eq '^[0-9a-f]{40}$'
               printf '%s=%s\n' "$role" "$hash" >> "$[ENV.GITHUB_OUTPUT]"
           }
+
+      - name: Check every literal Grease block before compiler work
+        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        run: |
+          set -o errexit -o nounset -o pipefail
+          var workspace = ENV.GITHUB_WORKSPACE
+          _holomorphic/runtime/ysh tests/holomorphic-inline-grease.grease \
+              "$workspace/_holomorphic/runtime/ysh" "$workspace" \
+              "$workspace/_holomorphic/inline-grease-check"
 
       - name: Materialize the continued Holomorphic implementation
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -161,7 +171,10 @@ jobs:
           test "$compiler" = "$[ENV.RUNNER_TEMP]/ick-host-stage/bin/gcc"
           test "$("$compiler" -dumpmachine)" = x86_64-pc-linux-gnu
           var frontend = "$(realpath -- "$("$compiler" -print-prog-name=cc1)")"
-          case "$frontend" in "$compiler_stage"/*) ;; *) echo 'ICK frontend escaped the qualified native stage' >&2; exit 1 ;; esac
+          var canonical_stage = "$(realpath -- "$compiler_stage")"
+          var relative_frontend = "$(realpath --relative-to="$canonical_stage" -- "$frontend")"
+          case "$relative_frontend" in ../*|..|/*) echo 'ICK frontend escaped the qualified native stage' >&2; exit 1 ;; esac
+          test -f "$frontend"
           test -x "$frontend"
           test -s "$compiler_stage/host-runtime-packages.tsv"
           test -s "$compiler_stage/host-runtime.sha256"
@@ -237,6 +250,7 @@ jobs:
             .flexible-pipes/runs/holomorphic-gpu-repair-01-*/
             _holomorphic/run/
             _holomorphic/admission-fixtures/
+            _holomorphic/inline-grease-check/
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
