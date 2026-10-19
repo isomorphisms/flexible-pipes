@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "leray-exact-01",
-  "description": "Reduced exact periodic flow; pinned Kitchen/Ike C11 execution then independent MOON/AI-CI recomputation. No merge.",
+  "description": "Reduced exact periodic flow; pinned Kitchen/Ike C11 execution then independent MOON/AI-CI recomputation. Source integration remains separate from production and physical acceptance.",
   "parameters": {
     "fp": {
       "required": true,
