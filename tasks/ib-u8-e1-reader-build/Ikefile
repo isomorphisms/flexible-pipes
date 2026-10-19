@@ -1,0 +1,2 @@
+ike-reader-input-preflight depends on
+	"$ITHON" "$AICI_VALIDATOR" "$AICI_POLICY" "$KITCHEN_MATERIALS" "$FP_WORKFLOW" "$IB147_MANIFEST" "ib-129=$IB129" "ib-147=$IB147" "ib-152=$IB152" "ib-153=$IB153" "ib-154=$IB154" "ib-155=$IB155" "ib-158=$IB158" "idric-compiler=$IDRIC" "icu-35=$ICU" "android-ndk-27=$ANDROID_NDK" "catfood=$CATFOOD" "grease=$GREASE" "ike=$IKE_SOURCE" "ai-ci-source-oracle=$AICI_SOURCE_ORACLE" "kitchen=$KITCHEN"
