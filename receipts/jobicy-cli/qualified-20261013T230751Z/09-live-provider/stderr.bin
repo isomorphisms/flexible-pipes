@@ -1,0 +1,3 @@
+provenance=live-provider; pages=1; unique_jobs=3; traversal=PAGE_ONLY; start=FIRST_PAGE; nationwide_total=UNKNOWN; publication_window=7_days; evidence=/tmp/jobicy-live-evidence/jobicy-1791932884-560
+traversal=FAILED; no complete feed or nationwide total is claimed
+jobicy: PARTIAL_TRAVERSAL: page safety bound reached; complete-feed output withheld

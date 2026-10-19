@@ -1,0 +1,87 @@
+User request: Pr-judge-01
+Specification: https://github.com/isomorphisms/ai-ci/issues/238
+
+# STAR PR-JUDGE-01 — intent-grounded PR review, reconciliation and conditional approvals
+
+**Execution:** Star / highest available reasoning. This is an **execution-and-review** assignment, not a report-only inventory. **Control ledger:** `isomorphisms/ai-ci`. Scope all open PRs and active stacks in every repository actually accessible to the executing credentials, across all known organizations and personal accounts; paginate and record any inaccessible portion. Private repository names and personal conversations must not leak into public artifacts.
+
+**Purpose:** Recover what the user wanted from authorized conversation history and later corrections, compare it with *actual live PR code and independent acceptance evidence*, dispatch narrowly bounded work to reconcile implementation and branch stacks, and **submit GitHub APPROVE reviews where evidence strongly establishes that this is work the user would accept**. Do not needlessly wait for a manual approval on plainly correct, properly evidenced work. Do not transform ambiguous intent into an approval.
+
+## Ownership and nonduplication
+
+Reuse rather than supersede existing cross-project mechanisms:
+- [AICI #89](https://github.com/isomorphisms/ai-ci/issues/89): whole-account branch/PR consolidation, justified integration and merge execution. This job provides **current-head review decisions and bounded repair packets** to that lane; **it does not independently merge, enable auto-merge, delete branches or force-push**.
+- [AICI #145](https://github.com/isomorphisms/ai-ci/issues/145): provenance and scope of human authority; review authorization is not merge authorization.
+- [AICI #171](https://github.com/isomorphisms/ai-ci/issues/171): independent oracles, misleading green checks, and observation/evidence/diagnosis separation.
+- The existing PR-retirement and live-reconciliation code, including the prior stale-snapshot regression #170. Do not create a second queue database or scheduler; reuse Cockswain/Flexible Pipes/ai-ci and existing canonical issue/PR locations.
+
+## A. Enumerate and inspect the real queue
+
+1. Discover accessible repositories and **all open PRs**, including drafts, branch-to-branch requests, forks and dependent stacks. Resolve redirected repository identities, paginate to completion, and freeze a dated initial manifest. Do not rely on old inventories, PR titles or claimed checkmarks.
+2. For each PR collect: repository, number, URL, title, author, target/base name and **base SHA**, head name and **head SHA**, effective prospective diff, changed paths, actual commits and ancestry, requested/intended behavior, review threads and explicit objections, relevant issues, branch protection and merge conditions, current-head CI/check runs **with logs where material**, acceptance/artifact provenance, and dependent producers/consumers.
+3. Inspect whether the implementation is already present on the intended destination, duplicated in a surviving successor, incompatible with sibling work, or waiting for a parent PR. Check the *actual changes*, not the nominal branch lineage. Recalculate remaining diffs after integration elsewhere. Preserve unique work in one durable surviving PR/issue/remote ref; a closed PR is not a merge.
+4. Group by root cause/dependency and serialize mutations of a shared base. Other workers may change heads: re-fetch before decisions, reviews, and handoffs.
+
+## B. Recover the user's intent with source quality
+
+Read authorized original conversation turns/attachments **when genuinely accessible** together with user corrections, direct repository discussion, durable job descriptions, AGENTS/README, previous review decisions and counterexamples. The latest explicit user correction about the same scope controls over earlier assistant interpretations. Distinguish:
+- `EXPLICIT_USER_DIRECTION`: direct instruction and its date/source;
+- `SUPPORTED_INTENT`: strong contextual conclusion with corroboration and no contrary instruction;
+- `PROVISIONAL_DESIGN`: brainstorming, undecided alternatives or questions;
+- `ASSISTANT_ADDED`: generated proposal, assertion of completion or unsolicited requirement;
+- `UNAVAILABLE/CONTRADICTED`: missing original evidence or opposing decisions.
+
+Search original conversations where authorized instead of treating a memory summary as a quotation. Do not claim total-history coverage without access. If full transcripts are unavailable, use provenance-graded remaining evidence and continue code review; flag the history gap. No personal stories, raw transcripts, private attachments, account secrets or sensitive metadata in public issues, PR reviews, logs or commits. Record minimal non-sensitive, source-linked technical decision summaries; put restricted evidence in appropriate private locations.
+
+## C. Review and conditional APPROVE authority
+
+This instruction authorizes **submission of review approvals**, not representing the assistant as the human, and not a merge. Review under the actual credential identity. GitHub prohibits self-approval: if the actor is the author or otherwise ineligible, record `APPROVABLE_BUT_CANNOT_SUBMIT` with the exact-head reason and, where useful, submit a non-approval review comment. Do **not** use a different account to impersonate the user or evade controls.
+
+Submit `APPROVE` only if **all** are established for the exact current PR head and intended base:
+
+1. The requested behavior is supported by explicit, current user direction or truly strong uncontradicted intent; the diff does not silently settle an artistic, mathematical, language, product, UX or architectural question left to the user.
+2. The effective base-to-head diff and stack are actually inspected; it preserves semantics, existing good work, branch boundaries, compatible consumers, and the project's source/toolchain rules. No unresolved material review objection, security/licensing concern or hidden scope expansion.
+3. Relevant checks are **completed on the current head and applicable base**, match the changed behavior and actual producer/artifact, and establish the claimed layer. Distinguish `PASS/FAIL/UNKNOWN/NOT_RUN/SKIPPED`. Require independent oracle and a known-bad control when a validator claims behavioral soundness. Do not accept unrelated green, a saved CI snapshot, fixture self-agreement, cancelled jobs, or a successful wrapper masking a failing inner job.
+4. Cross-repo dependency and downstream checks are assessed. Keep source/compile/link/host/QEMU/emulator/APK-built/signed/installed/launched/interactive/**physical MIRO A1 or C67** separate. A host test or APK build cannot establish device acceptance. Do not relax the ICK-first/explicit-NDK-gap policy, the Idriç/IDK lane separation, signer/package stability or other user-established invariants.
+5. Immediately before submission, re-fetch head SHA, base SHA, effective diff, checks and objections. If any material input changed, repeat the affected verification. Bind review/comment and ledger to **repo/PR/base SHA/head SHA/diff digest/contract/receipts/actor/time**. If actual GitHub review succeeds, record the returned review identity. If it fails, record the failure, not `APPROVED`.
+
+`APPROVE` means **code review for the explicitly qualified scope**; it does not claim release, physical acceptance, authorization to merge, or that the user personally clicked Approve.
+
+If any material criterion is unknown or disputed, do not guess. Classify as `REPAIR_THEN_RECHECK`, `HOLD_FOR_EVIDENCE`, `USER_DECISION`, `DISTINCT_KEEP` or `ALREADY_PRESENT/SUPERSEDED_CANDIDATE` and take the appropriate supported next action. Use `REQUEST_CHANGES` only for demonstrated substantive defects; avoid blocking with speculative style preferences.
+
+## D. Emit executable repair jobs and review the result
+
+Do not stop after classifying. For a wrong, conflicting, incomplete or unverified PR, **prefer repairing its existing branch/stack and canonical issue**. If independent work is necessary, create concrete child jobs in the relevant owner repository and cross-link one ai-ci ledger entry.
+
+- **SUN:** hard reconciliation of user intent, tricky PR diffs/ancestry, semantic or mathematical correctness, compiler/runtime acceptance, multi-repository interfaces, or final cross-stack integration.
+- **EARTH:** bounded implementation, tests, dependency propagation or device acceptance given exact artifact identifiers and instructions; no claimed physical results without a real run.
+- **MOON:** bounded fixtures, CI reproduction, documentation/source repairs, receipt replay and falsification, always reporting actual access and result.
+- Every dispatched job must specify owner/repo, existing PR/issue and **observed heads**, parent/child relation, expected behavior and rejected behavior, exact files/interfaces, dependency order, test command/runner and independent negative control where applicable, completion receipts, forbidden shortcuts, acceptance boundary, and where the resulting work should land. Prefer one root-cause Sun job with indexed followers over 20 duplicate repair PRs.
+- Run separate source-intent and independent code/evidence challenges for high-risk decisions where feasible. Reinspect resulting heads and **approve eligible outcomes** rather than equating a child-job submission with completion. The executor must not claim that jobs were run if only issued.
+
+**Issue as many truly executable Sun/Earth/Moon jobs as the observed queue justifies.** Do not manufacture tasks to reach a number, cap the inventory at familiar repos, create audit-only successor branches, or leave a newly emitted job without a surviving owner.
+
+## E. First review wave — refresh these live examples, not assumed verdicts
+
+As of 2026-10-08, active examples needing ancestry/acceptance inspection include:
+- `isomorphismes/seifert` #1, #2, #5, #7 and `mostow` #1: stacked math/viewers, compiler/device vs visual review.
+- `isomorphismes/wegert` #70, #71, #72 alongside `isomorphisms/ai-ci` #236 and `android-NDK` #17/#18: ICK-built APKs, correct launcher identity, signers and Android companions.
+- `isomorphisms/fastchat` #5, #6, #10, #11 and `flexible-pipes` #47/#49/#52: disk-streaming, shared arena and runtime/provenance dependency stacks.
+- `isomorphisms/ib` #121–#129 with `ai-ci` #221/#222: retained-source correctness, admission, and separately verified evidence boundaries.
+- `dilapidated-shed/ick` #78/#80/#81/#82: divergent float storage, × syntax, native compiler repair, multiplication benchmarks; do not conflate independent compiler lanes.
+- `ai-ci` #160/#227/#230/#231/#237: long-lived migration, C-contract, producer verification and cross-project coverage.
+
+These are **review seeds only**. Recheck status, heads, and the complete current queue. Do not declare them ready or broken from titles.
+
+## F. Publish actions and stop only at a real boundary
+
+Keep **one canonical machine-readable ledger** and compact human review with:
+- each inspected PR's current head/base, intent classification/source quality, disposition and blocker, exact CI/acceptance provenance, owner of next action;
+- review actions actually submitted, with timestamps/review IDs and what scope was approved; would-approve but technically ineligible; requests for changes; issued/executed repairs;
+- already-present/superseded candidates with proof and exactly one surviving intent location, passed to AICI #89 for closure/integration rather than automatically merging here;
+- before/after totals over the **same enumerated scope**, including approvals, PRs repaired, jobs issued, jobs executed and blocked, remaining unresolved cases and inaccessible repositories.
+
+A complete run must **inspect every accessible open PR** or explicitly mark remaining coverage incomplete; perform the justified immediate reviews and safe reconciliation work; leave independently runnable, dependency-ordered child jobs for the rest; and return to approve newly qualified PRs. Do not inflate progress by counting notes or issued jobs as executed code, or by mistaking a green check for a user decision.
+
+**Do not** merge, enable auto-merge, delete branches, force-push, deploy, release or change protection under this STAR review job. Continue forwarding actually qualified merge/retirement candidates to the already established integration authority and lane, with their own provenance and exact-state gates.
+

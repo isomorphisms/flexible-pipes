@@ -1,0 +1,5 @@
+make: Entering directory '/workspace/scratch/30b0a80117bc/idric-cli'
+test -n "/workspace/scratch/30b0a80117bc/kitchen"
+"/workspace/scratch/30b0a80117bc/tool-bin/grease" "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/1.grease" install "/workspace/scratch/30b0a80117bc/idric-cli" "/tmp/jobicy-installed"
+jobicy 0.1.0
+make: Leaving directory '/workspace/scratch/30b0a80117bc/idric-cli'

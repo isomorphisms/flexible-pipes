@@ -1,0 +1,25 @@
+#!/usr/bin/env grease
+# Explicit effectful transfer operation; the FP session owns every effect.
+set -eu
+
+fail() {
+    printf 'GitHub repository organization transfer execution: %s\n' "$*" >&2
+    exit 1
+}
+
+test "$#" -eq 6 || fail 'usage: execute-github-repository-organization-transfer.grease SOURCE_OWNER REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN REPOSITORY_ID UPSTREAM'
+runtime=$[get(ENV, 'GREASE_BINARY', '')]
+kitchen=$[get(ENV, 'KITCHEN_ROOT', '')]
+aici=$[get(ENV, 'AICI_ROOT', '')]
+state=$[get(ENV, 'FP_TRANSFER_JOB_ROOT', '')]
+for path in "$runtime" "$kitchen" "$aici" "$state"; do
+    case $path in
+        /*) true ;;
+        *) fail 'GREASE_BINARY, KITCHEN_ROOT, AICI_ROOT and FP_TRANSFER_JOB_ROOT must be explicit absolute paths' ;;
+    esac
+done
+here=$(dirname "$0")
+
+# github-transfer-session.grease calls AICI publication before preflight or
+# effect in the normal live context. No four-argument shortcut reaches here.
+exec "$runtime" "$here/github-transfer-session.grease" "$kitchen" "$aici" "$runtime" "$state" "$@"

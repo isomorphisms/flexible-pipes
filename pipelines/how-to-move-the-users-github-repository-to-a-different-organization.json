@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "name": "how-to-move-the-users-github-repository-to-a-different-organization",
+  "description": "Prepare the exact Kitchen Grease transfer program for a display-only handoff. This registered operation never preflights, authenticates, or executes the program.",
+  "parameters": {
+    "source_owner": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "requested_repository": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "resolved_repository": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "destination_organization": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "expected_login": {
+      "required": true,
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_.-]*"
+    },
+    "kitchen_revision": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "repository_id": {
+      "required": true,
+      "pattern": "[0-9]+"
+    },
+    "upstream": {
+      "required": true,
+      "pattern": "(?:-|[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*)"
+    }
+  },
+  "required_stages": [
+    "prepare-kitchen-display-only-handoff"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "prepare-kitchen-display-only-handoff",
+      "argv": [
+        "grease",
+        "scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh",
+        "{{source_owner}}",
+        "{{requested_repository}}",
+        "{{resolved_repository}}",
+        "{{destination_organization}}",
+        "{{expected_login}}",
+        "{{kitchen_revision}}",
+        "{{repository_id}}",
+        "{{upstream}}"
+      ],
+      "cwd": ".",
+      "handoff": {
+        "audience": "human",
+        "model": "Kitchen-maintained-Grease-transfer-recipe",
+        "source_context": "FP-CHAT-BYPASS-E1",
+        "execution_target": "display-only",
+        "request": {
+          "id": "github-repository-transfer-display-only",
+          "text": "Display the exact Kitchen-generated GitHub repository transfer recipe only.",
+          "delivery_mode": "display-only"
+        },
+        "operation": {
+          "kind": "github-repository-transfer",
+          "authority": "display-only",
+          "source_owner": "{{source_owner}}",
+          "requested_repository": "{{requested_repository}}",
+          "resolved_repository": "{{resolved_repository}}",
+          "destination_owner": "{{destination_organization}}",
+          "expected_login": "{{expected_login}}",
+          "kitchen_revision": "{{kitchen_revision}}",
+          "repository_id": "{{repository_id}}",
+          "upstream": "{{upstream}}"
+        }
+      }
+    }
+  ]
+}

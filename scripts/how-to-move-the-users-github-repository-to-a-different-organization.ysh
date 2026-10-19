@@ -1,0 +1,71 @@
+#!/usr/bin/env grease
+# Public FP transfer preparation: exact Kitchen bytes only, never execution.
+set -eu
+
+fail() {
+    printf 'GitHub repository organization move preparation: %s\n' "$*" >&2
+    exit 1
+}
+
+require_name() {
+    case $1 in
+        ''|[!A-Za-z0-9]*|*[!A-Za-z0-9_.-]*) fail "$2" ;;
+    esac
+}
+
+# Keep the historical, descriptive public entrypoint, but require an explicit
+# identity-bound display contract. Four positional arguments used to select
+# Kitchen candidate 6 and execute its POST path; that route is intentionally
+# gone. Execution has a separate registered operation.
+test "$#" -eq 8 || fail 'usage: how-to-move-the-users-github-repository-to-a-different-organization.ysh SOURCE_OWNER REQUESTED_REPOSITORY RESOLVED_REPOSITORY DESTINATION_ORGANIZATION EXPECTED_GITHUB_LOGIN KITCHEN_REVISION REPOSITORY_ID UPSTREAM'
+source_owner=$1
+requested_repository=$2
+resolved_repository=$3
+destination_organization=$4
+expected_login=$5
+kitchen_revision=$6
+repository_id=$7
+upstream=$8
+
+grease_binary=$[get(ENV, 'GREASE_BINARY', 'grease')]
+for tool in "$grease_binary" git grep head cat cut; do
+    command -v "$tool" >/dev/null 2>&1 || fail "missing command: $tool"
+done
+for component in "$source_owner" "$requested_repository" "$resolved_repository" "$destination_organization" "$expected_login"; do
+    require_name "$component" "invalid GitHub name component: $component"
+done
+test "$requested_repository" = "$resolved_repository" ||
+    fail "repository name remains unresolved: requested $requested_repository, resolved $resolved_repository"
+try { printf '%s\n' "$kitchen_revision" | grep -Eq '^[0-9a-f]{40}$' }
+if (_error.code !== 0) { fail 'KITCHEN_REVISION must be an exact 40-hex commit' }
+try { printf '%s\n' "$repository_id" | grep -Eq '^[0-9]+$' }
+if (_error.code !== 0) { fail 'REPOSITORY_ID must be an immutable decimal GitHub repository ID' }
+if test "$upstream" != '-'; then
+    upstream_owner=$(printf '%s\n' "$upstream" | cut -d / -f1)
+    upstream_repository=$(printf '%s\n' "$upstream" | cut -d / -f2)
+    test "$upstream_owner/$upstream_repository" = "$upstream" ||
+        fail 'UPSTREAM must be OWNER/REPOSITORY or -'
+    require_name "$upstream_owner" 'UPSTREAM must be OWNER/REPOSITORY or -'
+    require_name "$upstream_repository" 'UPSTREAM must be OWNER/REPOSITORY or -'
+fi
+
+KITCHEN_ROOT=$[get(ENV, 'KITCHEN_ROOT', '')]
+test -n "$KITCHEN_ROOT" || fail 'KITCHEN_ROOT must name the exact maintained Script Kitchen checkout'
+try { actual_revision=$(git -C "$KITCHEN_ROOT" rev-parse HEAD) }
+if (_error.code !== 0) { fail "cannot read Kitchen revision from $KITCHEN_ROOT" }
+test "$actual_revision" = "$kitchen_revision" ||
+    fail "Kitchen revision differs: expected $kitchen_revision, found $actual_revision"
+try { git -C "$KITCHEN_ROOT" diff --quiet "$kitchen_revision" -- tasks/github-repository-transfer }
+if (_error.code !== 0) { fail 'Kitchen transfer sources differ from the bound revision' }
+
+generator=$KITCHEN_ROOT/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+# Grease on the C67 can reject test -r for an actually readable file. A
+# bounded read retains the established Kitchen readability workaround.
+try { generator_header=$(head -n 1 "$generator") }
+if (_error.code !== 0) { fail "Kitchen Grease program generator cannot be read: $generator" }
+test "$generator_header" = '#!/usr/bin/env grease' ||
+    fail "Kitchen Grease program generator has invalid header: $generator"
+
+# stdout is the exact Kitchen program that the display-only handoff binds. Do
+# not create artifacts, preflight, authenticate, or execute it on this route.
+exec "$grease_binary" "$generator" "$source_owner" "$resolved_repository" "$destination_organization" "$expected_login" "$repository_id" "$upstream"

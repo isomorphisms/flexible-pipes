@@ -1,0 +1,66 @@
+#!/usr/bin/env grease
+# FP controls materialization, preflight, mutation and independent closure.
+set -eu
+fail() { printf '\033[31mFAIL Flexible Pipes: %s\033[0m\n' "$*" >&2; exit 1; }
+test "$#" -eq 10 || fail 'usage: KITCHEN AICI GREASE STATE SOURCE REPOSITORY DESTINATION LOGIN ID UPSTREAM'
+kitchen=$1
+aici=$2
+runtime=$3
+state=$4
+shift 4
+source_owner=$1
+repository=$2
+organization=$3
+login=$4
+repository_id=$5
+upstream=$6
+context=$[get(ENV, 'FP_TRANSFER_CONTEXT', 'live')]
+case $context in live|acceptance-fixture) true;; *) fail 'invalid transfer context';; esac
+for path in "$kitchen" "$aici" "$runtime" "$state"; do
+    case $path in /*) true;; *) fail 'all runtime paths must be explicit absolute paths';; esac
+done
+umask 077
+mkdir -p "$state"
+run=$(mktemp -d "$state/run.XXXXXX")
+program=$run/transfer.grease
+generator=$kitchen/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+"$runtime" "$generator" "$@" > "$program"
+"$runtime" -n "$program" > "$run/parse.txt"
+digest=$(sha256sum "$program" | cut -d ' ' -f1)
+approved_digest=$[get(ENV,'FP_APPROVED_PROGRAM_SHA256','')]
+test "$digest" = "$approved_digest" || fail 'generated program differs from independently tested handoff bytes'
+{
+    printf 'schema=fp-github-transfer-v1\nprogram_sha256=%s\nrepository_id=%s\ndestination=%s/%s\nupstream=%s\n' "$digest" "$repository_id" "$organization" "$repository" "$upstream"
+    printf 'source=%s/%s\nexpected_login=%s\n' "$source_owner" "$repository" "$login"
+    printf 'runtime=%s\n' "$runtime"
+    sha256sum "$generator" "$aici/transfer-handoff/verify.grease" "$runtime"
+} > "$run/fp-envelope.tsv"
+chmod 0444 "$program" "$run/fp-envelope.tsv"
+"$runtime" "$aici/transfer-handoff/verify.grease" check "$program" "$digest" "$run" "$organization/$repository" "$repository_id" "$upstream" > "$run/bytes-acceptance.txt"
+# A local self-authored envelope cannot stand in for the undeployed protected
+# admission/visible-delivery controller. Fixture execution is explicitly scoped
+# and cannot produce a publishable job receipt.
+if test "$context" = live; then
+    "$runtime" "$aici/transfer-handoff/verify.grease" publication "$program" "$digest" "$run" "$organization/$repository" "$repository_id" "$upstream" > "$run/publication.stdout" 2> "$run/publication.stderr"
+fi
+setglobal ENV.FP_TRANSFER_STATE = "$state/operation-$repository_id"
+setglobal ENV.FP_TRANSFER_MODE = 'preflight'
+try { "$runtime" "$program" > "$run/preflight.stdout" 2> "$run/preflight.stderr" }
+var code = _error.code
+printf '%s\n' "$code" > "$run/preflight.exit"
+if (code !== 0) { cat "$run/preflight.stderr" >&2; fail "preflight rejected; receipts $run" }
+# Recheck exact material after preflight, before the external effect.
+"$runtime" "$aici/transfer-handoff/verify.grease" check "$program" "$digest" "$run" "$organization/$repository" "$repository_id" "$upstream" > "$run/before-execution.txt"
+printf '\033[33mACTION %s/%s -> %s/%s; repository ID %s\033[0m\n' "$source_owner" "$repository" "$organization" "$repository" "$repository_id"
+setglobal ENV.FP_TRANSFER_MODE = 'execute'
+try { "$runtime" "$program" > "$run/execution.stdout" 2> "$run/execution.stderr" }
+var code = _error.code
+printf '%s\n' "$code" > "$run/execution.exit"
+if (code !== 0) { cat "$run/execution.stderr" >&2; fail "execution incomplete; receipts $run" }
+"$runtime" "$aici/transfer-handoff/verify.grease" destination "$program" "$digest" "$run" "$organization/$repository" "$repository_id" "$upstream" > "$run/independent.txt"
+printf 'context\t%s\nprogram_execution\tPASS\nindependent_destination\tPASS\ntrusted_admission\tNOT_VERIFIED\nvisible_delivery\tNOT_VERIFIED\npublication\tBLOCKED\njob_completion\tNOT_ACCEPTED\n' "$context" > "$run/receipt-status.tsv"
+sha256sum "$program" "$run/fp-envelope.tsv" "$run/execution.stdout" "$run/execution.stderr" "$run/independent.txt" "$run/receipt-status.tsv" > "$run/closure.sha256"
+chmod 0444 "$run/closure.sha256"
+printf '\033[32mPASS canonical destination, preserved ID and original upstream: https://github.com/%s/%s\033[0m\n' "$organization" "$repository"
+printf '\033[33mBLOCKED publication; %s execution does not establish trusted admission or job completion\033[0m\n' "$context"
+printf 'Receipts: %s\n' "$run"

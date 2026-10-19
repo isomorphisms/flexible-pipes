@@ -1,0 +1,11 @@
+schema=fp-github-transfer-v1
+program_sha256=045fd91399cefc8b7bd4bd40085fa50e3422b1aed98b6ad05456cd8606e02571
+repository_id=1412731191
+destination=functorial-games/Museum_of_Shaders
+upstream=conanwu777/Museum_of_Shaders
+source=isomorphisms/Museum_of_Shaders
+expected_login=isomorphisms
+runtime=/workspace/scratch/4742a1c942e7/native-runtime/bin/grease
+774e5dd5d50e0c9964fa3cd488690d63d6137f51cd431a243d839e7560699d3e  /workspace/scratch/4742a1c942e7/kitchen/tasks/github-repository-transfer/render-standalone-github-repository-organization-transfer.ysh
+bbd17c84fc7c0ac366b9ae513937f070d92cd0a586bbaf95229fb78a1341d35c  /workspace/scratch/4742a1c942e7/ai-ci/tests/../transfer-handoff/verify.grease
+37088097c36a2f82cf45aaea9392e4a4cf16155fecb9da87d08a9c7fb4d92e4a  /workspace/scratch/4742a1c942e7/native-runtime/bin/grease

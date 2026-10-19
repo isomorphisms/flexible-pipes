@@ -1,0 +1,1938 @@
+(command.CommandList
+  children:[
+    (C
+      (w <Lit_Chars set>)
+      (w <Lit_Chars -->)
+      (w <Lit_Chars isomorphisms>)
+      (w <Lit_Chars Museum_of_Shaders>)
+      (w <Lit_Chars functorial-games>)
+      (w <Lit_Chars isomorphisms>)
+    )
+    (C
+      (w <Lit_Chars set>)
+      (w <Lit_Chars -->)
+      (w <Lit_Chars isomorphisms>)
+      (w <Lit_Chars Museum_of_Shaders>)
+      (w <Lit_Chars functorial-games>)
+      (w <Lit_Chars isomorphisms>)
+      (w <Lit_Chars 1412731191>)
+      (w <Lit_Chars conanwu777> <Lit_Slash /> <Lit_Chars Museum_of_Shaders>)
+    )
+    (C (w <Lit_Chars set>) (w <Lit_Chars -eu>))
+    (ShFunction
+      name_tok:<Lit_Chars fail>
+      name:fail
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.Sentence
+            child:(command.Simple
+              blame_tok:<Lit_Chars printf>
+              more_env:[]
+              words:[
+                (w <Lit_Chars printf>)
+                (w (SQ "FAIL GitHub transfer: %s\\n"))
+                (w (DQ ($ VSub_Star)))
+              ]
+              is_last_cmd:F
+              redirects:[
+                (Redir
+                  op:<Redir_GreatAnd ">&">
+                  loc:(redir_loc.Fd fd:1)
+                  arg:(w <Lit_Number 2>)
+                )
+              ]
+            )
+            terminator:<Op_Semi ";">
+          )
+          (command.Sentence
+            child:(command.ControlFlow
+              keyword:<ControlFlow_Exit exit>
+              arg_word:(w <Lit_Number 1>)
+            )
+            terminator:<Op_Semi ";">
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+      code_str:"fail() { printf 'FAIL GitHub transfer: %s\\n' \"$*\" >&2; exit 1; }"
+    )
+    (ShFunction
+      name_tok:<Lit_Chars lower>
+      name:lower
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.Sentence
+            child:(command.Pipeline
+              children:[
+                (C (w <Lit_Chars printf>) (w (SQ "%s")) (w (DQ ($ 1))))
+                (C (w <Lit_Chars tr>) (w (SQ "[:upper:]")) (w (SQ "[:lower:]")))
+              ]
+              ops:[<Op_Pipe "|">]
+            )
+            terminator:<Op_Semi ";">
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+      code_str:"lower() { printf '%s' \"$1\" | tr '[:upper:]' '[:lower:]'; }"
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ VSub_Pound)))
+          (w <Lit_Chars -eq>)
+          (w <Lit_Number 6>)
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w (SQ "six bound identity arguments required"))
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "source_owner=">
+      pairs:[
+        (AssignPair
+          left:...0x1622
+          lhs:(sh_lhs.Name left:...0x1622 name:source_owner)
+          op:assign_op.Equal
+          rhs:(w ($ 1))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "repository=">
+      pairs:[
+        (AssignPair
+          left:...0x15da
+          lhs:(sh_lhs.Name left:...0x15da name:repository)
+          op:assign_op.Equal
+          rhs:(w ($ 2))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "organization=">
+      pairs:[
+        (AssignPair
+          left:...0x1592
+          lhs:(sh_lhs.Name left:...0x1592 name:organization)
+          op:assign_op.Equal
+          rhs:(w ($ 3))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "expected_login=">
+      pairs:[
+        (AssignPair
+          left:...0x1ff2
+          lhs:(sh_lhs.Name left:...0x1ff2 name:expected_login)
+          op:assign_op.Equal
+          rhs:(w ($ 4))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "expected_id=">
+      pairs:[
+        (AssignPair
+          left:...0x1faa
+          lhs:(sh_lhs.Name left:...0x1faa name:expected_id)
+          op:assign_op.Equal
+          rhs:(w ($ 5))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "expected_upstream=">
+      pairs:[
+        (AssignPair
+          left:...0x1f62
+          lhs:(sh_lhs.Name left:...0x1f62 name:expected_upstream)
+          op:assign_op.Equal
+          rhs:(w ($ 6))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "source_name=">
+      pairs:[
+        (AssignPair
+          left:...0x1f1e
+          lhs:(sh_lhs.Name left:...0x1f1e name:source_name)
+          op:assign_op.Equal
+          rhs:(w ($ source_owner) <Lit_Slash /> ($ repository))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "destination=">
+      pairs:[
+        (AssignPair
+          left:...0x1ed2
+          lhs:(sh_lhs.Name left:...0x1ed2 name:destination)
+          op:assign_op.Equal
+          rhs:(w ($ organization) <Lit_Slash /> ($ repository))
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "mode=">
+      pairs:[
+        (AssignPair
+          left:...0x1e86
+          lhs:(sh_lhs.Name left:...0x1e86 name:mode)
+          op:assign_op.Equal
+          rhs:(w
+            (ExprSub
+              left:<Left_DollarBracket "$[">
+              child:(expr.FuncCall
+                func:(Var get)
+                args:(ArgList
+                  left:<Op_LParen "(">
+                  pos_args:[(Var ENV) (SQ FP_TRANSFER_MODE) (SQ "")]
+                  named_args:[]
+                  right:<Op_RParen ")">
+                )
+              )
+              right:<Op_RBracket "]">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "state=">
+      pairs:[
+        (AssignPair
+          left:...0x1cba
+          lhs:(sh_lhs.Name left:...0x1cba name:state)
+          op:assign_op.Equal
+          rhs:(w
+            (ExprSub
+              left:<Left_DollarBracket "$[">
+              child:(expr.FuncCall
+                func:(Var get)
+                args:(ArgList
+                  left:<Op_LParen "(">
+                  pos_args:[(Var ENV) (SQ FP_TRANSFER_STATE) (SQ "")]
+                  named_args:[]
+                  right:<Op_RParen ")">
+                )
+              )
+              right:<Op_RBracket "]">
+            )
+          )
+        )
+      ]
+    )
+    (command.Case
+      case_kw:<KW_Case case>
+      to_match:(case_arg.Word w:(w ($ mode)))
+      arms_start:<KW_In in>
+      arms:[
+        (CaseArm
+          left:<Lit_Chars preflight>
+          pattern:(pat.Words
+            words:[
+              (w <Lit_Chars preflight>)
+              (w <Lit_Chars execute>)
+              (w <Lit_Chars verify>)
+            ]
+          )
+          middle:<Right_CasePat ")">
+          action:[(C (w <Lit_Chars "true">))]
+          right:<Op_DSemi ";;">
+        )
+        (CaseArm
+          left:<Lit_Star "*">
+          pattern:(pat.Words words:[(w <Lit_Star "*">)])
+          middle:<Right_CasePat ")">
+          action:[
+            (C
+              (w <Lit_Chars fail>)
+              (w (SQ "FP_TRANSFER_MODE must be preflight, execute or verify"))
+            )
+          ]
+          right:<Op_DSemi ";;">
+        )
+      ]
+      arms_end:<KW_Esac esac>
+    )
+    (command.Case
+      case_kw:<KW_Case case>
+      to_match:(case_arg.Word w:(w ($ state)))
+      arms_start:<KW_In in>
+      arms:[
+        (CaseArm
+          left:<Lit_Slash />
+          pattern:(pat.Words words:[(w <Lit_Slash /> <Lit_Star "*">)])
+          middle:<Right_CasePat ")">
+          action:[(C (w <Lit_Chars "true">))]
+          right:<Op_DSemi ";;">
+        )
+        (CaseArm
+          left:<Lit_Star "*">
+          pattern:(pat.Words words:[(w <Lit_Star "*">)])
+          middle:<Right_CasePat ")">
+          action:[
+            (C
+              (w <Lit_Chars fail>)
+              (w (SQ "FP_TRANSFER_STATE must be an absolute durable directory"))
+            )
+          ]
+          right:<Op_DSemi ";;">
+        )
+      ]
+      arms_end:<KW_Esac esac>
+    )
+    (command.ForEach
+      keyword:<KW_For for>
+      iter_names:[utility]
+      iterable:(for_iter.Words
+        words:[
+          (w <Lit_Chars gh>)
+          (w <Lit_Chars timeout>)
+          (w <Lit_Chars mktemp>)
+          (w <Lit_Chars mkdir>)
+          (w <Lit_Chars cat>)
+          (w <Lit_Chars cut>)
+          (w <Lit_Chars tr>)
+          (w <Lit_Chars grep>)
+          (w <Lit_Chars cmp>)
+          (w <Lit_Chars sync>)
+          (w <Lit_Chars ln>)
+          (w <Lit_Chars sleep>)
+        ]
+      )
+      semi_tok:<Op_Semi ";">
+      body:(command.DoGroup
+        left:<KW_Do do>
+        children:[
+          (command.AndOr
+            children:[
+              (command.Simple
+                blame_tok:<Lit_Chars command>
+                more_env:[]
+                words:[
+                  (w <Lit_Chars command>)
+                  (w <Lit_Chars -v>)
+                  (w (DQ ($ utility)))
+                ]
+                is_last_cmd:F
+                redirects:[
+                  (Redir
+                    op:<Redir_Great ">">
+                    loc:(redir_loc.Fd fd:1)
+                    arg:(w
+                      <Lit_Slash />
+                      <Lit_Chars dev>
+                      <Lit_Slash />
+                      <Lit_Chars "null">
+                    )
+                  )
+                  (Redir
+                    op:<Redir_GreatAnd ">&">
+                    loc:(redir_loc.Fd fd:2)
+                    arg:(w <Lit_Number 1>)
+                  )
+                ]
+              )
+              (C
+                (w <Lit_Chars fail>)
+                (w (DQ <Lit_Chars "missing runtime requirement: "> ($ utility)))
+              )
+            ]
+            ops:[<Op_DPipe "||">]
+          )
+        ]
+        right:<KW_Done done>
+      )
+    )
+    (C (w <Lit_Chars umask>) (w <Lit_Chars 077>))
+    (C (w <Lit_Chars mkdir>) (w <Lit_Chars -p>) (w (DQ ($ state))))
+    (command.ShAssignment
+      left:<Lit_VarLike "attempt=">
+      pairs:[
+        (AssignPair
+          left:...0x20ca
+          lhs:(sh_lhs.Name left:...0x20ca name:attempt)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars mktemp>)
+                (w <Lit_Chars -d>)
+                (w (DQ ($ state) <Lit_Chars /observation.XXXXXX>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.Simple
+      blame_tok:<Lit_Chars printf>
+      more_env:[]
+      words:[
+        (w <Lit_Chars printf>)
+        (w (SQ "%s\\t%s\\t%s\\t%s\\t%s\\n"))
+        (w (DQ ($ source_name)))
+        (w (DQ ($ destination)))
+        (w (DQ ($ expected_login)))
+        (w (DQ ($ expected_id)))
+        (w (DQ ($ expected_upstream)))
+      ]
+      is_last_cmd:F
+      redirects:[
+        (Redir
+          op:<Redir_Great ">">
+          loc:(redir_loc.Fd fd:1)
+          arg:(w (DQ ($ attempt) <Lit_Chars /identity.tsv>))
+        )
+      ]
+    )
+    (command.If
+      if_kw:<KW_If if>
+      arms:[
+        (IfArm
+          keyword:...0x29b2
+          cond:[
+            (command.Sentence
+              child:(C
+                (w <Lit_Chars test>)
+                (w <Lit_Chars -e>)
+                (w (DQ ($ state) <Lit_Chars /identity.tsv>))
+              )
+              terminator:<Op_Semi ";">
+            )
+          ]
+          then_kw:<KW_Then then>
+          action:[
+            (command.AndOr
+              children:[
+                (C
+                  (w <Lit_Chars cmp>)
+                  (w (DQ ($ attempt) <Lit_Chars /identity.tsv>))
+                  (w (DQ ($ state) <Lit_Chars /identity.tsv>))
+                )
+                (C
+                  (w <Lit_Chars fail>)
+                  (w (SQ "durable operation identity differs"))
+                )
+              ]
+              ops:[<Op_DPipe "||">]
+            )
+          ]
+          then_tok:...0x2942
+        )
+      ]
+      else_kw:<KW_Else else>
+      else_action:[
+        (command.Simple
+          blame_tok:<Lit_Chars try>
+          more_env:[]
+          words:[(w <Lit_Chars try>)]
+          block:(LiteralBlock
+            brace_group:(BraceGroup
+              left:<Lit_LBrace "{">
+              children:[
+                (C
+                  (w <Lit_Chars ln>)
+                  (w (DQ ($ attempt) <Lit_Chars /identity.tsv>))
+                  (w (DQ ($ state) <Lit_Chars /identity.tsv>))
+                )
+              ]
+              right:<Lit_RBrace "}">
+            )
+            code_str:"          ln \"$attempt/identity.tsv\" \"$state/identity.tsv\" "
+          )
+          is_last_cmd:F
+        )
+        (command.If
+          if_kw:<KW_If if>
+          arms:[
+            (IfArm
+              keyword:...0x2762
+              cond:(condition.YshExpr
+                e:(expr.Compare
+                  left:(Attribute
+                    obj:(Var _error)
+                    op:<Expr_Dot .>
+                    attr:<Expr_Name code>
+                    attr_name:code
+                    ctx:expr_context.Store
+                  )
+                  ops:[<Expr_NotDEqual "!==">]
+                  comparators:[(Const Expr_DecInt _)]
+                )
+              )
+              action:[
+                (command.AndOr
+                  children:[
+                    (C
+                      (w <Lit_Chars cmp>)
+                      (w (DQ ($ attempt) <Lit_Chars /identity.tsv>))
+                      (w (DQ ($ state) <Lit_Chars /identity.tsv>))
+                    )
+                    (C
+                      (w <Lit_Chars fail>)
+                      (w (SQ "concurrent operation identity differs"))
+                    )
+                  ]
+                  ops:[<Op_DPipe "||">]
+                )
+              ]
+            )
+          ]
+          else_action:[]
+        )
+      ]
+      fi_kw:<KW_Fi fi>
+    )
+    (Mutation
+      keyword:<KW_SetGlobal setglobal>
+      lhs:[
+        (Attribute
+          obj:(Var ENV)
+          op:<Expr_Dot .>
+          attr:<Expr_Name GH_TOKEN>
+          attr_name:GH_TOKEN
+          ctx:expr_context.Store
+        )
+      ]
+      op:<Arith_Equal "=">
+      rhs:(Const Expr_Null _)
+    )
+    (Mutation
+      keyword:<KW_SetGlobal setglobal>
+      lhs:[
+        (Attribute
+          obj:(Var ENV)
+          op:<Expr_Dot .>
+          attr:<Expr_Name GITHUB_TOKEN>
+          attr_name:GITHUB_TOKEN
+          ctx:expr_context.Store
+        )
+      ]
+      op:<Arith_Equal "=">
+      rhs:(Const Expr_Null _)
+    )
+    (Mutation
+      keyword:<KW_SetGlobal setglobal>
+      lhs:[
+        (Attribute
+          obj:(Var ENV)
+          op:<Expr_Dot .>
+          attr:<Expr_Name GH_HOST>
+          attr_name:GH_HOST
+          ctx:expr_context.Store
+        )
+      ]
+      op:<Arith_Equal "=">
+      rhs:(SQ github.com)
+    )
+    (ShFunction
+      name_tok:<Lit_Chars query>
+      name:query
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.ShAssignment
+            left:<Lit_VarLike "label=">
+            pairs:[
+              (AssignPair
+                left:...0x2d56
+                lhs:(sh_lhs.Name left:...0x2d56 name:label)
+                op:assign_op.Equal
+                rhs:(w ($ 1))
+              )
+            ]
+          )
+          (C (w <Lit_Chars shift>))
+          (command.Simple
+            blame_tok:<Lit_Chars try>
+            more_env:[]
+            words:[(w <Lit_Chars try>)]
+            block:(LiteralBlock
+              brace_group:(BraceGroup
+                left:<Lit_LBrace "{">
+                children:[
+                  (command.Simple
+                    blame_tok:<Lit_Chars timeout>
+                    more_env:[]
+                    words:[
+                      (w <Lit_Chars timeout>)
+                      (w <Lit_Number 25>)
+                      (w <Lit_Chars gh>)
+                      (w (DQ ($ VSub_At)))
+                    ]
+                    is_last_cmd:F
+                    redirects:[
+                      (Redir
+                        op:<Redir_Great ">">
+                        loc:(redir_loc.Fd fd:1)
+                        arg:(w
+                          (DQ
+                            ($ attempt)
+                            <Lit_Chars />
+                            ($ label)
+                            <Lit_Chars .stdout>
+                          )
+                        )
+                      )
+                      (Redir
+                        op:<Redir_Great ">">
+                        loc:(redir_loc.Fd fd:2)
+                        arg:(w
+                          (DQ
+                            ($ attempt)
+                            <Lit_Chars />
+                            ($ label)
+                            <Lit_Chars .stderr>
+                          )
+                        )
+                      )
+                    ]
+                  )
+                ]
+                right:<Lit_RBrace "}">
+              )
+              code_str:"          timeout 25 gh \"$@\" > \"$attempt/$label.stdout\" 2> \"$attempt/$label.stderr\" "
+            )
+            is_last_cmd:F
+          )
+          (VarDecl
+            keyword:<KW_Var var>
+            lhs:[(NameType left:<Expr_Name code> name:code)]
+            rhs:(Attribute
+              obj:(Var _error)
+              op:<Expr_Dot .>
+              attr:<Expr_Name code>
+              attr_name:code
+              ctx:expr_context.Store
+            )
+          )
+          (command.Simple
+            blame_tok:<Lit_Chars printf>
+            more_env:[]
+            words:[(w <Lit_Chars printf>) (w (SQ "%s\\n")) (w (DQ ($ code)))]
+            is_last_cmd:F
+            redirects:[
+              (Redir
+                op:<Redir_Great ">">
+                loc:(redir_loc.Fd fd:1)
+                arg:(w
+                  (DQ ($ attempt) <Lit_Chars /> ($ label) <Lit_Chars .exit>)
+                )
+              )
+            ]
+          )
+          (command.If
+            if_kw:<KW_If if>
+            arms:[
+              (IfArm
+                keyword:...0x34fe
+                cond:(condition.YshExpr
+                  e:(expr.Compare
+                    left:(Var code)
+                    ops:[<Expr_NotDEqual "!==">]
+                    comparators:[(Const Expr_DecInt _)]
+                  )
+                )
+                action:[
+                  (command.Simple
+                    blame_tok:<Lit_Chars cat>
+                    more_env:[]
+                    words:[
+                      (w <Lit_Chars cat>)
+                      (w
+                        (DQ
+                          ($ attempt)
+                          <Lit_Chars />
+                          ($ label)
+                          <Lit_Chars .stdout>
+                        )
+                      )
+                      (w
+                        (DQ
+                          ($ attempt)
+                          <Lit_Chars />
+                          ($ label)
+                          <Lit_Chars .stderr>
+                        )
+                      )
+                    ]
+                    is_last_cmd:F
+                    redirects:[
+                      (Redir
+                        op:<Redir_GreatAnd ">&">
+                        loc:(redir_loc.Fd fd:1)
+                        arg:(w <Lit_Number 2>)
+                      )
+                    ]
+                  )
+                  (command.ControlFlow
+                    keyword:<ControlFlow_Return return>
+                    arg_word:(w <Lit_Number 1>)
+                  )
+                ]
+              )
+            ]
+            else_action:[]
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+      code_str:"query() {\n    label=$1\n    shift\n    try { timeout 25 gh \"$@\" > \"$attempt/$label.stdout\" 2> \"$attempt/$label.stderr\" }\n    var code = _error.code\n    printf '%s\\n' \"$code\" > \"$attempt/$label.exit\"\n    if (code !== 0) {\n        cat \"$attempt/$label.stdout\" \"$attempt/$label.stderr\" >&2\n        return 1\n    }\n}"
+    )
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars auth>)
+      (w <Lit_Chars auth>)
+      (w <Lit_Chars status>)
+      (w <Lit_Chars --hostname>)
+      (w <Lit_Chars github.com>)
+    )
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars login>)
+      (w <Lit_Chars api>)
+      (w <Lit_Chars user>)
+      (w <Lit_Chars --jq>)
+      (w (SQ .login))
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "login=">
+      pairs:[
+        (AssignPair
+          left:...0x321e
+          lhs:(sh_lhs.Name left:...0x321e name:login)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cat>)
+                (w (DQ ($ attempt) <Lit_Chars /login.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "login_key=">
+      pairs:[
+        (AssignPair
+          left:...0x3182
+          lhs:(sh_lhs.Name left:...0x3182 name:login_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ login))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "expected_login_key=">
+      pairs:[
+        (AssignPair
+          left:...0x30e6
+          lhs:(sh_lhs.Name left:...0x30e6 name:expected_login_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ expected_login))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ login_key)))
+          (w <Lit_Equals "=">)
+          (w (DQ ($ expected_login_key)))
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w
+            (DQ
+              <Lit_Chars "authenticated as ">
+              ($ login)
+              <Lit_Chars ", expected ">
+              ($ expected_login)
+            )
+          )
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars organization>)
+      (w <Lit_Chars api>)
+      (w (DQ <Lit_Chars orgs/> ($ organization)))
+      (w <Lit_Chars --jq>)
+      (w (SQ .login))
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "canonical_organization=">
+      pairs:[
+        (AssignPair
+          left:...0x397e
+          lhs:(sh_lhs.Name left:...0x397e name:canonical_organization)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cat>)
+                (w (DQ ($ attempt) <Lit_Chars /organization.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "organization_key=">
+      pairs:[
+        (AssignPair
+          left:...0x38de
+          lhs:(sh_lhs.Name left:...0x38de name:organization_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars lower>)
+                (w (DQ ($ canonical_organization)))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "expected_organization_key=">
+      pairs:[
+        (AssignPair
+          left:...0x3842
+          lhs:(sh_lhs.Name left:...0x3842 name:expected_organization_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ organization))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ organization_key)))
+          (w <Lit_Equals "=">)
+          (w (DQ ($ expected_organization_key)))
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w (SQ "organization redirects to a different identity"))
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "repository_query=">
+      pairs:[
+        (AssignPair
+          left:...0x36ba
+          lhs:(sh_lhs.Name left:...0x36ba name:repository_query)
+          op:assign_op.Equal
+          rhs:(w
+            (SQ
+              "[.id, .full_name, .fork, (.parent.full_name // \"-\"), (.source.full_name // \"-\"), (.permissions.admin // false)] | @tsv"
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "destination_key=">
+      pairs:[
+        (AssignPair
+          left:...0x365e
+          lhs:(sh_lhs.Name left:...0x365e name:destination_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ destination))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "source_key=">
+      pairs:[
+        (AssignPair
+          left:...0x35c2
+          lhs:(sh_lhs.Name left:...0x35c2 name:source_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ source_name))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (ShFunction
+      name_tok:<Lit_Chars check_identity>
+      name:check_identity
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.ShAssignment
+            left:<Lit_VarLike "snapshot=">
+            pairs:[
+              (AssignPair
+                left:...0x3f8a
+                lhs:(sh_lhs.Name left:...0x3f8a name:snapshot)
+                op:assign_op.Equal
+                rhs:(w ($ 1))
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_id=">
+            pairs:[
+              (AssignPair
+                left:...0x3f46
+                lhs:(sh_lhs.Name left:...0x3f46 name:observed_id)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars cut>)
+                      (w <Lit_Chars -f1>)
+                      (w (DQ ($ snapshot)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_upstream=">
+            pairs:[
+              (AssignPair
+                left:...0x3e9e
+                lhs:(sh_lhs.Name left:...0x3e9e name:observed_upstream)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars cut>)
+                      (w <Lit_Chars -f4>)
+                      (w (DQ ($ snapshot)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_root=">
+            pairs:[
+              (AssignPair
+                left:...0x3dfa
+                lhs:(sh_lhs.Name left:...0x3dfa name:observed_root)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars cut>)
+                      (w <Lit_Chars -f5>)
+                      (w (DQ ($ snapshot)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.AndOr
+            children:[
+              (C
+                (w <Lit_Chars test>)
+                (w (DQ ($ observed_id)))
+                (w <Lit_Equals "=">)
+                (w (DQ ($ expected_id)))
+              )
+              (C
+                (w <Lit_Chars fail>)
+                (w (SQ "repository ID differs from immutable pin"))
+              )
+            ]
+            ops:[<Op_DPipe "||">]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_upstream_key=">
+            pairs:[
+              (AssignPair
+                left:...0x3c86
+                lhs:(sh_lhs.Name left:...0x3c86 name:observed_upstream_key)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars lower>)
+                      (w (DQ ($ observed_upstream)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "upstream_key=">
+            pairs:[
+              (AssignPair
+                left:...0x3bee
+                lhs:(sh_lhs.Name left:...0x3bee name:upstream_key)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars lower>)
+                      (w (DQ ($ expected_upstream)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_root_key=">
+            pairs:[
+              (AssignPair
+                left:...0x3b56
+                lhs:(sh_lhs.Name left:...0x3b56 name:observed_root_key)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C (w <Lit_Chars lower>) (w (DQ ($ observed_root))))
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.AndOr
+            children:[
+              (C
+                (w <Lit_Chars test>)
+                (w (DQ ($ observed_upstream_key)))
+                (w <Lit_Equals "=">)
+                (w (DQ ($ upstream_key)))
+              )
+              (C
+                (w <Lit_Chars test>)
+                (w (DQ ($ observed_root_key)))
+                (w <Lit_Equals "=">)
+                (w (DQ ($ upstream_key)))
+              )
+              (C
+                (w <Lit_Chars fail>)
+                (w (SQ "original upstream fork relationship changed"))
+              )
+            ]
+            ops:[<Op_DAmp "&&"> <Op_DPipe "||">]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "observed_fork=">
+            pairs:[
+              (AssignPair
+                left:...0x4422
+                lhs:(sh_lhs.Name left:...0x4422 name:observed_fork)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars cut>)
+                      (w <Lit_Chars -f3>)
+                      (w (DQ ($ snapshot)))
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.If
+            if_kw:<KW_If if>
+            arms:[
+              (IfArm
+                keyword:...0x437e
+                cond:[
+                  (command.Sentence
+                    child:(C
+                      (w <Lit_Chars test>)
+                      (w (DQ ($ expected_upstream)))
+                      (w <Lit_Equals "=">)
+                      (w (SQ -))
+                    )
+                    terminator:<Op_Semi ";">
+                  )
+                ]
+                then_kw:<KW_Then then>
+                action:[
+                  (command.AndOr
+                    children:[
+                      (C
+                        (w <Lit_Chars test>)
+                        (w (DQ ($ observed_fork)))
+                        (w <Lit_Equals "=">)
+                        (w <Lit_Chars "false">)
+                      )
+                      (C
+                        (w <Lit_Chars fail>)
+                        (w (SQ "nonfork identity changed"))
+                      )
+                    ]
+                    ops:[<Op_DPipe "||">]
+                  )
+                ]
+                then_tok:...0x42f2
+              )
+            ]
+            else_kw:<KW_Else else>
+            else_action:[
+              (command.AndOr
+                children:[
+                  (C
+                    (w <Lit_Chars test>)
+                    (w (DQ ($ observed_fork)))
+                    (w <Lit_Equals "=">)
+                    (w <Lit_Chars "true">)
+                  )
+                  (C (w <Lit_Chars fail>) (w (SQ "fork identity changed")))
+                ]
+                ops:[<Op_DPipe "||">]
+              )
+            ]
+            fi_kw:<KW_Fi fi>
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+      code_str:"check_identity() {\n    snapshot=$1\n    observed_id=$(cut -f1 \"$snapshot\")\n    observed_upstream=$(cut -f4 \"$snapshot\")\n    observed_root=$(cut -f5 \"$snapshot\")\n    test \"$observed_id\" = \"$expected_id\" || fail 'repository ID differs from immutable pin'\n    observed_upstream_key=$(lower \"$observed_upstream\")\n    upstream_key=$(lower \"$expected_upstream\")\n    observed_root_key=$(lower \"$observed_root\")\n    test \"$observed_upstream_key\" = \"$upstream_key\" && test \"$observed_root_key\" = \"$upstream_key\" || fail 'original upstream fork relationship changed'\n    observed_fork=$(cut -f3 \"$snapshot\")\n    if test \"$expected_upstream\" = '-'; then\n        test \"$observed_fork\" = false || fail 'nonfork identity changed'\n    else\n        test \"$observed_fork\" = true || fail 'fork identity changed'\n    fi\n}"
+    )
+    (ShFunction
+      name_tok:<Lit_Chars read_destination>
+      name:read_destination
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.ShAssignment
+            left:<Lit_VarLike "label=">
+            pairs:[
+              (AssignPair
+                left:...0x40a6
+                lhs:(sh_lhs.Name left:...0x40a6 name:label)
+                op:assign_op.Equal
+                rhs:(w ($ 1))
+              )
+            ]
+          )
+          (command.Simple
+            blame_tok:<Lit_Chars try>
+            more_env:[]
+            words:[(w <Lit_Chars try>)]
+            block:(LiteralBlock
+              brace_group:(BraceGroup
+                left:<Lit_LBrace "{">
+                children:[
+                  (C
+                    (w <Lit_Chars query>)
+                    (w (DQ ($ label)))
+                    (w <Lit_Chars api>)
+                    (w (DQ <Lit_Chars repos/> ($ destination)))
+                    (w <Lit_Chars --jq>)
+                    (w (DQ ($ repository_query)))
+                  )
+                ]
+                right:<Lit_RBrace "}">
+              )
+              code_str:"          query \"$label\" api \"repos/$destination\" --jq \"$repository_query\" "
+            )
+            is_last_cmd:F
+          )
+          (command.If
+            if_kw:<KW_If if>
+            arms:[
+              (IfArm
+                keyword:...0x4a1a
+                cond:(condition.YshExpr
+                  e:(expr.Compare
+                    left:(Attribute
+                      obj:(Var _error)
+                      op:<Expr_Dot .>
+                      attr:<Expr_Name code>
+                      attr_name:code
+                      ctx:expr_context.Store
+                    )
+                    ops:[<Expr_NotDEqual "!==">]
+                    comparators:[(Const Expr_DecInt _)]
+                  )
+                )
+                action:[
+                  (command.Simple
+                    blame_tok:<Lit_Chars try>
+                    more_env:[]
+                    words:[(w <Lit_Chars try>)]
+                    block:(LiteralBlock
+                      brace_group:(BraceGroup
+                        left:<Lit_LBrace "{">
+                        children:[
+                          (command.Simple
+                            blame_tok:<Lit_Chars grep>
+                            more_env:[]
+                            words:[
+                              (w <Lit_Chars grep>)
+                              (w <Lit_Chars -E>)
+                              (w
+                                (SQ
+                                  "\"status\"[[:space:]]*:[[:space:]]*\"404\""
+                                )
+                              )
+                              (w
+                                (DQ
+                                  ($ attempt)
+                                  <Lit_Chars />
+                                  ($ label)
+                                  <Lit_Chars .stdout>
+                                )
+                              )
+                            ]
+                            is_last_cmd:F
+                            redirects:[
+                              (Redir
+                                op:<Redir_Great ">">
+                                loc:(redir_loc.Fd fd:1)
+                                arg:(w
+                                  <Lit_Slash />
+                                  <Lit_Chars dev>
+                                  <Lit_Slash />
+                                  <Lit_Chars "null">
+                                )
+                              )
+                            ]
+                          )
+                        ]
+                        right:<Lit_RBrace "}">
+                      )
+                      code_str:"              grep -E '\"status\"[[:space:]]*:[[:space:]]*\"404\"' \"$attempt/$label.stdout\" >/dev/null "
+                    )
+                    is_last_cmd:F
+                  )
+                  (command.If
+                    if_kw:<KW_If if>
+                    arms:[
+                      (IfArm
+                        keyword:...0x483a
+                        cond:(condition.YshExpr
+                          e:(expr.Compare
+                            left:(Attribute
+                              obj:(Var _error)
+                              op:<Expr_Dot .>
+                              attr:<Expr_Name code>
+                              attr_name:code
+                              ctx:expr_context.Store
+                            )
+                            ops:[<Expr_TEqual "===">]
+                            comparators:[(Const Expr_DecInt _)]
+                          )
+                        )
+                        action:[
+                          (command.ControlFlow
+                            keyword:<ControlFlow_Return return>
+                            arg_word:(w <Lit_Number 3>)
+                          )
+                        ]
+                      )
+                    ]
+                    else_action:[]
+                  )
+                  (C
+                    (w <Lit_Chars fail>)
+                    (w
+                      (DQ
+                        <
+                          Lit_Chars
+                          "destination lookup failed; retained stdout, stderr and status in "
+                        >
+                        ($ attempt)
+                      )
+                    )
+                  )
+                ]
+              )
+            ]
+            else_action:[]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "name=">
+            pairs:[
+              (AssignPair
+                left:...0x4696
+                lhs:(sh_lhs.Name left:...0x4696 name:name)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C
+                      (w <Lit_Chars cut>)
+                      (w <Lit_Chars -f2>)
+                      (w
+                        (DQ
+                          ($ attempt)
+                          <Lit_Chars />
+                          ($ label)
+                          <Lit_Chars .stdout>
+                        )
+                      )
+                    )
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.ShAssignment
+            left:<Lit_VarLike "name_key=">
+            pairs:[
+              (AssignPair
+                left:...0x45ea
+                lhs:(sh_lhs.Name left:...0x45ea name:name_key)
+                op:assign_op.Equal
+                rhs:(w
+                  (CommandSub
+                    left_token:<Left_DollarParen "$(">
+                    child:(C (w <Lit_Chars lower>) (w (DQ ($ name))))
+                    right:<Eof_RParen ")">
+                  )
+                )
+              )
+            ]
+          )
+          (command.AndOr
+            children:[
+              (C
+                (w <Lit_Chars test>)
+                (w (DQ ($ name_key)))
+                (w <Lit_Equals "=">)
+                (w (DQ ($ destination_key)))
+              )
+              (command.ControlFlow
+                keyword:<ControlFlow_Return return>
+                arg_word:(w <Lit_Number 4>)
+              )
+            ]
+            ops:[<Op_DPipe "||">]
+          )
+          (C
+            (w <Lit_Chars check_identity>)
+            (w (DQ ($ attempt) <Lit_Chars /> ($ label) <Lit_Chars .stdout>))
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+      code_str:"read_destination() {\n    label=$1\n    try { query \"$label\" api \"repos/$destination\" --jq \"$repository_query\" }\n    if (_error.code !== 0) {\n        try { grep -E '\"status\"[[:space:]]*:[[:space:]]*\"404\"' \"$attempt/$label.stdout\" >/dev/null }\n        if (_error.code === 0) { return 3 }\n        fail \"destination lookup failed; retained stdout, stderr and status in $attempt\"\n    }\n    name=$(cut -f2 \"$attempt/$label.stdout\")\n    name_key=$(lower \"$name\")\n    test \"$name_key\" = \"$destination_key\" || return 4\n    check_identity \"$attempt/$label.stdout\"\n}"
+    )
+    (command.Simple
+      blame_tok:<Lit_Chars try>
+      more_env:[]
+      words:[(w <Lit_Chars try>)]
+      block:(LiteralBlock
+        brace_group:(BraceGroup
+          left:<Lit_LBrace "{">
+          children:[
+            (C (w <Lit_Chars read_destination>) (w <Lit_Chars destination>))
+          ]
+          right:<Lit_RBrace "}">
+        )
+        code_str:"      read_destination destination "
+      )
+      is_last_cmd:F
+    )
+    (VarDecl
+      keyword:<KW_Var var>
+      lhs:[
+        (NameType left:<Expr_Name destination_status> name:destination_status)
+      ]
+      rhs:(Attribute
+        obj:(Var _error)
+        op:<Expr_Dot .>
+        attr:<Expr_Name code>
+        attr_name:code
+        ctx:expr_context.Store
+      )
+    )
+    (command.If
+      if_kw:<KW_If if>
+      arms:[
+        (IfArm
+          keyword:...0x4d86
+          cond:(condition.YshExpr
+            e:(expr.Compare
+              left:(Var destination_status)
+              ops:[<Expr_TEqual "===">]
+              comparators:[(Const Expr_DecInt _)]
+            )
+          )
+          action:[
+            (C
+              (w <Lit_Chars printf>)
+              (w
+                (SQ
+                  "status=verified\\naction=already_transferred\\nrepository_id=%s\\nrepository_url=https://github.com/%s\\nupstream=%s\\nevidence=%s\\n"
+                )
+              )
+              (w (DQ ($ expected_id)))
+              (w (DQ ($ destination)))
+              (w (DQ ($ expected_upstream)))
+              (w (DQ ($ attempt)))
+            )
+            (command.ControlFlow
+              keyword:<ControlFlow_Exit exit>
+              arg_word:(w <Lit_Number 0>)
+            )
+          ]
+        )
+      ]
+      else_action:[]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ mode)))
+          (w <KW_Bang "!"> <Lit_Equals "=">)
+          (w <Lit_Chars verify>)
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w (SQ "destination is not independently verified"))
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars source>)
+      (w <Lit_Chars api>)
+      (w (DQ <Lit_Chars repos/> ($ source_name)))
+      (w <Lit_Chars --jq>)
+      (w (DQ ($ repository_query)))
+    )
+    (C
+      (w <Lit_Chars check_identity>)
+      (w (DQ ($ attempt) <Lit_Chars /source.stdout>))
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "observed_source=">
+      pairs:[
+        (AssignPair
+          left:...0x547e
+          lhs:(sh_lhs.Name left:...0x547e name:observed_source)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cut>)
+                (w <Lit_Chars -f2>)
+                (w (DQ ($ attempt) <Lit_Chars /source.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "observed_source_key=">
+      pairs:[
+        (AssignPair
+          left:...0x53d2
+          lhs:(sh_lhs.Name left:...0x53d2 name:observed_source_key)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C (w <Lit_Chars lower>) (w (DQ ($ observed_source))))
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ observed_source_key)))
+          (w <Lit_Equals "=">)
+          (w (DQ ($ source_key)))
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w
+            (DQ
+              <Lit_Chars "source redirects to ">
+              ($ observed_source)
+              <Lit_Chars " without a verified destination">
+            )
+          )
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "administrator=">
+      pairs:[
+        (AssignPair
+          left:...0x5262
+          lhs:(sh_lhs.Name left:...0x5262 name:administrator)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cut>)
+                (w <Lit_Chars -f6>)
+                (w (DQ ($ attempt) <Lit_Chars /source.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ administrator)))
+          (w <Lit_Equals "=">)
+          (w <Lit_Chars "true">)
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w (SQ "source administrator permission required"))
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars membership>)
+      (w <Lit_Chars api>)
+      (w (DQ <Lit_Chars user/memberships/orgs/> ($ organization)))
+      (w <Lit_Chars --jq>)
+      (w (SQ "[.state,.role] | @tsv"))
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "membership=">
+      pairs:[
+        (AssignPair
+          left:...0x5052
+          lhs:(sh_lhs.Name left:...0x5052 name:membership)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cut>)
+                (w <Lit_Chars -f1>)
+                (w (DQ ($ attempt) <Lit_Chars /membership.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.ShAssignment
+      left:<Lit_VarLike "role=">
+      pairs:[
+        (AssignPair
+          left:...0x5a4e
+          lhs:(sh_lhs.Name left:...0x5a4e name:role)
+          op:assign_op.Equal
+          rhs:(w
+            (CommandSub
+              left_token:<Left_DollarParen "$(">
+              child:(C
+                (w <Lit_Chars cut>)
+                (w <Lit_Chars -f2>)
+                (w (DQ ($ attempt) <Lit_Chars /membership.stdout>))
+              )
+              right:<Eof_RParen ")">
+            )
+          )
+        )
+      ]
+    )
+    (command.AndOr
+      children:[
+        (C
+          (w <Lit_Chars test>)
+          (w (DQ ($ membership)))
+          (w <Lit_Equals "=">)
+          (w <Lit_Chars active>)
+        )
+        (C
+          (w <Lit_Chars fail>)
+          (w (SQ "active organization membership required"))
+        )
+      ]
+      ops:[<Op_DPipe "||">]
+    )
+    (command.If
+      if_kw:<KW_If if>
+      arms:[
+        (IfArm
+          keyword:...0x58e2
+          cond:[
+            (command.Sentence
+              child:(C
+                (w <Lit_Chars test>)
+                (w (DQ ($ role)))
+                (w <KW_Bang "!"> <Lit_Equals "=">)
+                (w <Lit_Chars admin>)
+              )
+              terminator:<Op_Semi ";">
+            )
+          ]
+          then_kw:<KW_Then then>
+          action:[
+            (C
+              (w <Lit_Chars query>)
+              (w <Lit_Chars create_permission>)
+              (w <Lit_Chars api>)
+              (w (DQ <Lit_Chars orgs/> ($ organization)))
+              (w <Lit_Chars --jq>)
+              (w (SQ .members_can_create_repositories))
+            )
+            (command.ShAssignment
+              left:<Lit_VarLike "permission=">
+              pairs:[
+                (AssignPair
+                  left:...0x57b2
+                  lhs:(sh_lhs.Name left:...0x57b2 name:permission)
+                  op:assign_op.Equal
+                  rhs:(w
+                    (CommandSub
+                      left_token:<Left_DollarParen "$(">
+                      child:(C
+                        (w <Lit_Chars cat>)
+                        (w
+                          (DQ ($ attempt) <Lit_Chars /create_permission.stdout>)
+                        )
+                      )
+                      right:<Eof_RParen ")">
+                    )
+                  )
+                )
+              ]
+            )
+            (command.AndOr
+              children:[
+                (C
+                  (w <Lit_Chars test>)
+                  (w (DQ ($ permission)))
+                  (w <Lit_Equals "=">)
+                  (w <Lit_Chars "true">)
+                )
+                (C
+                  (w <Lit_Chars fail>)
+                  (w
+                    (SQ
+                      "organization repository creation permission not established"
+                    )
+                  )
+                )
+              ]
+              ops:[<Op_DPipe "||">]
+            )
+          ]
+          then_tok:...0x5866
+        )
+      ]
+      else_action:[]
+      fi_kw:<KW_Fi fi>
+    )
+    (command.If
+      if_kw:<KW_If if>
+      arms:[
+        (IfArm
+          keyword:...0x5636
+          cond:[
+            (command.Sentence
+              child:(C
+                (w <Lit_Chars test>)
+                (w (DQ ($ mode)))
+                (w <Lit_Equals "=">)
+                (w <Lit_Chars preflight>)
+              )
+              terminator:<Op_Semi ";">
+            )
+          ]
+          then_kw:<KW_Then then>
+          action:[
+            (C
+              (w <Lit_Chars printf>)
+              (w (SQ "status=preflight\\nrepository_id=%s\\nevidence=%s\\n"))
+              (w (DQ ($ expected_id)))
+              (w (DQ ($ attempt)))
+            )
+            (command.ControlFlow
+              keyword:<ControlFlow_Exit exit>
+              arg_word:(w <Lit_Number 0>)
+            )
+          ]
+          then_tok:...0x55be
+        )
+      ]
+      else_action:[]
+      fi_kw:<KW_Fi fi>
+    )
+    (command.Simple
+      blame_tok:<Lit_Chars try>
+      more_env:[]
+      words:[(w <Lit_Chars try>)]
+      block:(LiteralBlock
+        brace_group:(BraceGroup
+          left:<Lit_LBrace "{">
+          children:[
+            (C
+              (w <Lit_Chars mkdir>)
+              (w (DQ ($ state) <Lit_Chars /post-attempted>))
+            )
+          ]
+          right:<Lit_RBrace "}">
+        )
+        code_str:"      mkdir \"$state/post-attempted\" "
+      )
+      is_last_cmd:F
+    )
+    (command.If
+      if_kw:<KW_If if>
+      arms:[
+        (IfArm
+          keyword:...0x5ea6
+          cond:(condition.YshExpr
+            e:(expr.Compare
+              left:(Attribute
+                obj:(Var _error)
+                op:<Expr_Dot .>
+                attr:<Expr_Name code>
+                attr_name:code
+                ctx:expr_context.Store
+              )
+              ops:[<Expr_NotDEqual "!==">]
+              comparators:[(Const Expr_DecInt _)]
+            )
+          )
+          action:[
+            (C
+              (w <Lit_Chars fail>)
+              (w
+                (SQ
+                  "transfer was already attempted; verify only, no second POST"
+                )
+              )
+            )
+          ]
+        )
+      ]
+      else_action:[]
+    )
+    (command.Simple
+      blame_tok:<Lit_Chars printf>
+      more_env:[]
+      words:[(w <Lit_Chars printf>) (w (SQ "%s\\n")) (w (DQ ($ attempt)))]
+      is_last_cmd:F
+      redirects:[
+        (Redir
+          op:<Redir_Great ">">
+          loc:(redir_loc.Fd fd:1)
+          arg:(w (DQ ($ state) <Lit_Chars /post-attempted/observation>))
+        )
+      ]
+    )
+    (C (w <Lit_Chars sync>))
+    (C
+      (w <Lit_Chars query>)
+      (w <Lit_Chars transfer>)
+      (w <Lit_Chars api>)
+      (w <Lit_Chars --method>)
+      (w <Lit_Chars POST>)
+      (w (DQ <Lit_Chars repos/> ($ source_name) <Lit_Chars /transfer>))
+      (w <Lit_Chars -f>)
+      (w (DQ <Lit_Chars "new_owner="> ($ canonical_organization)))
+      (w <Lit_Chars --silent>)
+    )
+    (VarDecl
+      keyword:<KW_Var var>
+      lhs:[(NameType left:<Expr_Name index> name:index)]
+      rhs:(Const Expr_DecInt _)
+    )
+    (command.WhileUntil
+      keyword:<KW_While while>
+      cond:(condition.YshExpr
+        e:(expr.Compare
+          left:(Var index)
+          ops:[<Arith_Less "<">]
+          comparators:[(Const Expr_DecInt _)]
+        )
+      )
+      body:(BraceGroup
+        left:<Lit_LBrace "{">
+        children:[
+          (command.Simple
+            blame_tok:<Lit_Chars try>
+            more_env:[]
+            words:[(w <Lit_Chars try>)]
+            block:(LiteralBlock
+              brace_group:(BraceGroup
+                left:<Lit_LBrace "{">
+                children:[
+                  (C
+                    (w <Lit_Chars read_destination>)
+                    (w (DQ <Lit_Chars verify-> ($ index)))
+                  )
+                ]
+                right:<Lit_RBrace "}">
+              )
+              code_str:"          read_destination \"verify-$index\" "
+            )
+            is_last_cmd:F
+          )
+          (command.If
+            if_kw:<KW_If if>
+            arms:[
+              (IfArm
+                keyword:...0x6442
+                cond:(condition.YshExpr
+                  e:(expr.Compare
+                    left:(Attribute
+                      obj:(Var _error)
+                      op:<Expr_Dot .>
+                      attr:<Expr_Name code>
+                      attr_name:code
+                      ctx:expr_context.Store
+                    )
+                    ops:[<Expr_TEqual "===">]
+                    comparators:[(Const Expr_DecInt _)]
+                  )
+                )
+                action:[
+                  (C
+                    (w <Lit_Chars printf>)
+                    (w
+                      (SQ
+                        "status=verified\\naction=transferred\\nrepository_id=%s\\nrepository_url=https://github.com/%s\\nupstream=%s\\nevidence=%s\\n"
+                      )
+                    )
+                    (w (DQ ($ expected_id)))
+                    (w (DQ ($ destination)))
+                    (w (DQ ($ expected_upstream)))
+                    (w (DQ ($ attempt)))
+                  )
+                  (command.ControlFlow
+                    keyword:<ControlFlow_Exit exit>
+                    arg_word:(w <Lit_Number 0>)
+                  )
+                ]
+              )
+            ]
+            else_action:[]
+          )
+          (Mutation
+            keyword:<KW_SetVar setvar>
+            lhs:[<Expr_Name index>]
+            op:<Arith_PlusEqual "+=">
+            rhs:(Const Expr_DecInt _)
+          )
+          (command.If
+            if_kw:<KW_If if>
+            arms:[
+              (IfArm
+                keyword:...0x617e
+                cond:(condition.YshExpr
+                  e:(expr.Compare
+                    left:(Var index)
+                    ops:[<Arith_Less "<">]
+                    comparators:[(Const Expr_DecInt _)]
+                  )
+                )
+                action:[(C (w <Lit_Chars sleep>) (w <Lit_Number 2>))]
+              )
+            ]
+            else_action:[]
+          )
+        ]
+        right:<Lit_RBrace "}">
+      )
+    )
+    (C
+      (w <Lit_Chars fail>)
+      (w
+        (SQ
+          "transfer attempted but convergence is unverified; rerun may verify, never POST again"
+        )
+      )
+    )
+  ]
+)

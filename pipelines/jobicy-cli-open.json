@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "jobicy-cli-open",
+  "description": "Open SUN JOBICY-CLI-01 before implementation; retain the human assignment digest and observed build-host identity.",
+  "required_stages": ["job-envelope", "host-identity"],
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/jobicy-cli/SUN-JOBICY-CLI-01.txt"],"cwd":"."},
+    {"kind":"command","name":"host-identity","argv":["uname","-srm"],"cwd":"."}
+  ]
+}

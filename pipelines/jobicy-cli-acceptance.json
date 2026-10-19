@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "jobicy-cli-acceptance",
+  "description": "SUN JOBICY-CLI-01: Kitchen builds, installs and verifies the exact Idriç Jobicy source, independently builds ai-ci through ICK, rejects a status mutant, and separately attempts a real public provider request.",
+  "parameters": {
+    "grease":{"required":true,"pattern":"/[^\\n]+"},
+    "environment":{"required":true,"pattern":"/[^\\n]+\\.grease"},
+    "cli-root":{"required":true,"pattern":"/[^\\n]+"},
+    "cli-head":{"required":true,"pattern":"[0-9a-f]{40}"},
+    "program":{"required":true,"pattern":"/[^\\n]+/jobicy"},
+    "install-prefix-argument":{"required":true,"pattern":"PREFIX=/[^\\n]+"},
+    "kitchen-task":{"required":true,"pattern":"/[^\\n]+/tasks/jobicy-cli/accept\\.grease"},
+    "kitchen-live-task":{"required":true,"pattern":"/[^\\n]+/tasks/jobicy-cli/live\\.grease"},
+    "kitchen-head":{"required":true,"pattern":"[0-9a-f]{40}"},
+    "aici-root":{"required":true,"pattern":"/[^\\n]+"},
+    "aici-source":{"required":true,"pattern":"/[^\\n]+/src/aici\\.c"},
+    "aici-head":{"required":true,"pattern":"[0-9a-f]{40}"},
+    "aici":{"required":true,"pattern":"/[^\\n]+"},
+    "ick":{"required":true,"pattern":"/[^\\n]+/ick"},
+    "icu-test-source":{"required":true,"pattern":"/[^\\n]+/tests/RedirectPolicyTests\\.c"},
+    "icu-test-program":{"required":true,"pattern":"/[^\\n]+"},
+    "live-evidence":{"required":true,"pattern":"/[^\\n]+"}
+  },
+  "required_stages":["job-envelope","environment-identity","kitchen-build","kitchen-install","independent-verifier-build","icu-proxy-test-build","icu-proxy-test","installed-acceptance","live-provider"],
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/jobicy-cli/SUN-JOBICY-CLI-01.txt"],"cwd":"."},
+    {"kind":"command","name":"environment-identity","argv":["sha256sum","{{environment}}"],"cwd":"."},
+    {"kind":"command","name":"kitchen-build","argv":["{{grease}}","{{environment}}","/usr/bin/make","-C","{{cli-root}}","jobicy"],"cwd":"."},
+    {"kind":"command","name":"kitchen-install","argv":["{{grease}}","{{environment}}","/usr/bin/make","-C","{{cli-root}}","install-jobicy","{{install-prefix-argument}}"],"cwd":"."},
+    {"kind":"command","name":"independent-verifier-build","argv":["{{ick}}","-fno-link-libatomic","-B/usr/lib/gcc/x86_64-linux-gnu/13/","-static-libgcc","-std=c17","-Wall","-Wextra","-Werror","-pedantic","-O2","{{aici-source}}","-o","{{aici}}"],"cwd":"."},
+    {"kind":"command","name":"icu-proxy-test-build","argv":["{{ick}}","-fno-link-libatomic","-B/usr/lib/gcc/x86_64-linux-gnu/13/","-static-libgcc","-std=c11","-Wall","-Wextra","-Werror","-O2","{{icu-test-source}}","-o","{{icu-test-program}}","-lssl","-lcrypto"],"cwd":"."},
+    {"kind":"command","name":"icu-proxy-test","argv":["{{icu-test-program}}"],"cwd":"."},
+    {"kind":"command","name":"installed-acceptance","argv":["{{grease}}","{{environment}}","{{grease}}","{{kitchen-task}}","{{cli-root}}","{{cli-head}}","{{program}}","{{grease}}","{{aici-root}}","{{aici-head}}","{{aici}}","{{kitchen-head}}"],"cwd":"."},
+    {"kind":"command","name":"live-provider","argv":["{{grease}}","{{environment}}","{{grease}}","{{kitchen-live-task}}","{{program}}","{{live-evidence}}"],"cwd":"."}
+  ]
+}

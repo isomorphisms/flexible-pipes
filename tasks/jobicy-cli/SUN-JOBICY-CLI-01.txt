@@ -1,0 +1,199 @@
+SUN JOBICY-CLI-01 — Deliver a Working Jobicy CLI
+
+Model: SUN — extra-high reasoning
+Primary repository: "dilapidated-shed/idric-cli"
+Starting branch: "cli"
+Original research: "Ashtray-Archer/az", branch "jobicy-api"
+Control plane: "isomorphisms/flexible-pipes"
+Build execution: "isomorphisms/kitchen", ICK
+Independent acceptance: "isomorphisms/ai-ci"
+Language: Idriç
+
+Objective
+
+Turn the existing Jobicy API research into an installable, executable, tested Idriç command-line application.
+
+Deliver real remote-job searches, actual job descriptions, cursor pagination, and posting-status checks.
+
+Do not deliver another API inventory, simulated successful search, or source file containing unresolved implementation holes.
+
+1. Recover existing work
+
+Read instructions, branches, PRs, issues, and existing acceptance records from all relevant repositories.
+
+Recover:
+
+- The "az" Jobicy API documentation.
+- Existing "idric-cli" conventions and installation machinery.
+- Indeed CLI PR #8, particularly its working Idriç/ICU transport, compilation, installation, and tests.
+- Current compiler, JSON, ICU, ICK, Kitchen, Flexible Pipes, and ai-ci interfaces.
+
+Reuse verified common infrastructure without copying service-specific code unnecessarily.
+
+Do not overwrite or merge unrelated work.
+
+2. Verify the current API
+
+Official documentation:
+
+- https://jobicy.com/jobs-rss-feed
+- https://jobicy.com/api/openapi.json
+
+The documented public endpoint is:
+
+"GET https://jobicy.com/api/v2/remote-jobs"
+
+Implement its supported parameters:
+
+- "count": 1–200 jobs per page.
+- "geo": geographic eligibility.
+- "industry": job category.
+- "tag": keyword.
+- "cursor": opaque pagination token.
+
+The current API also documents:
+
+- "nextCursor" and "hasMore".
+- "?get=locations" and "?get=industries".
+- "/api/v2/remote-jobs/status?ids=..." for batch status checks.
+
+Refresh the older notes against the actual OpenAPI specification. Record the specification version and digest.
+
+The public API requires no credentials. Do not activate paid commercial API features or consume paid application-link credits.
+
+3. Implement the program
+
+Required executable: "jobicy".
+
+Required command surface:
+
+jobicy help
+jobicy version
+jobicy doctor
+
+jobicy locations
+jobicy industries
+
+jobicy url --count 20 --geo usa --tag mathematics
+jobicy search --count 20 --geo usa --tag mathematics
+jobicy search --geo usa --industry engineering
+
+jobicy search --geo usa --all
+jobicy status 123456 123457
+
+jobicy fixture FILE
+
+"--all" must traverse sequential cursor pages with a documented safety bound. It must not run an unbounded request loop.
+
+Provide TSV and JSONL output. Both must be suitable for downstream programs.
+
+Each job record must preserve:
+
+- Exact Jobicy job ID.
+- Employer and title.
+- Geographic eligibility and employment type.
+- Seniority and industry.
+- Publication timestamp.
+- Salary bounds, currency, and period when supplied.
+- Canonical Jobicy source URL.
+- Original job description, without silently discarding substantive text.
+- Source and observation provenance.
+
+Do not invent missing salary information or treat remote work as permission to work from any country.
+
+Keep full descriptions available for later mathematical-proof employment research.
+
+4. Correct pagination and status
+
+Implement actual cursor traversal.
+
+- Preserve filters across pages.
+- Treat cursors as opaque.
+- Deduplicate by exact job ID.
+- Detect repeated cursors and inconsistent pagination.
+- Distinguish an empty successful response from an API failure.
+- Do not interpret a partial traversal as the complete feed.
+
+Jobicy's public feed covers a limited recent publication window. It is not a nationwide employment census.
+
+Implement status checks using the documented batch endpoint.
+
+Preserve the distinctions:
+
+"active ≠ closed ≠ unknown"
+
+Disappearance from the recent feed does not prove that a posting closed.
+
+Respect provider limits, caching guidance, and throttling responses. Automated synchronization must not start more frequently than permitted by the provider.
+
+5. Compile and install
+
+Idriç owns command parsing, request meaning, JSON decoding, validation, and output.
+
+ICU/Idric-Net owns networking. ICK owns the maintained applicable native build stage.
+
+Do not add a Python, JavaScript, curl, or C++ substitute implementation.
+
+Provide reproducible build commands and an actual install target, such as:
+
+make jobicy
+make install-jobicy
+make jobicy-test
+
+Use Kitchen to preflight the real host and dependencies.
+
+Test the installed command from outside the repository, not just a source-tree invocation.
+
+Prioritize MIRO A1 ARM32/Termux qualification where accessible. Record C67 ARM64 separately. Do not claim physical-device acceptance from Linux-only results.
+
+6. Acceptance tests
+
+Require actual executed tests for:
+
+1. Arguments, options, URI encoding, and Unicode.
+2. JSON decoding, optional fields, and exact IDs.
+3. Full descriptions containing HTML, entities, tabs, and newlines.
+4. First, intermediate, final, empty, and malformed pagination responses.
+5. Repeated IDs and cursors.
+6. Status responses: active, closed, unknown.
+7. HTTP rejection, throttling, failed transport, and invalid JSON.
+8. Actual executable installation and execution outside the checkout.
+
+Use synthetic fixtures for deterministic regression tests, but do not confuse them with provider evidence.
+
+A real live Jobicy API request is mandatory for full host acceptance.
+
+Record the request parameters, response schema/version, retrieval timestamp, actual exit status, actual output, and sanitized response evidence.
+
+If the provider is unreachable, mark live acceptance BLOCKED or NOT_RUN rather than manufacturing a pass.
+
+Add an independent ai-ci oracle and a deliberately incorrect mutant that the acceptance gate must reject.
+
+7. Flexible Pipes closure
+
+The work must originate in a Flexible Pipes job envelope and close with source-bound receipts.
+
+Kitchen must own the actual repeatable build and test commands.
+
+The final receipt must identify:
+
+- Exact source and dependency revisions.
+- Compiler and native build toolchain.
+- Executed tests and their outcomes.
+- Installed artifact.
+- Live-provider evidence.
+- Known limitations and unexecuted targets.
+
+Update the relevant old research records so documentation-only checkpoints are not still described as unfinished after their obligations are actually satisfied.
+
+Deliverables
+
+Commit the complete implementation, tests, build/install procedure, fixtures, and receipts to appropriate repositories.
+
+Create a reviewable implementation PR.
+
+Provide the PR title and URL, exact revision, complete test results, and several actual observed Jobicy job records or an explicitly verified empty result.
+
+Completion requires a real executable. Research, planning, and synthetic tests alone are insufficient.
+
+Do not begin USAJobs or another provider as a substitute for finishing this bounded Jobicy assignment.
