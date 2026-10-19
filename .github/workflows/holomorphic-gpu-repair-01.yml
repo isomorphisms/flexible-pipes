@@ -223,12 +223,15 @@ jobs:
           set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
+          _holomorphic/runtime/ysh _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-source-identity.grease \
+              "$workspace/_holomorphic/idric" "$workspace/_holomorphic/backend" \
+              "$workspace/_holomorphic/source-identity-fixtures"
           _holomorphic/runtime/ysh _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-admission.grease \
               "$workspace/_holomorphic/runtime/ysh" \
-              "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease" \
+              "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/6.grease" \
               "$workspace/_holomorphic/run" "$workspace/_holomorphic/admission-fixtures"
           "$python" scripts/run-pipeline holomorphic-gpu-repair-01 \
-              --param "kitchen_recipe=$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease" \
+              --param "kitchen_recipe=$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/6.grease" \
               --param "context=$workspace/_holomorphic/run"
 
       - name: Publish the actually generated and natively checked fragment
@@ -250,6 +253,8 @@ jobs:
             .flexible-pipes/runs/holomorphic-gpu-repair-01-*/
             _holomorphic/run/
             _holomorphic/admission-fixtures/
+            _holomorphic/source-identity-fixtures/*.log
+            _holomorphic/source-identity-fixtures/*.tsv
             _holomorphic/inline-grease-check/
           include-hidden-files: true
           if-no-files-found: warn

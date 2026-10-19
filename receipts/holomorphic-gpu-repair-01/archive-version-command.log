@@ -1,0 +1,4 @@
+echo "-- @""generated" > src/IdrisPaths.idr
+echo 'module IdrisPaths' >> src/IdrisPaths.idr
+echo 'export idrisVersion : ((Nat,Nat,Nat), String); idrisVersion = ((0,8,0), "69d3b6c9e")' >> src/IdrisPaths.idr
+echo 'export yprefix : String; yprefix="/root/.idris2"' >> src/IdrisPaths.idr

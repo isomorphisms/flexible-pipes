@@ -3,7 +3,7 @@
   "name": "holomorphic-gpu-repair-01",
   "description": "Existing HOLO-GPU-REPAIR-01 envelope: genuine host math/checker execution through Kitchen/Grease/Ike; fail closed at unavailable generated/physical boundaries.",
   "parameters": {
-    "kitchen_recipe": { "required": true, "pattern": "/.+/tasks/holomorphic-gpu-repair/5\\.grease" },
+    "kitchen_recipe": { "required": true, "pattern": "/.+/tasks/holomorphic-gpu-repair/6\\.grease" },
     "context": { "required": true, "pattern": "/.+" }
   },
   "required_stages": ["job-envelope", "source-preflight", "retained-oracle", "independent-checker", "producer-field", "independent-field", "compiler-bootstrap", "compiler-api", "generated-compiler", "generated-binding"],

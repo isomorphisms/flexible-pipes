@@ -8,7 +8,7 @@ case "$context" in /*) ;; *) exit 2 ;; esac
 test "$root" = "$(realpath -- "$root")"
 test ! -e "$context"
 var sources = "$root/_holomorphic"
-var recipe = "$sources/kitchen/tasks/holomorphic-gpu-repair/5.grease"
+var recipe = "$sources/kitchen/tasks/holomorphic-gpu-repair/6.grease"
 var application = get(ENV, 'HOLOMORPHIC_APP_ROOT', "$sources/holomorphic")
 var application_expected = get(ENV, 'HOLOMORPHIC_EXPECTED_APPLICATION_COMMIT', '')
 var compiler = ENV.HOLOMORPHIC_ICK_HOST
@@ -55,6 +55,7 @@ printf 'ick\t%s\t%s\n' "$compiler" "$(sha256sum "$compiler" | cut -d ' ' -f1)" >
 printf 'host-linker\t%s\t%s\n' "$linker" "$(sha256sum "$linker" | cut -d ' ' -f1)" >> "$context/tools.tsv"
 printf 'shader-validator\t%s\t%s\n' "$validator" "$(sha256sum "$validator" | cut -d ' ' -f1)" >> "$context/tools.tsv"
 sha256sum "$recipe" "$sources/kitchen/tasks/holomorphic-gpu-repair/Ikefile" \
+    "$sources/kitchen/tasks/holomorphic-gpu-repair/test-source-identity.grease" \
     "$context/sources.tsv" "$context/tools.tsv" \
     "$application/_/oracle/meromorphic_divisor_oracle.py" \
     "$application/_/oracle/test_meromorphic_divisor_oracle.py" \
