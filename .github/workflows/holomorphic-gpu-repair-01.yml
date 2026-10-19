@@ -1,7 +1,22 @@
 name: Registered Holomorphic GPU repair qualification
 
 on:
+  workflow_call:
+    inputs:
+      control-head:
+        description: Exact immutable Flexible Pipes control commit
+        required: true
+        type: string
+      application-head:
+        description: Exact immutable Holomorphic application commit
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      application-head:
+        description: Optional exact Holomorphic commit instead of the reviewed default pin
+        required: false
+        type: string
   pull_request:
     paths:
       - 'pipelines/holomorphic-gpu-repair-01.json'
@@ -19,11 +34,14 @@ jobs:
     timeout-minutes: 120
     env:
       ASAN_OPTIONS: detect_leaks=0
+      HOLOMORPHIC_CONTROL_HEAD: ${{ inputs.control-head || github.event.pull_request.head.sha || github.sha }}
+      HOLOMORPHIC_APPLICATION_HEAD: ${{ inputs.application-head }}
     steps:
       - name: Check out exact Flexible Pipes head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: isomorphisms/flexible-pipes
+          ref: ${{ inputs.control-head || github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       # Narrow stage-zero boundary: Grease cannot acquire itself. Product,
@@ -46,8 +64,15 @@ jobs:
         shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
         run: |
           set -o errexit -o nounset -o pipefail
-          for role in holomorphic aici shader-backend kitchen ike ithon {
+          var control = ENV.HOLOMORPHIC_CONTROL_HEAD
+          printf '%s\n' "$control" | grep -Eq '^[0-9a-f]{40}$'
+          test "$(git rev-parse HEAD)" = "$control"
+          var application = ENV.HOLOMORPHIC_APPLICATION_HEAD
+          for role in holomorphic aici shader-backend kitchen ike ithon idric {
               var hash = "$(awk -F '\t' -v key="$role" '$1 == key { print $2 }' tasks/holomorphic-gpu-repair/source-pins.tsv)"
+              if (role === 'holomorphic') {
+                  if (application !== '') { setvar hash = application }
+              }
               printf '%s\n' "$hash" | grep -Eq '^[0-9a-f]{40}$'
               printf '%s=%s\n' "$role" "$hash" >> "$[ENV.GITHUB_OUTPUT]"
           }
@@ -66,12 +91,19 @@ jobs:
           ref: ${{ steps.pins.outputs.aici }}
           path: _holomorphic/aici
           persist-credentials: false
-      - name: Materialize the retained checked-shader compiler pin
+      - name: Materialize the reconciled checked-shader compiler pin
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: fuego-ironworks/idris-shader-backend
           ref: ${{ steps.pins.outputs['shader-backend'] }}
           path: _holomorphic/backend
+          persist-credentials: false
+      - name: Materialize the matching pinned Idriç compiler API
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/Idric
+          ref: ${{ steps.pins.outputs.idric }}
+          path: _holomorphic/idric
           persist-credentials: false
       - name: Materialize reviewed Kitchen candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -99,10 +131,54 @@ jobs:
         id: ick
         uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
 
+      - name: Preserve the qualified native compiler before consumer stages
+        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        env:
+          HOLOMORPHIC_ICK_HOST: ${{ steps.ick.outputs.compiler }}
+        run: |
+          set -o errexit -o nounset -o pipefail
+          var compiler = ENV.HOLOMORPHIC_ICK_HOST
+          var compiler_stage = "$(dirname -- "$(dirname -- "$compiler")")"
+          test -x "$compiler"
+          test "$compiler" = "$[ENV.RUNNER_TEMP]/ick-host-stage/bin/gcc"
+          test "$("$compiler" -dumpmachine)" = x86_64-pc-linux-gnu
+          var frontend = "$(realpath -- "$("$compiler" -print-prog-name=cc1)")"
+          case "$frontend" in "$compiler_stage"/*) ;; *) echo 'ICK frontend escaped the qualified native stage' >&2; exit 1 ;; esac
+          test -x "$frontend"
+          test -s "$compiler_stage/host-runtime-packages.tsv"
+          test -s "$compiler_stage/host-runtime.sha256"
+          "$compiler_stage/qualification/glyphs-O0"
+          "$compiler_stage/qualification/glyphs-O2"
+          mkdir -p _holomorphic/qualified-ick-host
+          tar -C "$compiler_stage" -czf _holomorphic/qualified-ick-host/ick-host-stage.tar.gz .
+          tar -tzf _holomorphic/qualified-ick-host/ick-host-stage.tar.gz > _holomorphic/qualified-ick-host/archive-contents.txt
+          grep -Fxq './bin/gcc' _holomorphic/qualified-ick-host/archive-contents.txt
+          grep -Fxq './qualification/glyphs-O0' _holomorphic/qualified-ick-host/archive-contents.txt
+          grep -Fxq './qualification/glyphs-O2' _holomorphic/qualified-ick-host/archive-contents.txt
+          sha256sum _holomorphic/qualified-ick-host/ick-host-stage.tar.gz > _holomorphic/qualified-ick-host/archive.sha256
+          printf 'schema\tqualified-ick-host-material-v1\nsource\tc61e448251744a2f40ad743ebef1a027bdcd2f9d\nprovider\tisomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8\nqualification\tprovider-step-completed-successfully\ntarget\tlinux-x86_64\n' > _holomorphic/qualified-ick-host/material.tsv
+          sha256sum "$compiler" "$frontend" "$compiler_stage/qualification/glyphs-O0" "$compiler_stage/qualification/glyphs-O2" > _holomorphic/qualified-ick-host/native-materials.sha256
+
+      - name: Upload the qualified ICK bundle immediately
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: holomorphic-qualified-ick-host
+          path: _holomorphic/qualified-ick-host/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Install the declared checked-shader bootstrap dependencies
+        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        run: |
+          set -o errexit -o nounset -o pipefail
+          sudo apt-get update
+          sudo apt-get install --yes chezscheme glslang-tools libgmp-dev
+
       - name: Prepare digest-bound host materials and ICK-built Ike
         shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
         env:
           HOLOMORPHIC_ICK_HOST: ${{ steps.ick.outputs.compiler }}
+          HOLOMORPHIC_EXPECTED_APPLICATION_COMMIT: ${{ steps.pins.outputs.holomorphic }}
         run: |
           set -o errexit -o nounset -o pipefail
           var workspace = ENV.GITHUB_WORKSPACE
@@ -118,11 +194,21 @@ jobs:
           var workspace = ENV.GITHUB_WORKSPACE
           _holomorphic/runtime/ysh _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-admission.grease \
               "$workspace/_holomorphic/runtime/ysh" \
-              "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/4.grease" \
+              "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease" \
               "$workspace/_holomorphic/run" "$workspace/_holomorphic/admission-fixtures"
           "$python" scripts/run-pipeline holomorphic-gpu-repair-01 \
-              --param "kitchen_recipe=$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/4.grease" \
+              --param "kitchen_recipe=$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease" \
               --param "context=$workspace/_holomorphic/run"
+
+      - name: Publish the actually generated and natively checked fragment
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: checked-idris-holomorphic-fragment
+          path: |
+            _holomorphic/run/output/generated/continuation.frag
+            _holomorphic/run/output/generated/continuation.provenance
+            _holomorphic/run/output/generated/binding/holomorphic_shader_binding.h
+          if-no-files-found: error
 
       - name: Preserve true receipts and boundary-specific classifications
         if: always()
