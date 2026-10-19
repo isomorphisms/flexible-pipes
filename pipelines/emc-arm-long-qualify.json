@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "emc-arm-long-qualify",
+  "description": "Exact-head Idriç parser build and binary tests through Kitchen and pinned Ike. Independent semantic acceptance remains separate.",
+  "parameters": {
+    "grease":{"required":true,"pattern":"/[^\\n]+"},
+    "kitchen-task":{"required":true,"pattern":"/[^\\n]+/tasks/emc-arm-long/3\\.grease"},
+    "source":{"required":true,"pattern":"/[^\\n]+"},
+    "source-head":{"required":true,"pattern":"[0-9a-f]{40}"},
+    "compiler":{"required":true,"pattern":"/[^\\n]+"},
+    "ike":{"required":true,"pattern":"/[^\\n]+"},
+    "ike-source":{"required":true,"pattern":"/[^\\n]+"},
+    "evidence":{"required":true,"pattern":"/[^\\n]+"}
+  },
+  "required_stages":["job-envelope","kitchen-ike-binary-tests"],
+  "stages":[
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/emc-arm-long/SUN-EMC-ARM-LONG-01.txt"],"cwd":"."},
+    {"kind":"command","name":"kitchen-ike-binary-tests","argv":["{{grease}}","{{kitchen-task}}","{{source}}","{{source-head}}","{{compiler}}","{{ike}}","{{ike-source}}","{{grease}}","{{evidence}}"],"cwd":"."}
+  ]
+}
