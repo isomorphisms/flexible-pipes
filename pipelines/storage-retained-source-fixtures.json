@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "storage-retained-source-fixtures",
+  "required_stages": ["qualify-retained-source", "validate-receipt"],
+  "stages": [
+    {"kind": "command", "name": "qualify-retained-source", "argv": ["grease", "scripts/storage-source-stage.grease", "execute"]},
+    {"kind": "command", "name": "validate-receipt", "argv": ["grease", "scripts/storage-source-stage.grease", "verify"]}
+  ]
+}

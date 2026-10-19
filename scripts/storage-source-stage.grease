@@ -1,0 +1,25 @@
+#!/usr/bin/env grease
+set -eu
+runner=${GREASE:?verified Grease runtime required}
+kitchen=${STORAGE_KITCHEN_ROOT:?explicit Kitchen checkout required}
+aici=${STORAGE_AICI_ROOT:?explicit AICI checkout required}
+revision=${STORAGE_IB_REVISION:?exact IB commit required}
+output=${STORAGE_RECEIPT_DIR:?explicit unused receipt directory required}
+for path in "$runner" "$kitchen" "$aici" "$output"; do
+ case $path in /*) ;; *) printf 'storage stage needs absolute host inputs\n' >&2; exit 2 ;; esac
+done
+test "$(git -C "$kitchen" rev-parse HEAD)" = "${STORAGE_KITCHEN_REVISION:?exact Kitchen commit required}"
+test "$(git -C "$aici" rev-parse HEAD)" = "${STORAGE_AICI_REVISION:?exact AICI commit required}"
+test "$(git -C "$kitchen" remote get-url origin)" = https://github.com/isomorphisms/kitchen.git
+test "$(git -C "$aici" remote get-url origin)" = https://github.com/isomorphisms/ai-ci.git
+for file in tasks/storage-source-fixtures/1.grease; do
+ test "$(git -C "$kitchen" rev-parse "HEAD:$file")" = "$(git -C "$kitchen" hash-object "$kitchen/$file")"
+done
+for file in storage/verify-fixture.grease; do
+ test "$(git -C "$aici" rev-parse "HEAD:$file")" = "$(git -C "$aici" hash-object "$aici/$file")"
+done
+case ${1:-} in
+ execute) "$runner" "$kitchen/tasks/storage-source-fixtures/1.grease" ;;
+ verify) "$runner" "$aici/storage/verify-fixture.grease" "$output" "$revision" "$(sha256sum "$runner" | cut -d ' ' -f 1)" ;;
+ *) printf 'usage: storage-source-stage {execute|verify}\n' >&2; exit 2 ;;
+esac
