@@ -1,0 +1,6 @@
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/provider.c:320:    return provider_request_body_for(PROVIDER_CHAT_COMPLETIONS, model, prompt, length, body, capacity, written);
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/provider.c:322:Result provider_request_body_for(ProviderRequestFormat format, const char *model, const char *prompt,
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/provider.c:325:    if (format != PROVIDER_CHAT_COMPLETIONS && format != PROVIDER_RESPONSES) return FC_REJECTED;
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/provider.c:332:    int count ← snprintf(body, capacity, format == PROVIDER_RESPONSES
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/provider.c:348:    const char *suffix ← format == PROVIDER_RESPONSES ? "\"}" : "\"}]}";
+410ce85df1eebc06c01768bbc0084ce6292c65c2:src/transport_boundary.c:17:    Result result ← provider_request_body_for(boundary->request_format, model, conversation->prompt, conversation->prompt_length, body, sizeof(body), &length);

@@ -1,0 +1,170 @@
+{
+  "finished_at": "2026-10-18T13:02:57.845017+00:00",
+  "github_sha_declared": null,
+  "handoff_stage": "controller-assignment",
+  "parameters": {
+    "fastchat": "/workspace/scratch/fcea613d2920/fastchat"
+  },
+  "pipeline": "fc-control-01-handoff",
+  "pipeline_path": "pipelines/fc-control-01-handoff.json",
+  "pipeline_sha256": "086c98f3f9cdfb5ace8e7063352a9e68c799b29a364e2956598b2897c3674f7c",
+  "repository_commit": "c135d6c3c2594d50eb5bbd7a0ed3746ad053b3c2",
+  "response_artifact": "/workspace/scratch/fcea613d2920/flexible-pipes/.flexible-pipes/repeat/fc-control-01-handoff-20261018T130257.757088Z/07-controller-assignment/stage.json.response.txt",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/fc-control-01/assignment.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.761651+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-18T13:02:57.759878+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "0b63e37f78d4956e3d05f21855e94b2683cefab1c9714bb2a7b673f6f9f1e68e"
+    },
+    {
+      "argv": [
+        "cat",
+        "tasks/fc-control-01/source-pins.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.763026+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "source-pins",
+      "started_at": "2026-10-18T13:02:57.761708+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "36e5824fb8c42803be7ba258b9d9389cfc03de625fd7a2539783f7899ee6e581"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/fcea613d2920/fastchat",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.764683+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "fastchat-head",
+      "started_at": "2026-10-18T13:02:57.763074+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "94c23e63aea3a106a1c9b6d66cfccdf39ebd8b9561ae58a30b8f0bdbf0c64b71"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/fcea613d2920/fastchat",
+        "grep",
+        "-n",
+        "-e",
+        "provider_request_body_for",
+        "-e",
+        "conversation->prompt",
+        "-e",
+        "PROVIDER_RESPONSES",
+        "410ce85df1eebc06c01768bbc0084ce6292c65c2",
+        "--",
+        "src/provider.c",
+        "src/transport_boundary.c"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.767749+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "single-turn-request-evidence",
+      "started_at": "2026-10-18T13:02:57.764721+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "89a7ff3b2fba3d7c775b9d360e85a61cc78c6d79af46ede24a6621b79ba9b2cd"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/fcea613d2920/fastchat",
+        "show",
+        "410ce85df1eebc06c01768bbc0084ce6292c65c2:src/conversation.h"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.769529+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "history-interface-evidence",
+      "started_at": "2026-10-18T13:02:57.767800+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5bf4bde3b057aee4a4541c24bdbdc232d78c59a0f8f67ea20a42ec5848b1b2fa"
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "181c6011956a39454fd8b018380c2ea54f0ab8e7:docs/job-delivery.md"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.771498+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "fp-handoff-gate",
+      "started_at": "2026-10-18T13:02:57.769573+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c7f8f803394a95fa9f6fa1ea9dde91df671f19e7e270e1a418afc1bbbd92cab3"
+    },
+    {
+      "argv": [
+        "cat",
+        "tasks/fc-control-01/assignment.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-18T13:02:57.772591+00:00",
+      "handoff": {
+        "audience": "Sun",
+        "contract_sha256": "3b13004a3c1f92e0cbd07c2067d77f321c90470e97704f974f88db7aa4197526",
+        "delivery_mode": "display-only",
+        "dispatch_state": "NOT_REQUESTED",
+        "events": [],
+        "execution_target": "Read-only disposable Linux source inspection and handoff composition. SDF.org service, model execution, credentials, production dispatch and physical devices are unverified.",
+        "id": "79b7e4d84593bdf50e4c08fb2ecaf8258a5fe8c6d3f96cec7c923195757bcf18",
+        "model": "SUN, extra-high reasoning",
+        "payload_sha256": "c97ce4c2f2b459134c41d803cf0c7fc0005e9850b90d5464810c25a3a1084c8f",
+        "payload_size": 6914,
+        "request": {
+          "delivery_mode": "display-only",
+          "id": "FC-CONTROL-01",
+          "source": "human",
+          "text": "Fc-control-01"
+        },
+        "source_context": "https://github.com/isomorphisms/flexible-pipes/issues/223; exact original assignment and source-pins.tsv in tasks/fc-control-01. FC-UI-01 is separate.",
+        "version": 1,
+        "visible_state": "PENDING"
+      },
+      "index": 7,
+      "kind": "command",
+      "name": "controller-assignment",
+      "started_at": "2026-10-18T13:02:57.771542+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c97ce4c2f2b459134c41d803cf0c7fc0005e9850b90d5464810c25a3a1084c8f"
+    }
+  ],
+  "started_at": "2026-10-18T13:02:57.759793+00:00",
+  "status": "AWAITING_HANDOFF_DELIVERY"
+}
