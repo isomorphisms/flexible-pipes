@@ -41,7 +41,7 @@
     },
     "kitchen-task": {
       "required": true,
-      "pattern": "/[^\\n]+/amazon-jobs-cli/1\\.grease"
+      "pattern": "/[^\\n]+/amazon-jobs-cli/2\\.grease"
     },
     "cli-head": {
       "required": true,
