@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "operation": "holomorphic-gpu-repair-01",
+  "operation_version": "1",
+  "pipeline": "pipelines/holomorphic-gpu-repair-01.json",
+  "origin": "https://github.com/isomorphisms/flexible-pipes/issues/227",
+  "target_context": "linux-x86_64-build-host",
+  "kitchen_recipe": "tasks/holomorphic-gpu-repair/4.grease",
+  "input_contract": ["sources.tsv", "tools.tsv", "materials.sha256"],
+  "outputs": ["preflight.tsv", "classifications.tsv", "retained-oracle.ike.tsv", "independent-checker.ike.tsv", "producer-field.ike.tsv", "blocker.tsv"],
+  "authority": "host-math-and-independent-checker-qualification",
+  "generated_compiler": "NOT_RUN",
+  "apk": "NOT_RUN",
+  "emulator": "NOT_RUN",
+  "physical_A1_GE8322": "NOT_RUN",
+  "physical_C67_GE8320": "NOT_RUN",
+  "physical_TAB_P10_Mali_G57": "NOT_RUN",
+  "sustained_performance": "NOT_RUN"
+}

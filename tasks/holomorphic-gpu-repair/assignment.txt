@@ -1,0 +1,16 @@
+SUN HOLO-GPU-REPAIR-01
+Existing envelope: https://github.com/isomorphisms/flexible-pipes/issues/227
+Owner: isomorphismes/holomorphic
+Compiler: fuego-ironworks/idris-shader-backend
+Independent acceptance: isomorphisms/ai-ci
+
+This concrete host pipeline executes retained mathematical reference tests,
+independent checker selftests and genuine producer-field checks through
+Flexible Pipes -> Kitchen/Grease -> Ike. It stops at the first missing real
+compiler or generated execution prerequisite. It never substitutes a fixture,
+handwritten shader or generic compiler for the requested mechanism.
+
+Host reference, checker qualification, native E1 preprocessing, generated
+compiler, APK, emulator, each physical GPU and sustained performance remain
+separate classifications. The generated shader/API boundary cannot inherit
+PASS from this host oracle. Physical correctness issues #53/#54 stay open.
