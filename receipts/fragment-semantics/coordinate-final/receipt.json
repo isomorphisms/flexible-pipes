@@ -1,0 +1,235 @@
+{
+  "finished_at": "2026-10-14T04:47:55.449949+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "fragment-coordinate-acceptance",
+  "pipeline_path": "pipelines/fragment-coordinate-acceptance.json",
+  "pipeline_sha256": "2ea243d381e7bdeae47edf02ac4cf4cf0d10b436624cd9d2bfb95c9d918a312c",
+  "repository_commit": "9fcb2ec270bc543b3248437af6034e299eaa0225",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-source-identity.grease"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:44:34.538213+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "material-source-identity",
+      "started_at": "2026-10-14T04:44:34.379892+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "73441f187f2f0d673d6a523150cbe761f2e8395cd525edd72ecef04d259e6d29"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/fragment-semantics/assignment.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:44:34.540402+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T04:44:34.538292+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "620ae80863983b445a2414c13fc6eb6a2f55ca1a4105ef4ae23f5133c45c6d1e"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "env",
+        "IKE_IKEFILE_IDENTITY=sha256:7af0b1852253a87089b451ca8f869e153c7fa4746a5eb9228cc05cee4fb8ade2",
+        "/workspace/scratch/3e1c4c6b7433/ike/ike",
+        "coordinate-pairing"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:46:07.304814+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "coordinate-emission",
+      "started_at": "2026-10-14T04:44:34.540450+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "29f9ad6b0d419becb2f1ebeb99b05997fe4e0909501f716e2a100271807bcd3c"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "env",
+        "IKE_IKEFILE_IDENTITY=sha256:7af0b1852253a87089b451ca8f869e153c7fa4746a5eb9228cc05cee4fb8ade2",
+        "/workspace/scratch/3e1c4c6b7433/ike/ike",
+        "coordinate-refusals"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:44.622677+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "coordinate-refusals",
+      "started_at": "2026-10-14T04:46:07.305042+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "7280b91e380bf83a82d814824b96496bd82c8766672c9606ac9204242e0c8288"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/Idric",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/Idric/_/semantic-contract/check.grease",
+        "/workspace/scratch/3e1c4c6b7433/Idric",
+        "/tmp/jobicy-idric-source/_/build/exec/idris2"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:45.877580+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "exact-mathematical-samples",
+      "started_at": "2026-10-14T04:47:44.622787+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5811188d33bb963973922a7164face22778f2e0becfaf15ca099caaef719436a"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "python3",
+        "tools/check_backend.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:52.905304+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "retained-backend-checks",
+      "started_at": "2026-10-14T04:47:45.877671+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5e6dd628dd8076bbad8448d2ccb515ae76554a12c120c61ba2338ceabec7c635"
+    },
+    {
+      "argv": [
+        "env",
+        "LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13",
+        "/tmp/jobicy-ick-stage/bin/ick",
+        "-fno-link-libatomic",
+        "-static-libgcc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-I/workspace/scratch/3e1c4c6b7433/EGL-Registry/api",
+        "-I/workspace/scratch/3e1c4c6b7433/OpenGL-Registry/api",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend/tools/powervr_primitives.c",
+        "-o",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend/build/coordinate-primitives",
+        "-Wl,-l:libEGL.so.1",
+        "-Wl,-l:libGL.so.1",
+        "-lm"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:53.270870+00:00",
+      "index": 7,
+      "kind": "command",
+      "name": "ick-native-readback-build",
+      "started_at": "2026-10-14T04:47:52.905378+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/ai-ci/examples/autogenerated/coordinate-readback",
+        "/tmp/jobicy-idric-source/_/build/exec/idris2",
+        "CoordinateReadback.idric",
+        "-o",
+        "coordinate-readback"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:54.221878+00:00",
+      "index": 8,
+      "kind": "command",
+      "name": "independent-checker-build",
+      "started_at": "2026-10-14T04:47:53.270961+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-coordinate-readback.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "/workspace/scratch/3e1c4c6b7433/coordinate-actual.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:54.550530+00:00",
+      "index": 9,
+      "kind": "command",
+      "name": "actual-gles-readback",
+      "started_at": "2026-10-14T04:47:54.221964+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "51dcd57860bb4bd531f72f8806c71fb66eb7ece697fbc0b202ece7f4731ffe98"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/ai-ci",
+        "/workspace/scratch/3e1c4c6b7433/ai-ci/examples/autogenerated/coordinate-readback/build/exec/coordinate-readback",
+        "/workspace/scratch/3e1c4c6b7433/coordinate-actual.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:54.677091+00:00",
+      "index": 10,
+      "kind": "command",
+      "name": "independent-numerical-comparison",
+      "started_at": "2026-10-14T04:47:54.550603+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ca6e13f91cf8f285e07704c09cf63ee6e2ba7b6bb845718a5bdd836d7455ed90"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "tools/check_coordinate_mutants.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend/build/coordinate-primitives",
+        "/workspace/scratch/3e1c4c6b7433/ai-ci/examples/autogenerated/coordinate-readback/build/exec/coordinate-readback"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T04:47:55.449917+00:00",
+      "index": 11,
+      "kind": "command",
+      "name": "executed-shader-and-receipt-mutants",
+      "started_at": "2026-10-14T04:47:54.677167+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d6464a182f3425b7a2edd90a3c8a3e426841fc7697bbf5122958b914678571b9"
+    }
+  ],
+  "started_at": "2026-10-14T04:44:34.379806+00:00",
+  "status": "PASS"
+}
