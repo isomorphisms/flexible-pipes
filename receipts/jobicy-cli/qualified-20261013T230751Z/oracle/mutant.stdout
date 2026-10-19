@@ -1,0 +1,2 @@
+{"kind":"assertion","status":"fail","code":"JOBICY-STATUS-DISTINCTIONS","operation":"equal","detail":"expected.tsv == actual.tsv"}
+{"kind":"summary","status":"fail","assertions":1,"failures":1}

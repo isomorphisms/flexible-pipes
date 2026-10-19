@@ -1,0 +1,15 @@
+schema	catfood-android-build-plan-v1
+catfood_commit	18c93b5636ee2cbe0ab4f61a78a97e0da998b138
+matrix_sha256	97bb5fc4a79eb34e53a53fb7a10e6ccd99feef3143345da2c5ffa18e7f3aa431
+labels_sha256	091e051c58fc937f3e2128c75070c43f93a20418bb0f9f2326f1045ab66d2a43
+contract_sha256	92869f015b49f1bed6edde31237090bce7ae0370e29e2bb773f444de763a4327
+repository	isomorphisms/fastchat
+source_sha	410ce85df1eebc06c01768bbc0084ce6292c65c2
+package_id	org.isomorphisms.fastchat.diskstreaming.arena
+launcher_label	FastChat live disk
+min_sdk	26
+packaging	split
+requested_target	phone
+target	device	abi	obligation	acceptance
+phone	MIRO_A1	armeabi-v7a	required	not_run
+c67	MIRO_C67	arm64-v8a	blocked	not_run

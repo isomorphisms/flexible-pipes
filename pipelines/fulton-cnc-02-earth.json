@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "fulton-cnc-02-earth",
+  "parameters": {
+    "grease": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "m2": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "fulton": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "cnc": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "evidence": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    }
+  },
+  "required_stages": [
+    "producer-and-independent-acceptance"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "producer-and-independent-acceptance",
+      "argv": [
+        "{{grease}}",
+        "scripts/fulton-cnc-acceptance.ysh",
+        "{{m2}}",
+        "{{fulton}}",
+        "{{cnc}}",
+        "{{aici}}",
+        "{{evidence}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

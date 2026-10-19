@@ -1,0 +1,13 @@
+make: Entering directory '/workspace/scratch/30b0a80117bc/idric-cli'
+test -n "/workspace/scratch/30b0a80117bc/kitchen"
+"/workspace/scratch/30b0a80117bc/tool-bin/grease" "/workspace/scratch/30b0a80117bc/kitchen/tasks/jobicy-cli/1.grease" build "/workspace/scratch/30b0a80117bc/idric-cli"
+Idris 2, version 0.8.0-2734ac5a8
+ick (GCC) 17.0.0 20260813 (experimental)
+Copyright (C) 2026 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Now compiling the executable: jobicy
+Now compiling the executable: jobicy-fixture-server
+jobicy 0.1.0
+make: Leaving directory '/workspace/scratch/30b0a80117bc/idric-cli'

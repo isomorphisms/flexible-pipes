@@ -58,7 +58,7 @@ registered_android() {
         "git@github.com:$registered"|"git@github.com:$registered.git") ;;
         *) fail "source origin is not registered application: $origin" ;;
     esac
-    for policy in "$FP_AICI_CHECKOUT" "$FP_ANDROID_NDK_CHECKOUT"; do
+    for policy in "$FP_CATFOOD_CHECKOUT" "$FP_AICI_CHECKOUT" "$FP_ANDROID_NDK_CHECKOUT"; do
         [[ -d "$policy/.git" ]] || fail "policy is not a Git checkout: $policy"
         revision=$(git -C "$policy" rev-parse HEAD)
         git -C "$policy" fetch --quiet --no-tags origin main:refs/remotes/origin/main ||

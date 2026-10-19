@@ -1,0 +1,77 @@
+PASS	version
+PASS	help
+PASS	doctor
+PASS	uri-unicode
+PASS	cursor-is-opaque
+PASS	count-low
+PASS	count-high
+PASS	count-overflow
+PASS	duplicate-option
+PASS	unknown-option
+PASS	missing-option-value
+PASS	tag-short
+PASS	tag-byte-bound
+PASS	missing-fixture
+PASS	normal-tsv
+PASS	normal-jsonl
+PASS	exact-id
+PASS	absent-salary
+PASS	empty
+PASS	malformed
+PASS	duplicate-json-keys
+PASS	bad-count
+PASS	string-id-refused
+PASS	missing-description
+PASS	api-failure
+PASS	inconsistent-pagination
+PASS	duplicate-id
+PASS	conflicting-id
+PASS	three-statuses
+PASS	invalid-status
+PASS	locations-fixture
+PASS	industries-fixture
+PASS	sequential-pagination
+PASS	incomplete-first-page
+PASS	page-bound
+PASS	repeated-cursor
+PASS	transport-final
+PASS	transport-empty
+PASS	transport-malformed
+PASS	transport-api-failure
+PASS	transport-http400
+PASS	transport-http403
+PASS	transport-http500
+PASS	transport-http429
+PASS	transport-status
+PASS	transport-status-duplicate-input
+PASS	status-wrong-id-response
+PASS	transport-locations
+PASS	transport-industries
+PASS	invalid-test-origin
+PASS	failed-transport
+PASS	zero-status-id
+PASS	invalid-status-id
+PASS	missing-status-id
+PASS	hourly-sync-guard
+PASS	assertions=55	installed-program=/tmp/jobicy-installed/bin/jobicy	evidence=/tmp/tmp.2qH5hHF7l4
+{"kind":"assertion","status":"pass","code":"JOBICY-STATUS-DISTINCTIONS","operation":"equal","detail":"expected.tsv == actual.tsv"}
+{"kind":"summary","status":"pass","assertions":1,"failures":0}
+PASS	independent-status-oracle
+PASS	unknown-to-closed-mutant-rejected
+cli-head	cdb670f88a728de2d1527d2a88492584b1dd6b83
+aici-head	15ac9a4a9091b4745827772f3bbf8802e8a35bd8
+kitchen-head	15b5b5833807ad0b04a53df01161b4a4b06c4b3f
+# component	repository	revision
+Idric	https://github.com/isomorphisms/Idric	2734ac5a86610eddfab73b1644d72b4ac85a65ee
+Idric-JSON	https://github.com/isomorphisms/Idric	16443ffea5123139930d499930bc2da7e065da1f
+Idric-Net	https://github.com/dilapidated-shed/Idric-Net	2f6ea92c25c9b5a7286d1ca226fa3d1e12fe303e
+ICU	https://github.com/dilapidated-shed/icu	8ff5ff3f056c9483eef36c51e66b50811e2f9c44
+ICK	https://github.com/dilapidated-shed/ick	c61e448251744a2f40ad743ebef1a027bdcd2f9d
+5647cf58f9ca38930b2db3ae591b454b0b5d5d7bacf23ad504d1ff5594f3ea84  /tmp/jobicy-installed/bin/jobicy
+845ffa9f7e96a949b8680a8a695d237ac78a5ea359c3776e1df001eec1221903  /tmp/jobicy-installed/bin/jobicy_app/jobicy.so
+ce4968a74e7298627ad5355502c44ca663eed7b4b9809472d09701efdedcf8eb  /tmp/jobicy-installed/bin/jobicy_app/libicu_transport.so
+56b6043898fb756a0c022778b501c9b158f8579cb33687748be9a20ba4b3a27c  /workspace/scratch/30b0a80117bc/tool-bin/grease
+8077799a817d100398f271097b2c583250655bf0adbe767c12cdeafd2d333da8  /tmp/jobicy-aici
+a1-arm32	NOT_RUN
+c67-arm64	NOT_RUN
+evidence	/tmp/tmp.GaaLXiHuHn

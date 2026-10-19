@@ -1,0 +1,134 @@
+"""Frozen comparison candidates; no grading files are read by model inference."""
+import sys
+import json
+import hashlib
+import time
+import platform
+from pathlib import Path
+from builtins import ValueError, Exception, globals
+
+MODELS ∈ dict[str, str] ← {"qwen-1.5b": "Qwen/Qwen2.5-Coder-1.5B-Instruct", "qwen-3b": "Qwen/Qwen2.5-Coder-3B-Instruct"}
+REVISIONS ∈ dict[str, str] ← {"qwen-1.5b": "2e1fd397ee46e1388853d2af2c993145b0f1098a", "qwen-3b": "488639f1ff808d1d3d0ba301aef8c11461451ec5"}
+INSTRUCTION ∈ str ← "Compare the explicit CLAIM with the supplied OBSERVATION. Decide only whether those recorded inputs, outputs and side effects contradict the claim. SOURCE, when supplied, is context. A vague or unsupported claim requires UNKNOWN. Answer with exactly one first line: AGREEMENT, CONTRADICTION, or UNKNOWN. No explanation."
+
+def digest(data ∈ bytes) → str:
+    value ∈ str ← hashlib.sha256(data).hexdigest()
+    return value
+
+def write(path ∈ str, value ∈ str) → None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(value)
+
+def classify(response ∈ str) → str:
+    lines ∈ list[str] ← response.strip().splitlines()
+    if len(lines) == 0:
+        return "PARSE_FAILURE"
+    first ∈ str ← lines[0].strip()
+    if first == "AGREEMENT" or first == "CONTRADICTION" or first == "UNKNOWN":
+        return first
+    return "PARSE_FAILURE"
+
+def presentation(packet ∈ str, mode ∈ str) → str:
+    if mode == "source":
+        return packet
+    if mode != "observations":
+        raise ValueError("Unregistered claim presentation")
+    claim_parts ∈ list[str] ← packet.split("\nSOURCE\n", 1)
+    observations ∈ list[str] ← packet.split("\nOBSERVATION\n", 1)
+    if len(claim_parts) != 2 or len(observations) != 2 or not packet.startswith("CLAIM\n"):
+        raise ValueError("Malformed retained neutral packet")
+    return claim_parts[0] + "\nOBSERVATION\n" + observations[1]
+
+def compare(candidate ∈ str, output ∈ str, model_key ∈ str, mode ∈ str) → None:
+    import torch
+    import transformers
+    import huggingface_hub
+    from huggingface_hub import HfApi
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    identifiers ∈ list[str] ← Path(candidate + "/manifest.txt").read_text().splitlines()
+    if len(identifiers) != 104:
+        raise ValueError("Comparison requires all 104 retained baseline packets")
+    model_name ∈ str ← MODELS[model_key]
+    api ∈ object ← HfApi()
+    expected_revision ∈ str ← REVISIONS[model_key]
+    info ∈ object ← api.model_info(model_name, revision=expected_revision, files_metadata=True)
+    revision ∈ str ← info.sha
+    if revision != expected_revision:
+        raise ValueError("Candidate model revision does not match the frozen comparison")
+    write(output + "/resolved-revision.txt", revision + "\n")
+    torch.set_num_threads(2)
+    torch.manual_seed(1701)
+    identity ∈ dict[str, object] ← {"model": model_name, "revision": revision, "presentation": mode, "system_instruction": INSTRUCTION, "dtype": "float32", "device": "cpu", "attention": "eager", "threads": 2, "seed": 1701, "do_sample": False, "max_new_tokens": 16, "max_input_tokens": 4096, "truncation": False, "training": "none", "prompt_selection": "frozen before candidate responses; no fitting", "torch": torch.__version__, "transformers": transformers.__version__, "huggingface_hub": huggingface_hub.__version__, "platform": platform.platform()}
+    write(output + "/identity.json", json.dumps(identity, indent=2))
+    tokenizer ∈ object ← AutoTokenizer.from_pretrained(model_name, revision=revision, trust_remote_code=False)
+    model ∈ object ← AutoModelForCausalLM.from_pretrained(model_name, revision=revision, torch_dtype=torch.float32, attn_implementation="eager", trust_remote_code=False)
+    model.eval()
+    write(output + "/configuration.json", model.config.to_json_string())
+    write(output + "/chat-template.txt", tokenizer.chat_template)
+    findings ∈ list[str] ← ["id\tpayload_sha256\tverdict\tevidence"]
+    for identifier in identifiers:
+        packet ∈ str ← Path(candidate + "/" + identifier + ".txt").read_text()
+        payload_hash ∈ str ← digest(packet.encode())
+        if identifier != payload_hash[:20]:
+            raise ValueError("Retained candidate payload identity mismatch")
+        material ∈ str ← presentation(packet, mode)
+        messages ∈ list[dict[str, str]] ← [{"role": "system", "content": INSTRUCTION}, {"role": "user", "content": material}]
+        prompt ∈ str ← tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        directory ∈ str ← output + "/raw/" + identifier
+        write(directory + "/prompt.txt", prompt)
+        write(directory + "/presented-packet.txt", material)
+        started ∈ float ← time.monotonic()
+        verdict ∈ str ← "EXECUTION_FAILURE"
+        state ∈ str ← "EXECUTION_FAILURE"
+        reason ∈ str ← ""
+        try:
+            encoded ∈ dict[str, object] ← tokenizer.batch_encode_plus([prompt], return_tensors="pt", truncation=False)
+            input_ids ∈ object ← encoded["input_ids"]
+            input_tokens ∈ int ← input_ids.size(-1)
+            if input_tokens > 4096:
+                raise ValueError("Input length exceeds the declared domain; truncation is forbidden")
+            write(directory + "/input-token-ids.json", json.dumps(input_ids.tolist()))
+            with torch.inference_mode():
+                generated ∈ object ← model.generate(**encoded, max_new_tokens=16, do_sample=False, pad_token_id=tokenizer.eos_token_id)
+            length ∈ int ← generated.size(-1)
+            response_ids ∈ object ← generated.select(0, 0).narrow(0, input_tokens, length - input_tokens)
+            response ∈ str ← tokenizer.decode(response_ids, skip_special_tokens=True)
+            write(directory + "/response.txt", response)
+            write(directory + "/response-token-ids.json", json.dumps(response_ids.tolist()))
+            verdict ← classify(response)
+            state ← "EXECUTED"
+        except Exception as error:
+            reason ← str(error)
+            write(directory + "/failure.txt", reason + "\n")
+        finished ∈ float ← time.monotonic()
+        elapsed ∈ float ← finished - started
+        write(directory + "/execution.json", json.dumps({"state": state, "payload_sha256": payload_hash, "prompt_sha256": digest(prompt.encode()), "presentation_sha256": digest(material.encode()), "seconds": elapsed, "reason": reason}))
+        findings.append(identifier + "\t" + payload_hash + "\t" + verdict + "\tmodel-only-estimate")
+        print(model_key, mode, identifier, state, verdict, flush=True)
+    write(output + "/findings.tsv", str("\n".join(findings)) + "\n")
+    print("Comparison inference finished; findings are model-only estimates")
+
+def selftest() → None:
+    packet ∈ str ← "CLAIM\nThe value is nonnegative.\nSOURCE\nint f(void) { return 1; }\nOBSERVATION\noutput\t1\n"
+    if presentation(packet, "source") != packet or presentation(packet, "observations") != "CLAIM\nThe value is nonnegative.\nOBSERVATION\noutput\t1\n":
+        raise ValueError("Claim presentation altered retained observation bytes")
+    rejected ∈ bool ← False
+    try:
+        presentation("not a packet", "observations")
+    except ValueError:
+        rejected ← True
+    if not rejected:
+        raise ValueError("Malformed candidate presentation admitted")
+    print("PASS frozen presentation controls; no inference claimed")
+
+def main() → None:
+    arguments ∈ list[str] ← sys.argv
+    if arguments[1] == "selftest":
+        selftest()
+    else:
+        compare(arguments[1], arguments[2], arguments[3], arguments[4])
+
+namespace ∈ dict[str, object] ← globals()
+module_name ∈ str ← namespace.get("__name__", "")
+if module_name == "__main__":
+    main()

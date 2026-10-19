@@ -28,9 +28,16 @@ companion-plan gate. AICI failure fails the entire pipeline. The runner's
 stage receipt distinguishes build output from independent artifact approval;
 the operation never reports physical-device PASS.
 
-This is an implementation candidate pending merge of Cat Food #128,
-android-NDK #18, AICI #230 and Wegert #72, plus hosted execution fixtures
-for this exact pipeline. It cannot legitimately publish completed builds on
-the strength of a candidate policy checkout or an unverified ICK object.
+Cat Food #128, android-NDK #18 and AICI #230 are now accepted on main,
+at merge commits 395cdb37a542e653b77d606879bcb78362f2485e,
+2b93dc9a84641e5f7eeb373c4360ff0538facd78 and
+35cb2749be232e6cd0ac9d9ae3e33266b1d19aa3 respectively. The producer checks
+main ancestry for all three policy checkouts before execution. Wegert #72
+retains unique paired NativeActivity work after #73 and is being reconciled
+against actual main. Current-head missing-input, tampered-object and
+unregistered-recipe negatives pass, as do the existing preflight fixtures.
+Hosted execution of this exact registered operation remains required; fixture
+registration is not a positive producer or artifact receipt. It cannot publish
+completed builds on the strength of an unmerged policy or unverified ICK object.
 Bash and the legacy Python runner are migration debt, not a newly authorized
 general shell/scheduler framework.
