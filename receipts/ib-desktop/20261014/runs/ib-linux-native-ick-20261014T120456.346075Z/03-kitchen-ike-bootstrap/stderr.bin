@@ -1,0 +1,3 @@
+  if not printf '%s\n' "$jobs" | grep -Ex '[1-8]' > /dev/null {
+                               ^
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/ick-2.grease:28: fatal: Command conditionals should only have one status, not Pipeline (strict_errexit, OILS-ERR-300)
