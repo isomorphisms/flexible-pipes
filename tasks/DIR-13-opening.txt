@@ -1,0 +1,13 @@
+SUN DIR-13 — Native acceptance of existing finite geometric witnesses
+
+Model: SUN — extra-high reasoning.
+Execution: Flexible Pipes command controller → Kitchen / Ike.
+Independent acceptance: isomorphisms/ai-ci; not yet established by this opening.
+
+First execute the unchanged idric/GeometricFinite.idric from isomorphisms/dirichlet at 9458368792003be88a9499db676279b359e5ddf9. Its SHA-256 is 2595b69fca1d8990a6ffe0a4c352b7296db77e591de9280bbe05240c6955da82.
+
+Use the already materialized Idriç Linux x86_64 compiler bundle pinned to 94dfd99bd3e376507fedc8611053b7173b2519f0. Record the launcher and compiled compiler identities. Preserve every failed attempt. Do not replace ±Number, −, or other source notation before observing the exact compiler's actual diagnosis.
+
+Check the existing four closed witnesses on a fresh source snapshot. Raw compiler output, actual process status, source digests, produced TTC identities and Ike recipe receipt are required. A successful exit without a fresh compilation artifact does not establish acceptance. If parsing or checking fails, retain that exact source, output and failing stage; record the unsupported feature without claiming a proof.
+
+Next establish an independent AI-CI check and deliberately false-witness rejection against the exact successful source. Native checker execution, independent gate acceptance, trusted dispatch, visible delivery, service activation and physical-device execution are separate evidence kinds. This local candidate uses the official maintained command controller; it does not create a live registered lease or certify missing platform delivery.

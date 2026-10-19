@@ -1,0 +1,7 @@
+SUN DIR-10 — Exact modular-form coefficients
+
+Implement finite q-expansions of E4, E6 and Delta using exact integers; independently verify E4^3 - E6^2 = 1728 Delta to the declared finite order and check known initial Fourier coefficients. Exercise concrete Hecke operators only where the available coefficient range suffices. The actual function must return its finite order, and callers must not claim an uncomputed infinite theorem.
+
+Run the content-pinned module and tests through Flexible Pipes → Kitchen → Ike. This existing-JS consumer slice uses exact BigInt arithmetic where signed coefficients are required. Keep the actual original native Idric failure and any separate natural-number/native result, without labeling JS tests as native compilation or formal proof. Independent AI-CI acceptance remains separate until its oracle and negative controls execute against these exact candidate bytes.
+
+Freeze implementation/test SHA-256 values, source base HEAD, worktree status, Node/Grease/Ike identities and actual process streams. Preserve every failed attempt. No fallback, install, network acquisition, service activation or device qualification is part of this command stage.
