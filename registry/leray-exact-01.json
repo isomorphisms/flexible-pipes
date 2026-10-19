@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "operation": "leray-exact-01",
+  "request": "SUN LERAY-EXACT-01",
+  "priority": "FIRST",
+  "pipeline": "pipelines/leray-exact-01.json",
+  "repository": "walnut-burgundy/leray-overlooking-the-seine",
+  "base": "672ea01a7aa6e1d559a1ac55601b65696935caee",
+  "source_artifact": {
+    "path": "tasks/leray-exact-01/leray-verification.zip",
+    "sha256": "b804351df2404ee9fbe7c898a4901a45fa07e9615e29083dbd8c2286cdff7df6"
+  },
+  "kitchen": {
+    "commit": "d75ad256a32b9594530128772db1387af0487f21",
+    "recipe": "tasks/leray-exact-01/2.grease"
+  },
+  "aici": {
+    "commit": "398c260db362e235a9ebaa3f2a00e8a3cd1198e5",
+    "oracle": "research/leray-exact-01/accept.c",
+    "authoring": "independent-MOON"
+  },
+  "ike": {
+    "commit": "93f9eb0aee9094757414df8a7929c89b6a294b0c"
+  },
+  "ick": {
+    "commit": "fbe86e23d55cfec2000c08e61deea2a407fd7175",
+    "gcc": "6294f1d9e7536e5ffcde09d1528c918d63abfef5",
+    "bootstrap": "ai-ci/ick-host"
+  },
+  "runtime": {
+    "grease_commit": "8bad10b21e0fe7fc93e851d705dc9b63dbf9d8fd",
+    "inherited_source_commit": "5651cf97a1b5042f24f14112a7ade9a1518eb0bc",
+    "artifact_id": 12192502970,
+    "archive_sha256": "295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5",
+    "executable_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c"
+  },
+  "scope": "reduced-exact-periodic-flow",
+  "authority": "standing-source-merge-policy",
+  "acceptance": "EXACT_SOURCE_HOST_RECEIPT_REQUIRED",
+  "production_admission": "NOT_ACCEPTED",
+  "model_dispatch": "NOT_IMPLEMENTED"
+}
