@@ -22,6 +22,14 @@
     "results": {
       "required": true,
       "pattern": "/.+"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/.+"
     }
   },
   "required_stages": [
@@ -69,7 +77,10 @@
         "{{aici-test}}",
         "{{aici-root}}",
         "{{fp-root}}",
-        "{{results}}"
+        "{{results}}",
+        "{{ithon}}",
+        "{{kitchen}}",
+        "{{grease}}"
       ],
       "cwd": "."
     }
