@@ -44,6 +44,13 @@ compiler execution. The newly built compiler must report exactly
 `Idris 2, version 0.8.0-2734ac5a8`, before and after compiler-API installation;
 its actual payload hashes remain required.
 
+The bootstrap inventory requires the declared `ripgrep` host package and checks
+`command -v rg` before compiler work. The retained historical host receipt
+separates 31 accepted compiled host-producer rows from a later missing-`rg` inventory
+failure and the archive-based generated version-source error. A bounded
+diagnostic step exposes existing classifications, native comparisons, compiler
+version and nonempty stage stderr without rewriting their statuses.
+
 The workflow can be called with exact `control-head` and `application-head`
 inputs. It checks out the fixed Flexible Pipes owner at that control head and
 the fixed Holomorphic owner at that application head, verifies both identities,

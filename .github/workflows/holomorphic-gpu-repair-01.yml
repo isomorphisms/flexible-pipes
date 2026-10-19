@@ -203,7 +203,8 @@ jobs:
         run: |
           set -o errexit -o nounset -o pipefail
           sudo apt-get update
-          sudo apt-get install --yes chezscheme glslang-tools libgmp-dev
+          sudo apt-get install --yes chezscheme glslang-tools libgmp-dev ripgrep
+          command -v rg
 
       - name: Prepare digest-bound host materials and ICK-built Ike
         shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
@@ -243,6 +244,32 @@ jobs:
             _holomorphic/run/output/generated/continuation.provenance
             _holomorphic/run/output/generated/binding/holomorphic_shader_binding.h
           if-no-files-found: error
+
+      - name: Expose bounded actual phase diagnostics
+        if: always()
+        timeout-minutes: 1
+        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        run: |
+          set -o errexit -o nounset -o pipefail
+          shopt -s nullglob
+          var workspace = ENV.GITHUB_WORKSPACE
+          for name in classifications.tsv native-acceptance.log idric-version.txt idric-bootstrap.log {
+              var receipt = "$workspace/_holomorphic/run/output/$name"
+              if test -s "$receipt" {
+                  printf 'ACTUAL PHASE RECEIPT %s\n' "$name"
+                  tail -n 40 "$receipt"
+              }
+          }
+          var shown = 0
+          cd -- "$workspace"
+          for error_log in .flexible-pipes/runs/holomorphic-gpu-repair-01-*/[0-9][0-9]-*/stderr.bin {
+              if test -s "$error_log" {
+                  if (shown >= 10) { break }
+                  printf 'ACTUAL NONEMPTY STAGE STDERR %s\n' "$error_log"
+                  tail -n 24 "$error_log"
+                  setvar shown = shown + 1
+              }
+          }
 
       - name: Preserve true receipts and boundary-specific classifications
         if: always()
