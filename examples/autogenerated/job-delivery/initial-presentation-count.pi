@@ -1,0 +1,7 @@
+# Initial runtime-test fragment; requires the surrounding maintained suite.
+# Checked Ithon rejected this comparison: the method result needs int(...).
+if effects.count("visible") != 1:
+    duplicate_presentations.append(case_name)
+# Initial journal comparison also required bytes(...) on the encoded key.
+if bytes(attempted.read_bytes()) != effect_key.encode():
+    raise ValueError("HANDOFF_PRESENTATION_JOURNAL_IDENTITY")

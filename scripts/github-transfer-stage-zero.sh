@@ -45,6 +45,6 @@ KITCHEN_ROOT=$session/kitchen
 AICI_ROOT=$session/aici
 FP_TRANSFER_JOB_ROOT=$state
 export GREASE_BINARY KITCHEN_ROOT AICI_ROOT FP_TRANSFER_JOB_ROOT
-exec "$runtime" "$session/fp/scripts/how-to-move-the-users-github-repository-to-a-different-organization.ysh" \
+exec "$runtime" "$session/fp/scripts/execute-github-repository-organization-transfer.grease" \
     isomorphisms Museum_of_Shaders functorial-games isomorphisms \
     1412731191 conanwu777/Museum_of_Shaders

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "name": "pr-judge-01-review",
+  "description": "PR-JUDGE-01 delivery receipt repair; fixture qualification only.",
+  "parameters": {
+    "ithon": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "fp-root": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "aici-root": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "aici-test": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "results": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "kitchen": {
+      "required": true,
+      "pattern": "/.+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/.+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "candidate-sources",
+    "fp-delivery-runtime",
+    "independent-delivery-acceptance"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/pr-judge-01/request.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "candidate-sources",
+      "argv": [
+        "sha256sum",
+        "scripts/handoff.pi",
+        "tests/job-delivery/runtime.pi"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fp-delivery-runtime",
+      "argv": [
+        "{{ithon}}",
+        "tests/job-delivery/runtime.pi",
+        "{{fp-root}}",
+        "{{ithon}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-delivery-acceptance",
+      "argv": [
+        "{{ithon}}",
+        "{{aici-test}}",
+        "{{aici-root}}",
+        "{{fp-root}}",
+        "{{results}}",
+        "{{ithon}}",
+        "{{kitchen}}",
+        "{{grease}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}
