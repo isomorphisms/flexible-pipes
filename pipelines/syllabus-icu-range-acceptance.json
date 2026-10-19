@@ -1,0 +1,7 @@
+{
+  "schema_version":1,
+  "name":"syllabus-icu-range-acceptance",
+  "description":"Execute the independent AICI TLS range fixture against the installed actual Idriç/ICU candidate.",
+  "parameters":{"grease":{"required":true},"acceptance":{"required":true},"probe":{"required":true},"fixture":{"required":true},"evidence":{"required":true}},
+  "stages":[{"kind":"command","name":"independent-range-acceptance","argv":["env","ASAN_OPTIONS=detect_leaks=0","{{grease}}","{{acceptance}}","{{probe}}","{{fixture}}","{{evidence}}"]}]
+}
