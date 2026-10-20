@@ -1,0 +1,12 @@
+usage: ./_/edric [scheme|bootstrap|test|all]
+       ./_/edric test --only TEST_FILTER
+       ./_/edric --emit-one-step SOURCE -o ARTIFACT
+
+  scheme           install the pinned threaded Chez Scheme under .tools
+  bootstrap        install Chez Scheme, then bootstrap Idris 2
+  test             run the focused Edric handoff test with an existing build
+                   or run one test selected by --only
+  --emit-one-step  typecheck SOURCE and emit the deterministic ANF handoff
+  all              install Chez Scheme, bootstrap Idris 2, and run the handoff test
+
+With no command, all is used.

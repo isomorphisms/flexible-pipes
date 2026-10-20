@@ -1,0 +1,24 @@
+schema	holomorphic-inline-grease-failure-v1
+origin	https://github.com/isomorphisms/flexible-pipes/issues/227
+run_url	https://github.com/isomorphisms/flexible-pipes/actions/runs/39300155218
+job_id	118222936634
+control_commit	717adc7e6c341283d3aae457c9edf324d6e52a57
+failure_utc	2026-10-19T18:28:25.5622675Z
+native_ick_qualification	PASS
+failed_boundary	qualified-native-compiler-preservation-inline-Grease
+diagnostic	OILS-ERR-17 Invalid quoted word part in YSH
+cause	mixed quoted dynamic prefix and wildcard in a case pattern
+archive_publication	NOT_RUN
+host_mathematical_stages	NOT_RUN
+generated_compiler	NOT_RUN
+apk	NOT_RUN
+emulator	NOT_RUN
+physical_gpu	NOT_RUN
+repair	canonicalize frontend and stage; reject escaping relative frontend paths with static case patterns
+regression	parse all seven exact literal Grease run bodies before compiler work; execute extracted pin and cache-key bodies and exact containment fragment against contained/sibling paths with spaces
+repair_inline_grease_parse_count	7
+repair_exact_pin_block_execution	PASS
+repair_exact_cache_key_block_execution	PASS
+repair_exact_contained_frontend_fragment	PASS
+repair_exact_sibling_frontend_rejection	PASS
+repair_full_native_archive_execution	NOT_RUN
