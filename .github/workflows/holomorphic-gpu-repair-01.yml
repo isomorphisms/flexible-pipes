@@ -53,16 +53,25 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          mkdir -p _holomorphic/runtime
+          mkdir -p _holomorphic/runtime/bin
           gh api repos/dilapidated-shed/grease/actions/artifacts/12192502970/zip > "$RUNNER_TEMP/holomorphic-grease.zip"
           printf '%s  %s\n' 295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5 "$RUNNER_TEMP/holomorphic-grease.zip" | sha256sum -c -
-          unzip -p "$RUNNER_TEMP/holomorphic-grease.zip" _bin/cxx-asan/ysh > _holomorphic/runtime/ysh
-          printf '%s  %s\n' 7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c _holomorphic/runtime/ysh | sha256sum -c -
-          chmod 755 _holomorphic/runtime/ysh
+          unzip -p "$RUNNER_TEMP/holomorphic-grease.zip" _bin/cxx-asan/ysh > _holomorphic/runtime/bin/ysh
+          printf '%s  %s\n' 7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c _holomorphic/runtime/bin/ysh | sha256sum -c -
+          # Reuse the published portable launcher; only the launcher is taken
+          # from this archive. The selected host engine remains the exact x86_64
+          # payload above, not the archive's Android executable.
+          curl --fail --location --silent --show-error \
+              https://github.com/isomorphisms/grease/releases/download/tablet-aarch64-9b3dc8904891/grease-aarch64-termux.tar.gz \
+              --output "$RUNNER_TEMP/holomorphic-grease-portable.tar.gz"
+          printf '%s  %s\n' 3ddb962ef313e528e525fa03518f494577e921c2201ecb49f7a11f2fbf4e82b2 "$RUNNER_TEMP/holomorphic-grease-portable.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/holomorphic-grease-portable.tar.gz" -C _holomorphic/runtime ./bin/grease
+          printf '%s  %s\n' 37088097c36a2f82cf45aaea9392e4a4cf16155fecb9da87d08a9c7fb4d92e4a _holomorphic/runtime/bin/grease | sha256sum -c -
+          chmod 755 _holomorphic/runtime/bin/grease _holomorphic/runtime/bin/ysh
 
       - name: Load reviewed immutable source pins
         id: pins
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         run: |
           set -o errexit -o nounset -o pipefail
           var control = ENV.HOLOMORPHIC_CONTROL_HEAD
@@ -79,12 +88,12 @@ jobs:
           }
 
       - name: Check every literal Grease block before compiler work
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         run: |
           set -o errexit -o nounset -o pipefail
           var workspace = ENV.GITHUB_WORKSPACE
-          _holomorphic/runtime/ysh tests/holomorphic-inline-grease.grease \
-              "$workspace/_holomorphic/runtime/ysh" "$workspace" \
+          _holomorphic/runtime/bin/grease tests/holomorphic-inline-grease.grease \
+              "$workspace/_holomorphic/runtime/bin/grease" "$workspace" \
               "$workspace/_holomorphic/inline-grease-check"
 
       - name: Materialize the continued Holomorphic implementation
@@ -143,7 +152,7 @@ jobs:
 
       - name: Derive the provider's exact qualified-runtime cache key
         id: qualified_ick_key
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         run: |
           set -o errexit -o nounset -o pipefail
           var runtime_material = "$[ENV.RUNNER_TEMP]/ick-host-build/host-runtime-key-input.tsv"
@@ -160,7 +169,7 @@ jobs:
           key: ${{ steps.qualified_ick_key.outputs.key }}
 
       - name: Preserve the qualified native compiler before consumer stages
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         env:
           HOLOMORPHIC_ICK_HOST: ${{ steps.ick.outputs.compiler }}
         run: |
@@ -199,7 +208,7 @@ jobs:
           retention-days: 14
 
       - name: Install the declared checked-shader bootstrap dependencies
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         run: |
           set -o errexit -o nounset -o pipefail
           sudo apt-get update
@@ -207,28 +216,28 @@ jobs:
           command -v rg
 
       - name: Prepare digest-bound host materials and ICK-built Ike
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         env:
           HOLOMORPHIC_ICK_HOST: ${{ steps.ick.outputs.compiler }}
           HOLOMORPHIC_EXPECTED_APPLICATION_COMMIT: ${{ steps.pins.outputs.holomorphic }}
         run: |
           set -o errexit -o nounset -o pipefail
           var workspace = ENV.GITHUB_WORKSPACE
-          _holomorphic/runtime/ysh tasks/holomorphic-gpu-repair/prepare-host-context.grease "$workspace" "$workspace/_holomorphic/run"
+          _holomorphic/runtime/bin/grease tasks/holomorphic-gpu-repair/prepare-host-context.grease "$workspace" "$workspace/_holomorphic/run"
 
       - name: Execute the registered mathematical and provenance stages
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         env:
-          GREASE_BINARY: ${{ github.workspace }}/_holomorphic/runtime/ysh
+          GREASE_BINARY: ${{ github.workspace }}/_holomorphic/runtime/bin/grease
         run: |
           set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
-          _holomorphic/runtime/ysh _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-source-identity.grease \
+          _holomorphic/runtime/bin/grease _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-source-identity.grease \
               "$workspace/_holomorphic/idric" "$workspace/_holomorphic/backend" \
               "$workspace/_holomorphic/source-identity-fixtures"
-          _holomorphic/runtime/ysh _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-admission.grease \
-              "$workspace/_holomorphic/runtime/ysh" \
+          _holomorphic/runtime/bin/grease _holomorphic/kitchen/tasks/holomorphic-gpu-repair/test-admission.grease \
+              "$workspace/_holomorphic/runtime/bin/grease" \
               "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/6.grease" \
               "$workspace/_holomorphic/run" "$workspace/_holomorphic/admission-fixtures"
           "$python" scripts/run-pipeline holomorphic-gpu-repair-01 \
@@ -248,7 +257,7 @@ jobs:
       - name: Expose bounded actual phase diagnostics
         if: always()
         timeout-minutes: 1
-        shell: '/usr/bin/env _holomorphic/runtime/ysh {0}'
+        shell: '/usr/bin/env _holomorphic/runtime/bin/grease {0}'
         run: |
           set -o errexit -o nounset -o pipefail
           shopt -s nullglob

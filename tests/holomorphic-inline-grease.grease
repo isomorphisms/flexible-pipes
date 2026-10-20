@@ -20,7 +20,7 @@ awk -v directory="$output" '
     }
     { close_block() }
     /^      - name:/ { name=$0; sub(/^      - name: /, "", name); grease=0 }
-    /^        shell:.*_holomorphic\/runtime\/ysh/ { grease=1; shells++ }
+    /^        shell:.*_holomorphic\/runtime\/bin\/grease/ { grease=1; shells++ }
     /^        run:/ && grease {
         if ($0 !~ /^        run: \|$/) { print "unsupported nonliteral Grease run" > "/dev/stderr"; exit 1 }
         count++; filename=sprintf("%s/block-%02d.grease", directory, count)

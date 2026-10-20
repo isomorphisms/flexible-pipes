@@ -12,7 +12,9 @@ var recipe = "$sources/kitchen/tasks/holomorphic-gpu-repair/6.grease"
 var application = get(ENV, 'HOLOMORPHIC_APP_ROOT', "$sources/holomorphic")
 var application_expected = get(ENV, 'HOLOMORPHIC_EXPECTED_APPLICATION_COMMIT', '')
 var compiler = ENV.HOLOMORPHIC_ICK_HOST
-var grease = "$sources/runtime/ysh"
+var grease = "$sources/runtime/bin/grease"
+# The engine path is provenance inside the staged Grease package, not a consumer command.
+var engine = "$sources/runtime/bin/ysh"
 var linker = '/usr/bin/x86_64-linux-gnu-gcc'
 var python = "$(realpath -- "$(command -v python3)")"
 var validator = "$(realpath -- "$(command -v glslangValidator)")"
@@ -20,6 +22,7 @@ var ike = "$sources/bin/ike"
 test -s "$root/tasks/holomorphic-gpu-repair/source-pins.tsv"
 test -x "$compiler"
 test -x "$grease"
+test -x "$engine"
 test -x "$linker"
 test -x "$python"
 test -x "$validator"
@@ -47,7 +50,7 @@ for checkout_role in holomorphic aici shader-backend ithon ike idric {
     test "$expected" = "$actual"
 }
 printf 'grease\t%s\t%s\n' "$grease" "$(sha256sum "$grease" | cut -d ' ' -f1)" > "$context/tools.tsv"
-printf 'grease-engine\t%s\t%s\n' "$grease" "$(sha256sum "$grease" | cut -d ' ' -f1)" >> "$context/tools.tsv"
+printf 'grease-engine\t%s\t%s\n' "$engine" "$(sha256sum "$engine" | cut -d ' ' -f1)" >> "$context/tools.tsv"
 printf 'ike\t%s\t%s\n' "$ike" "$(sha256sum "$ike" | cut -d ' ' -f1)" >> "$context/tools.tsv"
 printf 'ithon\t%s\t%s\n' "$sources/ithon/ithon" "$(sha256sum "$sources/ithon/ithon" | cut -d ' ' -f1)" >> "$context/tools.tsv"
 printf 'host-python\t%s\t%s\n' "$python" "$(sha256sum "$python" | cut -d ' ' -f1)" >> "$context/tools.tsv"
