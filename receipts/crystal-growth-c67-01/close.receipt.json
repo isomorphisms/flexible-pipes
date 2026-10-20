@@ -1,0 +1,89 @@
+{
+  "finished_at": "2026-10-20T04:18:16.383698+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/7d64eaed802d/crystal"
+  },
+  "pipeline": "crystal-growth-c67-close",
+  "pipeline_path": "pipelines/crystal-growth-c67-close.json",
+  "pipeline_sha256": "6063a587c7b2245ac2a67019914f03f9a8e04f0fba3dfcb953ddc82d86614daf",
+  "repository_commit": "24235bd2c86ff01f121a318c209b479943805a0f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:18:16.378601+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-20T04:18:16.376679+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:18:16.380333+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "source-revision",
+      "started_at": "2026-10-20T04:18:16.378648+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8b9593a2989965b8a3c9d2b044d112993eb54c5ec9cfae56d88bed9b820a0a03"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "diff",
+        "--exit-code",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:18:16.382277+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "clean-source",
+      "started_at": "2026-10-20T04:18:16.380371+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "receipts/crystal-growth-c67-01/status.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:18:16.383687+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "status-receipt",
+      "started_at": "2026-10-20T04:18:16.382324+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "66db7545ffc2461bdef20972e29ca23d0930fe90f4531958ac35c4256e5bd5cf"
+    }
+  ],
+  "started_at": "2026-10-20T04:18:16.376610+00:00",
+  "status": "PASS"
+}

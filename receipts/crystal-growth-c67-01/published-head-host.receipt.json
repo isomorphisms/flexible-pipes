@@ -1,0 +1,77 @@
+{
+  "finished_at": "2026-10-20T04:17:26.254604+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/7d64eaed802d/crystal",
+    "HOST_RECIPE": "/workspace/scratch/7d64eaed802d/crystal/tests/run-host.ysh",
+    "LUA_ARCHIVE": "/workspace/scratch/7d64eaed802d/lua-5.4.8.tar.gz",
+    "OUTPUT_ROOT": "/workspace/scratch/7d64eaed802d/published-head-host",
+    "RAYLIB_ROOT": "/workspace/scratch/7d64eaed802d/raylib"
+  },
+  "pipeline": "crystal-growth-c67-host",
+  "pipeline_path": "pipelines/crystal-growth-c67-host.json",
+  "pipeline_sha256": "402d5ad1c0c33a81d3701836497643053ce2efd52cb106713a8b9389b7a61ef0",
+  "repository_commit": "24235bd2c86ff01f121a318c209b479943805a0f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:17:11.714527+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-20T04:17:11.712853+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:17:11.717661+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "source-revision",
+      "started_at": "2026-10-20T04:17:11.714571+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8b9593a2989965b8a3c9d2b044d112993eb54c5ec9cfae56d88bed9b820a0a03"
+    },
+    {
+      "argv": [
+        "grease",
+        "/workspace/scratch/7d64eaed802d/crystal/tests/run-host.ysh",
+        "/workspace/scratch/7d64eaed802d/published-head-host",
+        "/workspace/scratch/7d64eaed802d/raylib",
+        "/workspace/scratch/7d64eaed802d/lua-5.4.8.tar.gz"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-20T04:17:26.254575+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "host-tests",
+      "started_at": "2026-10-20T04:17:11.717707+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "9af856ef01e7415f36d85651f4c717d38928fbfb4e0e8ea5eb03f1aabc8f41a7"
+    }
+  ],
+  "started_at": "2026-10-20T04:17:11.712785+00:00",
+  "status": "PASS"
+}

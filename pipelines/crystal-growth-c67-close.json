@@ -1,0 +1,12 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-close",
+ "description":"Close the source/host envelope with its BLOCKED status; this does not accept or deliver an APK.",
+ "parameters":{"APPLICATION_ROOT":{"required":true,"pattern":"/.+"}},
+ "required_stages":["job-envelope","source-revision","clean-source","status-receipt"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"source-revision","argv":["git","-C","{{APPLICATION_ROOT}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"clean-source","argv":["git","-C","{{APPLICATION_ROOT}}","diff","--exit-code","HEAD"],"cwd":"."},
+  {"kind":"command","name":"status-receipt","argv":["sha256sum","receipts/crystal-growth-c67-01/status.tsv"],"cwd":"."}
+ ]
+}

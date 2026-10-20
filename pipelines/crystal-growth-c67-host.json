@@ -1,0 +1,17 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-host",
+ "description":"Candidate host mathematics, adapter and syntax checks through the pinned NDK and verified Grease; no independent producer or physical acceptance.",
+ "parameters":{
+  "APPLICATION_ROOT":{"required":true,"pattern":"/.+"},
+  "HOST_RECIPE":{"required":true,"pattern":"/.+"},
+  "RAYLIB_ROOT":{"required":true,"pattern":"/.+"},
+  "LUA_ARCHIVE":{"required":true,"pattern":"/.+"},
+  "OUTPUT_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","source-revision","host-tests"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"source-revision","argv":["git","-C","{{APPLICATION_ROOT}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"host-tests","argv":["grease","{{HOST_RECIPE}}","{{OUTPUT_ROOT}}","{{RAYLIB_ROOT}}","{{LUA_ARCHIVE}}"],"cwd":"."}
+ ]
+}

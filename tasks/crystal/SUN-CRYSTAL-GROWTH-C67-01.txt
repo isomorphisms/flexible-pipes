@@ -1,0 +1,21 @@
+SUN CRYSTAL-GROWTH-C67-01
+Human authorization: October 19, 2026, current ChatGPT implementation assignment.
+Owner: isomorphismes/crystal issue 2; retained PR 7 branch test/miro-apk-prototypes.
+Goal: deterministic fixed-budget native C crystal growth from a seed, with separate
+topology, embedding, material orientation/law, relaxation, redistribution and renderer.
+Order: Halite host qualification; quartz/bismuth/pyrite; rendering; four C67 ARM64 APKs.
+Preserve node count, closed genus-zero incidence, finite positions, orientation;
+reject degeneracy and self-intersection transactionally. No scaling-only animation.
+Reuse PR 10 lighting and PR 11 references without adopting unlicensed runtime code.
+Tests must record shape metrics, symmetry, determinism, mutations, pause/replay,
+material competition and numerical stability. Provisional speeds are uncalibrated.
+Execution: Flexible Pipes owns this envelope; maintained Kitchen/pinned Ike where
+required; independent AI-CI; Cat Food delivery. No self-issued acceptance.
+Canonical Android-NDK packaging only; no Gradle, Java/Kotlin application or D8.
+Preserve existing package IDs and signing; never uninstall or choose a replacement key.
+Required outputs: crystal-{halite,quartz,bismuth,pyrite}-c67-arm64-v8a.apk individually
+in ChatGPT, never ZIPs or a repository link replacing binaries.
+No physical C67 claim without exact-artifact installation/interaction evidence.
+Push tested changes to existing branches; merge only independently qualified work.
+If production authority/signing/device access is unavailable, finish independent work
+and report exact tested scope and remaining obligations; never bypass a gate.
