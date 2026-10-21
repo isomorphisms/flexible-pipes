@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "operation": "subpixel-acceptance",
-  "operation_version": "4",
+  "operation_version": "5",
   "pipeline": "pipelines/subpixel-acceptance.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
   "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
@@ -13,13 +13,13 @@
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "5b39813890808797552392a9360b3736352cf5b3",
-      "recipe": "tasks/subpixel/7.grease",
-      "sha256": "57543f2a110a3adaf5989f2194c3199b685ff6aab6acf81fca512b0a2cb12396"
+      "commit": "2b4dc2662ded1d2498e30c60fc3591e4b7d60881",
+      "recipe": "tasks/subpixel/8.grease",
+      "sha256": "9ef9e73d052947a25e26a264c9744fe019ee38d413b1aa10ef0a6513c892beeb"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",
-      "commit": "ce58794ed2eafa4d60644318314bde89e1638d92"
+      "commit": "ff1a22e2b181cabb882db0d5ae42012529c7e41c"
     },
     "conway": {
       "repository": "isomorphismes/Conway",

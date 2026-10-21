@@ -68,3 +68,12 @@ Local ICK/Ike execution passed the full gate; exact target/recipe receipt
 accepted and wrong recipe rejected. Its 32-panel positive decodes 6,742,016
 image bits exactly. Registered version 4 remains unqualified until its own
 exact-head run completes every stage and seals the resulting artifact.
+
+Version 4 passed all nine stages at
+https://github.com/isomorphisms/flexible-pipes/actions/runs/39655486449,
+with artifact 12371676924 (GitHub-reported ZIP SHA256
+25bb0893730cf74b1c5cf4dbed5548d1c41c1a7eab9b198ade5f98ded9bb54b3).
+That positive did not directly attack newly asserted totals/hash/grayscale
+fields. Version 5 / Kitchen 8 binds the tightened thirteen-source/nine-file
+gate, including the packed-stride defect. It needs its own complete registered
+receipt; version 4's pass is not promoted to these new sources.

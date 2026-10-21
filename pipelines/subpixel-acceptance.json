@@ -47,7 +47,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -61,7 +61,7 @@
         "--kill-after=10s",
         "100m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -75,7 +75,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -89,7 +89,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "independent",
         "{{workspace}}"
       ],
@@ -103,7 +103,7 @@
         "--kill-after=10s",
         "10m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "font-preview",
         "{{workspace}}"
       ],
@@ -117,7 +117,7 @@
         "--kill-after=10s",
         "10m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "conway",
         "{{workspace}}"
       ],
@@ -131,7 +131,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "seal",
         "{{workspace}}"
       ],
