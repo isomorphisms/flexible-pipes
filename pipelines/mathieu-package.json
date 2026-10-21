@@ -1,0 +1,17 @@
+{
+  "schema_version":1,"name":"mathieu-package",
+  "parameters":{
+    "source":{"required":true,"pattern":"^/[^\\s]+$"},
+    "head":{"required":true,"pattern":"^[0-9a-f]{40}$"},
+    "driver":{"required":true,"pattern":"^/[^\\s]+$"},
+    "policy":{"required":true,"pattern":"^/[^\\s]+$"},
+    "sdk":{"required":true,"pattern":"^/[^\\s]+$"},
+    "build_tools":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ndk":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ike":{"required":true,"pattern":"^/[^\\s]+$"},
+    "grease":{"required":true,"pattern":"^/[^\\s]+$"},
+    "evidence":{"required":true,"pattern":"^/[^\\s]+$"}
+  },
+  "required_stages":["kitchen-ike-signed-apks"],
+  "stages":[{"name":"kitchen-ike-signed-apks","kind":"command","cwd":".","argv":["{{grease}}","{{driver}}","{{source}}","{{head}}","{{policy}}","{{sdk}}","{{build_tools}}","{{ndk}}","{{ike}}","{{grease}}","{{evidence}}"]}]
+}
