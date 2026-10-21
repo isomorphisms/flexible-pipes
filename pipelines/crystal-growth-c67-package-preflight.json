@@ -1,0 +1,17 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-package-preflight",
+ "description":"Run the approved AI-CI package checker against all four finished test APKs using an explicitly pinned NDK host compiler adapter. This checks package bytes and policy; it does not prove producer isolation, independent mathematics, Cat Food publication or physical-device acceptance.",
+ "parameters":{
+  "APK_DIRECTORY":{"required":true,"pattern":"/.+"},
+  "OUTPUT_ROOT":{"required":true,"pattern":"/.+"},
+  "AICI_ROOT":{"required":true,"pattern":"/.+"},
+  "PACKAGER_ROOT":{"required":true,"pattern":"/.+"},
+  "APPLICATION_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","checker-identity","package-preflight"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"checker-identity","argv":["sha256sum","scripts/crystal-package-preflight.grease","scripts/crystal-ndk-host-cc.grease"],"cwd":"."},
+  {"kind":"command","name":"package-preflight","argv":["grease","scripts/crystal-package-preflight.grease","{{APK_DIRECTORY}}","{{OUTPUT_ROOT}}","{{AICI_ROOT}}","{{PACKAGER_ROOT}}","{{APPLICATION_ROOT}}"],"cwd":"."}
+ ]
+}

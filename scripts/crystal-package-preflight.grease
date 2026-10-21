@@ -1,0 +1,40 @@
+#!/usr/bin/env grease
+set -eu -o pipefail
+test "$#" = 5 || { echo 'expected APK_DIRECTORY NEW_OUTPUT AICI_ROOT PACKAGER_ROOT APPLICATION_ROOT' >&2; exit 2; }
+var apks = "$1"
+var output = "$2"
+var aici = "$3"
+var packager = "$4"
+var app = "$5"
+var scripts = $(/usr/bin/dirname $(/usr/bin/readlink -f "$0"))
+var policy = $(/usr/bin/git -C "$aici" rev-parse HEAD)
+test "$policy" = a9866eaef44f4a2f94e05da517783f136924335d
+/usr/bin/git -C "$aici" diff --exit-code HEAD
+test ! -e "$output"
+/usr/bin/mkdir -p "$output/compiler"
+/usr/bin/ln -s "$scripts/crystal-ndk-host-cc.grease" "$output/compiler/cc"
+setglobal ENV.PATH = "$output/compiler:$[ENV.GREASE_RUNTIME_BIN]:/usr/bin:/bin"
+setglobal ENV.AICI_ROOT = app
+setglobal ENV.AICI_PACKAGER_ROOT = packager
+setglobal ENV.AICI_EXPECTED_ABI = 'arm64-v8a'
+setglobal ENV.AICI_POLICY_REF = policy
+setglobal ENV.AICI_SIGNING_LANE = 'test'
+setglobal ENV.AICI_REQUIRE_NO_DEX = 'true'
+for material in halite quartz bismuth pyrite; do
+  var apk = "$apks/crystal-$material-c67-arm64-v8a.apk"
+  setglobal ENV.AICI_APK = apk
+  setglobal ENV.AICI_PACKAGER_RECEIPT = "$apks/crystal-$material-c67-arm64-v8a.receipt.tsv"
+  setglobal ENV.AICI_RECEIPT_OUTPUT = "$output/$material.aici.tsv"
+  setglobal ENV.RUNNER_TEMP = "$output/$material.work"
+  /usr/bin/mkdir "$[ENV.RUNNER_TEMP]"
+  # AI-CI owns the checker. Its Bash process interface is inherited, not
+  # reimplemented by this Grease consumer. Its compiler is the pinned NDK adapter.
+  /usr/bin/bash "$aici/android-producer/check.sh" > "$output/$material.log" 2>&1
+  /usr/bin/unzip -p "$apk" lib/arm64-v8a/libcrystal.so > "$output/$material.so"
+  var expected = $(/usr/bin/awk -F '\t' -v m="$material" '$1==m{print $5}' "$apks/sizes.tsv")
+  test $(/usr/bin/sha256sum "$output/$material.so" | /usr/bin/awk '{print $1}') = "$expected"
+  "$[ENV.ANDROID_HOME]/build-tools/35.0.0/zipalign" -c 4 "$apk"
+done
+printf 'schema\tcrystal-package-preflight-v1\npackage_checks\tPASS\ncompile_toolchain\tndk\nlink_toolchain\tndk\npolicy_commit\t%s\nisolated_producer\tNOT_VERIFIED\nindependent_math\tPENDING\ncatfood_delivery\tPENDING\nupdate_compatibility\tNOT_VERIFIED\nphysical_c67\tNOT_RUN\n' "$policy" > "$output/scope.tsv"
+/usr/bin/sha256sum "$aici/android-producer/check.sh" "$aici/src/aici.c" "$aici/src/aici_android_signing.c" "$scripts/crystal-ndk-host-cc.grease" > "$output/checker-sources.sha256"
+/usr/bin/cat "$output/scope.tsv"

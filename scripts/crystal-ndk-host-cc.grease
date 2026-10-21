@@ -1,0 +1,10 @@
+#!/usr/bin/env grease
+set -eu -o pipefail
+# Narrow compiler adapter for AI-CI's inherited `cc` process interface.
+# It always invokes the pinned NDK compiler/linker; there is no system-cc fallback.
+var ndk = ENV.ANDROID_NDK_ROOT
+var cc = "$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-18"
+var linker = "$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/ld.lld"
+test $(/usr/bin/sha256sum "$cc" | /usr/bin/awk '{print $1}') = a871130d810536f7bb924c8aeaff57c66de27bed9b13d0ccafba25fdcc8bd02d
+test $(/usr/bin/sha256sum "$linker" | /usr/bin/awk '{print $1}') = c4a7473d3b8a99a32335616838af2aa85c6333091abeab423be2a905ff5f288c
+exec "$cc" --target=x86_64-linux-gnu --sysroot=/ --ld-path="$linker" -rtlib=libgcc -unwindlib=libgcc "$@"

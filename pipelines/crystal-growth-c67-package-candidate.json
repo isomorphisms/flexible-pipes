@@ -1,0 +1,22 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-package-candidate",
+ "description":"Package the four retained ARM64 native builds with the explicitly authorized existing public test signer. Canonical packager validates certificate, manifest, alignment and ABI. Candidate packaging does not establish independent producer, delivery or physical acceptance.",
+ "parameters":{
+  "APPLICATION_ROOT":{"required":true,"pattern":"/.+"},
+  "PACKAGE_RECIPE":{"required":true,"pattern":"/.+"},
+  "NATIVE_BUILD":{"required":true,"pattern":"/.+"},
+  "PACKAGE_OUTPUT":{"required":true,"pattern":"/.+"},
+  "VERSION_CODE":{"required":true,"pattern":"[1-9][0-9]*"},
+  "PACKAGER_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","source-revision","tracked-source-clean","packager-revision","package-recipe","package-build","tracked-source-still-clean"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"source-revision","argv":["git","-C","{{APPLICATION_ROOT}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"tracked-source-clean","argv":["git","-C","{{APPLICATION_ROOT}}","diff","--exit-code","HEAD"],"cwd":"."},
+  {"kind":"command","name":"packager-revision","argv":["git","-C","{{PACKAGER_ROOT}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"package-recipe","argv":["sha256sum","{{PACKAGE_RECIPE}}"],"cwd":"."},
+  {"kind":"command","name":"package-build","argv":["grease","{{PACKAGE_RECIPE}}","{{NATIVE_BUILD}}","{{PACKAGE_OUTPUT}}","{{VERSION_CODE}}","{{PACKAGER_ROOT}}"],"cwd":"."},
+  {"kind":"command","name":"tracked-source-still-clean","argv":["git","-C","{{APPLICATION_ROOT}}","diff","--exit-code","HEAD"],"cwd":"."}
+ ]
+}
