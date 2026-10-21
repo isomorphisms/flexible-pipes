@@ -83,3 +83,11 @@ The native adapter reruns the entire trace in a fresh process and compares every
 regenerated pixel and checkpoint without storing a redundant second sequence.
 This extends the same Icky C/Ithon boundary and its existing Idriç facility gap;
 it adds no mathematical engine, video encoder, or new Python source.
+
+The first rosette run passed production, second-run pixel comparison and
+independent mathematical/media checks, then stopped at an Ithon fixture type
+error: list repetition was not statically defined. The repaired fixture builds
+its typed coordinates by appending. The first reduced UI-pixel mutation changed
+one opening-hold frame and correctly tripped the hold assertion first; the
+corrected fixture preserves the full opening hold while adding its control
+pixel, so it reaches the intended controls-policy assertion.
