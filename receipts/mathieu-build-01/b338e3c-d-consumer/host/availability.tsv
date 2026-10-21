@@ -1,0 +1,6 @@
+probe	result
+adb_on_PATH	ABSENT
+emulator_on_PATH	ABSENT
+KVM_character_device	ABSENT
+physical_A1_channel	NOT_USED
+physical_C67_channel	NOT_USED

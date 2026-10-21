@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "mathieu-host",
+  "parameters": {
+    "source": {"pattern": "^/[^\\s]+$"},
+    "head": {"pattern": "^[0-9a-f]{40}$"},
+    "driver": {"pattern": "^/[^\\s]+$"},
+    "ick": {"pattern": "^/[^\\s]+$"},
+    "ike": {"pattern": "^/[^\\s]+$"},
+    "grease": {"pattern": "^/[^\\s]+$"},
+    "evidence": {"pattern": "^/[^\\s]+$"},
+    "compiler_digest": {"pattern": "^[0-9a-f]{64}$"}
+  },
+  "required_stages": ["mathieu-kitchen-ike"],
+  "stages": [{
+    "name": "mathieu-kitchen-ike", "kind": "command", "cwd": ".",
+    "argv": ["{{grease}}", "{{driver}}", "{{source}}", "{{head}}", "{{ick}}", "{{ike}}", "{{grease}}", "{{evidence}}", "{{compiler_digest}}"]
+  }]
+}

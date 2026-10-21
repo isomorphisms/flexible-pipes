@@ -1,0 +1,17 @@
+{
+  "schema_version":1,"name":"mathieu-native",
+  "parameters": {
+    "source":{"required":true,"pattern":"^/[^\\s]+$"},
+    "head":{"required":true,"pattern":"^[0-9a-f]{40}$"},
+    "driver":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ick":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ike":{"required":true,"pattern":"^/[^\\s]+$"},
+    "grease":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ndk":{"required":true,"pattern":"^/[^\\s]+$"},
+    "abi":{"required":true,"pattern":"^(x86_64|armeabi-v7a|arm64-v8a)$"},
+    "evidence":{"required":true,"pattern":"^/[^\\s]+$"}
+  },
+  "required_stages":["kitchen-ike-native-library"],
+  "stages":[{"name":"kitchen-ike-native-library","kind":"command","cwd":".",
+    "argv":["{{grease}}","{{driver}}","{{source}}","{{head}}","{{ick}}","{{ike}}","{{grease}}","{{ndk}}","{{abi}}","{{evidence}}"]}]
+}

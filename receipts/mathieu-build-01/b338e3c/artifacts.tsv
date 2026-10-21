@@ -1,0 +1,7 @@
+artifact	abi	profile	pre_strip_native_bytes	stripped_native_bytes	apk_bytes	apk_sha256
+Mathieu-A1.apk	armeabi-v7a	Release	50308	37752	33213	587a0f899206dc5d8fbab14343253a214456b6c6eda5e1596a0c8571b2cdc7fe
+Mathieu-C67.apk	arm64-v8a	Release	52208	43864	37307	2e0a9782430529c23dee07737ec475b225bae53287ba51ebe731e4ff2809ce7d
+Mathieu-Emulator.apk	x86_64	Release	53880	46488	37304	c27bb211d7e6f2c9862b85f845870a370f4f0617a9b264bb9ad2600d896b26bb
+Mathieu-A1-Debug.apk	armeabi-v7a	Debug	116300	47080	33213	a8cca322f4c9b13925e3f2624db871bb33758fad56e762bcfff2ed35a0bf303c
+Mathieu-C67-Debug.apk	arm64-v8a	Debug	114664	49560	33211	d967c612886556945aadad67c5e3ffe2a903df4bd795dff6e624da5a890de9d6
+Mathieu-Emulator-Debug.apk	x86_64	Debug	113744	50232	33208	29e9cd39ead149c7b1716c12df7a27264176be0d22d79f8f823bfcc65f6e4752
