@@ -10,7 +10,7 @@
   "sources": {
     "producer": {
       "repository": "isomorphisms/remind-me-to-read",
-      "commit": "b03f9a1c8c03fc02a3b6145ea63d09003ce91900",
+      "commit": "8250aa62bdaad2f7679995d949f72b251b26b738",
       "converter": "ci/legacy-to-portable.py"
     },
     "aici": {
