@@ -1,0 +1,8 @@
+schema	wiggle-v1
+producer	surfer
+input_kind	scripted
+fps	8
+frames	24
+width	160
+height	160
+controls_visible	false

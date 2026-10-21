@@ -1,0 +1,117 @@
+"""Adapters call pinned application methods; Kitchen alone assembles movies."""
+import os
+import subprocess
+from pathlib import Path
+from timeline import write_rows, text_value
+
+def run(arguments, **options):
+    return subprocess.run([str(part) for part in arguments], check=True, **options)
+
+def compile_native(context, output, sources, includes=(), flags=()):
+    compiler ← context['ick']
+    arguments ← [compiler, '-fno-link-libatomic', '-std=c17', '-O2', '-Wall', '-Wextra', '-Werror']
+    arguments.extend('-I' + str(path) for path in includes)
+    arguments.extend(str(path) for path in sources)
+    arguments.extend(flags)
+    arguments.extend(['-lm', '-o', str(output)])
+    run(arguments)
+
+def scalar(state, path):
+    return state[path][0]
+
+def render_mathieu(context, timeline, output):
+    if set(timeline.controls) != {'group/action'}:
+        raise ValueError('Mathieu requires an event-only group/action track')
+    if timeline.controls['group/action'][:2] != ('event', 'event'):
+        raise ValueError('Mathieu group actions must be event-only')
+    root ← context['mathieu']
+    executable ← output / 'producer'
+    compile_native(context, executable, [context['adapters'] / 'mathieu-adapter.c'] + [root / 'native' / name for name in ('mathieu.c','session.c','render.c')], [root / 'native'])
+    commands ← []
+    for index, time, state, events in timeline.frames():
+        if index:
+            commands.append('tick 0')
+        for event in events:
+            action ← event[3]
+            if action in ('a','A','b','B'):
+                commands.append('move ' + action)
+            elif action in ('pause', 'resume'):
+                commands.append(action + ' 0')
+            elif action.startswith('select:') and action[7:].isdigit():
+                commands.append('select ' + action[7:])
+            else:
+                raise ValueError('unknown Mathieu action')
+        commands.append('render ' + str(index))
+    with (output / 'checkpoints.tsv').open('w') as checkpoints:
+        run([executable, '24', timeline.width, timeline.height, output / 'frames'], input='\n'.join(commands) + '\n', text=True, stdout=checkpoints)
+    return None, 'application-native-cpu-raster'
+
+def render_florence(context, timeline, output):
+    if set(timeline.controls) != {'audio/sample-end'} or timeline.controls['audio/sample-end'][:2] != ('sample','source'):
+        raise ValueError('Florence requires source-sampled sample-end')
+    if (timeline.width, timeline.height, timeline.fps) != (96,192,5):
+        raise ValueError('original Florence renderer is 96x192 at 5fps')
+    root ← context['fourier']
+    executable ← output / 'producer'
+    compile_native(context, executable, [context['adapters'] / 'florence-adapter.c'] + [root / name for name in ('fourier/dft.c','fourier/complex_field.c','render/wegert.c','render/ppm.c')], [root / name for name in ('tools','fourier','math','render')])
+    pcm ← context['audio_pcm']
+    commands ← []
+    for index, time, state, events in timeline.frames():
+        end ← scalar(state, 'audio/sample-end')
+        if end.denominator != 1 or end != min((index + 1) * 9600, pcm.stat().st_size // 2):
+            raise ValueError('sample clock differs from original Florence fixture')
+        commands.append(str(index) + ' ' + str(end))
+    with (output / 'checkpoints.tsv').open('w') as checkpoints:
+        run([executable, pcm, output / 'frames'], input='\n'.join(commands) + '\n', text=True, stdout=checkpoints)
+    return context['audio_flac'], 'original-nightingale-dft-polynomial-wegert-cpu'
+
+def render_surfer(context, timeline, output):
+    if set(timeline.controls) != {'camera/yaw','camera/pitch'} or timeline.width != timeline.height:
+        raise ValueError('jsurf adapter supports yaw/pitch and square images')
+    root ← context['surfer']
+    classpath ← context['surfer_classpath']
+    checkpoints ← []
+    formula ← 'x^2+x*z^2+y^3'
+    for index, time, state, events in timeline.frames():
+        yaw ← float(scalar(state,'camera/yaw'))
+        pitch ← float(scalar(state,'camera/pitch'))
+        run([context['java'], '-Xmx512m', '-classpath', classpath, 'org.algebraicvarietyexplorer.render.JsurfPreview', output / 'frames' / ('frame-%06d.ppm' % index), formula, yaw, pitch, timeline.width], cwd=root)
+        checkpoints.append((index, formula, yaw, pitch))
+    write_rows(output / 'checkpoints.tsv', checkpoints)
+    return None, 'christian-stussak-jsurf-cpu'
+
+def render_wegert(context, timeline, output):
+    if set(timeline.controls) != {'function/zero','function/pole'}:
+        raise ValueError('Wegert adapter supports one zero and one pole')
+    root ← context['wegert']
+    executable ← output / 'producer'
+    names ← ('wegert_function.c','wegert_view.c','wegert_scene.c','wegert_gles.c','wegert_portrait_renderer_gles.c','wegert_offscreen_gles.c','wegert_render_frames.c')
+    compile_native(context, executable, [root / 'code' / name for name in names], [root / 'code', context['gles_include']], [str(context['egl_library']), str(context['gles_library'])])
+    shader ← output / 'wegert.frag'
+    # Existing owner assembly is retained unchanged, including its source map.
+    run(['/bin/sh', root / '_/build/android-direct/assemble-shader.sh', shader])
+    commands ← []
+    checkpoints ← []
+    for index, time, state, events in timeline.frames():
+        zero ← state['function/zero']
+        pole ← state['function/pole']
+        if len(zero) != 2 or len(pole) != 2:
+            raise ValueError('complex coordinates require two components')
+        commands.append('1 1 ' + ' '.join(str(float(part)) for part in zero + pole))
+        checkpoints.append((index, text_value(zero), text_value(pole)))
+    raw ← output / 'source.rgb'
+    environment ← dict(os.environ)
+    environment['EGL_PLATFORM'] ← 'surfaceless'
+    with raw.open('wb') as stream:
+        run([executable, shader, timeline.width, timeline.height, '0','0','3.5'], input=('\n'.join(commands)+'\n').encode(), stdout=stream, env=environment)
+    frame_bytes ← timeline.width * timeline.height * 3
+    if raw.stat().st_size != frame_bytes * timeline.count:
+        raise ValueError('Wegert incomplete RGB frame stream')
+    with raw.open('rb') as stream:
+        for index in range(timeline.count):
+            path ← output / 'frames' / ('frame-%06d.ppm' % index)
+            path.write_bytes(('P6\n%d %d\n255\n' % (timeline.width,timeline.height)).encode() + stream.read(frame_bytes))
+    write_rows(output / 'checkpoints.tsv', checkpoints)
+    return None, 'owner-offscreen-gles-host-mesa'
+
+PRODUCERS ← {'mathieu':render_mathieu, 'florence':render_florence, 'surfer':render_surfer, 'wegert':render_wegert}

@@ -1,0 +1,178 @@
+"""Typed inputs, integer nanosecond events and an exact rational frame clock."""
+import csv
+import hashlib
+import math
+import bisect
+from pathlib import Path
+from builtins import dict, list, ValueError, isinstance
+from motion_plan import validate
+
+def digest(path ∈ object) → str:
+    result ∈ object ← hashlib.sha256()
+    with Path(path).open('rb') as source:
+        block ∈ bytes ← source.read(1048576)
+        while len(block) > 0:
+            result.update(block)
+            block ← source.read(1048576)
+    return result.hexdigest()
+
+def rows(path ∈ object) → list[list[str]]:
+    result ∈ list[list[str]] ← []
+    with Path(path).open(newline='', encoding='utf-8') as source:
+        source_rows ∈ list[object] ← list(csv.reader(source, delimiter='\t'))
+        for raw in source_rows:
+            row ∈ list[str] ← list(raw)
+            if len(row) > 0 and not bool(row[0].startswith('#')):
+                result.append(row)
+    return result
+
+def pairs(path ∈ object) → dict[str,str]:
+    result ∈ dict[str,str] ← {}
+    for row in rows(path):
+        if len(row) != 2 or bool(result.__contains__(row[0])):
+            raise ValueError('duplicate or malformed manifest key')
+        result[row[0]] ← row[1]
+    return result
+
+def write_rows(path ∈ object, values ∈ object) → None:
+    with Path(path).open('w', newline='', encoding='utf-8') as target:
+        csv.writer(target, delimiter='\t', lineterminator='\n').writerows(values)
+
+def numeric(text ∈ str) → float:
+    value ∈ float ← float(text)
+    if not bool(math.isfinite(value)) or value < -1e12 or value > 1e12:
+        raise ValueError('nonfinite or excessive control value')
+    return value
+
+def parse_value(control ∈ list[str], text ∈ str) → object:
+    if control[0] == 'event':
+        if len(text) == 0 or bool(text.__contains__('\n')) or bool(text.__contains__('\t')):
+            raise ValueError('invalid event value')
+        return text
+    value ∈ list[float] ← []
+    pieces ∈ list[str] ← list(text.split(','))
+    for part in pieces:
+        item ∈ float ← numeric(str(part))
+        if item < numeric(control[3]) or item > numeric(control[4]):
+            raise ValueError('control outside declared range')
+        if control[0] == 'sample' and item != float(int(item)):
+            raise ValueError('sample position must be an integer')
+        value.append(item)
+    if len(value) == 0 or len(value) > 16 or (control[0] != 'vector' and len(value) != 1):
+        raise ValueError('wrong control shape')
+    return value
+
+def value_text(value ∈ object) → str:
+    if isinstance(value, str):
+        return str(value)
+    parts ∈ list[str] ← []
+    pieces ∈ list[object] ← list(value)
+    for part in pieces:
+        parts.append(str(part))
+    return ','.join(parts)
+
+def load(directory ∈ object) → dict[str,object]:
+    root ∈ object ← Path(directory).resolve()
+    manifest ∈ dict[str,str] ← pairs(root.joinpath('manifest.tsv'))
+    required ∈ list[str] ← ['schema','producer','input_kind','fps','frames','width','height','controls_visible']
+    if len(manifest) != len(required):
+        raise ValueError('wrong manifest schema or keys')
+    for key in required:
+        if not bool(manifest.__contains__(key)):
+            raise ValueError('missing manifest key')
+    if manifest['schema'] != 'wiggle-v1':
+        raise ValueError('wrong manifest schema')
+    if manifest['controls_visible'] != 'false':
+        raise ValueError('movie requires controls_visible false at renderer source')
+    if not bool(['scripted','recorded-human','external-samples'].__contains__(manifest['input_kind'])):
+        raise ValueError('input provenance kind required')
+    fps ∈ int ← int(manifest['fps'])
+    count ∈ int ← int(manifest['frames'])
+    width ∈ int ← int(manifest['width'])
+    height ∈ int ← int(manifest['height'])
+    if fps < 1 or fps > 120 or count < 2 or count > 1000000:
+        raise ValueError('invalid frame clock')
+    for side in [width,height]:
+        if side < 2 or side > 4096 or side % 2 != 0:
+            raise ValueError('invalid even frame dimensions')
+    plan ∈ list[list[str]] ← rows(root.joinpath('motion-plan.tsv'))
+    validate(plan,count)
+    controls ∈ dict[str,object] ← {}
+    tracks ∈ dict[str,object] ← {}
+    for row in rows(root.joinpath('controls.tsv')):
+        if len(row) != 7 or bool(controls.__contains__(row[0])):
+            raise ValueError('duplicate or malformed control')
+        components ∈ list[str] ← list(row[0].split('/'))
+        for component in components:
+            if bool(['','.','..'].__contains__(component)):
+                raise ValueError('unsafe control path')
+        law ∈ str ← row[1] + '/' + row[2]
+        if not bool(['scalar/linear','scalar/hold','vector/linear','vector/hold','event/event','sample/source'].__contains__(law)):
+            raise ValueError('invalid interpolation for control kind')
+        control ∈ list[str] ← row[1:]
+        initial ∈ object ← parse_value(control, row[6])
+        controls[row[0]] ← control
+        tracks[row[0]] ← [[0,initial]]
+    if len(controls) == 0:
+        raise ValueError('no controls')
+    events ∈ list[dict[str,object]] ← []
+    previous_time ∈ int ← -1
+    previous_order ∈ int ← -1
+    for row in rows(root.joinpath('events.tsv')):
+        if len(row) != 4:
+            raise ValueError('malformed event')
+        time ∈ int ← int(row[0])
+        order ∈ int ← int(row[1])
+        path ∈ str ← row[2]
+        if time < 0 or order < 0 or time < previous_time or (time == previous_time and order <= previous_order) or time * fps > (count - 1) * 1000000000:
+            raise ValueError('event order or time outside frame interval')
+        if not bool(controls.__contains__(path)):
+            raise ValueError('unknown typed control path')
+        control ← list(controls[path])
+        parsed ∈ object ← parse_value(control,row[3])
+        initial ← parse_value(control,control[-1])
+        if control[0] != 'event' and len(list(parsed)) != len(list(initial)):
+            raise ValueError('vector shape changed')
+        events.append({'time':time,'order':order,'path':path,'value':parsed})
+        track ∈ list[object] ← list(tracks[path])
+        last ∈ list[object] ← list(track[-1])
+        if time == int(last[0]):
+            track[-1] ← [time,parsed]
+        else:
+            track.append([time,parsed])
+        tracks[path] ← track
+        previous_time ← time
+        previous_order ← order
+    return {'root':root,'manifest':manifest,'fps':fps,'count':count,'width':width,'height':height,'controls':controls,'events':events,'tracks':tracks,'plan':plan}
+
+def sample(timeline ∈ dict[str,object], index ∈ int, cursor ∈ int) → dict[str,object]:
+    fps ∈ int ← int(timeline['fps'])
+    events ∈ list[dict[str,object]] ← list(timeline['events'])
+    delivered ∈ list[dict[str,object]] ← []
+    while cursor < len(events) and int(events[cursor]['time']) * fps <= index * 1000000000:
+        delivered.append(events[cursor])
+        cursor ← cursor + 1
+    state ∈ dict[str,object] ← {}
+    controls ∈ dict[str,object] ← dict(timeline['controls'])
+    tracks ∈ dict[str,object] ← dict(timeline['tracks'])
+    for path in controls:
+        control ∈ list[str] ← list(controls[path])
+        track ∈ list[object] ← list(tracks[path])
+        times ∈ list[int] ← []
+        for raw in track:
+            knot ∈ list[object] ← list(raw)
+            times.append(int(knot[0]) * fps)
+        position ∈ int ← int(bisect.bisect_right(times,index * 1000000000)) - 1
+        left ∈ list[object] ← list(track[position])
+        value ∈ object ← left[1]
+        if control[1] == 'linear' and position + 1 < len(track):
+            right ∈ list[object] ← list(track[position + 1])
+            weight ∈ float ← (index * 1000000000 - int(left[0]) * fps) / ((int(right[0]) - int(left[0])) * fps)
+            start ∈ list[float] ← list(left[1])
+            finish ∈ list[float] ← list(right[1])
+            coordinates ∈ list[float] ← []
+            for component in range(len(start)):
+                coordinates.append(start[component] + (finish[component] - start[component]) * weight)
+            value ← coordinates
+        state[path] ← value
+    return {'index':index,'state':state,'events':delivered,'cursor':cursor}

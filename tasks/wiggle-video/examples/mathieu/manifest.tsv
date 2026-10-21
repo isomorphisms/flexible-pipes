@@ -1,0 +1,8 @@
+schema	wiggle-v1
+producer	mathieu
+input_kind	scripted
+fps	30
+frames	420
+width	360
+height	360
+controls_visible	false

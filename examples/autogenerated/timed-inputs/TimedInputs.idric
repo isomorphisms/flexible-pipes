@@ -1,0 +1,23 @@
+module TimedInputs
+
+import System
+
+data ControlKind = ContinuousCoordinate | DiscreteAction | SourceSamplePosition
+data Interpolation = Linear | Hold | EventOnly | SourceSampled
+
+admitted : ControlKind → Interpolation → Bool
+admitted ContinuousCoordinate Linear = True
+admitted ContinuousCoordinate Hold = True
+admitted DiscreteAction EventOnly = True
+admitted SourceSamplePosition SourceSampled = True
+admitted _ _ = False
+
+main : IO ()
+main =
+  if admitted ContinuousCoordinate Linear &&
+     admitted DiscreteAction EventOnly &&
+     admitted SourceSamplePosition SourceSampled &&
+     not (admitted DiscreteAction Linear) &&
+     not (admitted SourceSamplePosition Linear)
+  then putStrLn "PASS typed input interpolation admission"
+  else exitFailure
