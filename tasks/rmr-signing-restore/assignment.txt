@@ -1,0 +1,21 @@
+SUN RMR-SIGNING-RESTORE-01 — independent host-archive acceptance slice
+
+Human authorization: 2026-10-21 user requested continued execution of reading APK signing repair, complete library backup/restore, and safe C67/A1 updates.
+
+Origin: https://github.com/isomorphisms/flexible-pipes/issues/238
+Producer: isomorphisms/remind-me-to-read PR #4, pinned by registry/rmr-signing-restore.json
+Independent oracle: isomorphisms/ai-ci PR #310, pinned by registry/rmr-signing-restore.json
+
+Stage boundaries:
+1. Validate source revisions and original human job digest.
+2. Exercise leaf's real host migration tests, preserving failures.
+3. Produce synthetic v3 legacy TAR with EPUB/TXT/paper, bookmarks, sessions and ReadEra records, then execute the actual leaf TAR-to-portable converter.
+4. Independently inspect the converter's portable ZIP with the AI-CI oracle.
+5. Independently compare source TAR reading data and book bytes with the produced ZIP, including hostile altered-but-rehashed fixtures.
+6. Seal exact source/ZIP SHA-256, stage stdout/stderr, and exit receipts.
+
+Limits:
+- This host-only qualification is NOT actual Android APK signing continuity, C67/A1 update, backup UI execution, secure environment provisioning, or FP platform job dispatch.
+- No private user book contents or signing material is handled by the fixture.
+- Preserve legacy installations, never uninstall or clear any device without verified and independently compared complete backups.
+- Do not merge either draft PR or close release issue #3 solely on this host result.

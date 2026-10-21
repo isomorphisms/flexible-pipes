@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "name": "rmr-signing-restore-host",
+  "description": "Pinned real legacy-to-portable converter → independent AI-CI oracle/comparison, host-only; no signed APK or phone acceptance",
+  "required_stages": [
+    "job-envelope",
+    "source-preflight",
+    "producer-host-tests",
+    "producer-portable-artifact",
+    "independent-zip-oracle",
+    "independent-legacy-comparator",
+    "independent-hostile-tests",
+    "seal"
+  ],
+  "stages": [
+    {
+      "name": "job-envelope",
+      "kind": "command",
+      "argv": [
+        "sha256sum",
+        "tasks/rmr-signing-restore/assignment.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "source-preflight",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "scripts/rmr-host-test.py",
+        "preflight"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "producer-host-tests",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "_reading/producer/ci",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "producer-portable-artifact",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "scripts/rmr-host-test.py",
+        "produce"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "independent-zip-oracle",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "_reading/aici/reading-backup/verify.py",
+        "_reading/evidence/portable.zip"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "independent-legacy-comparator",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "_reading/aici/reading-backup/compare_legacy.py",
+        "_reading/evidence/old.tar",
+        "_reading/evidence/portable.zip"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "independent-hostile-tests",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "_reading/aici/reading-backup",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "seal",
+      "kind": "command",
+      "argv": [
+        "python3",
+        "scripts/rmr-host-test.py",
+        "seal"
+      ],
+      "cwd": "."
+    }
+  ]
+}
