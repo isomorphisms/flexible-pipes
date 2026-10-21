@@ -1,0 +1,71 @@
+{
+  "finished_at": "2026-10-21T12:16:10.586927+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "INSPECTION_RECIPE": "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/inspect-miro-native.ysh",
+    "NATIVE_BUILD": "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+    "OUTPUT_ROOT": "/workspace/scratch/7d64eaed802d/native-inspection-e745edd"
+  },
+  "pipeline": "crystal-growth-c67-inspection",
+  "pipeline_path": "pipelines/crystal-growth-c67-inspection.json",
+  "pipeline_sha256": "b719fd63bb779d1770d5a24f2121887245645fbefd618babda2b6f9589d0a0f8",
+  "repository_commit": "4a03e41b513a178e9d0420f66297c47dc1901d7f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:16:09.453860+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-21T12:16:09.448988+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/inspect-miro-native.ysh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:16:09.457300+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "inspection-recipe",
+      "started_at": "2026-10-21T12:16:09.453938+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "14edb78280b9ed6025fe178c9e844e81befc25b47e4b93a27d6ae5b71e1c4d67"
+    },
+    {
+      "argv": [
+        "grease",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/inspect-miro-native.ysh",
+        "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+        "/workspace/scratch/7d64eaed802d/native-inspection-e745edd"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:16:10.586800+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "native-inspection",
+      "started_at": "2026-10-21T12:16:09.457534+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c527a890b3be8e5a0cda73bd4e34ab3b9c05b4b2337bd50cdc5518158c4a1c88"
+    }
+  ],
+  "started_at": "2026-10-21T12:16:09.448835+00:00",
+  "status": "PASS"
+}

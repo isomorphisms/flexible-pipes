@@ -1,0 +1,6 @@
+    "$cc" --target=x86_64-linux-gnu --sysroot=/ --ld-path="$linker" -rtlib=libgcc -unwindlib=libgcc -std=c17 -Wall -Wextra -Werror -O2 -MD -MF "$output/$unit.dependencies" "$root/src/$unit.c" -o "$output/$unit"
+    ^
+/workspace/scratch/7d64eaed802d/aici-producer/android-producer/build-host-verifiers.ysh:18: Can't execute '/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-18': Permission denied
+    "$cc" --target=x86_64-linux-gnu --sysroot=/ --ld-path="$linker" -rtlib=libgcc -unwindlib=libgcc -std=c17 -Wall -Wextra -Werror -O2 -MD -MF "$output/$unit.dependencies" "$root/src/$unit.c" -o "$output/$unit"
+    ^
+/workspace/scratch/7d64eaed802d/aici-producer/android-producer/build-host-verifiers.ysh:18: errexit PID 10: Command failed with status 126

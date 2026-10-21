@@ -1,0 +1,181 @@
+{
+  "finished_at": "2026-10-21T12:14:59.916943+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/7d64eaed802d/crystal",
+    "MATERIAL_ROOT": "/workspace/scratch/7d64eaed802d/materials",
+    "NATIVE_OUTPUT": "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+    "NATIVE_RECIPE": "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/build-miro.ysh",
+    "VERIFIER_OUTPUT": "/workspace/scratch/7d64eaed802d/aici-native-verifiers-exact",
+    "VERIFIER_RECIPE": "/workspace/scratch/7d64eaed802d/aici-producer/android-producer/build-host-verifiers.ysh",
+    "VERIFIER_SOURCE": "/workspace/scratch/7d64eaed802d/aici-producer"
+  },
+  "pipeline": "crystal-growth-c67-native-candidate",
+  "pipeline_path": "pipelines/crystal-growth-c67-native-candidate.json",
+  "pipeline_sha256": "034f55aa6896ad3acc803c671bbd423435aecf3f196fe9e5c31e44f774d8f41f",
+  "repository_commit": "4a03e41b513a178e9d0420f66297c47dc1901d7f",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:13.336172+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-21T12:13:13.329324+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:13.341220+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "source-revision",
+      "started_at": "2026-10-21T12:13:13.336267+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "aa5c733ff3749d5adf2ad40d97787674b741e1de47701f4d3c82219ba554b331"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "diff",
+        "--exit-code",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:13.358156+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "tracked-source-clean",
+      "started_at": "2026-10-21T12:13:13.341286+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/aici-producer",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:13.363940+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "verifier-source-revision",
+      "started_at": "2026-10-21T12:13:13.358457+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "860fff9c07bf986215abe74a56fa269596134c1abcd1d4702923201726a9fdd2"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/7d64eaed802d/aici-producer/android-producer/build-host-verifiers.ysh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:13.377896+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "verifier-recipe",
+      "started_at": "2026-10-21T12:13:13.364001+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8c2d3fae5b61c4b33191db447621d274ce0ceb7bd2760a035aac410ab112262f"
+    },
+    {
+      "argv": [
+        "grease",
+        "/workspace/scratch/7d64eaed802d/aici-producer/android-producer/build-host-verifiers.ysh",
+        "/workspace/scratch/7d64eaed802d/aici-native-verifiers-exact"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:18.810856+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "verifier-build",
+      "started_at": "2026-10-21T12:13:13.378805+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "cbc310feb7532a389ce555433cbc88a47a9fa5eb75a26447225016c1b77631df"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/build-miro.ysh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:13:18.821228+00:00",
+      "index": 7,
+      "kind": "command",
+      "name": "native-recipe",
+      "started_at": "2026-10-21T12:13:18.812047+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3b04736966aad48efd8e2db7edb9f7d45b3c00874f35e42db448ca46b9c686db"
+    },
+    {
+      "argv": [
+        "grease",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/build-miro.ysh",
+        "arm64-v8a",
+        "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+        "/workspace/scratch/7d64eaed802d/materials"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:14:59.906838+00:00",
+      "index": 8,
+      "kind": "command",
+      "name": "native-build",
+      "started_at": "2026-10-21T12:13:18.821320+00:00",
+      "stderr_sha256": "7afbf177c8d03e8d6eeae58b73ba0cff35c84aa1e74587497bd5206c940578fa",
+      "stdout_sha256": "0f1ce40f20b4a8cdc108b6a54ff3495604ab9e0e3947fe5259e16d1aad23ac58"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "diff",
+        "--exit-code",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T12:14:59.916889+00:00",
+      "index": 9,
+      "kind": "command",
+      "name": "tracked-source-still-clean",
+      "started_at": "2026-10-21T12:14:59.907647+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-21T12:13:13.329204+00:00",
+  "status": "PASS"
+}

@@ -1,0 +1,15 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-inspection",
+ "description":"Consumer-side ELF inspection of four native candidates. No APK, signing, registered-producer or physical acceptance.",
+ "parameters":{
+  "INSPECTION_RECIPE":{"required":true,"pattern":"/.+"},
+  "NATIVE_BUILD":{"required":true,"pattern":"/.+"},
+  "OUTPUT_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","inspection-recipe","native-inspection"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"inspection-recipe","argv":["sha256sum","{{INSPECTION_RECIPE}}"],"cwd":"."},
+  {"kind":"command","name":"native-inspection","argv":["grease","{{INSPECTION_RECIPE}}","{{NATIVE_BUILD}}","{{OUTPUT_ROOT}}"],"cwd":"."}
+ ]
+}

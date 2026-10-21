@@ -1,0 +1,13 @@
+/workspace/scratch/7d64eaed802d/native-c67-updated/.native-build.03lnsRJ0/lua-5.4.8/src/loslib.c:174:3: warning: 'tmpnam' is deprecated: tmpnam is unsafe, use mkstemp or tmpfile instead [-Wdeprecated-declarations]
+  174 |   lua_tmpnam(buff, err);
+      |   ^
+/workspace/scratch/7d64eaed802d/native-c67-updated/.native-build.03lnsRJ0/lua-5.4.8/src/loslib.c:124:33: note: expanded from macro 'lua_tmpnam'
+  124 | #define lua_tmpnam(b,e)         { e = (tmpnam(b) == NULL); }
+      |                                        ^
+/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/stdio.h:151:5: note: 'tmpnam' has been explicitly marked deprecated here
+  151 |     __warnattr("tmpnam is unsafe, use mkstemp or tmpfile instead");
+      |     ^
+/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/sys/cdefs.h:146:40: note: expanded from macro '__warnattr'
+  146 | #define __warnattr(msg) __attribute__((__deprecated__(msg)))
+      |                                        ^
+1 warning generated.

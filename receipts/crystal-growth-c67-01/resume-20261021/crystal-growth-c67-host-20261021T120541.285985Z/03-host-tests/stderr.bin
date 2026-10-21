@@ -1,0 +1,3 @@
+  test $(/usr/bin/sha256sum "$ld" | /usr/bin/awk '{print $1}') = c4a7473d3b8a99a32335616838af2aa85c6333091abeab423be2a905ff5f288c
+  ^~~~
+/workspace/scratch/7d64eaed802d/crystal/tests/run-host.ysh:13: errexit PID 8: Command failed with status 1

@@ -1,0 +1,25 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-native-candidate",
+ "description":"Reproduce the retained pinned-NDK verifier and compile/link the four ARM64 application candidates. This does not invoke or qualify the registered Android producer, authorize signing, or establish delivery eligibility.",
+ "parameters":{
+  "APPLICATION_ROOT":{"required":true,"pattern":"/.+"},
+  "VERIFIER_SOURCE":{"required":true,"pattern":"/.+"},
+  "VERIFIER_RECIPE":{"required":true,"pattern":"/.+"},
+  "VERIFIER_OUTPUT":{"required":true,"pattern":"/.+"},
+  "NATIVE_RECIPE":{"required":true,"pattern":"/.+"},
+  "NATIVE_OUTPUT":{"required":true,"pattern":"/.+"},
+  "MATERIAL_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","source-revision","tracked-source-clean","verifier-source-revision","verifier-recipe","verifier-build","native-recipe","native-build","tracked-source-still-clean"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"source-revision","argv":["git","-C","{{APPLICATION_ROOT}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"tracked-source-clean","argv":["git","-C","{{APPLICATION_ROOT}}","diff","--exit-code","HEAD"],"cwd":"."},
+  {"kind":"command","name":"verifier-source-revision","argv":["git","-C","{{VERIFIER_SOURCE}}","rev-parse","HEAD"],"cwd":"."},
+  {"kind":"command","name":"verifier-recipe","argv":["sha256sum","{{VERIFIER_RECIPE}}"],"cwd":"."},
+  {"kind":"command","name":"verifier-build","argv":["grease","{{VERIFIER_RECIPE}}","{{VERIFIER_OUTPUT}}"],"cwd":"."},
+  {"kind":"command","name":"native-recipe","argv":["sha256sum","{{NATIVE_RECIPE}}"],"cwd":"."},
+  {"kind":"command","name":"native-build","argv":["grease","{{NATIVE_RECIPE}}","arm64-v8a","{{NATIVE_OUTPUT}}","{{MATERIAL_ROOT}}"],"cwd":"."},
+  {"kind":"command","name":"tracked-source-still-clean","argv":["git","-C","{{APPLICATION_ROOT}}","diff","--exit-code","HEAD"],"cwd":"."}
+ ]
+}
