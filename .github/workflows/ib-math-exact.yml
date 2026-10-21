@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ib
-          ref: 35a8b8801f72feb445924882220e30a1374ef7c2
+          ref: 20711f085b18c0ffb3ab90ec5b4e958f716fe52b
           path: source
           submodules: true
           persist-credentials: false
@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: aa081f1bbcbb5dda270179ffe7994f99e71a59d6
+          ref: e7957d3707654d5e32d3e866fd591abb9eb45fee
           path: oracle
           persist-credentials: false
 
