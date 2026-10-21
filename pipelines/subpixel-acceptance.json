@@ -15,6 +15,7 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "font-preview-acceptance",
     "conway-acceptance",
     "seal"
   ],
@@ -46,7 +47,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -60,7 +61,7 @@
         "--kill-after=10s",
         "100m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -74,7 +75,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -88,8 +89,22 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "independent",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "font-preview-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "10m",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
+        "font-preview",
         "{{workspace}}"
       ],
       "cwd": "."
@@ -102,7 +117,7 @@
         "--kill-after=10s",
         "10m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "conway",
         "{{workspace}}"
       ],
@@ -116,7 +131,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "_subpixel/kitchen/tasks/subpixel/7.grease",
         "seal",
         "{{workspace}}"
       ],

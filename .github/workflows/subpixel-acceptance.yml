@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: b073c4c5a89bfb5debdbf08460ba1b8206feda6a
+          ref: 5b39813890808797552392a9360b3736352cf5b3
           path: _subpixel/kitchen
           persist-credentials: false
       - name: Materialize exact producer
@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 055217a5c512050b11971ee8d0e4124e4fe3735c
+          ref: ce58794ed2eafa4d60644318314bde89e1638d92
           path: _subpixel/aici
           persist-credentials: false
       - name: Materialize owned ICK and retained GCC reference

@@ -1,7 +1,7 @@
 # Subpixel host qualification
 
-`subpixel-acceptance` version 3 executes the corrected whole-path/font producer,
-real Conway bridge and independent oracle through Kitchen version 6, source-pinned ICK and
+`subpixel-acceptance` version 4 executes the corrected whole-path/font producer,
+real Conway bridge and independent oracle through Kitchen version 7, source-pinned ICK and
 ICK-built Ike. Exact sources and runtime materials are in
 `registry/subpixel-acceptance.json`; the complete assignment is
 `tasks/subpixel/assignment.txt`. Version 1 and Kitchen 4 remain historical
@@ -39,6 +39,16 @@ translucent CLI pixels and seven genuine source defects. Its declared
 1/32-pixel boundary strip excludes 243,696 comparisons. The exact receipt checker must also
 reject forged final-result and selected-target receipts. FP records each
 stage's exit and output hashes; child timeouts bound the build and executions.
+
+The ninth stage independently decodes the emitted font previews, checking all
+105,344 masks, printed counts and 6,742,016 fine-grid pixels. Literal bitmap
+answers are exact; continuous geometry reports 5,015,040 definite and 41,472
+excluded boundary samples. Exact image/mask/count equalities have no tolerance.
+Twelve compiled source defects and four malformed inventories must reject
+with unchanged expectations. The native path oracle supplies repeated union
+and work-cap cases; targeted preview mutations use a declared one-panel scope
+with an unchanged positive twin. The stage also checks the original collected
+preview files and binds a separate exact Ike target/recipe receipt.
 
 Retained evidence includes font masks and counts, PPM panels, per-mode path
 metrics, native preview binaries, positive/negative logs, producer and

@@ -1,4 +1,4 @@
-SUBPIXEL-REGISTER-03 — Execute whole paths, sampled fonts and real Conway host qualification
+SUBPIXEL-REGISTER-04 — Execute whole paths, emitted font samples and real Conway host qualification
 
 Origins: https://github.com/isomorphisms/flexible-pipes/issues/120,
 https://github.com/isomorphisms/flexible-pipes/issues/145,
@@ -6,15 +6,22 @@ https://github.com/isomorphisms/flexible-pipes/issues/146,
 https://github.com/isomorphisms/flexible-pipes/issues/214.
 
 Execute corrected producer f33a476c69da313745b58c10cf8057765f9cbec9 through the
-versioned Kitchen 6 recipe, authenticated source-built ICK and freshly ICK-built Ike. Retain native
+versioned Kitchen 7 recipe, authenticated source-built ICK and freshly ICK-built Ike. Retain native
 tests, baseline/quadratic/cubic/auto path images, all 32 font panels, actual
 8x8 midpoint masks and metrics. Independently execute ai-ci
-055217a5c512050b11971ee8d0e4124e4fe3735c: rational/alpha oracle, 408 path
+ce58794ed2eafa4d60644318314bde89e1638d92: rational/alpha oracle, 408 path
 assertions, 463 glyph assertions, ten real implementation/shape defects, and
 forged final/target receipt rejection. Execute the real Conway bridge at
 42c99ed0d289162b6fd62d864fbf58fc042e24d8 through its independent analytic
 sample/pixel checker and seven genuine source defects, binding its separate
 Ike target receipt. Include all 65,520 rational translucent-rounding cases.
+Execute the separate font-preview target and independently decode all 32
+panels, 105,344 masks and 6,742,016 fine-grid pixels. Match literal bitmap,
+continuous source geometry outside the predeclared 1/64px boundary strip,
+counts, enlarged/native resolved pixels and totals. Require twelve compiled
+source defects plus four malformed inventories to reject. Verify its exact
+Ike receipt and recheck the original collected producer preview bytes before
+sealing; regenerated neighboring test output alone is insufficient.
 Authenticate all input materials, reject
 stale sources and outputs before build, and seal exact output hashes plus FP
 stage receipts. Use the verified Grease launcher. Existing stage-zero compiler

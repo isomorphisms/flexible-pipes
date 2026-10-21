@@ -53,3 +53,18 @@ The executed independent checker source SHA256 is
 The exact receipt checker accepted that target/recipe and rejected a different
 target and different recipe. These local identities do not substitute for the
 new registered run's own stage receipts and final seal.
+
+Version 3 subsequently passed all eight registered stages at exact FP
+aef3febb73bc42abbfff65147c3eea6e68f7761a in
+https://github.com/isomorphisms/flexible-pipes/actions/runs/39618686387.
+All 144 sealed artifact files were downloaded and verified. That receipt
+does not cover the new version 4 source pins or emitted-preview decoder.
+
+Version 4 selects Kitchen 7 and ai-ci ce58794ed2eafa4d60644318314bde89e1638d92.
+Its additional font-preview stage independently reads completed P6/TSV bytes,
+requires twelve real compiled source defect rejections and four malformed
+inventory refusals, and checks the already collected producer preview too.
+Local ICK/Ike execution passed the full gate; exact target/recipe receipt
+accepted and wrong recipe rejected. Its 32-panel positive decodes 6,742,016
+image bits exactly. Registered version 4 remains unqualified until its own
+exact-head run completes every stage and seals the resulting artifact.

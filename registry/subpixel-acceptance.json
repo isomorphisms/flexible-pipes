@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "operation": "subpixel-acceptance",
-  "operation_version": "3",
+  "operation_version": "4",
   "pipeline": "pipelines/subpixel-acceptance.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
   "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
@@ -13,13 +13,13 @@
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "b073c4c5a89bfb5debdbf08460ba1b8206feda6a",
-      "recipe": "tasks/subpixel/6.grease",
-      "sha256": "e4df536fb9168197ccb988e92afa6c11e856ece1d5b264917a39b78fe72c8fc6"
+      "commit": "5b39813890808797552392a9360b3736352cf5b3",
+      "recipe": "tasks/subpixel/7.grease",
+      "sha256": "57543f2a110a3adaf5989f2194c3199b685ff6aab6acf81fca512b0a2cb12396"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",
-      "commit": "055217a5c512050b11971ee8d0e4124e4fe3735c"
+      "commit": "ce58794ed2eafa4d60644318314bde89e1638d92"
     },
     "conway": {
       "repository": "isomorphismes/Conway",
@@ -53,6 +53,7 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "font-preview-acceptance",
     "conway-acceptance",
     "seal"
   ],
@@ -60,11 +61,16 @@
     "build_seconds": 6000,
     "consumer_seconds": 300,
     "acceptance_seconds": 300,
-    "conway_seconds": 600
+    "conway_seconds": 600,
+    "font_preview_seconds": 600
   },
   "outputs": [
     "producer.tsv",
     "independent.tsv",
+    "font-preview.tsv",
+    "font-preview/positive.log",
+    "font-preview/mutations.tsv",
+    "collected-font-preview.log",
     "conway.tsv",
     "conway/positive.log",
     "conway/materials.sha256",

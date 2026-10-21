@@ -28,12 +28,12 @@ test ! -e "$work/EXECUTED"
 
 # A genuine recipe must still reject a wrong source before creating evidence.
 mkdir -p "$work/wrong/_subpixel/kitchen/tasks/subpixel"
-cp "$root/_subpixel/kitchen/tasks/subpixel/6.grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/"
+cp "$root/_subpixel/kitchen/tasks/subpixel/7.grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/"
 mkdir -p "$work/wrong/_subpixel/runtime/bin"
 cp "$grease" "$work/wrong/_subpixel/runtime/bin/grease"
 git clone --quiet --local "$root/_subpixel/producer" "$work/wrong/_subpixel/producer"
 git -C "$work/wrong/_subpixel/producer" checkout --quiet --detach 3d897f35e015dbe6a914e4a571e3ac94073c1ac4
-try { "$grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/6.grease" preflight "$work/wrong" > "$work/wrong.out" 2> "$work/wrong.err" }
+try { "$grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/7.grease" preflight "$work/wrong" > "$work/wrong.out" 2> "$work/wrong.err" }
 if (_error.code !== 2) { echo 'FAIL wrong producer revision accepted' >&2; exit 1 }
 grep -F 'producer revision mismatch' "$work/wrong.err"
 test ! -e "$work/wrong/_subpixel/evidence"
