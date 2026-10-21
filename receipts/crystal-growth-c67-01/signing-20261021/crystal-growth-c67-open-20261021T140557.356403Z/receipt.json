@@ -1,0 +1,85 @@
+{
+  "finished_at": "2026-10-21T14:05:57.409783+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/7d64eaed802d/crystal"
+  },
+  "pipeline": "crystal-growth-c67-open",
+  "pipeline_path": "pipelines/crystal-growth-c67-open.json",
+  "pipeline_sha256": "0d5cf99d1e8129d986a6435def4868c4492ccee54053d89cf7d4ba08690b56ae",
+  "repository_commit": "a5da4461c7514b42bcc947170eece0296f3b79e0",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T14:05:57.379771+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-21T14:05:57.369702+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T14:05:57.390496+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "host-identity",
+      "started_at": "2026-10-21T14:05:57.379991+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "1cfa62c473397bd4b082e84f331e90fd9461104b3ec3ea3190ecd6c551a57f77"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T14:05:57.400571+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "source-revision",
+      "started_at": "2026-10-21T14:05:57.390679+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "35236784fe4e101283c506c80dcfa946cfac0869d718c1dfa6784d1ccb9978f6"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "scripts/run-pipeline"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T14:05:57.409762+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "runner-identity",
+      "started_at": "2026-10-21T14:05:57.400958+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e44147ca21ba2c814e86488e3d92af612c9674b8337000cf221eabe9085263d6"
+    }
+  ],
+  "started_at": "2026-10-21T14:05:57.369423+00:00",
+  "status": "PASS"
+}

@@ -13,6 +13,7 @@ __pycache__/
 # These are captured UTF-8 command streams, not executable/model binaries.
 !receipts/jobicy-cli/**/*.bin
 !receipts/crystal-growth-c67-01/resume-20261021/**/*.bin
+!receipts/crystal-growth-c67-01/signing-20261021/**/*.bin
 
 # Optional local cache roots.
 models/cache/

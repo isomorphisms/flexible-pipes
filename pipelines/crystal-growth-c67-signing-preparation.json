@@ -1,0 +1,21 @@
+{
+ "schema_version":1,"name":"crystal-growth-c67-signing-preparation",
+ "description":"Exercise the proposed Pyrite signing registry and packaging input refusals without reading any signing key or producing an APK.",
+ "parameters":{
+  "SIGNING_VERIFIER":{"required":true,"pattern":"/.+"},
+  "SIGNING_CASES":{"required":true,"pattern":"/.+"},
+  "SIGNING_REGISTRY":{"required":true,"pattern":"/.+"},
+  "PACKAGE_TEST":{"required":true,"pattern":"/.+"},
+  "NATIVE_BUILD":{"required":true,"pattern":"/.+"},
+  "PACKAGER_ROOT":{"required":true,"pattern":"/.+"},
+  "OUTPUT_ROOT":{"required":true,"pattern":"/.+"}
+ },
+ "required_stages":["job-envelope","verifier-identity","registry-identity","signing-registry-cases","packaging-input-refusals"],
+ "stages":[
+  {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"],"cwd":"."},
+  {"kind":"command","name":"verifier-identity","argv":["sha256sum","{{SIGNING_VERIFIER}}"],"cwd":"."},
+  {"kind":"command","name":"registry-identity","argv":["sha256sum","{{SIGNING_REGISTRY}}","{{SIGNING_CASES}}","{{PACKAGE_TEST}}"],"cwd":"."},
+  {"kind":"command","name":"signing-registry-cases","argv":["{{SIGNING_VERIFIER}}","self-test","{{SIGNING_CASES}}","{{SIGNING_REGISTRY}}"],"cwd":"."},
+  {"kind":"command","name":"packaging-input-refusals","argv":["grease","{{PACKAGE_TEST}}","{{NATIVE_BUILD}}","{{PACKAGER_ROOT}}","{{OUTPUT_ROOT}}"],"cwd":"."}
+ ]
+}

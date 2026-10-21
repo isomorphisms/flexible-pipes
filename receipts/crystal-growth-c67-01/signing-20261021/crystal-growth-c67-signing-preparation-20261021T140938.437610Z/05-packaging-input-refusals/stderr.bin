@@ -1,0 +1,3 @@
+    /usr/bin/grep -Fq "$message" "$output/$name.log"
+    ^
+/workspace/scratch/7d64eaed802d/crystal/tests/package-inputs.grease:18: errexit PID 10: Command failed with status 1
