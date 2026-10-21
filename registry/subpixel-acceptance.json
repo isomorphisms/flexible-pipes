@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "operation": "subpixel-acceptance",
-  "operation_version": "1",
+  "operation_version": "2",
   "pipeline": "pipelines/subpixel-acceptance.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
   "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
@@ -9,17 +9,17 @@
   "sources": {
     "producer": {
       "repository": "isomorphisms/rough.framebuffer",
-      "commit": "efff5fbe71d8722d713282c478dbdb52fa280f9b"
+      "commit": "0a09edede932ba80feb7f35addede3eb17baf6f3"
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139",
-      "recipe": "tasks/subpixel/4.grease",
-      "sha256": "efe3c372574381befaeef17321703e44b56452b8f78526eec31319c59bf8752c"
+      "commit": "76dc70bdd0e95a4c33f85521af17d8756908713c",
+      "recipe": "tasks/subpixel/5.grease",
+      "sha256": "ef07a623606acef6188f68532d18faf333b9d49b615a4dd0f93cc48f5cf81acc"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",
-      "commit": "abcd1a657845badf539b9699da98d1e124ea2c6b"
+      "commit": "5f6abcc9185dc960d445e7a567b5441f23973a15"
     },
     "ick": {
       "repository": "dilapidated-shed/ick",
@@ -33,10 +33,14 @@
   },
   "runtime": {
     "repository": "dilapidated-shed/grease",
-    "artifact_id": 11727693085,
-    "archive_sha256": "20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039",
-    "entry": "_bin/cxx-asan/ysh",
-    "executable_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c"
+    "artifact_id": 12192502970,
+    "archive_sha256": "295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5",
+    "engine_entry": "_bin/cxx-asan/ysh",
+    "engine_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c",
+    "entry": "_subpixel/runtime/bin/grease",
+    "launcher_url": "https://github.com/isomorphisms/grease/releases/download/tablet-aarch64-9b3dc8904891/grease-aarch64-termux.tar.gz",
+    "launcher_archive_sha256": "3ddb962ef313e528e525fa03518f494577e921c2201ecb49f7a11f2fbf4e82b2",
+    "launcher_sha256": "37088097c36a2f82cf45aaea9392e4a4cf16155fecb9da87d08a9c7fb4d92e4a"
   },
   "required_stages": [
     "job-envelope",
@@ -55,7 +59,11 @@
   "outputs": [
     "producer.tsv",
     "independent.tsv",
-    "curve-3x3-vs-5x5.ppm",
+    "preview/curve-3x3-vs-5x5.ppm",
+    "preview/path-{baseline,quadratic,cubic,auto}.{ppm,tsv}",
+    "preview/font-*.ppm",
+    "preview/font-masks.tsv",
+    "preview/font-metrics.tsv",
     "result.tsv",
     "result.sha256"
   ],

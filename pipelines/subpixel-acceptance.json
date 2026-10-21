@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "subpixel-acceptance",
-  "description": "Pinned host-baseline qualification through Kitchen/Ike, then an independent ai-ci oracle. Not production admission or model-job dispatch.",
+  "description": "Pinned whole-path and sampled-font host qualification through Kitchen/Ike and independent ai-ci. Not production admission or model-job dispatch.",
   "parameters": {
     "workspace": {
       "required": true,
@@ -44,8 +44,8 @@
         "timeout",
         "--kill-after=10s",
         "60s",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/5.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -58,8 +58,8 @@
         "timeout",
         "--kill-after=10s",
         "100m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/5.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -72,8 +72,8 @@
         "timeout",
         "--kill-after=10s",
         "5m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/5.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -86,8 +86,8 @@
         "timeout",
         "--kill-after=10s",
         "5m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/5.grease",
         "independent",
         "{{workspace}}"
       ],
@@ -100,8 +100,8 @@
         "timeout",
         "--kill-after=10s",
         "60s",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/5.grease",
         "seal",
         "{{workspace}}"
       ],

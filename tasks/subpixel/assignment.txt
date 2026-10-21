@@ -1,13 +1,21 @@
-SUBPIXEL-REGISTER-01 — Qualify the current subpixel baseline through Flexible Pipes
+SUBPIXEL-REGISTER-02 — Execute whole-path and sampled-font host qualification
 
-Origin: https://github.com/isomorphisms/flexible-pipes/issues/120
-Next implementation: https://github.com/isomorphisms/flexible-pipes/issues/145
+Origins: https://github.com/isomorphisms/flexible-pipes/issues/120,
+https://github.com/isomorphisms/flexible-pipes/issues/145,
+https://github.com/isomorphisms/flexible-pipes/issues/214.
 
-Execute the current renamed 3×3/5×5 producer at
-efff5fbe71d8722d713282c478dbdb52fa280f9b through Kitchen and Ike.
-Run the separately pinned ai-ci rational coverage/alpha oracle, four compiled
-source mutants and strict receipt checker. Retain exact sources, stage receipts,
-the actual PPM, failure logs and final digests. Fail before build on changed
-materials or source revisions. A baseline pass does not complete whole-curve
-subdivision/selection, authorize merging, prove trusted deployment, or qualify
-physical A1/C67 behavior. No model worker is dispatched by this deterministic job.
+Execute producer 0a09edede932ba80feb7f35addede3eb17baf6f3 through the
+versioned Kitchen 5 recipe, source-pinned ICK and ICK-built Ike. Retain native
+tests, baseline/quadratic/cubic/auto path images, all 32 font panels, actual
+8x8 midpoint masks and metrics. Independently execute ai-ci
+5f6abcc9185dc960d445e7a567b5441f23973a15: rational/alpha oracle, 408 path
+assertions, 463 glyph assertions, ten real implementation/shape defects, and
+forged final/target receipt rejection. Authenticate all input materials, reject
+stale sources and outputs before build, and seal exact output hashes plus FP
+stage receipts. Use the verified Grease launcher. Existing stage-zero compiler
+construction and POSIX product interfaces remain explicit boundaries.
+
+Host qualification does not establish Conway bridge acceptance, production
+admission, model dispatch, merge authority, APK publication or physical A1/C67
+behavior. Report actual outcomes and the first concrete failure without
+promoting an omitted stage to PASS.
