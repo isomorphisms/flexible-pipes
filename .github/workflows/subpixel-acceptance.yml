@@ -1,13 +1,22 @@
 name: Subpixel registered host qualification
 on:
   push:
-    branches: ['work/subpixel-registration']
+    branches: ['work/subpixel-registration', 'work/subpixel-path-font-registration']
     paths:
       - 'pipelines/subpixel-acceptance.json'
       - 'registry/subpixel-acceptance.json'
       - 'tasks/subpixel/**'
       - 'tests/subpixel-registration.grease'
       - '.github/workflows/subpixel-acceptance.yml'
+      - 'scripts/run-pipeline'
+  pull_request:
+    paths:
+      - 'pipelines/subpixel-acceptance.json'
+      - 'registry/subpixel-acceptance.json'
+      - 'tasks/subpixel/**'
+      - 'tests/subpixel-registration.grease'
+      - '.github/workflows/subpixel-acceptance.yml'
+      - 'scripts/run-pipeline'
   workflow_dispatch:
 
 permissions:
@@ -30,14 +39,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139
+          ref: 2b4dc2662ded1d2498e30c60fc3591e4b7d60881
           path: _subpixel/kitchen
           persist-credentials: false
       - name: Materialize exact producer
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/rough.framebuffer
-          ref: efff5fbe71d8722d713282c478dbdb52fa280f9b
+          ref: f33a476c69da313745b58c10cf8057765f9cbec9
           path: _subpixel/producer
           fetch-depth: 0
           persist-credentials: false
@@ -45,7 +54,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: abcd1a657845badf539b9699da98d1e124ea2c6b
+          ref: ff1a22e2b181cabb882db0d5ae42012529c7e41c
           path: _subpixel/aici
           persist-credentials: false
       - name: Materialize owned ICK and retained GCC reference
@@ -55,6 +64,13 @@ jobs:
           ref: c61e448251744a2f40ad743ebef1a027bdcd2f9d
           path: _subpixel/ick
           submodules: true
+          persist-credentials: false
+      - name: Materialize the actual Conway geometry consumer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphismes/Conway
+          ref: 42c99ed0d289162b6fd62d864fbf58fc042e24d8
+          path: _subpixel/conway
           persist-credentials: false
       - name: Materialize owned Ike source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -71,25 +87,42 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          gh api repos/dilapidated-shed/grease/actions/artifacts/11727693085/zip > "$RUNNER_TEMP/subpixel-grease.zip"
-          printf '%s  %s\n' 20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039 "$RUNNER_TEMP/subpixel-grease.zip" | sha256sum -c -
-          unzip -p "$RUNNER_TEMP/subpixel-grease.zip" _bin/cxx-asan/ysh > _subpixel/ysh
+          mkdir -p _subpixel/runtime/bin
+          gh api repos/dilapidated-shed/grease/actions/artifacts/12192502970/zip > "$RUNNER_TEMP/subpixel-grease.zip"
+          printf '%s  %s\n' 295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5 "$RUNNER_TEMP/subpixel-grease.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/subpixel-grease.zip" _bin/cxx-asan/ysh > _subpixel/runtime/bin/ysh
+          # Only reuse the portable launcher from this archive, never its ARM engine.
+          curl --fail --location --silent --show-error \
+              https://github.com/isomorphisms/grease/releases/download/tablet-aarch64-9b3dc8904891/grease-aarch64-termux.tar.gz \
+              --output "$RUNNER_TEMP/subpixel-grease-portable.tar.gz"
+          printf '%s  %s\n' 3ddb962ef313e528e525fa03518f494577e921c2201ecb49f7a11f2fbf4e82b2 "$RUNNER_TEMP/subpixel-grease-portable.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/subpixel-grease-portable.tar.gz" -C _subpixel/runtime ./bin/grease
+          mkdir -p _subpixel/ick-artifact
+          gh api repos/isomorphisms/billiard/actions/artifacts/12174071008/zip > _subpixel/ick-stage.zip
+          printf '%s  %s\n' 8ee043088fffadba3704fd567c206c4852b0de69f0b8bb76a131bfb8fa4004a4 _subpixel/ick-stage.zip | sha256sum -c -
+          unzip -p _subpixel/ick-stage.zip ick-host-stage.tar.gz > "$RUNNER_TEMP/subpixel-ick-stage.tar.gz"
+          tar --no-same-owner -xzf "$RUNNER_TEMP/subpixel-ick-stage.tar.gz" -C _subpixel/ick-artifact
           sha256sum -c tasks/subpixel/materials.sha256
-          chmod 755 _subpixel/ysh
-      - name: Install explicitly declared ICK stage-zero dependencies
+          chmod 755 _subpixel/runtime/bin/grease _subpixel/runtime/bin/ysh
+      - name: Install declared ICK artifact runtime and host object linker
         shell: sh
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential flex texinfo libgmp-dev libmpfr-dev libmpc-dev libisl-dev libzstd-dev binutils
+          sudo apt-get install -y libgmp10 libmpfr6 libmpc3 libisl23 libzstd1 binutils gcc
       - name: Verify refusals before any compiler build
-        shell: '/usr/bin/env _subpixel/ysh {0}'
+        shell: '/usr/bin/env _subpixel/runtime/bin/grease {0}'
         run: |
+          set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
-          _subpixel/ysh tests/subpixel-registration.grease "$workspace" "$workspace/_subpixel/ysh" "$python"
+          _subpixel/runtime/bin/grease tests/subpixel-registration.grease "$workspace" "$workspace/_subpixel/runtime/bin/grease" "$python"
+          _subpixel/runtime/bin/grease _subpixel/kitchen/tasks/subpixel/test-independent-log.grease \
+              "$workspace/_subpixel/runtime/bin/grease" "$workspace/_subpixel/kitchen/tasks/subpixel"
+          _subpixel/runtime/bin/grease _subpixel/kitchen/tasks/subpixel/test-collection.grease
       - name: Execute the named FP pipeline
-        shell: '/usr/bin/env _subpixel/ysh {0}'
+        shell: '/usr/bin/env _subpixel/runtime/bin/grease {0}'
         run: |
+          set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
           "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$workspace"

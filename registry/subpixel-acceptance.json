@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "operation": "subpixel-acceptance",
-  "operation_version": "1",
+  "operation_version": "5",
   "pipeline": "pipelines/subpixel-acceptance.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
   "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
@@ -9,17 +9,21 @@
   "sources": {
     "producer": {
       "repository": "isomorphisms/rough.framebuffer",
-      "commit": "efff5fbe71d8722d713282c478dbdb52fa280f9b"
+      "commit": "f33a476c69da313745b58c10cf8057765f9cbec9"
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139",
-      "recipe": "tasks/subpixel/4.grease",
-      "sha256": "efe3c372574381befaeef17321703e44b56452b8f78526eec31319c59bf8752c"
+      "commit": "2b4dc2662ded1d2498e30c60fc3591e4b7d60881",
+      "recipe": "tasks/subpixel/8.grease",
+      "sha256": "9ef9e73d052947a25e26a264c9744fe019ee38d413b1aa10ef0a6513c892beeb"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",
-      "commit": "abcd1a657845badf539b9699da98d1e124ea2c6b"
+      "commit": "ff1a22e2b181cabb882db0d5ae42012529c7e41c"
+    },
+    "conway": {
+      "repository": "isomorphismes/Conway",
+      "commit": "42c99ed0d289162b6fd62d864fbf58fc042e24d8"
     },
     "ick": {
       "repository": "dilapidated-shed/ick",
@@ -33,10 +37,14 @@
   },
   "runtime": {
     "repository": "dilapidated-shed/grease",
-    "artifact_id": 11727693085,
-    "archive_sha256": "20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039",
-    "entry": "_bin/cxx-asan/ysh",
-    "executable_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c"
+    "artifact_id": 12192502970,
+    "archive_sha256": "295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5",
+    "engine_entry": "_bin/cxx-asan/ysh",
+    "engine_sha256": "7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c",
+    "entry": "_subpixel/runtime/bin/grease",
+    "launcher_url": "https://github.com/isomorphisms/grease/releases/download/tablet-aarch64-9b3dc8904891/grease-aarch64-termux.tar.gz",
+    "launcher_archive_sha256": "3ddb962ef313e528e525fa03518f494577e921c2201ecb49f7a11f2fbf4e82b2",
+    "launcher_sha256": "37088097c36a2f82cf45aaea9392e4a4cf16155fecb9da87d08a9c7fb4d92e4a"
   },
   "required_stages": [
     "job-envelope",
@@ -45,21 +53,45 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "font-preview-acceptance",
+    "conway-acceptance",
     "seal"
   ],
   "limits": {
     "build_seconds": 6000,
     "consumer_seconds": 300,
-    "acceptance_seconds": 300
+    "acceptance_seconds": 300,
+    "conway_seconds": 600,
+    "font_preview_seconds": 600
   },
   "outputs": [
     "producer.tsv",
     "independent.tsv",
-    "curve-3x3-vs-5x5.ppm",
+    "font-preview.tsv",
+    "font-preview/positive.log",
+    "font-preview/mutations.tsv",
+    "collected-font-preview.log",
+    "conway.tsv",
+    "conway/positive.log",
+    "conway/materials.sha256",
+    "preview/curve-3x3-vs-5x5.ppm",
+    "preview/path-{baseline,quadratic,cubic,auto}.{ppm,tsv}",
+    "preview/font-*.ppm",
+    "preview/font-masks.tsv",
+    "preview/font-metrics.tsv",
     "result.tsv",
     "result.sha256"
   ],
   "authority": "host-qualification-candidate",
+  "compiler_acquisition": {
+    "kind": "authenticated-source-built-artifact",
+    "repository": "isomorphisms/billiard",
+    "run_id": 39225847109,
+    "artifact_id": 12174071008,
+    "archive_sha256": "8ee043088fffadba3704fd567c206c4852b0de69f0b8bb76a131bfb8fa4004a4",
+    "driver_sha256": "45805e3295f2709737fcc87985a8a2341aa8663ff8e4e398d2a9d78dc1283e10",
+    "frontend_sha256": "c09665543aa807967d22bcaf0959aedd970f9d21be309d42170e4bae5a555292"
+  },
   "production_admission": "NOT_ACCEPTED",
   "model_dispatch": "NOT_IMPLEMENTED",
   "physical_A1_C67": "NOT_RUN"

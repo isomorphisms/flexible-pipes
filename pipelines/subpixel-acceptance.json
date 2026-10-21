@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "subpixel-acceptance",
-  "description": "Pinned host-baseline qualification through Kitchen/Ike, then an independent ai-ci oracle. Not production admission or model-job dispatch.",
+  "description": "Pinned whole-path, sampled-font and Conway host qualification through authenticated ICK, Kitchen/Ike and independent ai-ci. Not production admission or model-job dispatch.",
   "parameters": {
     "workspace": {
       "required": true,
@@ -15,6 +15,8 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "font-preview-acceptance",
+    "conway-acceptance",
     "seal"
   ],
   "stages": [
@@ -44,8 +46,8 @@
         "timeout",
         "--kill-after=10s",
         "60s",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -58,8 +60,8 @@
         "timeout",
         "--kill-after=10s",
         "100m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -72,8 +74,8 @@
         "timeout",
         "--kill-after=10s",
         "5m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -86,9 +88,37 @@
         "timeout",
         "--kill-after=10s",
         "5m",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "independent",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "font-preview-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "10m",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
+        "font-preview",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "conway-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "10m",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
+        "conway",
         "{{workspace}}"
       ],
       "cwd": "."
@@ -100,8 +130,8 @@
         "timeout",
         "--kill-after=10s",
         "60s",
-        "_subpixel/ysh",
-        "_subpixel/kitchen/tasks/subpixel/4.grease",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/8.grease",
         "seal",
         "{{workspace}}"
       ],

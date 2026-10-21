@@ -14,13 +14,13 @@ grep -F 'missing required pipeline parameter: workspace' "$work/missing.err"
 test ! -e "$work/missing"
 
 # The materials gate precedes every executable supplied by a source checkout.
-mkdir -p "$work/fp/pipelines" "$work/fp/tasks/subpixel" "$work/fp/scripts" "$work/fp/_subpixel"
+mkdir -p "$work/fp/pipelines" "$work/fp/tasks/subpixel" "$work/fp/scripts" "$work/fp/_subpixel/runtime/bin"
 cp "$root/pipelines/subpixel-acceptance.json" "$work/fp/pipelines/"
 cp "$root/tasks/subpixel/assignment.txt" "$work/fp/tasks/subpixel/"
 cp "$root/scripts/run-pipeline" "$work/fp/scripts/"
 cp "$root/tasks/subpixel/materials.sha256" "$work/fp/tasks/subpixel/"
-printf '#!%s\ntouch "%s"\n' "$grease" "$work/EXECUTED" > "$work/fp/_subpixel/ysh"
-chmod 755 "$work/fp/_subpixel/ysh"
+printf '#!%s\ntouch "%s"\n' "$grease" "$work/EXECUTED" > "$work/fp/_subpixel/runtime/bin/grease"
+chmod 755 "$work/fp/_subpixel/runtime/bin/grease"
 try { "$python" "$work/fp/scripts/run-pipeline" subpixel-acceptance --param "workspace=$work/fp" --runs-root "$work/corrupt" > "$work/corrupt.out" 2> "$work/corrupt.err" }
 if (_error.code !== 1) { echo 'FAIL corrupt materials accepted' >&2; exit 1 }
 grep -F '"failed_stage": "material-identity"' "$work/corrupt.out"
@@ -28,10 +28,12 @@ test ! -e "$work/EXECUTED"
 
 # A genuine recipe must still reject a wrong source before creating evidence.
 mkdir -p "$work/wrong/_subpixel/kitchen/tasks/subpixel"
-cp "$root/_subpixel/kitchen/tasks/subpixel/4.grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/"
+cp "$root/_subpixel/kitchen/tasks/subpixel/8.grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/"
+mkdir -p "$work/wrong/_subpixel/runtime/bin"
+cp "$grease" "$work/wrong/_subpixel/runtime/bin/grease"
 git clone --quiet --local "$root/_subpixel/producer" "$work/wrong/_subpixel/producer"
 git -C "$work/wrong/_subpixel/producer" checkout --quiet --detach 3d897f35e015dbe6a914e4a571e3ac94073c1ac4
-try { "$grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/4.grease" preflight "$work/wrong" > "$work/wrong.out" 2> "$work/wrong.err" }
+try { "$grease" "$work/wrong/_subpixel/kitchen/tasks/subpixel/8.grease" preflight "$work/wrong" > "$work/wrong.out" 2> "$work/wrong.err" }
 if (_error.code !== 2) { echo 'FAIL wrong producer revision accepted' >&2; exit 1 }
 grep -F 'producer revision mismatch' "$work/wrong.err"
 test ! -e "$work/wrong/_subpixel/evidence"
