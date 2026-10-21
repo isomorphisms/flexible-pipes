@@ -1,0 +1,18 @@
+{
+  "schema_version":1,"name":"mathieu-apk-accept",
+  "parameters":{
+    "source":{"required":true,"pattern":"^/[^\\s]+$"},
+    "head":{"required":true,"pattern":"^[0-9a-f]{40}$"},
+    "gate":{"required":true,"pattern":"^/[^\\s]+$"},
+    "packages":{"required":true,"pattern":"^/[^\\s]+$"},
+    "build_tools":{"required":true,"pattern":"^/[^\\s]+$"},
+    "aici":{"required":true,"pattern":"^/[^\\s]+$"},
+    "aici_head":{"required":true,"pattern":"^[0-9a-f]{40}$"},
+    "ick":{"required":true,"pattern":"^/[^\\s]+$"},
+    "ndk":{"required":true,"pattern":"^/[^\\s]+$"},
+    "grease":{"required":true,"pattern":"^/[^\\s]+$"},
+    "evidence":{"required":true,"pattern":"^/[^\\s]+$"}
+  },
+  "required_stages":["independent-finished-apks"],
+  "stages":[{"name":"independent-finished-apks","kind":"command","cwd":".","argv":["{{grease}}","{{gate}}","{{source}}","{{head}}","{{packages}}","{{build_tools}}","{{aici}}","{{aici_head}}","{{ick}}","{{ndk}}","{{evidence}}"]}]
+}
