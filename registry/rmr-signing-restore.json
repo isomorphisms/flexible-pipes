@@ -5,12 +5,12 @@
   "pipeline": "pipelines/rmr-signing-restore-host.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/238",
   "consumer": "https://github.com/isomorphisms/remind-me-to-read/pull/4",
-  "independent": "https://github.com/isomorphisms/ai-ci/pull/310",
+  "independent": "https://github.com/isomorphisms/ai-ci/pull/313",
   "target_context": "linux-x86_64-host-synthetic-legacy-v3",
   "sources": {
     "producer": {
       "repository": "isomorphisms/remind-me-to-read",
-      "commit": "8250aa62bdaad2f7679995d949f72b251b26b738",
+      "commit": "b696cb2f7c6edf9b27774cc32e32d15eb01477fe",
       "converter": "ci/legacy-to-portable.py"
     },
     "aici": {
