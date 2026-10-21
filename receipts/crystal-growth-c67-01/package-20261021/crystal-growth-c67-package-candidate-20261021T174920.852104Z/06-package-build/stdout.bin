@@ -1,0 +1,97 @@
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Wegert Debug, OU=Development, O=isomorphisms, L=Ypsilanti, ST=Michigan, C=US
+Signer #1 certificate SHA-256 digest: de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+Signer #1 certificate SHA-1 digest: ba8cac29485d7d82957982ba29b3e13b0891bd5d
+Signer #1 certificate MD5 digest: 249eb5c998d731ab83a43c418e5531c6
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 74af0416e6d3f1916f9fe474d9ed9f082f6c548132287cebc95fa52f219f6f91
+Signer #1 public key SHA-1 digest: 2e2b97586b0f22226040918ca5f04bf2c7c32c9e
+Signer #1 public key MD5 digest: 525e65f986a33312db1880007dbe10a4
+ANDROID_NDK_APK	PASS
+PACKAGE	org.isomorphisms.crystal.halite
+VERSION_CODE	17
+ABI	arm64-v8a
+APK_SHA256	3f85bf44731f346eba665a97c170515843b4edbb4527c00c58e57a06ee8e8f6f
+SIGNER_SHA256	de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+RECEIPT	/workspace/scratch/7d64eaed802d/apks-c67-v17-source/.package.u3h1bwwR/crystal-halite-c67-arm64-v8a.receipt.tsv
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Wegert Debug, OU=Development, O=isomorphisms, L=Ypsilanti, ST=Michigan, C=US
+Signer #1 certificate SHA-256 digest: de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+Signer #1 certificate SHA-1 digest: ba8cac29485d7d82957982ba29b3e13b0891bd5d
+Signer #1 certificate MD5 digest: 249eb5c998d731ab83a43c418e5531c6
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 74af0416e6d3f1916f9fe474d9ed9f082f6c548132287cebc95fa52f219f6f91
+Signer #1 public key SHA-1 digest: 2e2b97586b0f22226040918ca5f04bf2c7c32c9e
+Signer #1 public key MD5 digest: 525e65f986a33312db1880007dbe10a4
+ANDROID_NDK_APK	PASS
+PACKAGE	org.isomorphisms.crystal.quartz
+VERSION_CODE	17
+ABI	arm64-v8a
+APK_SHA256	ccfa51536cc5f7962164f817847da2ce991b2ca6cc7b0a94c08321612a489d4b
+SIGNER_SHA256	de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+RECEIPT	/workspace/scratch/7d64eaed802d/apks-c67-v17-source/.package.u3h1bwwR/crystal-quartz-c67-arm64-v8a.receipt.tsv
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Wegert Debug, OU=Development, O=isomorphisms, L=Ypsilanti, ST=Michigan, C=US
+Signer #1 certificate SHA-256 digest: de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+Signer #1 certificate SHA-1 digest: ba8cac29485d7d82957982ba29b3e13b0891bd5d
+Signer #1 certificate MD5 digest: 249eb5c998d731ab83a43c418e5531c6
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 74af0416e6d3f1916f9fe474d9ed9f082f6c548132287cebc95fa52f219f6f91
+Signer #1 public key SHA-1 digest: 2e2b97586b0f22226040918ca5f04bf2c7c32c9e
+Signer #1 public key MD5 digest: 525e65f986a33312db1880007dbe10a4
+ANDROID_NDK_APK	PASS
+PACKAGE	org.isomorphisms.crystal.bismuth
+VERSION_CODE	17
+ABI	arm64-v8a
+APK_SHA256	578c6c809282d83a217cfba43ff79f405a69d39b047e0a35f6c4ab167860a551
+SIGNER_SHA256	de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+RECEIPT	/workspace/scratch/7d64eaed802d/apks-c67-v17-source/.package.u3h1bwwR/crystal-bismuth-c67-arm64-v8a.receipt.tsv
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Wegert Debug, OU=Development, O=isomorphisms, L=Ypsilanti, ST=Michigan, C=US
+Signer #1 certificate SHA-256 digest: de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+Signer #1 certificate SHA-1 digest: ba8cac29485d7d82957982ba29b3e13b0891bd5d
+Signer #1 certificate MD5 digest: 249eb5c998d731ab83a43c418e5531c6
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 74af0416e6d3f1916f9fe474d9ed9f082f6c548132287cebc95fa52f219f6f91
+Signer #1 public key SHA-1 digest: 2e2b97586b0f22226040918ca5f04bf2c7c32c9e
+Signer #1 public key MD5 digest: 525e65f986a33312db1880007dbe10a4
+ANDROID_NDK_APK	PASS
+PACKAGE	org.isomorphisms.crystal.pyrite
+VERSION_CODE	17
+ABI	arm64-v8a
+APK_SHA256	0fc078045f4aacb48f5aba44f58842859e3c0cda2ee8bfdd560dc14e03225272
+SIGNER_SHA256	de9b1d47c5a65e6d46a204b79dd9ee566b9d3c9832ba81ebc4213d3392e92ff9
+RECEIPT	/workspace/scratch/7d64eaed802d/apks-c67-v17-source/.package.u3h1bwwR/crystal-pyrite-c67-arm64-v8a.receipt.tsv
+Crystal direct package candidate: PASS; authenticated delivery is NOT_VERIFIED

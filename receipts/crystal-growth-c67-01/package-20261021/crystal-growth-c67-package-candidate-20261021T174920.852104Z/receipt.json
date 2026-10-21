@@ -1,0 +1,150 @@
+{
+  "finished_at": "2026-10-21T17:50:38.366510+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/7d64eaed802d/crystal",
+    "NATIVE_BUILD": "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+    "PACKAGER_ROOT": "/workspace/scratch/7d64eaed802d/android-NDK",
+    "PACKAGE_OUTPUT": "/workspace/scratch/7d64eaed802d/apks-c67-v17-source",
+    "PACKAGE_RECIPE": "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/package-miro.ysh",
+    "VERSION_CODE": "17"
+  },
+  "pipeline": "crystal-growth-c67-package-candidate",
+  "pipeline_path": "pipelines/crystal-growth-c67-package-candidate.json",
+  "pipeline_sha256": "ac49f04bacace80ee66f2d42b89fb714f323c8ddf5cce315718dc7f87243ec37",
+  "repository_commit": "af67e67d463e5096ea344d1c815e6a0ade613b4c",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/crystal/SUN-CRYSTAL-GROWTH-C67-01.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:49:20.863824+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-21T17:49:20.858708+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4b7f9b60691399d5e4e4f4439f6aacbca15e3b3616e84549d7cf6af12f84ea81"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:49:20.870681+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "source-revision",
+      "started_at": "2026-10-21T17:49:20.864387+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ca32dee26d5f52f47867c3ab0ffcb1ab9704b66d839741669864038b0a4b6edc"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "diff",
+        "--exit-code",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:49:20.892531+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "tracked-source-clean",
+      "started_at": "2026-10-21T17:49:20.870920+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/android-NDK",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:49:20.906054+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "packager-revision",
+      "started_at": "2026-10-21T17:49:20.892743+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c097df05af22a2cd34f68d5b7d3b7ea37e07cef8f506beee37de306578328fc3"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/package-miro.ysh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:49:20.911891+00:00",
+      "index": 5,
+      "kind": "command",
+      "name": "package-recipe",
+      "started_at": "2026-10-21T17:49:20.906407+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "17c5c0402e6e88bab55b7ad463b6ff96b767ec6e8b31d88afe73d6b08d30f5f1"
+    },
+    {
+      "argv": [
+        "grease",
+        "/workspace/scratch/7d64eaed802d/crystal/.github/scripts/package-miro.ysh",
+        "/workspace/scratch/7d64eaed802d/native-c67-e745edd",
+        "/workspace/scratch/7d64eaed802d/apks-c67-v17-source",
+        "17",
+        "/workspace/scratch/7d64eaed802d/android-NDK"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:50:38.335002+00:00",
+      "index": 6,
+      "kind": "command",
+      "name": "package-build",
+      "started_at": "2026-10-21T17:49:20.912089+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e96b00eb1c91ed1bc92d040536d7c6a47aa202c81c3b56a6a6e9230e6524a69e"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/7d64eaed802d/crystal",
+        "diff",
+        "--exit-code",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:50:38.366482+00:00",
+      "index": 7,
+      "kind": "command",
+      "name": "tracked-source-still-clean",
+      "started_at": "2026-10-21T17:50:38.335296+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-21T17:49:20.858209+00:00",
+  "status": "PASS"
+}
