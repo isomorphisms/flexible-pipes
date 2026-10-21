@@ -1,0 +1,2 @@
+group/action	event	event	ATLAS-right-action	0	0	noop
+layout/frame	scalar	linear	native-grid-rosette-tick	0	90	0

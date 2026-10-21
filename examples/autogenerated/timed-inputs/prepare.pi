@@ -1,0 +1,69 @@
+"""Reproduce the retained Florence fixture and build real jsurf; no movie encoding."""
+import sys
+import shutil
+from pathlib import Path
+from builtins import dict, list, ValueError
+from timeline import pairs, write_rows, digest
+from producers import run
+
+def fixture(root ∈ object, name ∈ str, fps ∈ int, count ∈ int, width ∈ int, height ∈ int, kind ∈ str, controls ∈ list[object], events ∈ list[object]) → None:
+    directory ∈ object ← root.joinpath(name)
+    directory.mkdir(parents=True,exist_ok=False)
+    write_rows(directory.joinpath('manifest.tsv'),[['schema','wiggle-v1'],['producer',name],['input_kind',kind],['fps',fps],['frames',count],['width',width],['height',height],['controls_visible','false']])
+    write_rows(directory.joinpath('controls.tsv'),controls)
+    write_rows(directory.joinpath('events.tsv'),events)
+    # Plans are authored source, not inferred afterward from generated frames.
+    authored ∈ object ← Path(__file__).resolve().parents[3].joinpath('tasks/wiggle-video/examples',name,'motion-plan.tsv')
+    shutil.copyfile(authored,directory.joinpath('motion-plan.tsv'))
+
+def main() → None:
+    arguments ∈ list[str] ← list(sys.argv)
+    context ∈ dict[str,str] ← pairs(arguments[1])
+    root ∈ object ← Path(arguments[2]).resolve()
+    if len(arguments) == 4 and arguments[3] == 'compile-surfer':
+        compile_surfer(context)
+        return
+    if bool(root.exists()):
+        raise ValueError('refusing previous fixture directory')
+    root.mkdir(parents=True)
+    audio ∈ object ← Path(context['audio_original'])
+    source_sha ∈ str ← run(['sha1sum',audio],{'capture_output':True,'text':True}).stdout
+    if not bool(source_sha.startswith('5de570b67b20f4e2932fb960b3e3b0f071981544 ')):
+        raise ValueError('original Florence recording checksum mismatch')
+    # The original retained experiment's exact two excerpts, including noise.
+    splice ∈ str ← '[0:a]atrim=start=0.250000:end=23.504400,asetpts=PTS-STARTPTS[a];[0:a]atrim=start=51.074600:end=58.493900,asetpts=PTS-STARTPTS[b];[a][b]concat=n=2:v=0:a=1[out]'
+    run(['ffmpeg','-nostdin','-loglevel','error','-n','-i',audio,'-filter_complex',splice,'-map','[out]','-c:a','flac',context['audio_flac']],{'text':True})
+    run(['ffmpeg','-nostdin','-loglevel','error','-n','-i',context['audio_flac'],'-ac','1','-ar','48000','-f','s16le',context['audio_pcm']],{'text':True})
+    pcm ∈ object ← Path(context['audio_pcm'])
+    sample_count ∈ int ← int(pcm.stat().st_size) // 2
+    count ∈ int ← (sample_count + 9599) // 9600
+    audio_events ∈ list[object] ← []
+    for index in range(count):
+        end ∈ int ← (index + 1) * 9600
+        if end > sample_count:
+            end ← sample_count
+        audio_events.append([index * 200000000,0,'audio/sample-end',end])
+    fixture(root,'florence',5,count,96,192,'external-samples',[['audio/sample-end','sample','source','sample@48000Hz',0,sample_count,9600]],audio_events)
+    fixture(root,'mathieu',30,420,360,360,'scripted',[['group/action','event','event','ATLAS-right-action',0,0,'noop']],[[1000000000,0,'group/action','select:0'],[1000000000,1,'group/action','a'],[1400000000,0,'group/action','pause'],[1800000000,0,'group/action','resume'],[7000000000,0,'group/action','b'],[10000000000,0,'group/action','B']])
+    fixture(root,'surfer',8,24,160,160,'scripted',[['camera/yaw','scalar','linear','radian',-10,10,0.55],['camera/pitch','scalar','linear','radian',-2,2,-0.35]],[[500000000,0,'camera/yaw',0.55],[2000000000,0,'camera/yaw',3.55],[2875000000,0,'camera/yaw',3.55],[2875000000,1,'camera/pitch',0.35]])
+    fixture(root,'wegert',12,36,192,192,'scripted',[['function/zero','vector','linear','complex-plane',-3,3,'-1,0'],['function/pole','vector','linear','complex-plane',-3,3,'1,0']],[[500000000,0,'function/zero','-1,0'],[2000000000,0,'function/zero','0,1'],[2000000000,1,'function/pole','0,-1'],[2916666666,0,'function/zero','0,1'],[2916666666,1,'function/pole','0,-1']])
+    write_rows(root.joinpath('audio-sha256.tsv'),[['original',digest(audio)],['flac',digest(context['audio_flac'])],['pcm',digest(context['audio_pcm'])]])
+    compile_surfer(context)
+
+def compile_surfer(context ∈ dict[str,str]) → None:
+    source ∈ object ← Path(context['surfer'])
+    build ∈ object ← Path(context['surfer_classes'])
+    build.mkdir(parents=True,exist_ok=False)
+    preview ∈ object ← build.joinpath('JsurfPreview.java')
+    shutil.copyfile(source.joinpath('JsurfPreview.test.java'),preview)
+    javac_args ∈ list[object] ← [context['javac'],'--release','11','-encoding','UTF-8','-classpath',context['surfer_jars'],'-d',build]
+    candidates ∈ list[object] ← list(source.glob('*.java'))
+    for candidate in candidates:
+        text ∈ str ← candidate.read_text()
+        name ∈ str ← str(candidate.name)
+        if bool(text.__contains__('package de.mfo.jsurf')) and not bool(name.endswith('.test.java')):
+            javac_args.append(candidate)
+    javac_args.append(preview)
+    run(javac_args,{'text':True})
+
+main()

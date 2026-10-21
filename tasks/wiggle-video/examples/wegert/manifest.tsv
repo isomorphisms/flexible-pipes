@@ -1,0 +1,8 @@
+schema	wiggle-v1
+producer	wegert
+input_kind	scripted
+fps	12
+frames	36
+width	192
+height	192
+controls_visible	false

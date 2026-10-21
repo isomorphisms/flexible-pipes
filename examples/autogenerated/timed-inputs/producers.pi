@@ -1,0 +1,198 @@
+"""Thin mappings to the real, pinned mathematical engines and renderers."""
+import os
+import subprocess
+from pathlib import Path
+from builtins import dict, list, ValueError, round, abs
+from timeline import sample, write_rows, value_text
+
+def run(arguments ∈ list[object], options ∈ dict[str,object]) → object:
+    argv ∈ list[str] ← []
+    for argument in arguments:
+        argv.append(str(argument))
+    return subprocess.run(argv, check=True, **options)
+
+def compile_native(context ∈ dict[str,str], output ∈ object, sources ∈ list[object], includes ∈ list[object], flags ∈ list[object]) → None:
+    arguments ∈ list[object] ← [context['ick'],'-fno-link-libatomic','-std=c17','-O2','-Wall','-Wextra','-Werror']
+    for directory in includes:
+        arguments.append('-I' + str(directory))
+    arguments.extend(sources)
+    arguments.extend(flags)
+    arguments.extend(['-lm','-o',output])
+    run(arguments,{})
+
+def resolved(timeline ∈ dict[str,object]) → list[dict[str,object]]:
+    result ∈ list[dict[str,object]] ← []
+    cursor ∈ int ← 0
+    for index in range(int(timeline['count'])):
+        frame ∈ dict[str,object] ← sample(timeline,index,cursor)
+        cursor ← int(frame['cursor'])
+        result.append(frame)
+    return result
+
+def render_mathieu(context ∈ dict[str,str], timeline ∈ dict[str,object], output ∈ object) → list[str]:
+    controls ∈ dict[str,object] ← dict(timeline['controls'])
+    has_layout ∈ bool ← bool(controls.__contains__('layout/frame'))
+    if len(controls) != (2 if has_layout else 1) or not bool(controls.__contains__('group/action')):
+        raise ValueError('Mathieu requires group/action')
+    control ∈ list[str] ← list(controls['group/action'])
+    if control[0] != 'event' or control[1] != 'event':
+        raise ValueError('Mathieu requires event-only group actions')
+    if has_layout:
+        layout_control ∈ list[str] ← list(controls['layout/frame'])
+        if layout_control[0] != 'scalar' or layout_control[1] != 'linear':
+            raise ValueError('Mathieu layout/frame requires a linear native-frame coordinate')
+    root ∈ object ← Path(context['mathieu'])
+    executable ∈ object ← output.joinpath('producer')
+    sources ∈ list[object] ← [Path(context['adapters']).joinpath('mathieu-adapter.c')]
+    for name in ['mathieu.c','session.c','render.c']:
+        sources.append(root.joinpath('native',name))
+    compile_native(context,executable,sources,[root.joinpath('native')],[])
+    commands ∈ list[str] ← []
+    for frame in resolved(timeline):
+        index ∈ int ← int(frame['index'])
+        if index > 0:
+            commands.append('tick 0')
+        events ∈ list[dict[str,object]] ← list(frame['events'])
+        for event in events:
+            if str(event['path']) != 'group/action':
+                continue
+            action ∈ str ← str(event['value'])
+            if bool(['a','A','b','B'].__contains__(action)):
+                commands.append('move ' + action)
+            elif bool(['pause','resume'].__contains__(action)):
+                commands.append(action + ' 0')
+            elif bool(action.startswith('select:')) and bool(action[7:].isdigit()):
+                commands.append('select ' + action[7:])
+            else:
+                raise ValueError('unknown Mathieu event')
+        if has_layout:
+            state ∈ dict[str,object] ← dict(frame['state'])
+            value ∈ list[float] ← list(state['layout/frame'])
+            layout_frame ∈ int ← int(round(value[0]))
+            if float(abs(value[0] - layout_frame)) > 1e-7 or layout_frame < 0 or layout_frame > 90:
+                raise ValueError('Mathieu layout sampling requires whole native ticks from zero to 90')
+            commands.append('layout ' + str(layout_frame))
+        commands.append('render ' + str(index))
+    command_text ∈ str ← '\n'.join(commands)
+    with output.joinpath('checkpoints.tsv').open('w') as checkpoints:
+        run([executable,'24',timeline['width'],timeline['height'],output.joinpath('frames')],{'input':command_text + '\n','text':True,'stdout':checkpoints})
+    output.joinpath('commands.tsv').write_text(command_text + '\n')
+    with output.joinpath('checkpoints-repeat.tsv').open('w') as checkpoints:
+        run([executable,'24',timeline['width'],timeline['height'],output.joinpath('frames'),'compare'],{'input':command_text + '\n','text':True,'stdout':checkpoints})
+    first_checkpoints ∈ bytes ← output.joinpath('checkpoints.tsv').read_bytes()
+    repeated_checkpoints ∈ bytes ← output.joinpath('checkpoints-repeat.tsv').read_bytes()
+    if first_checkpoints != repeated_checkpoints:
+        raise ValueError('Mathieu repeat changed source state')
+    write_rows(output.joinpath('reproducibility.tsv'),[['source_frames','PASS every pixel compared on second native run'],['checkpoints','PASS byte-identical second native run']])
+    return ['', 'application-native-cpu-raster']
+
+def render_florence(context ∈ dict[str,str], timeline ∈ dict[str,object], output ∈ object) → list[str]:
+    controls ∈ dict[str,object] ← dict(timeline['controls'])
+    if len(controls) != 1 or not bool(controls.__contains__('audio/sample-end')):
+        raise ValueError('Florence requires audio/sample-end')
+    control ∈ list[str] ← list(controls['audio/sample-end'])
+    if control[0] != 'sample' or control[1] != 'source':
+        raise ValueError('Florence requires source-sampled integer positions')
+    if int(timeline['width']) != 96 or int(timeline['height']) != 192 or int(timeline['fps']) != 5:
+        raise ValueError('original Florence renderer is 96x192 at 5fps')
+    root ∈ object ← Path(context['fourier'])
+    executable ∈ object ← output.joinpath('producer')
+    sources ∈ list[object] ← [Path(context['adapters']).joinpath('florence-adapter.c')]
+    includes ∈ list[object] ← []
+    for name in ['fourier/dft.c','fourier/complex_field.c','render/wegert.c','render/ppm.c']:
+        sources.append(root.joinpath(name))
+    for name in ['tools','fourier','math','render']:
+        includes.append(root.joinpath(name))
+    compile_native(context,executable,sources,includes,[])
+    pcm ∈ object ← Path(context['audio_pcm'])
+    sample_count ∈ int ← int(pcm.stat().st_size) // 2
+    commands ∈ list[str] ← []
+    for frame in resolved(timeline):
+        index ∈ int ← int(frame['index'])
+        state ∈ dict[str,object] ← dict(frame['state'])
+        positions ∈ list[float] ← list(state['audio/sample-end'])
+        end ∈ int ← int(positions[0])
+        expected ∈ int ← (index + 1) * 9600
+        if expected > sample_count:
+            expected ← sample_count
+        if end != expected:
+            raise ValueError('sample clock differs from original fixture')
+        commands.append(str(index) + ' ' + str(end))
+    command_text ∈ str ← '\n'.join(commands)
+    with output.joinpath('checkpoints.tsv').open('w') as checkpoints:
+        run([executable,pcm,output.joinpath('frames')],{'input':command_text + '\n','text':True,'stdout':checkpoints})
+    return [context['audio_flac'],'original-nightingale-dft-polynomial-wegert-cpu']
+
+def render_surfer(context ∈ dict[str,str], timeline ∈ dict[str,object], output ∈ object) → list[str]:
+    controls ∈ dict[str,object] ← dict(timeline['controls'])
+    if len(controls) != 2 or not bool(controls.__contains__('camera/yaw')) or not bool(controls.__contains__('camera/pitch')) or int(timeline['width']) != int(timeline['height']):
+        raise ValueError('jsurf adapter supports yaw/pitch and square images')
+    checkpoints ∈ list[object] ← []
+    formula ∈ str ← 'x^2+x*z^2+y^3'
+    for frame in resolved(timeline):
+        index ∈ int ← int(frame['index'])
+        state ∈ dict[str,object] ← dict(frame['state'])
+        yaw ∈ list[float] ← list(state['camera/yaw'])
+        pitch ∈ list[float] ← list(state['camera/pitch'])
+        filename ∈ str ← 'frame-{:06d}.ppm'.format(index)
+        run([context['java'],'-Xmx512m','-classpath',context['surfer_classpath'],'org.algebraicvarietyexplorer.render.JsurfPreview',output.joinpath('frames',filename),formula,yaw[0],pitch[0],timeline['width']],{'cwd':context['surfer']})
+        checkpoints.append([index,formula,yaw[0],pitch[0]])
+    write_rows(output.joinpath('checkpoints.tsv'),checkpoints)
+    return ['','christian-stussak-jsurf-cpu']
+
+def render_wegert(context ∈ dict[str,str], timeline ∈ dict[str,object], output ∈ object) → list[str]:
+    controls ∈ dict[str,object] ← dict(timeline['controls'])
+    if len(controls) != 2 or not bool(controls.__contains__('function/zero')) or not bool(controls.__contains__('function/pole')):
+        raise ValueError('Wegert adapter supports one zero and one pole')
+    root ∈ object ← Path(context['wegert'])
+    executable ∈ object ← output.joinpath('producer')
+    sources ∈ list[object] ← []
+    for name in ['wegert_function.c','wegert_view.c','wegert_scene.c','wegert_gles.c','wegert_portrait_renderer_gles.c','wegert_offscreen_gles.c']:
+        sources.append(root.joinpath('code',name))
+    sources.append(Path(context['adapters']).joinpath('wegert-adapter.c'))
+    compile_native(context,executable,sources,[root.joinpath('code'),context['gles_include']],[context['egl_library'],context['gles_library']])
+    shader ∈ object ← output.joinpath('wegert.frag')
+    run(['/bin/bash',root.joinpath('_/build/android-direct/assemble-shader.sh'),shader],{})
+    commands ∈ list[str] ← []
+    checkpoints ∈ list[object] ← []
+    for frame in resolved(timeline):
+        state ∈ dict[str,object] ← dict(frame['state'])
+        zero ∈ list[float] ← list(state['function/zero'])
+        pole ∈ list[float] ← list(state['function/pole'])
+        if len(zero) != 2 or len(pole) != 2:
+            raise ValueError('complex coordinates require two components')
+        command ∈ str ← '1 1 {} {} {} {}'.format(zero[0],zero[1],pole[0],pole[1])
+        commands.append(command)
+        checkpoints.append([frame['index'],value_text(zero),value_text(pole)])
+    raw ∈ object ← output.joinpath('source.rgb')
+    environment ∈ dict[str,str] ← dict(os.environ)
+    environment['EGL_PLATFORM'] ← 'surfaceless'
+    environment['LD_LIBRARY_PATH'] ← context['gles_libdir']
+    command_text ∈ str ← '\n'.join(commands)
+    with raw.open('wb') as stream:
+        with output.joinpath('renderer.tsv').open('wb') as identity:
+            run([executable,shader,timeline['width'],timeline['height'],'0','0','3.5'],{'input':(command_text + '\n').encode(),'stdout':stream,'stderr':identity,'env':environment})
+    frame_bytes ∈ int ← int(timeline['width']) * int(timeline['height']) * 3
+    if int(raw.stat().st_size) != frame_bytes * int(timeline['count']):
+        raise ValueError('Wegert incomplete RGB stream')
+    with raw.open('rb') as stream:
+        for index in range(int(timeline['count'])):
+            filename ∈ str ← 'frame-{:06d}.ppm'.format(index)
+            header ∈ str ← 'P6\n{} {}\n255\n'.format(timeline['width'],timeline['height'])
+            pixels ∈ bytes ← stream.read(frame_bytes)
+            output.joinpath('frames',filename).write_bytes(bytes(header.encode()).__add__(pixels))
+    write_rows(output.joinpath('checkpoints.tsv'),checkpoints)
+    return ['','owner-offscreen-gles-host-mesa']
+
+def render(context ∈ dict[str,str], timeline ∈ dict[str,object], output ∈ object) → list[str]:
+    manifest ∈ dict[str,str] ← dict(timeline['manifest'])
+    producer ∈ str ← manifest['producer']
+    if producer == 'mathieu':
+        return render_mathieu(context,timeline,output)
+    if producer == 'florence':
+        return render_florence(context,timeline,output)
+    if producer == 'surfer':
+        return render_surfer(context,timeline,output)
+    if producer == 'wegert':
+        return render_wegert(context,timeline,output)
+    raise ValueError('producer is not registered')

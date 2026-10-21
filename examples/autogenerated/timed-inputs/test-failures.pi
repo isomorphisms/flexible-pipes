@@ -1,0 +1,44 @@
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from builtins import dict, list, ValueError
+from timeline import pairs
+
+def require(success ∈ bool, message ∈ str) → None:
+    if not success:
+        raise ValueError(message)
+
+def main() → None:
+    arguments ∈ list[str] ← list(sys.argv)
+    context ∈ dict[str,str] ← pairs(arguments[1])
+    frames ∈ object ← Path(arguments[2]).resolve()
+    builder ∈ object ← Path(context['kitchen']).joinpath('tasks/movie-from-stills/build.sh')
+    with tempfile.TemporaryDirectory(prefix='wiggle-failures-') as temporary:
+        root ∈ object ← Path(temporary)
+        stub ∈ object ← root.joinpath('ffmpeg')
+        stub.write_text('#!' + context['grease'] + '\nexit 7\n')
+        stub.chmod(493)
+        environment ∈ dict[str,str] ← dict(os.environ)
+        environment['PATH'] ← str(root) + ':' + str(environment.get('PATH',''))
+        environment['ASAN_OPTIONS'] ← 'detect_leaks=0'
+        result ∈ object ← subprocess.run(['/bin/sh',str(builder),str(frames.joinpath('mathieu/frames/frame-%06d.ppm')),'30',str(root.joinpath('failed.mp4'))],env=environment,capture_output=True)
+        require(int(result.returncode) == 7 and not bool(root.joinpath('failed.mp4').exists()),'encoder failure was hidden')
+        # An actual Linux full device, not a successful encoder mock.
+        require(bool(Path('/dev/full').exists()),'full-device fixture unavailable')
+        root.joinpath('full.mp4').symlink_to('/dev/full')
+        result ← subprocess.run(['/bin/sh',str(builder),str(frames.joinpath('mathieu/frames/frame-%06d.ppm')),'30',str(root.joinpath('full.mp4'))],capture_output=True)
+        error ∈ str ← result.stderr.decode()
+        require(int(result.returncode) != 0 and bool(error.__contains__('No space left on device')),'full output sink did not fail with no-space evidence')
+        interrupted ∈ object ← root.joinpath('interrupted')
+        interrupted.mkdir()
+        interrupted.joinpath('partial-frame').write_bytes(b'retained interrupted work')
+        result ← subprocess.run([context['ithon'],str(Path(context['adapters']).joinpath('drive.pi')),'produce',arguments[1],str(Path(context['adapters']).joinpath('../../../tasks/wiggle-video/examples').resolve()),str(interrupted)],capture_output=True)
+        error ← result.stderr.decode()
+        require(int(result.returncode) != 0 and bool(error.__contains__('refusing existing output')),'interrupted output was reused')
+        retained ∈ bytes ← interrupted.joinpath('partial-frame').read_bytes()
+        require(retained == b'retained interrupted work' and not bool(interrupted.joinpath('completion.tsv').exists()),'interrupted work changed or acquired success')
+    print('PASS encoder exit, actual out-of-space sink, interrupted-output preservation')
+
+main()

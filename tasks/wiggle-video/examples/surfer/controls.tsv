@@ -1,0 +1,2 @@
+camera/yaw	scalar	linear	radian	-10	10	0.55
+camera/pitch	scalar	linear	radian	-2	2	-0.35
