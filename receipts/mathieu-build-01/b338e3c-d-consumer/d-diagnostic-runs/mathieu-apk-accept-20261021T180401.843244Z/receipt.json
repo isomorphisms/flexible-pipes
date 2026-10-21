@@ -1,0 +1,56 @@
+{
+  "finished_at": "2026-10-21T18:04:08.761568+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/workspace/scratch/a5ad60ae831f/ai-ci",
+    "aici_head": "9a95beac802d1ba6c52399073e61456b18beee19",
+    "build_tools": "/workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0",
+    "evidence": "/workspace/scratch/a5ad60ae831f/d-apk-accept-final",
+    "gate": "/workspace/scratch/a5ad60ae831f/ai-ci/mathieu/apk.grease",
+    "grease": "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+    "head": "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+    "ick": "/workspace/scratch/b8ece546d46f/ick-host/bin/gcc",
+    "ndk": "/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c",
+    "packages": "/workspace/scratch/a5ad60ae831f/d-signed-apks-01",
+    "source": "/workspace/scratch/a5ad60ae831f/mathieu"
+  },
+  "pipeline": "mathieu-apk-accept",
+  "pipeline_path": "pipelines/mathieu-apk-accept.json",
+  "pipeline_sha256": "a13ba8c79f1c92a4bba87817ad2f4b8dbf141719778683fa479b358528710d8c",
+  "repository_commit": "8f38cb8980f4ea88f4737b080d80fbdb9a51835c",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+        "/workspace/scratch/a5ad60ae831f/ai-ci/mathieu/apk.grease",
+        "/workspace/scratch/a5ad60ae831f/mathieu",
+        "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+        "/workspace/scratch/a5ad60ae831f/d-signed-apks-01",
+        "/workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0",
+        "/workspace/scratch/a5ad60ae831f/ai-ci",
+        "9a95beac802d1ba6c52399073e61456b18beee19",
+        "/workspace/scratch/b8ece546d46f/ick-host/bin/gcc",
+        "/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c",
+        "/workspace/scratch/a5ad60ae831f/d-apk-accept-final"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T18:04:08.761421+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "independent-finished-apks",
+      "started_at": "2026-10-21T18:04:01.860475+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "b7876404ab1c2c01ba6a8ac7288f266e6788a862101f56cecb4406a77a255090"
+    }
+  ],
+  "started_at": "2026-10-21T18:04:01.860276+00:00",
+  "status": "PASS"
+}

@@ -1,0 +1,13 @@
+64ec66adfa77c535eed2a26deb3d377343168918d93e8342a2d2e8a90c71ca8a  /workspace/scratch/a5ad60ae831f/kitchen/tasks/mathieu-build/5.grease
+e2ad62b446cbd6ea6429ed4ad6e5ba0ae6ecd4752c3232ab74aebe193ad70c5d  /workspace/scratch/a5ad60ae831f/mathieu/android/package.tsv
+9160efb9e6dff126ee84c661676c2419f861f3bbb283b006927d2ddb716014e2  /workspace/scratch/d11de74af5b0/android-NDK/apk/build-nativeactivity-apk.sh
+00ecef16e04031009904028d6c1e411110bfcc2fb8486223a7835259567a3df7  /workspace/scratch/a5ad60ae831f/mathieu/android/signing/mathieu-development.p12
+f997a30170a967e073ab47e1212a71b3967ffe2e1e88d78d659c77bf085cb3fe  /workspace/scratch/a5ad60ae831f/mathieu/android/signing/mathieu-development.der
+dfdc99d4d36b36e6cced60d417df02d1528d73ace7d738a32451c5a825effb0b  /workspace/scratch/a17a779c0b0f/ike-runtime/ike
+cb461eb12ae88f7927f9ceec79bfa129ef8e5dcbc629a7ce64686956d1319237  /workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d
+31a3cb87fbf7c040aa82e853458cc6dc6dd95526123fc33c88ee8116a0c91c32  /workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+4566663c3876e022b4fa4ced8c8697c4ab1688267f090114fd92d027b32e619b  /workspace/scratch/a5ad60ae831f/sdk/platforms/android-35/android.jar
+d1096e11aba9c974644369ee3c50d239acac3f3428ffa928e5b9c14dfb7a57de  /workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0/aapt2
+b47549e373b895ce6ca620d0c7887e674d9615ffa837a86ac601dcfd04adb0f0  /workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0/apksigner
+00ef9948f843fe395d2440ae3ef41405b8040a6d5d46493bd1902ac0ee6deae7  /workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0/lib/apksigner.jar
+a205d94a45c8522ca1b571dcbe190df145c818f0a29dfb366e4dd78eef4f56a7  /workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0/zipalign

@@ -1,0 +1,3 @@
+cb461eb12ae88f7927f9ceec79bfa129ef8e5dcbc629a7ce64686956d1319237  /workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d
+00ecef16e04031009904028d6c1e411110bfcc2fb8486223a7835259567a3df7  /workspace/scratch/a5ad60ae831f/mathieu/android/signing/mathieu-development.p12
+f997a30170a967e073ab47e1212a71b3967ffe2e1e88d78d659c77bf085cb3fe  /workspace/scratch/a5ad60ae831f/mathieu/android/signing/mathieu-development.der

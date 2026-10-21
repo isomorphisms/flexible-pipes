@@ -1,0 +1,3 @@
+qualify depends on
+    make -C '/workspace/scratch/a5ad60ae831f/mathieu' ICK='/workspace/scratch/b8ece546d46f/ick-host/bin/gcc' PROFILE=Debug host-test > '/workspace/scratch/a5ad60ae831f/d-host-fresh/debug.log' 2>&1
+    make -C '/workspace/scratch/a5ad60ae831f/mathieu' ICK='/workspace/scratch/b8ece546d46f/ick-host/bin/gcc' PROFILE=Release host-test > '/workspace/scratch/a5ad60ae831f/d-host-fresh/release.log' 2>&1
