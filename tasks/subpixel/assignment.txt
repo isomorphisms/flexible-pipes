@@ -1,21 +1,26 @@
-SUBPIXEL-REGISTER-02 — Execute whole-path and sampled-font host qualification
+SUBPIXEL-REGISTER-03 — Execute whole paths, sampled fonts and real Conway host qualification
 
 Origins: https://github.com/isomorphisms/flexible-pipes/issues/120,
 https://github.com/isomorphisms/flexible-pipes/issues/145,
+https://github.com/isomorphisms/flexible-pipes/issues/146,
 https://github.com/isomorphisms/flexible-pipes/issues/214.
 
-Execute producer 0a09edede932ba80feb7f35addede3eb17baf6f3 through the
-versioned Kitchen 5 recipe, source-pinned ICK and ICK-built Ike. Retain native
+Execute corrected producer f33a476c69da313745b58c10cf8057765f9cbec9 through the
+versioned Kitchen 6 recipe, authenticated source-built ICK and freshly ICK-built Ike. Retain native
 tests, baseline/quadratic/cubic/auto path images, all 32 font panels, actual
 8x8 midpoint masks and metrics. Independently execute ai-ci
-5f6abcc9185dc960d445e7a567b5441f23973a15: rational/alpha oracle, 408 path
+055217a5c512050b11971ee8d0e4124e4fe3735c: rational/alpha oracle, 408 path
 assertions, 463 glyph assertions, ten real implementation/shape defects, and
-forged final/target receipt rejection. Authenticate all input materials, reject
+forged final/target receipt rejection. Execute the real Conway bridge at
+42c99ed0d289162b6fd62d864fbf58fc042e24d8 through its independent analytic
+sample/pixel checker and seven genuine source defects, binding its separate
+Ike target receipt. Include all 65,520 rational translucent-rounding cases.
+Authenticate all input materials, reject
 stale sources and outputs before build, and seal exact output hashes plus FP
 stage receipts. Use the verified Grease launcher. Existing stage-zero compiler
 construction and POSIX product interfaces remain explicit boundaries.
 
-Host qualification does not establish Conway bridge acceptance, production
+Host qualification does not establish protected production
 admission, model dispatch, merge authority, APK publication or physical A1/C67
 behavior. Report actual outcomes and the first concrete failure without
 promoting an omitted stage to PASS.

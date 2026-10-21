@@ -28,3 +28,18 @@ Version 2 uses the authenticated published Grease launcher and x86_64 engine.
 A fresh exact-head registered run must exercise the source compiler build,
 producer and independent oracle before host qualification is accepted. Conway
 bridge acceptance and physical-device evidence remain separate.
+
+Version 2 run 39610843230 passed runtime/refusal checks, a fresh ICK source
+build, ICK-built Ike, native tests and all producer previews. It failed while
+collecting those bytes: batched find requires `{}` immediately before `+`.
+No acceptance seal was written. Kitchen 6 fixes the collector with `cp -t`,
+and its real fixture passes spaced names and rejects a changed sample-mask file.
+
+Version 3 uses the exact independently authenticated source-built compiler
+artifact already qualified for this target, freshly builds Ike and adds
+Conway's separate source/pixel gate. Local ICK/Ike execution passed all seven
+genuine source defects after an initially surviving clip mutant exposed the
+absence of edge ink in the probe. Its corrected probe includes top/bottom/left
+edges. The new registered exact-head run must still complete before a host
+qualification PASS is claimed. Compiler acquisition and source construction
+remain separate evidence.

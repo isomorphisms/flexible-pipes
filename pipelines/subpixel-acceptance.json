@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "subpixel-acceptance",
-  "description": "Pinned whole-path and sampled-font host qualification through Kitchen/Ike and independent ai-ci. Not production admission or model-job dispatch.",
+  "description": "Pinned whole-path, sampled-font and Conway host qualification through authenticated ICK, Kitchen/Ike and independent ai-ci. Not production admission or model-job dispatch.",
   "parameters": {
     "workspace": {
       "required": true,
@@ -15,6 +15,7 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "conway-acceptance",
     "seal"
   ],
   "stages": [
@@ -45,7 +46,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/5.grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
         "preflight",
         "{{workspace}}"
       ],
@@ -59,7 +60,7 @@
         "--kill-after=10s",
         "100m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/5.grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
         "bootstrap",
         "{{workspace}}"
       ],
@@ -73,7 +74,7 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/5.grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
         "producer",
         "{{workspace}}"
       ],
@@ -87,8 +88,22 @@
         "--kill-after=10s",
         "5m",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/5.grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
         "independent",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "conway-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "10m",
+        "_subpixel/runtime/bin/grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
+        "conway",
         "{{workspace}}"
       ],
       "cwd": "."
@@ -101,7 +116,7 @@
         "--kill-after=10s",
         "60s",
         "_subpixel/runtime/bin/grease",
-        "_subpixel/kitchen/tasks/subpixel/5.grease",
+        "_subpixel/kitchen/tasks/subpixel/6.grease",
         "seal",
         "{{workspace}}"
       ],

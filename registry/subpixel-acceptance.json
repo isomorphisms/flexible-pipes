@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "operation": "subpixel-acceptance",
-  "operation_version": "2",
+  "operation_version": "3",
   "pipeline": "pipelines/subpixel-acceptance.json",
   "origin": "https://github.com/isomorphisms/flexible-pipes/issues/120",
   "next_implementation": "https://github.com/isomorphisms/flexible-pipes/issues/145",
@@ -9,17 +9,21 @@
   "sources": {
     "producer": {
       "repository": "isomorphisms/rough.framebuffer",
-      "commit": "0a09edede932ba80feb7f35addede3eb17baf6f3"
+      "commit": "f33a476c69da313745b58c10cf8057765f9cbec9"
     },
     "kitchen": {
       "repository": "isomorphisms/kitchen",
-      "commit": "76dc70bdd0e95a4c33f85521af17d8756908713c",
-      "recipe": "tasks/subpixel/5.grease",
-      "sha256": "ef07a623606acef6188f68532d18faf333b9d49b615a4dd0f93cc48f5cf81acc"
+      "commit": "b073c4c5a89bfb5debdbf08460ba1b8206feda6a",
+      "recipe": "tasks/subpixel/6.grease",
+      "sha256": "e4df536fb9168197ccb988e92afa6c11e856ece1d5b264917a39b78fe72c8fc6"
     },
     "aici": {
       "repository": "isomorphisms/ai-ci",
-      "commit": "5f6abcc9185dc960d445e7a567b5441f23973a15"
+      "commit": "055217a5c512050b11971ee8d0e4124e4fe3735c"
+    },
+    "conway": {
+      "repository": "isomorphismes/Conway",
+      "commit": "42c99ed0d289162b6fd62d864fbf58fc042e24d8"
     },
     "ick": {
       "repository": "dilapidated-shed/ick",
@@ -49,16 +53,21 @@
     "owned-toolchain-build",
     "producer-preview",
     "independent-acceptance",
+    "conway-acceptance",
     "seal"
   ],
   "limits": {
     "build_seconds": 6000,
     "consumer_seconds": 300,
-    "acceptance_seconds": 300
+    "acceptance_seconds": 300,
+    "conway_seconds": 600
   },
   "outputs": [
     "producer.tsv",
     "independent.tsv",
+    "conway.tsv",
+    "conway/positive.log",
+    "conway/materials.sha256",
     "preview/curve-3x3-vs-5x5.ppm",
     "preview/path-{baseline,quadratic,cubic,auto}.{ppm,tsv}",
     "preview/font-*.ppm",
@@ -68,6 +77,15 @@
     "result.sha256"
   ],
   "authority": "host-qualification-candidate",
+  "compiler_acquisition": {
+    "kind": "authenticated-source-built-artifact",
+    "repository": "isomorphisms/billiard",
+    "run_id": 39225847109,
+    "artifact_id": 12174071008,
+    "archive_sha256": "8ee043088fffadba3704fd567c206c4852b0de69f0b8bb76a131bfb8fa4004a4",
+    "driver_sha256": "45805e3295f2709737fcc87985a8a2341aa8663ff8e4e398d2a9d78dc1283e10",
+    "frontend_sha256": "c09665543aa807967d22bcaf0959aedd970f9d21be309d42170e4bae5a555292"
+  },
   "production_admission": "NOT_ACCEPTED",
   "model_dispatch": "NOT_IMPLEMENTED",
   "physical_A1_C67": "NOT_RUN"

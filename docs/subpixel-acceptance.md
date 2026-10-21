@@ -1,7 +1,7 @@
 # Subpixel host qualification
 
-`subpixel-acceptance` version 2 executes the accepted whole-path/font producer
-and independent oracle through Kitchen version 5, source-pinned ICK and
+`subpixel-acceptance` version 3 executes the corrected whole-path/font producer,
+real Conway bridge and independent oracle through Kitchen version 6, source-pinned ICK and
 ICK-built Ike. Exact sources and runtime materials are in
 `registry/subpixel-acceptance.json`; the complete assignment is
 `tasks/subpixel/assignment.txt`. Version 1 and Kitchen 4 remain historical
@@ -23,10 +23,20 @@ its Android engine is never selected on this x86_64 host. Consumer commands
 invoke `grease`. The engine basename inside the package is implementation
 provenance, not the public shell interface.
 
-The hosted workflow checks identities and refusal fixtures, builds ICK and Ike,
+The hosted workflow authenticates the exact published source-built ICK archive,
+driver and frontend and freshly compiles Ike through that compiler. This is
+declared artifact acquisition, not another compiler source build. The original
+version 2 run built ICK and passed native tests/preview, then failed collection
+because find's batched cp destination followed `{}`. Kitchen 6 corrects that
+operation and executes a real collection/change-rejection fixture.
+
+The workflow checks identities and refusal fixtures,
 renders four-mode paths and 32 font panels, and executes the independent
 rational, whole-path and glyph oracles. Both independent markers and all ten
-genuine defect rejections are required. The exact receipt checker must also
+genuine path/font defect rejections are required. The separate Conway stage
+requires 22,778 full-scene checks, 5,979,792 definite sample decisions, ordered
+translucent CLI pixels and seven genuine source defects. Its declared
+1/32-pixel boundary strip excludes 243,696 comparisons. The exact receipt checker must also
 reject forged final-result and selected-target receipts. FP records each
 stage's exit and output hashes; child timeouts bound the build and executions.
 
@@ -37,12 +47,13 @@ independent glyph oracle excludes a declared 1/64-pixel boundary strip.
 
 The preexisting Python FP controller and retained producer/ai-ci POSIX recipe
 interfaces remain explicit migration debt. No new Python is introduced.
-Host GCC/Make build ICK itself; only ICK compiles Ike and consumer/oracle C.
+The authenticated compiler was source-built through its declared stage-zero
+boundary; only ICK compiles this run's Ike and consumer/oracle C.
 The host driver then links those objects with the declared Linux runtime.
 
 The workflow qualifies this draft registration at the exact checked-out head.
 It does not deploy the separate protected admission service, dispatch a coding
-model, grant merge/publication authority, accept the Conway bridge, or
+model, grant merge/publication authority, or
 qualify Android. `result.tsv` preserves those boundaries. Future producer edits
 require a reviewed producer pin and corresponding independent oracle update.
 A workflow configuration alone is not a successful registered run.

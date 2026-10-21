@@ -39,14 +39,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/kitchen
-          ref: 76dc70bdd0e95a4c33f85521af17d8756908713c
+          ref: b073c4c5a89bfb5debdbf08460ba1b8206feda6a
           path: _subpixel/kitchen
           persist-credentials: false
       - name: Materialize exact producer
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/rough.framebuffer
-          ref: 0a09edede932ba80feb7f35addede3eb17baf6f3
+          ref: f33a476c69da313745b58c10cf8057765f9cbec9
           path: _subpixel/producer
           fetch-depth: 0
           persist-credentials: false
@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: 5f6abcc9185dc960d445e7a567b5441f23973a15
+          ref: 055217a5c512050b11971ee8d0e4124e4fe3735c
           path: _subpixel/aici
           persist-credentials: false
       - name: Materialize owned ICK and retained GCC reference
@@ -64,6 +64,13 @@ jobs:
           ref: c61e448251744a2f40ad743ebef1a027bdcd2f9d
           path: _subpixel/ick
           submodules: true
+          persist-credentials: false
+      - name: Materialize the actual Conway geometry consumer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphismes/Conway
+          ref: 42c99ed0d289162b6fd62d864fbf58fc042e24d8
+          path: _subpixel/conway
           persist-credentials: false
       - name: Materialize owned Ike source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -90,24 +97,32 @@ jobs:
               --output "$RUNNER_TEMP/subpixel-grease-portable.tar.gz"
           printf '%s  %s\n' 3ddb962ef313e528e525fa03518f494577e921c2201ecb49f7a11f2fbf4e82b2 "$RUNNER_TEMP/subpixel-grease-portable.tar.gz" | sha256sum -c -
           tar -xzf "$RUNNER_TEMP/subpixel-grease-portable.tar.gz" -C _subpixel/runtime ./bin/grease
+          mkdir -p _subpixel/ick-artifact
+          gh api repos/isomorphisms/billiard/actions/artifacts/12174071008/zip > _subpixel/ick-stage.zip
+          printf '%s  %s\n' 8ee043088fffadba3704fd567c206c4852b0de69f0b8bb76a131bfb8fa4004a4 _subpixel/ick-stage.zip | sha256sum -c -
+          unzip -p _subpixel/ick-stage.zip ick-host-stage.tar.gz > "$RUNNER_TEMP/subpixel-ick-stage.tar.gz"
+          tar --no-same-owner -xzf "$RUNNER_TEMP/subpixel-ick-stage.tar.gz" -C _subpixel/ick-artifact
           sha256sum -c tasks/subpixel/materials.sha256
           chmod 755 _subpixel/runtime/bin/grease _subpixel/runtime/bin/ysh
-      - name: Install explicitly declared ICK stage-zero dependencies
+      - name: Install declared ICK artifact runtime and host object linker
         shell: sh
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential flex texinfo libgmp-dev libmpfr-dev libmpc-dev libisl-dev libzstd-dev binutils
+          sudo apt-get install -y libgmp10 libmpfr6 libmpc3 libisl23 libzstd1 binutils gcc
       - name: Verify refusals before any compiler build
         shell: '/usr/bin/env _subpixel/runtime/bin/grease {0}'
         run: |
+          set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
           _subpixel/runtime/bin/grease tests/subpixel-registration.grease "$workspace" "$workspace/_subpixel/runtime/bin/grease" "$python"
           _subpixel/runtime/bin/grease _subpixel/kitchen/tasks/subpixel/test-independent-log.grease \
               "$workspace/_subpixel/runtime/bin/grease" "$workspace/_subpixel/kitchen/tasks/subpixel"
+          _subpixel/runtime/bin/grease _subpixel/kitchen/tasks/subpixel/test-collection.grease
       - name: Execute the named FP pipeline
         shell: '/usr/bin/env _subpixel/runtime/bin/grease {0}'
         run: |
+          set -o errexit -o nounset -o pipefail
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
           "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$workspace"
