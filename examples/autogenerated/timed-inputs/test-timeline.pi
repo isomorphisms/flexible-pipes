@@ -47,6 +47,24 @@ def main() → None:
     first ∈ dict[str,object] ← sample(timeline,30,0)
     events ∈ list[dict[str,object]] ← list(first['events'])
     require(len(events) == 2 and str(events[0]['value']) == 'select:0' and str(events[1]['value']) == 'a','same-time ordered events')
+    rosette ∈ dict[str,object] ← load(inputs.parent.joinpath('rosette/mathieu'))
+    for index in [0,30,75,120,539]:
+        snapshot ∈ dict[str,object] ← sample(rosette,index,0)
+        state ∈ dict[str,object] ← dict(snapshot['state'])
+        position ∈ list[float] ← list(state['layout/frame'])
+        target_frame ∈ int ← 0
+        if index == 75:
+            target_frame ← 45
+        if index >= 120:
+            target_frame ← 90
+        require(position[0] == target_frame,'rosette native layout clock')
+    snapshot ← sample(rosette,150,0)
+    selection ∈ list[str] ← []
+    rosette_events ∈ list[dict[str,object]] ← list(snapshot['events'])
+    for event in rosette_events:
+        if str(event['path']) == 'group/action':
+            selection.append(str(event['value']))
+    require(selection == ['select:0','select:1','select:6','select:7','select:12'],'rosette exact octad selection order')
     with tempfile.TemporaryDirectory(prefix='wiggle-long-input-') as temporary:
         target ∈ object ← Path(temporary).joinpath('trace')
         shutil.copytree(surfer,target)

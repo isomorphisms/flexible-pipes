@@ -1,0 +1,8 @@
+0	30	hold	Establish the original row-major 4 by 6 grid of 24 Tarot dancers
+30	121	move	Rearrange the same six column tetrads into six diamonds around a hexagon
+121	150	hold	Let the six-diamond Golay sextet settle
+150	195	hold	Reveal and inspect the exact octad T0 union T1
+195	339	move	Transport the octad under ATLAS generator a through twelve transpositions
+339	360	hold	Inspect the completed exact a arrangement and carried octad
+360	432	move	Apply ATLAS generator b through its six three-cycles
+432	540	hold	Hold the final exact ab arrangement and transported Golay octad

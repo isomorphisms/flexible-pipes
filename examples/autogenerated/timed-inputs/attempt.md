@@ -68,3 +68,18 @@ transactional output. Remove the Ithon orchestration only after an Idriç
 implementation rejects the same bad timelines and corrupted media without
 changing the producer/driver contract. The small admission law alone is not
 proof that Idriç drove the movie.
+
+## Golay rosette film
+
+FP #253 reuses the owner's sampled layout API at e6afdba33b6f1e10be43944bbe604dcc2c21f09d.
+The bounded layout/frame scalar is a whole native geometry tick from 0 to 90.
+Its track drives the layout only; group/action events remain discrete ATLAS
+permutations. The five selected coordinates complete T0 union T1 exactly.
+The retained plan covers 540 frames at 30 fps: grid hold, 90-tick smooth layout,
+octad reveal, a, pause, b, final hold. Every source frame is generated through
+the owner renderer. Held frames have separate regular filenames sharing bytes
+by hard link, preserving the complete sequence within the host's disk budget.
+The native adapter reruns the entire trace in a fresh process and compares every
+regenerated pixel and checkpoint without storing a redundant second sequence.
+This extends the same Icky C/Ithon boundary and its existing Idriç facility gap;
+it adds no mathematical engine, video encoder, or new Python source.
