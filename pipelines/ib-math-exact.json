@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "name": "ib-math-exact",
+  "required_stages": [
+    "job-envelope",
+    "fp-source",
+    "ib-source",
+    "surfer-source",
+    "aici-source",
+    "source-pins",
+    "parser-and-idric-host",
+    "independent-aici",
+    "input-source-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/ib-math-exact/assignment.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fp-source",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ib-source",
+      "argv": [
+        "git",
+        "-C",
+        "source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "surfer-source",
+      "argv": [
+        "git",
+        "-C",
+        "source/.tools/surfer",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "aici-source",
+      "argv": [
+        "git",
+        "-C",
+        "oracle",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-pins",
+      "argv": [
+        "cat",
+        "tasks/ib-math-exact/source-pins.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "parser-and-idric-host",
+      "argv": [
+        "sh",
+        "source/bin/ci_browser_foundation.grease",
+        "exercise-exact-math"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici",
+      "argv": [
+        "sh",
+        "tasks/ib-math-exact/independent.grease"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "input-source-hashes",
+      "argv": [
+        "sha256sum",
+        "source/native/surfer_equation_probe.c",
+        "source/bin/accept_scientific_equations.grease",
+        "source/src/IB/ExactSurface.idric",
+        "source/.tools/surfer/native/android/formula.c",
+        "source/.tools/surfer/native/surfer_raytracer.c",
+        "oracle/scientific-equation/verify.sh",
+        "oracle/scientific-equation/self-test.sh"
+      ],
+      "cwd": "."
+    }
+  ]
+}
