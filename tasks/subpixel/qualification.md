@@ -43,3 +43,13 @@ absence of edge ink in the probe. Its corrected probe includes top/bottom/left
 edges. The new registered exact-head run must still complete before a host
 qualification PASS is claimed. Compiler acquisition and source construction
 remain separate evidence.
+
+The local repaired Conway run's exact ICK-built Ike receipt SHA256 is
+9e7bdb30399885ecfbba4f2cfaabe61fdbb0182032377f05d3ce379958c6bb09;
+its Ikefile identity is
+sha256:aceeeffcb157efef3fa6af442aeb7052c78ff81451cf273668e9362cb364c7e7.
+The executed independent checker source SHA256 is
+9e41c205a4c34a0fd5d3b9fdfa19c2d2f4e6392e0f4a888e128e1f8225249648.
+The exact receipt checker accepted that target/recipe and rejected a different
+target and different recipe. These local identities do not substitute for the
+new registered run's own stage receipts and final seal.
