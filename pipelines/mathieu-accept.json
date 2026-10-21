@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "mathieu-accept",
+  "parameters": {
+    "source": {"required":true,"pattern":"^/[^\\s]+$"},
+    "head": {"required":true,"pattern":"^[0-9a-f]{40}$"},
+    "gate": {"required":true,"pattern":"^/[^\\s]+$"},
+    "engine": {"required":true,"pattern":"^/[^\\s]+$"},
+    "gap": {"required":true,"pattern":"^/[^\\s]+$"},
+    "gap_root": {"required":true,"pattern":"^/[^\\s]+$"},
+    "grease": {"required":true,"pattern":"^/[^\\s]+$"},
+    "evidence": {"required":true,"pattern":"^/[^\\s]+$"}
+  },
+  "required_stages": ["independent-gap-oracle"],
+  "stages": [{
+    "name":"independent-gap-oracle","kind":"command","cwd":".",
+    "argv":["{{grease}}","{{gate}}","{{source}}","{{head}}","{{engine}}","{{gap}}","{{gap_root}}","{{evidence}}"]
+  }]
+}
