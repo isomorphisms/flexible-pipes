@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/remind-me-to-read
-          ref: b03f9a1c8c03fc02a3b6145ea63d09003ce91900
+          ref: 8250aa62bdaad2f7679995d949f72b251b26b738
           path: _reading/producer
           persist-credentials: false
       - name: Check out pinned independent AI-CI oracle
