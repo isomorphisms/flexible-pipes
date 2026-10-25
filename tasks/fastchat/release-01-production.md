@@ -40,3 +40,18 @@ FastChat workflows with pinned Grease producer”
 Grease qualification. A downloaded byte-identical test runtime does not waive
 that production boundary. Physical A1/C67 and live-provider acceptance remain
 NOT_RUN.
+
+## Exact-source hosted result
+
+FastChat source `3b1286cefb49485ec337c56e278bd831518f2ae7` passes
+current-head core/fault/replay/settings/draft and hostile mutation checks,
+credential-free HTTP/2 provider fixtures, pinned Idriç semantic execution and
+provider-setup typechecking, and native compile/sign/repeat packaging for both
+ABIs. Both artifact ZIPs and extracted APK SHA-256 values were independently
+recomputed after download and match their receipts. Both APK file lists omit
+application DEX. The exact run, artifact, signer and source identities are in
+[release-01-qualification.tsv](release-01-qualification.tsv).
+
+These are build and hosted semantic results. Shared production admission,
+consumer-account login, real API-provider access, installed update retention,
+physical UI behavior and handset performance are not inferred from them.
