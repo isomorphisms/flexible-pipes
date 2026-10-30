@@ -51,7 +51,7 @@ case $command in
 esac
 
 # AZ source bytes must match the independently reviewed consumer candidate.
-expected_az_blob=1c1650c69bbf2f4af78893ddb7ef81da53ee5d3c
+expected_az_blob=ab14ade0ae6ffcf91e2baab531e9703bcbc1823e
 if [ -n "${AZ_EXPECTED_BLOB:-}" ] && [ "$AZ_EXPECTED_BLOB" != "$expected_az_blob" ]; then
     fail "AZ_EXPECTED_BLOB conflicts with the registered AZ source"
 fi
