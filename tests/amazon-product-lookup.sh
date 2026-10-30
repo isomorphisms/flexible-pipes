@@ -118,4 +118,18 @@ if KITCHEN_ROOT="$fixture_kitchen" \
     run swapped link B000CCFXYY exterior-weatherstrip macguyver03-20 >"$tmp/bad.json"; then
     echo "swapped Kitchen helper accepted" >&2; exit 1
 fi
+# Retain byte-for-byte runner receipts for an independent ai-ci judge.
+# Keep them outside this test's disposable scratch directory when requested.
+if [ -n "${AMAZON_ACCEPTANCE_DIR:-}" ]; then
+    mkdir -p "$AMAZON_ACCEPTANCE_DIR"
+    for lane in "$tmp"/*; do
+        [ -d "$lane" ] || continue
+        for run_receipts in "$lane"/amazon-product-lookup-*; do
+            [ -d "$run_receipts" ] || continue
+            target_dir=$AMAZON_ACCEPTANCE_DIR/$(basename "$lane")
+            mkdir -p "$target_dir"
+            cp -R "$run_receipts" "$target_dir/"
+        done
+    done
+fi
 printf 'Flexible Pipes Amazon product lookup: PASS (real pinned programs, fixture Amazon; no live availability)\n'
