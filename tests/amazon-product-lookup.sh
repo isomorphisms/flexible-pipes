@@ -24,7 +24,14 @@ stage_out() {
 }
 
 # No live listing/availability is inferred from historical product evidence.
-run link-good link B000CCFXYY exterior-weatherstrip macguyver03-20 >"$tmp/good.json"
+if ! run link-good link B000CCFXYY exterior-weatherstrip macguyver03-20 >"$tmp/good.json" 2>"$tmp/good.err"; then
+    echo "exact-source lookup did not execute successfully" >&2
+    cat "$tmp/good.json" "$tmp/good.err" >&2
+    for result in "$tmp"/link-good/amazon-product-lookup-*/01-product-lookup/*.bin; do
+        if [ -f "$result" ]; then cat "$result" >&2; fi
+    done
+    exit 1
+fi
 stage_out link-good | grep -Fx "$(printf 'status\tPARTIAL')" >/dev/null ||
     { echo "a link was incorrectly qualified" >&2; exit 1; }
 stage_out link-good | grep -Fx "$(printf 'affiliate_link\thttps://www.amazon.com/dp/B000CCFXYY?tag=macguyver03-20')" >/dev/null ||
@@ -95,10 +102,20 @@ fi
 stage_out search-challenge | grep -Fx "$(printf 'status\tBLOCKED')" >/dev/null ||
     { echo "challenged source was not reported BLOCKED" >&2; exit 1; }
 
-# Corrupting only the Kitchen working file must fail despite an unchanged HEAD.
-printf '\n# swapped\n' >> "$KITCHEN_ROOT/tasks/product-lookup/amazon-az.sh"
-if run swapped link B000CCFXYY exterior-weatherstrip macguyver03-20 >"$tmp/bad.json"; then
+# Mutate a disposable Kitchen fixture, never the user's original checkout.
+fixture_kitchen=$tmp/kitchen-fixture
+mkdir -p "$fixture_kitchen/tasks/product-lookup"
+cp "$KITCHEN_ROOT/tasks/product-lookup/amazon-az.sh" \
+   "$fixture_kitchen/tasks/product-lookup/amazon-az.sh"
+git -C "$fixture_kitchen" init -q
+git -C "$fixture_kitchen" config user.name Contract
+git -C "$fixture_kitchen" config user.email contract@example.invalid
+git -C "$fixture_kitchen" remote add origin https://github.com/isomorphisms/kitchen.git
+git -C "$fixture_kitchen" add tasks/product-lookup/amazon-az.sh
+git -C "$fixture_kitchen" commit -qm baseline
+printf '\n# swapped\n' >> "$fixture_kitchen/tasks/product-lookup/amazon-az.sh"
+if KITCHEN_ROOT="$fixture_kitchen" \
+    run swapped link B000CCFXYY exterior-weatherstrip macguyver03-20 >"$tmp/bad.json"; then
     echo "swapped Kitchen helper accepted" >&2; exit 1
 fi
-git -C "$KITCHEN_ROOT" checkout -- tasks/product-lookup/amazon-az.sh
 printf 'Flexible Pipes Amazon product lookup: PASS (real pinned programs, fixture Amazon; no live availability)\n'
