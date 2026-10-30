@@ -1,0 +1,81 @@
+name: Amazon product lookup integration
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  amazon-product-lookup:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/kitchen
+          ref: 2c7d45076bd66a0c278018882209db3e6dde404e
+          path: _runtime/kitchen
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Ashtray-Archer/az
+          ref: cf3aa04cfba2da2158bfccf3d8744481156903d5
+          path: _runtime/az
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/catfood
+          ref: 7f1c213d64dc9a9e32a191431ae471ad8d42cba7
+          path: _catfood-build
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: dilapidated-shed/grease
+          ref: 94d051fccf7ce6e38da90112d18cb2bf3554769f
+          path: _runtime/grease
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/ai-ci
+          ref: ec1d7b0814dad8caf6198d5842ab68b2d41ee0b9
+          path: _acceptance/ai-ci
+          persist-credentials: false
+      - name: Establish Cat Food's exact Grease and AZ stable commands
+        shell: sh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential jq libreadline-dev libffi-dev
+          CATFOOD_ROOT="$PWD/_runtime" sh _catfood-build/build-tools.sh
+          sh _catfood-build/update-tools.ysh "$PWD/_runtime" 12 _catfood-build/tools.tsv 1
+          test -x _runtime/bin/grease
+          test -x _runtime/bin/az
+          git -C _runtime/kitchen rev-parse HEAD:tasks/product-lookup/amazon-az.sh
+          git -C _runtime/az rev-parse HEAD:bin/az
+      - name: Exact-head end-to-end commands and rejecting mutants
+        shell: sh
+        env:
+          KITCHEN_ROOT: ${{ github.workspace }}/_runtime/kitchen
+          CATFOOD_ROOT: ${{ github.workspace }}/_runtime
+          AMAZON_ACCEPTANCE_DIR: ${{ github.workspace }}/.flexible-pipes/amazon-acceptance
+        run: |
+          dash -n scripts/amazon-az scripts/amazon-product-lookup tests/amazon-product-lookup.sh
+          sh tests/amazon-product-lookup.sh
+      - name: Independent ai-ci receipt audit and eight rejecting mutants
+        shell: sh
+        run: |
+          sh _acceptance/ai-ci/amazon-shopping/check-receipts.sh \
+            .flexible-pipes/amazon-acceptance .
+          sh _acceptance/ai-ci/amazon-shopping/mutation-test.sh \
+            .flexible-pipes/amazon-acceptance .
+      - name: Retain source-bound exact-stage command receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: amazon-lookup-receipts-${{ github.run_id }}
+          path: .flexible-pipes/amazon-acceptance/
+          if-no-files-found: warn

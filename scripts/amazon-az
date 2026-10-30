@@ -9,7 +9,7 @@ fail() {
 : "${KITCHEN_ROOT:?set KITCHEN_ROOT to a verified isomorphisms/kitchen checkout}"
 
 relative=tasks/product-lookup/amazon-az.sh
-expected_blob=d2c71bdbb64467d063b6b97c2727880a7931ad11
+expected_blob=94c14c02ee44625ed304f6721baed203ff1135f3
 script=$KITCHEN_ROOT/$relative
 
 [ -f "$script" ] || fail "missing Kitchen AZ helper: $script"
@@ -50,4 +50,11 @@ case $command in
         ;;
 esac
 
+# AZ source bytes must match the independently reviewed consumer candidate.
+expected_az_blob=ab14ade0ae6ffcf91e2baab531e9703bcbc1823e
+if [ -n "${AZ_EXPECTED_BLOB:-}" ] && [ "$AZ_EXPECTED_BLOB" != "$expected_az_blob" ]; then
+    fail "AZ_EXPECTED_BLOB conflicts with the registered AZ source"
+fi
+AZ_EXPECTED_BLOB=$expected_az_blob
+export AZ_EXPECTED_BLOB
 exec /bin/sh "$script" "$@"
