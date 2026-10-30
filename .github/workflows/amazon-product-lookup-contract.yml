@@ -39,6 +39,12 @@ jobs:
           path: _runtime/grease
           submodules: recursive
           persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/ai-ci
+          ref: ec1d7b0814dad8caf6198d5842ab68b2d41ee0b9
+          path: _acceptance/ai-ci
+          persist-credentials: false
       - name: Establish Cat Food's exact Grease and AZ stable commands
         shell: sh
         run: |
@@ -55,6 +61,21 @@ jobs:
         env:
           KITCHEN_ROOT: ${{ github.workspace }}/_runtime/kitchen
           CATFOOD_ROOT: ${{ github.workspace }}/_runtime
+          AMAZON_ACCEPTANCE_DIR: ${{ github.workspace }}/.flexible-pipes/amazon-acceptance
         run: |
           dash -n scripts/amazon-az scripts/amazon-product-lookup tests/amazon-product-lookup.sh
           sh tests/amazon-product-lookup.sh
+      - name: Independent ai-ci receipt audit and eight rejecting mutants
+        shell: sh
+        run: |
+          sh _acceptance/ai-ci/amazon-shopping/check-receipts.sh \
+            .flexible-pipes/amazon-acceptance .
+          sh _acceptance/ai-ci/amazon-shopping/mutation-test.sh \
+            .flexible-pipes/amazon-acceptance .
+      - name: Retain source-bound exact-stage command receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: amazon-lookup-receipts-${{ github.run_id }}
+          path: .flexible-pipes/amazon-acceptance/
+          if-no-files-found: warn
