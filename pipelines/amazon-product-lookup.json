@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "amazon-product-lookup",
+  "parameters": {
+    "action": {
+      "required": true,
+      "pattern": "(search|link|price)"
+    },
+    "target": {
+      "required": true,
+      "pattern": "[^\\r\\n]{1,200}"
+    },
+    "role": {
+      "required": true,
+      "pattern": "(exterior-weatherstrip|interior-moisture-barrier|unknown)"
+    },
+    "tag": {
+      "required": true,
+      "pattern": "[A-Za-z0-9-]{1,64}"
+    }
+  },
+  "required_stages": [
+    "product-lookup"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "product-lookup",
+      "argv": [
+        "/bin/sh",
+        "scripts/amazon-product-lookup",
+        "{{action}}",
+        "{{target}}",
+        "{{role}}",
+        "{{tag}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}
