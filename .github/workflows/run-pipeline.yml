@@ -101,21 +101,21 @@ jobs:
         if: ${{ steps.select.outputs.pipeline == 'amazon-product-lookup' }}
         with:
           repository: isomorphisms/kitchen
-          ref: a9c88c0433266bba9dbd52ef7055db81db509aa8
+          ref: 2c7d45076bd66a0c278018882209db3e6dde404e
           path: _runtime/kitchen
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         if: ${{ steps.select.outputs.pipeline == 'amazon-product-lookup' }}
         with:
           repository: Ashtray-Archer/az
-          ref: 3afd067ce918ec33ff1fb6faa45ad3bdc2341661
+          ref: 55dd2bdf1a4c90716e237ea242533b04a84d8a11
           path: _runtime/az
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         if: ${{ steps.select.outputs.pipeline == 'amazon-product-lookup' }}
         with:
           repository: isomorphisms/catfood
-          ref: 49dcaa44e4bdff18689c0f8ac90fc01e66bc657c
+          ref: 59c0514e93686de413230bed5d8b316ba0e6f5a2
           path: _catfood-build
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
