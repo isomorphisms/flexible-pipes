@@ -1,0 +1,37 @@
+schema	fastchat-tabp10-handoff-qualification-v1
+date	2026-10-31
+application	isomorphisms/fastchat
+fastchat_source_head	4e69d41895e36fb51bb5c1faa9fc08484cc7662c
+fastchat_review	https://github.com/isomorphisms/fastchat/pull/20
+catfood_policy_head	f2d9d1ecd9674a83058fd49b4ed69abc3cc8f17f
+catfood_review	https://github.com/isomorphisms/catfood/pull/157
+producer_implementation_head	a0adc16a002a7e236a12f6681a087b66d618a0c8
+producer_review	https://github.com/isomorphisms/flexible-pipes/pull/262
+original_fastchat_qualified_source	3b1286cefb49485ec337c56e278bd831518f2ae7
+original_fastchat_receipt	tasks/fastchat/release-01-qualification.tsv
+active_physical_target	SVITOO TAB_P10
+historical_unavailable_targets	MIRO A1;MIRO C67
+android_primary_abi_expected	arm64-v8a; historical model/profile, not current getprop
+android_min_sdk_required	26
+source_abi_targets	armeabi-v7a;arm64-v8a
+package_id	org.isomorphisms.fastchat.diskstreaming.arena
+version_code	6
+public_test_signer_sha256_expected	aa9151e3922fa4795987c3655bc7aa4712620f1d94c24a2075acd7b29d8ac86e
+source_distinct_tablet_plan	IMPLEMENTED_AS_DRAFT; requires Cat Food policy acceptance
+tablet_plan_physical_acceptance	NOT_RUN
+synthetic_tablet_missing_device_and_mismatch	PASS https://github.com/isomorphisms/fastchat/actions/runs/41229429326 ; before unavailable Grease runtime
+fp_negative_registration_and_tablet_plan	PASS https://github.com/isomorphisms/flexible-pipes/actions/runs/41229432744
+catfood_delivery_and_planning	PENDING; see Cat Food PR 157 hosted checks
+fastchat_core	PENDING; see FastChat PR 20 hosted checks
+fastchat_http2	PENDING; see FastChat PR 20 hosted checks
+fastchat_idric	PENDING; see FastChat PR 20 hosted checks
+fastchat_native_repeat_sign	BLOCKED; Grease artifact 12192502970 unavailable; https://github.com/isomorphisms/fastchat/actions/runs/41229429326
+fp_shared_production	BLOCKED; unmerged Cat Food policy; AICI signer admission and Grease source closure unverified
+physical_tablet_inventory	NOT_OBSERVED; Cat Food PR 156 synthetic only
+physical_tablet_install_launch	NOT_RUN
+installed_update_retention	NOT_RUN
+ime_unicode_rotation_paging_lifecycle	NOT_RUN
+live_provider_tls_system_trust_multi_turn_restart	NOT_RUN
+tablet_ram_latencies	NOT_MEASURED
+application_dex	ABSENT in historical exact head APKs; successor packaging unverified
+production_release	BLOCKED
