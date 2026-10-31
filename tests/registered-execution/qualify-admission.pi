@@ -84,9 +84,13 @@ for route in ["workflow_dispatch", "pipeline-requests"]:
             raise ValueError("SUBMISSION_MUTANT_ACCEPTED: " + route + ":" + field + ":" + observed)
         checks.append({"case": route + "-" + field, "status": "PASS", "rejection": observed})
     other ∈ str ← "pipeline-requests" if route == "workflow_dispatch" else "workflow_dispatch"
+    other_submission ∈ dict[str, object] ← dict(submission)
+    original_field ∈ str ← "request" if route == "workflow_dispatch" else "request_commit"
+    other_field ∈ str ← "request_commit" if route == "workflow_dispatch" else "request"
+    other_submission[other_field] ← other_submission.pop(original_field)
     observed ← ""
     try:
-        verify_submission(verified, other, submission)
+        verify_submission(verified, other, other_submission)
     except Exception as failure:
         observed ← str(failure)
     if observed != "ADMISSION_ROUTE_IDENTITY":

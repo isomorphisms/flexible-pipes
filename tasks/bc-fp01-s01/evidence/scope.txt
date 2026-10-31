@@ -1,0 +1,3 @@
+PASS: actual Git-object intake, request parsing and material preflight.
+NOT_RUN: Kitchen generation, exporter diagnostic workers, installed promotion, authenticated GitHub or ChatGPT origin.
+Fixture runtimes and qualification declarations are inert source-test data, never approved runtime material.
