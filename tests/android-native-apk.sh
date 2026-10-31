@@ -31,7 +31,7 @@ if fixture "$digest"; then
 fi
 grep -Fq 'application not uniquely registered' "$tmp/err"
 test ! -e "$tmp/must-stay-absent"
-if python3 "$root/scripts/run-pipeline" android-native-apk \
+if python3 "$root/scripts/run-pipeline-legacy.py" android-native-apk \
     --runs-root "$tmp/runs" >"$tmp/pipeline.log" 2>"$tmp/pipeline.err"; then
     echo 'missing runtime qualification unexpectedly passed pipeline' >&2; exit 1
 fi

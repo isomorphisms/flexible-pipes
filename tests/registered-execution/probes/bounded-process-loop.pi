@@ -1,0 +1,7 @@
+import subprocess
+print("EFFECT_BEFORE_CHECK")
+worker ∈ subprocess.Popen ← subprocess.Popen(["/usr/bin/true"])
+running ∈ bool ← True
+while running:
+    code ∈ object ← worker.poll()
+    running ← bool(code == None)

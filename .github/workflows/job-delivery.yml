@@ -51,7 +51,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/job-delivery-checked.jsonl
         run: >-
-          python3 scripts/run-pipeline fp35-delivery-acceptance
+          python3 scripts/run-pipeline-legacy.py fp35-delivery-acceptance
           --param "ithon=$GITHUB_WORKSPACE/_ithon/ithon"
           --param "fp-root=$GITHUB_WORKSPACE"
           --param "aici-root=$GITHUB_WORKSPACE/_aici"
@@ -65,7 +65,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/pr-judge-delivery-checked.jsonl
         run: >-
-          python3 scripts/run-pipeline pr-judge-01-review
+          python3 scripts/run-pipeline-legacy.py pr-judge-01-review
           --param "ithon=$GITHUB_WORKSPACE/_ithon/ithon"
           --param "fp-root=$GITHUB_WORKSPACE"
           --param "aici-root=$GITHUB_WORKSPACE/_aici"

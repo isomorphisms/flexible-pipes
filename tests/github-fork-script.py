@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import json
 import subprocess
 import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 renderer = ROOT / "scripts/render-github-fork-script"
-runner = ROOT / "scripts/run-pipeline"
+runner = ROOT / "scripts/run-pipeline-legacy.py"
 
 cases = [
     (
@@ -64,5 +65,9 @@ with tempfile.TemporaryDirectory() as td:
     assert len(run_dirs) == 1
     stdout = (run_dirs[0] / "01-render-script" / "stdout.bin").read_text()
     assert stdout == cases[0][1]
+    receipt = json.loads((run_dirs[0] / "receipt.json").read_text())
+    assert receipt["status"] == "PASS"
+    assert receipt["qualified_operation"] is False
+    assert receipt["acceptance_scope"] == "caller-supplied-command-execution"
 
 print("generic GitHub fork script renderer: PASS")

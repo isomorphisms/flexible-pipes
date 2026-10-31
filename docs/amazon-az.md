@@ -24,7 +24,11 @@ Before execution, `scripts/amazon-az` verifies:
 4. only then is the exact Kitchen helper executed.
 
 Flexible Pipes must not reconstruct an Amazon URL or bypass AZ when this
-registered operation is being used.
+checked-in command pipeline is being used.
+
+This pipeline uses `scripts/run-pipeline-legacy.py`. Its receipt reports
+caller-supplied command execution with `qualified_operation: false`; it does
+not grant registered-operation acceptance.
 
 ## Search
 
@@ -32,7 +36,7 @@ registered operation is being used.
 KITCHEN_ROOT=/path/to/kitchen \
 AZ_COMMAND=search \
 AMAZON_QUERY='MIRO A1 LCD digitizer screen assembly' \
-python3 scripts/run-pipeline amazon-az
+python3 scripts/run-pipeline-legacy.py amazon-az
 ```
 
 `AZ_COMMAND=search` is the default, so it may be omitted.
@@ -43,7 +47,7 @@ python3 scripts/run-pipeline amazon-az
 KITCHEN_ROOT=/path/to/kitchen \
 AZ_COMMAND=link \
 AMAZON_TARGET=B0ABC123 \
-python3 scripts/run-pipeline amazon-az
+python3 scripts/run-pipeline-legacy.py amazon-az
 ```
 
 ## Price and history
@@ -56,7 +60,7 @@ Use the same `AMAZON_TARGET` input with `AZ_COMMAND=price` or
 ```sh
 KITCHEN_ROOT=/path/to/kitchen \
 AZ_COMMAND=doctor \
-python3 scripts/run-pipeline amazon-az
+python3 scripts/run-pipeline-legacy.py amazon-az
 ```
 
 The pipeline runner's normal receipt captures command execution, output, exit
@@ -66,7 +70,7 @@ timeless repository data.
 ## Ownership boundary
 
 Kitchen owns the exact Grease/AZ invocation and the pasteable user procedure.
-Flexible Pipes owns registered repeatable execution and receipts. Product
+Flexible Pipes owns repeatable command execution and receipts. Product
 compatibility analysis belongs above this layer; a caller should use AZ for the
 Amazon candidates and links, then verify that the candidate actually fits the
 requested device before recommending purchase.

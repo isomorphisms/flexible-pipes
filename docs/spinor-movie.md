@@ -10,15 +10,19 @@
   PPM frame rendering.
 - `isomorphisms/kitchen` owns the pasteable composition command and canonical
   FFmpeg stills → H.264/MP4 command.
-- Flexible Pipes owns identity checks, registered execution, and the normal
+- Flexible Pipes owns identity checks, command execution, and the normal
   pipeline receipt.
+
+This pipeline uses `scripts/run-pipeline-legacy.py`. Its receipt reports
+caller-supplied command execution with `qualified_operation: false`; it does
+not grant registered-operation acceptance.
 
 ## Run
 
 ```sh
 KITCHEN_ROOT=/path/to/kitchen \
 SPINOR_ROOT=/path/to/spinor \
-python3 scripts/run-pipeline spinor-movie
+python3 scripts/run-pipeline-legacy.py spinor-movie
 ```
 
 Optional deterministic render inputs pass through unchanged:
@@ -31,7 +35,7 @@ SPINOR_MOVIE_FPS=30 \
 SPINOR_MOVIE_WIDTH=360 \
 SPINOR_MOVIE_HEIGHT=360 \
 SPINOR_MOVIE_OUTPUT=/tmp/spinor-4pi-demo.mp4 \
-python3 scripts/run-pipeline spinor-movie
+python3 scripts/run-pipeline-legacy.py spinor-movie
 ```
 
 ## Fail closed
@@ -39,7 +43,7 @@ python3 scripts/run-pipeline spinor-movie
 `scripts/spinor-movie` checks both repository origins and the Git blob identity
 of every script and semantic C/header file that can change the produced movie.
 It verifies the working-tree bytes too. A newer local checkout does not silently
-become the registered pipeline; update `registry/spinor-movie.json` and this
+become this checked-in pipeline; update `registry/spinor-movie.json` and this
 script deliberately when accepting changed inputs.
 
 The pipeline also emits compiler/FFmpeg identities before handing off to

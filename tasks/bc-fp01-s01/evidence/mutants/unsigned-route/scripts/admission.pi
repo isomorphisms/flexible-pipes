@@ -1,0 +1,65 @@
+"""Checked signed-admission interfaces; production keys come only from GitHub."""
+import base64
+import json
+import time
+from builtins import dict, list, ValueError
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+
+def decode(value ∈ str) → bytes:
+    remainder ∈ int ← len(value) % 4
+    suffix ∈ str ← ""
+    if remainder != 0:
+        for ignored in range(4 - remainder):
+            suffix ← suffix + "="
+    answer ∈ bytes ← base64.urlsafe_b64decode(value + suffix)
+    return answer
+
+
+def verify_token(token ∈ str, config ∈ dict[str, object], jwks ∈ dict[str, object]) → dict[str, object]:
+    parts ∈ list[str] ← token.split(".")
+    if len(parts) != 3 or len(token) > 16384:
+        raise ValueError("ADMISSION_FORMAT")
+    header ∈ dict[str, object] ← json.loads(decode(parts[0]))
+    claims ∈ dict[str, object] ← json.loads(decode(parts[1]))
+    if header["alg"] != "RS256" or claims["iss"] != "https://token.actions.githubusercontent.com" or claims["aud"] != "flexible-pipes-registered-v1":
+        raise ValueError("ADMISSION_ISSUER")
+    keys ∈ list[dict[str, object]] ← list(jwks["keys"])
+    selected ∈ dict[str, object] ← {}
+    for key in keys:
+        if key["kid"] == header["kid"] and key["kty"] == "RSA":
+            selected ← key
+    if len(selected) == 0:
+        raise ValueError("ADMISSION_SIGNER")
+    exponent ∈ int ← int.from_bytes(decode(str(selected["e"])), "big")
+    modulus ∈ int ← int.from_bytes(decode(str(selected["n"])), "big")
+    public ∈ object ← rsa.RSAPublicNumbers(exponent, modulus).public_key()
+    public.verify(decode(parts[2]), (parts[0] + "." + parts[1]).encode(), padding.PKCS1v15(), hashes.SHA256())
+    now ∈ float ← time.time()
+    if now >= float(claims["exp"]) or now < float(claims["nbf"]) or now - float(claims["iat"]) > 300.0:
+        raise ValueError("STALE_ADMISSION")
+    if claims["repository_id"] != "1405888814" or claims["ref"] != "refs/heads/main" or claims["sha"] != config["control_commit"]:
+        raise ValueError("UNQUALIFIED_WORKFLOW_IDENTITY")
+    if claims["workflow_ref"] != "isomorphisms/flexible-pipes/.github/workflows/run-pipeline.yml@refs/heads/main":
+        raise ValueError("UNQUALIFIED_WORKFLOW_REF")
+    allowed ∈ list[str] ← list(config["authorized_actors"])
+    actor ∈ str ← str(claims["actor_id"])
+    if not allowed.__contains__(actor):
+        raise ValueError("UNAUTHORIZED_ACTOR")
+    if claims["event_name"] != "workflow_dispatch" and claims["event_name"] != "workflow_run":
+        raise ValueError("UNQUALIFIED_EVENT")
+    return {"status": "PASS", "issuer": claims["iss"], "actor_id": actor, "event_name": claims["event_name"], "workflow_sha": claims["sha"], "jti": claims["jti"], "run_id": claims["run_id"], "run_attempt": claims["run_attempt"]}
+
+def verify_submission(decision ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, object]) → None:
+    # Bind the authenticated workflow to the selected route and run identity.
+    if route != "workflow_dispatch" and route != "pipeline-requests":
+        raise ValueError("UNKNOWN_ROUTE")
+    event ∈ str ← "workflow_dispatch" if route == "workflow_dispatch" else "workflow_run"
+    fields ∈ list[str] ← ["provider_token", "workflow_ref", "workflow_sha", "repository_id", "run_id", "run_attempt"]
+    fields.append("request" if route == "workflow_dispatch" else "request_commit")
+    if set(envelope) != set(fields):
+        raise ValueError("ADMISSION_ENVELOPE_FIELDS")
+    if envelope["run_id"] != decision["run_id"] or envelope["run_attempt"] != decision["run_attempt"]:
+        raise ValueError("ADMISSION_RUN_IDENTITY")
+    if envelope["workflow_ref"] != "refs/heads/main" or envelope["workflow_sha"] != decision["workflow_sha"] or type(envelope["repository_id"]) != int or envelope["repository_id"] != 1405888814:
+        raise ValueError("ADMISSION_CONTROL_IDENTITY")

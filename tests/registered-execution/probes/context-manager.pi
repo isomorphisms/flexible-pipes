@@ -1,0 +1,4 @@
+from pathlib import Path
+print("EFFECT_BEFORE_CHECK")
+with Path(__file__).open("rb") as stream:
+    payload ∈ bytes ← stream.read()

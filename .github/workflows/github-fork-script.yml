@@ -2,16 +2,18 @@ name: Generic GitHub fork script
 on:
   push:
     paths:
-      - 'scripts/render-github-fork-script'
-      - 'scripts/run-pipeline'
+      - 'scripts/**'
+      - 'registry/**'
+      - 'deployment/**'
       - 'pipelines/github-fork-script.json'
       - 'tests/github-fork-script.py'
       - 'tests/github-fork-kitchen-parity.py'
       - '.github/workflows/github-fork-script.yml'
   pull_request:
     paths:
-      - 'scripts/render-github-fork-script'
-      - 'scripts/run-pipeline'
+      - 'scripts/**'
+      - 'registry/**'
+      - 'deployment/**'
       - 'pipelines/github-fork-script.json'
       - 'tests/github-fork-script.py'
       - 'tests/github-fork-kitchen-parity.py'

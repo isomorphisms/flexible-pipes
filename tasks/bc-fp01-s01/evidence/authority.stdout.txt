@@ -1,0 +1,1 @@
+authority file protection regression passed

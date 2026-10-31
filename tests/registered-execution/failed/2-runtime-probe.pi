@@ -1,0 +1,129 @@
+"""Prerequisite diagnostics only. Never an accepted-operation supervisor."""
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import CompletedProcess
+from builtins import dict
+import hashlib
+import json
+import subprocess
+import sys
+
+source_filename ∈ str ← sys._getframe().f_code.co_filename
+
+def digest(path ∈ Path) → str:
+    payload ∈ bytes ← path.read_bytes()
+    value ∈ str ← hashlib.sha256(payload).hexdigest()
+    return value
+
+def execute(command ∈ list[str], environment ∈ dict[str, str]) → CompletedProcess:
+    child ∈ CompletedProcess ← subprocess.run(command, env=environment, cwd="/", capture_output=True, timeout=10)
+    return child
+
+def log_process(folder ∈ Path, child ∈ CompletedProcess) → None:
+    stdout ∈ bytes ← child.stdout
+    stderr ∈ bytes ← child.stderr
+    folder.joinpath("stdout.bin").write_bytes(stdout)
+    folder.joinpath("stderr.bin").write_bytes(stderr)
+
+def main() → None:
+    parser ∈ ArgumentParser ← ArgumentParser(description="FP2 prerequisite runtime probe; no operation execution")
+    parser.add_argument("--ithon-root", required=True)
+    parser.add_argument("--grease-root", required=True)
+    parser.add_argument("--output", required=True)
+    args ∈ object ← parser.parse_args()
+    ithon_argument ∈ str ← args.ithon_root
+    grease_argument ∈ str ← args.grease_root
+    output_argument ∈ str ← args.output
+    ithon ∈ Path ← Path(ithon_argument).resolve()
+    grease ∈ Path ← Path(grease_argument).resolve()
+    output ∈ Path ← Path(output_argument).resolve()
+    source ∈ Path ← Path(source_filename).resolve().parents.__getitem__(1)
+    probes ∈ Path ← source.joinpath("tests", "registered-execution", "probes")
+    # Never overwrite a previous attempt, partial result, or caller checkout.
+    output.mkdir(mode=448, parents=False, exist_ok=False)
+    ledger ∈ Path ← output.joinpath("results.tsv")
+    rows ← "case\tstate\texit\tsource_sha256\tdetail\n"
+    ledger.write_text(rows)
+    output.joinpath("status.txt").write_text("RUNNING\n")
+    host_python ∈ str ← sys.executable
+    environment ∈ dict[str, str] ← dict()
+    environment.__setitem__("PATH", "/usr/bin:/bin")
+    environment.__setitem__("ITHON_PYTHON", host_python)
+    git_environment ∈ dict[str, str] ← dict()
+    git_environment.__setitem__("PATH", "/usr/bin:/bin")
+    git_environment.__setitem__("GIT_CONFIG_NOSYSTEM", "1")
+    git_environment.__setitem__("GIT_CONFIG_GLOBAL", "/dev/null")
+    git_environment.__setitem__("GIT_NO_REPLACE_OBJECTS", "1")
+    identities ← "repository\tcommit\n"
+    for repository in [source, ithon, grease, grease.joinpath("source")]:
+        identity ∈ CompletedProcess ← execute(["/usr/local/bin/git", "-C", str(repository), "rev-parse", "HEAD"], git_environment)
+        identity_code ∈ int ← identity.returncode
+        if identity_code != 0:
+            output.joinpath("status.txt").write_text("BLOCKED:SOURCE_IDENTITY\n")
+            sys.exit(2)
+        identity_bytes ∈ bytes ← identity.stdout
+        commit ∈ str ← identity_bytes.decode().strip()
+        identities ← identities + str(repository) + "\t" + commit + "\n"
+    output.joinpath("sources.tsv").write_text(identities)
+    dependencies ← "path\tsha256\n"
+    for dependency in [ithon.joinpath("ithon"), ithon.joinpath("ithon_host.py"), ithon.joinpath("Lib", "ithon_run.py"), ithon.joinpath("Lib", "ithon_frontend.py"), ithon.joinpath("Lib", "ithon_static.py"), Path(host_python), Path(source_filename)]:
+        dependencies ← dependencies + str(dependency) + "\t" + digest(dependency) + "\n"
+    output.joinpath("dependencies.tsv").write_text(dependencies)
+    failures ← 0
+    for name in ["control3", "invalid-local-call", "exception-recovery", "guaranteed-cleanup", "context-manager", "mapping-index", "mapping-construction", "bounded-process-loop"]:
+        folder ∈ Path ← output.joinpath(name)
+        folder.mkdir(mode=448)
+        receipt ∈ Path ← folder.joinpath("checked.jsonl")
+        environment.__setitem__("ITHON_CHECK_RECEIPT", str(receipt))
+        program ∈ Path ← probes.joinpath(name + ".pi")
+        child ∈ CompletedProcess ← execute([str(ithon.joinpath("ithon")), str(program)], environment)
+        log_process(folder, child)
+        code ∈ int ← child.returncode
+        stdout ∈ bytes ← child.stdout
+        stderr ∈ bytes ← child.stderr
+        checked ∈ bool ← receipt.is_file()
+        state ← "BLOCKED"
+        detail ← "required_frontend_capability_unavailable"
+        if name == "control3":
+            if code == 0:
+                if checked:
+                    text ∈ str ← receipt.read_text()
+                    record ∈ dict[str, str] ← json.loads(text)
+                    checked_digest ∈ str ← record.get("source_sha256")
+                    actual_digest ∈ str ← digest(program)
+                    expected ∈ bytes ← ("qualification-control\n" + actual_digest + "\n38\n").encode()
+                    if checked_digest == actual_digest:
+                        if stdout == expected:
+                            state ← "PASS"
+                            detail ← "checked_bytes_executed_actual_child_observed"
+        elif name == "invalid-local-call":
+            if code != 0:
+                if checked == False:
+                    if stdout == b"":
+                        if b"expected int, got str" ∈ stderr:
+                            state ← "PASS"
+                            detail ← "local_type_error_rejected_before_effects"
+        # Capability probes are requirements, never expected-failure PASS cases.
+        if state != "PASS":
+            failures ← failures + 1
+        rows ← rows + name + "\t" + state + "\t" + str(code) + "\t" + digest(program) + "\t" + detail + "\n"
+        ledger.write_text(rows)
+    grease_folder ∈ Path ← output.joinpath("grease")
+    grease_folder.mkdir(mode=448)
+    grease_child ∈ CompletedProcess ← execute([str(grease.joinpath("source", "bin", "ysh")), "-c", "echo Grease-runtime-probe"], git_environment)
+    log_process(grease_folder, grease_child)
+    grease_code ∈ int ← grease_child.returncode
+    # Implementation entrypoint availability does not qualify a consumer profile.
+    grease_state ← "BLOCKED"
+    grease_stdout ∈ bytes ← grease_child.stdout
+    if grease_code == 0:
+        if grease_stdout == b"Grease-runtime-probe\n":
+            grease_state ← "AVAILABLE"
+    rows ← rows + "grease-entrypoint\t" + grease_state + "\t" + str(grease_code) + "\t" + digest(grease.joinpath("source", "bin", "ysh")) + "\tqualification_not_granted\n"
+    ledger.write_text(rows)
+    output.joinpath("status.txt").write_text("BLOCKED:UNQUALIFIED_IMPLEMENTATION\n")
+    print(rows)
+    print("BLOCKED: prerequisite diagnostics cannot accept kitchen-transfer-script")
+    sys.exit(2)
+
+main()

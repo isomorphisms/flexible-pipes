@@ -333,8 +333,10 @@ with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
     plan ∈ dict[str, object] ← {"schema_version": 1, "name": "test-job-delivery", "stages": stages}
     try:
         pipeline.write_text(json.dumps(plan))
-        child ∈ object ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline", "test-job-delivery", "--ithon", ithon, "--runs-root", work + "/runs"], capture_output=True)
+        child ∈ object ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline-legacy.py", "test-job-delivery", "--ithon", ithon, "--runs-root", work + "/runs"], capture_output=True)
         result ∈ dict[str, object] ← json.loads(child.stdout)
+        if result["qualified_operation"] != False or result["acceptance_scope"] != "caller-supplied-command-execution":
+            raise AssertionError("exploratory handoff inherited registered acceptance")
         if int(child.returncode) == 0 or result["status"] != "AWAITING_HANDOFF_DELIVERY" or bool(Path(marker).exists()):
             raise AssertionError("internal composition passed/delivered/dispatched")
         if bytes(Path(str(result["response_artifact"])).read_bytes()) != payload:
@@ -342,7 +344,7 @@ with tempfile.TemporaryDirectory(prefix="job-delivery-") as temporary:
         passed("real pipeline holds at delivery boundary")
         spec["unknown_policy"] ← "unsafe"
         pipeline.write_text(json.dumps(plan))
-        child ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline", "test-job-delivery", "--ithon", ithon, "--runs-root", work + "/invalid-runs"], capture_output=True)
+        child ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline-legacy.py", "test-job-delivery", "--ithon", ithon, "--runs-root", work + "/invalid-runs"], capture_output=True)
         if int(child.returncode) == 0 or bool(Path(marker).exists()) or bool(Path(work + "/invalid-runs").exists()):
             raise AssertionError("invalid handoff reached effects")
         passed("real pipeline prevalidates handoff before effects")
@@ -366,8 +368,10 @@ with tempfile.TemporaryDirectory(prefix="attachment-delivery-") as temporary:
     plan ← {"schema_version": 1, "name": "test-attachment-delivery", "stages": stages}
     try:
         pipeline.write_text(json.dumps(plan))
-        child ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline", "test-attachment-delivery", "--ithon", ithon, "--runs-root", work + "/runs"], capture_output=True)
+        child ← subprocess.run([sys.executable, str(root) + "/scripts/run-pipeline-legacy.py", "test-attachment-delivery", "--ithon", ithon, "--runs-root", work + "/runs"], capture_output=True)
         result ← json.loads(child.stdout)
+        if result["qualified_operation"] != False or result["acceptance_scope"] != "caller-supplied-command-execution":
+            raise AssertionError("exploratory attachment inherited registered acceptance")
         artifact ∈ Path ← Path(str(result["attachment_artifact"]))
         failed ∈ bool ← int(child.returncode) == 0
         failed ← failed or str(result["status"]) != "AWAITING_HANDOFF_DELIVERY"

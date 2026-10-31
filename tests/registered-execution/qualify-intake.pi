@@ -1,0 +1,167 @@
+"""Real immutable Git intake and material checks, without worker simulation.
+
+PASS here proves parsing/source identity only. It cannot qualify an operation.
+All source mutations are confined to a new disposable fixture repository.
+"""
+import sys
+import os
+import json
+import subprocess
+import importlib
+import ithon_frontend
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+from typing import Callable
+
+args ∈ list[str] ← sys.argv
+root ∈ str ← args[1]
+output ∈ str ← args[2]
+runtime ∈ str ← args[3]
+Path(output).mkdir(parents=True, exist_ok=False)
+sys.path.insert(0, root + "/scripts")
+from event_adapter import envelope
+engine ∈ object ← importlib.import_module("registered-execution")
+rows ∈ list[str] ← ["case\tstatus\tobservation"]
+repository ∈ str ← output + "/source"
+Path(repository).mkdir()
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1", "GIT_AUTHOR_NAME": "Intake fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid", "GIT_COMMITTER_NAME": "Intake fixture", "GIT_COMMITTER_EMAIL": "fixture@example.invalid"}
+
+def git(arguments ∈ list[str], data ∈ bytes) → str:
+    command ∈ list[str] ← ["/usr/bin/git", "-C", repository]
+    command.extend(arguments)
+    child ∈ object ← subprocess.run(command, input=data, env=environment, capture_output=True, timeout=15)
+    if int(child.returncode) != 0:
+        raise ValueError("FIXTURE_GIT: " + str(child.stderr.decode()))
+    return str(child.stdout.decode()).strip()
+
+def record(name ∈ str, expected ∈ str, action ∈ Callable[[], None]) → None:
+    failure ∈ str ← ""
+    try:
+        action()
+    except Exception as error:
+        failure ← str(error)
+    Path(output + "/" + name + ".observed.txt").write_text(failure + "\n")
+    if expected == "PASS" and failure != "" or expected != "PASS" and not failure.startswith(expected):
+        raise ValueError("INTAKE_CONTROL_FAILED: " + name + ":" + failure)
+    rows.append(name + "\tPASS\t" + ("accepted-source-only" if failure == "" else failure))
+    Path(output + "/cases.tsv").write_text(str("\n".join(rows)) + "\n")
+
+git(["init", "-q"], b"")
+git(["config", "remote.origin.url", "https://github.com/isomorphisms/flexible-pipes.git"], b"")
+Path(repository + "/runner").write_bytes(b"fixed runner bytes\n")
+Path(repository + "/checker").write_bytes(b"fixed checker bytes\n")
+git(["add", "."], b"")
+git(["commit", "-qm", "Fixed diagnostic control"], b"")
+base ∈ str ← git(["rev-parse", "HEAD"], b"")
+config ∈ dict[str, object] ← {"control_commit": base, "request_base": base, "request_mirror": repository, "authority": "local-qualification"}
+context ∈ dict[str, str] ← {"GITHUB_REF": "refs/heads/main", "GITHUB_SHA": base, "GITHUB_RUN_ID": "fixture", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_EVENT_NAME": "workflow_dispatch"}
+
+def branch(raw ∈ bytes, changed ∈ str) → str:
+    git(["reset", "--hard", base], b"")
+    Path(repository + "/requests").mkdir(exist_ok=True)
+    Path(repository + "/requests/job.json").write_bytes(raw)
+    if changed != "":
+        Path(repository + "/" + changed).write_bytes(b"untrusted executable change\n")
+    git(["add", "."], b"")
+    git(["commit", "-qm", "Data request fixture"], b"")
+    return git(["rev-parse", "HEAD"], b"")
+
+def intake(raw ∈ bytes, changed ∈ str) → None:
+    dispatch ∈ dict[str, object] ← envelope({"inputs": {"request": raw.decode()}}, context, "non-authorizing-fixture")
+    first ∈ tuple[bytes, dict[str, object]] ← engine.adapter(config, "workflow_dispatch", dict(dispatch["envelope"]))
+    commit ∈ str ← branch(raw, changed)
+    branch_context ∈ dict[str, str] ← dict(context)
+    branch_context["GITHUB_EVENT_NAME"] ← "workflow_run"
+    notice ∈ dict[str, object] ← {"workflow_run": {"head_branch": "pipeline-requests", "head_repository": {"id": 1405888814}, "head_sha": commit}}
+    mapped ∈ dict[str, object] ← envelope(notice, branch_context, "non-authorizing-fixture")
+    second ∈ tuple[bytes, dict[str, object]] ← engine.adapter(config, str(mapped["route"]), dict(mapped["envelope"]))
+    if first[0] != raw or second[0] != raw or str(second[1]["request_sha256"]) != str(engine.digest(raw)):
+        raise ValueError("INTAKE_BYTES_CHANGED")
+    engine.checked_request(first[0])
+    engine.checked_request(second[0])
+
+requests ∈ list[dict[str, object]] ← [{"schema_version": 1, "request_id": "kitchen-valid", "pipeline": "kitchen-transfer-script", "inputs": {"source_owner": "source", "repository": "project-name.v2", "destination_owner": "destination", "expected_login": "actor", "expected_repository_id": 123, "target_context": "linux-x86_64-grease-v1"}}, {"schema_version": 1, "request_id": "exporter-valid", "pipeline": "chatgpt-exporter-regression-acceptance", "inputs": {"source_ref": base, "scope": "all"}}]
+for request in requests:
+    raw ∈ bytes ← engine.encode(request)
+    name ∈ str ← str(request["request_id"])
+    record(name + "-both-adapters", "PASS", lambda: intake(raw, ""))
+    for field in ["runner", "checker"]:
+        record(name + "-changed-request-" + field, "NON_REQUEST_CHANGE", lambda: intake(raw, field))
+    for field in ["argv", "checker", "policy", "skip"]:
+        altered ∈ dict[str, object] ← dict(request)
+        altered[field] ← "forbidden"
+        altered_raw ∈ bytes ← engine.encode(altered)
+        record(name + "-executable-field-" + field, "REQUEST_FIELDS", lambda: intake(altered_raw, ""))
+
+git(["reset", "--hard", base], b"")
+materials ∈ list[dict[str, object]] ← []
+for relative in ["runner", "checker"]:
+    materials.append({"path": repository + "/" + relative, "sha256": engine.digest(Path(repository + "/" + relative).read_bytes()), "checkout": repository, "commit": base, "relative_path": relative, "origin": "https://github.com/isomorphisms/flexible-pipes.git", "published_ref": "HEAD"})
+contract_path ∈ str ← output + "/contract.json"
+contract ∈ dict[str, object] ← {"operation": "kitchen-transfer-script", "required_checks": list(engine.REQUIRED), "outputs": engine.output_roles({"operation": "kitchen-transfer-script"})}
+engine.atomic(contract_path, contract)
+config["operation"] ← "kitchen-transfer-script"
+config["operation_version"] ← "1"
+config["registry_generation"] ← 1
+config["schema_version"] ← 1
+config["qualified"] ← True
+config["materials"] ← materials
+config["tools"] ← [{"path": sys.executable, "sha256": engine.digest(Path(sys.executable).read_bytes())}]
+config["ithon"] ← [sys.executable]
+config["grease"] ← [sys.executable]
+config["grease_environment"] ← {}
+config["required_checks"] ← list(engine.REQUIRED)
+config["contract"] ← contract_path
+config["contract_sha256"] ← engine.digest(Path(contract_path).read_bytes())
+for field in ["worker", "watchdog", "generator", "parent_probe", "fixture_server", "api_validator", "seal_validator", "acquisition_probe", "compact_recipe"]:
+    config[field] ← repository + "/checker"
+config["fixture_bin"] ← repository
+identity ∈ dict[str, object] ← {}
+operation_fields ∈ list[str] ← list(engine.OPERATION_FIELDS)
+for field in operation_fields:
+    identity[field] ← config[field]
+qualification ∈ dict[str, object] ← {"status": "PASS", "scope": "local-qualification", "materials_sha256": engine.digest(engine.encode(materials)), "tools_sha256": engine.digest(engine.encode(config["tools"])), "environment_sha256": engine.digest(engine.encode(config["grease_environment"])), "operation_sha256": engine.digest(engine.encode(identity))}
+qualification_path ∈ str ← output + "/qualification.json"
+engine.atomic(qualification_path, qualification)
+config["qualification"] ← qualification_path
+config["qualification_sha256"] ← engine.digest(Path(qualification_path).read_bytes())
+record("material-positive", "PASS", lambda: engine.verify_materials(config, True))
+for relative in ["runner", "checker"]:
+    Path(repository + "/" + relative).write_bytes(b"dirty at unchanged HEAD\n")
+    record("dirty-" + relative, "MATERIAL_CHANGED", lambda: engine.verify_materials(config, True))
+    git(["checkout", "--", relative], b"")
+git(["config", "remote.origin.url", "https://example.invalid/forged"], b"")
+record("forged-source-origin", "WRONG_ORIGIN", lambda: engine.verify_materials(config, True))
+git(["config", "remote.origin.url", "https://github.com/isomorphisms/flexible-pipes.git"], b"")
+omitted ∈ dict[str, object] ← dict(config)
+omitted["required_checks"] ← ["prepare", "publish"]
+record("missing-independent-gate", "MANDATORY_CHILD_MISSING", lambda: engine.verify_deployment(omitted, True))
+revoked ∈ dict[str, object] ← dict(config)
+revoked["qualified"] ← False
+record("revoked-release", "UNQUALIFIED_ADAPTER", lambda: engine.verify_deployment(revoked, True))
+qualification["status"] ← "REVOKED"
+engine.atomic(qualification_path, qualification)
+record("revoked-qualification", "STALE_QUALIFICATION", lambda: engine.verify_materials(config, True))
+for state in ["inactive", "active"]:
+    client_config ∈ str ← output + "/client-" + state + ".json"
+    engine.atomic(client_config, {"state": state})
+    readiness ∈ object ← subprocess.run([sys.executable, runtime, root + "/scripts/github-event.pi", "readiness", client_config, output + "/readiness-" + state], env={"PATH": "/usr/bin:/bin"}, capture_output=True, timeout=15)
+    Path(output + "/readiness-" + state + ".stdout.bin").write_bytes(readiness.stdout)
+    Path(output + "/readiness-" + state + ".stderr.bin").write_bytes(readiness.stderr)
+    if int(readiness.returncode) != 2:
+        raise ValueError("READINESS_DID_NOT_BLOCK: " + state + ":" + str(readiness.stderr.decode()))
+    blocked ∈ dict[str, object] ← json.loads(Path(output + "/readiness-" + state + "/result.json").read_bytes())
+    blocked_artifacts ∈ list[dict[str, object]] ← list(blocked["artifacts"])
+    if blocked["status"] != "BLOCKED" or len(blocked_artifacts) != 0:
+        raise ValueError("READINESS_CREATED_ACCEPTANCE")
+    rows.append("readiness-" + state + "\tPASS\t" + str(blocked["blocker"]))
+Path(output + "/cases.tsv").write_text(str("\n".join(rows)) + "\n")
+interface ∈ list[str] ← ["path\tsha256"]
+for relative in ["scripts/run-pipeline", "scripts/registered-execution.pi", "scripts/admission.pi", "scripts/verify-admission.pi", "scripts/event_adapter.pi", "scripts/registered-service.pi", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/install-client.pi", "registry/kitchen-transfer-script.contract.json", "registry/chatgpt-exporter-regression-acceptance.contract.json", ".github/workflows/run-pipeline.yml", ".github/workflows/pipeline-request-notice.yml", "tests/registered-execution/qualify-intake.pi", "tests/registered-execution/qualify-admission.pi"]:
+    content ∈ bytes ← Path(root + "/" + relative).read_bytes()
+    if relative.endswith(".pi"):
+        checked ∈ object ← ithon_frontend.check_source(content.decode(), relative)
+    interface.append(relative + "\t" + str(engine.digest(content)))
+Path(output + "/interface.tsv").write_text(str("\n".join(interface)) + "\n")
+Path(output + "/scope.txt").write_text("PASS: actual Git-object intake, request parsing and material preflight.\nNOT_RUN: Kitchen generation, exporter diagnostic workers, installed promotion, authenticated GitHub or ChatGPT origin.\nFixture runtimes and qualification declarations are inert source-test data, never approved runtime material.\n")
+print("PASS immutable intake and material preflight controls; operation execution NOT_RUN")

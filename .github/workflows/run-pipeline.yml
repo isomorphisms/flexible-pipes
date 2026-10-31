@@ -1,72 +1,44 @@
 name: Run flexible-pipes pipeline
-
 on:
   workflow_dispatch:
     inputs:
-      pipeline:
-        description: Checked-in pipeline name
+      request:
+        description: Data-only registered request JSON
         required: true
-        default: regression-history-smoke
         type: string
-  push:
-    branches:
-      - pipeline-requests
-    paths:
-      - requests/*.json
-
+  workflow_run:
+    workflows: [Data-only pipeline request notice]
+    types: [completed]
+    branches: [pipeline-requests]
 permissions:
   contents: read
-
+  id-token: write
 jobs:
-  run:
-    runs-on: ubuntu-latest
+  registered:
+    if: github.repository == 'isomorphisms/flexible-pipes' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          fetch-depth: 2
-
-      - name: Select pipeline
-        id: select
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          DISPATCH_PIPELINE: ${{ inputs.pipeline }}
-        run: |
-          set -euo pipefail
-          if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            printf 'pipeline=%s\n' "$DISPATCH_PIPELINE" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          mapfile -t files < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" -- 'requests/*.json')
-          if [ "${#files[@]}" -ne 1 ]; then
-            printf 'expected exactly one changed request JSON, got %s\n' "${#files[@]}" >&2
-            exit 2
-          fi
-          pipeline="$(python3 - "${files[0]}" <<'PY'
-          import json
-          import re
-          import sys
-          from pathlib import Path
-
-          request = json.loads(Path(sys.argv[1]).read_text())
-          pipeline = request.get("pipeline")
-          if not isinstance(pipeline, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", pipeline):
-              raise SystemExit("request pipeline must be a valid pipeline name")
-          print(pipeline)
-          PY
-          )"
-          printf 'pipeline=%s\n' "$pipeline" >> "$GITHUB_OUTPUT"
-
-      - name: Run pipeline
-        env:
-          PIPELINE: ${{ steps.select.outputs.pipeline }}
-        run: python3 scripts/run-pipeline "$PIPELINE"
-
-      - name: Upload receipts
+          ref: ${{ github.sha }}
+          path: flexible-pipes
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: ithon
+          persist-credentials: false
+      - name: Check inactive deployment without installation or token acquisition
+        # Both events stop here until independently accepted non-C++ runtime
+        # closure and installed promotion are supplied by their owning jobs.
+        # The installed client and separate supervisor remain the sole engine.
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/scripts/github-event.pi readiness '${{ github.workspace }}/flexible-pipes/deployment/client.json' '${{ runner.temp }}/registered-result'
+      - name: Export verified service result and bytes
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: flexible-pipes-${{ github.run_id }}
-          path: .flexible-pipes/runs/
+          name: flexible-pipes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/registered-result/
           if-no-files-found: error

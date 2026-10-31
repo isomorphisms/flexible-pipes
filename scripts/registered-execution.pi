@@ -1,0 +1,877 @@
+"""Registered execution v1. Production reads only a root-owned deployment.
+
+The explicit qualify mode is diagnostic authority; it cannot grant deployed
+acceptance. No request is ever interpreted as executable configuration.
+"""
+import os
+import sys
+import json
+import hashlib
+import subprocess
+import time
+import uuid
+import signal
+import fcntl
+import shutil
+import stat
+import platform
+import base64
+import ithon_frontend
+from pathlib import Path
+from typing import Iterable
+from builtins import open, dict, list, isinstance, ValueError, RuntimeError, Exception, KeyboardInterrupt, ProcessLookupError, FileNotFoundError
+
+REQUIRED ∈ list[str] ← ["prepare", "generate-a", "generate-b", "determinism", "seal", "fixture-personal", "fixture-organization", "fixture-accepted-unverified", "fixture-accepted-still-pending", "fixture-visibility", "fixture-post-failure", "fixture-wrong-id", "fixture-collision", "fixture-authentication", "fixture-capability", "fixture-network", "fixture-destination-authentication", "fixture-destination-api", "fixture-wrong-login", "fixture-wrong-source", "fixture-wrong-repository", "fixture-wrong-destination", "fixture-organization-membership", "publish"]
+FIELDS ∈ list[str] ← ["source_owner", "repository", "destination_owner", "expected_login", "expected_repository_id", "target_context"]
+MODES ∈ list[str] ← ["personal", "organization", "accepted-unverified", "accepted-still-pending", "visibility", "post-failure", "wrong-id", "collision", "authentication", "capability", "network", "destination-authentication", "destination-api", "wrong-login", "wrong-source", "wrong-repository", "wrong-destination", "organization-membership"]
+OPERATION_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "grease", "worker", "watchdog", "generator", "parent_probe", "fixture_server", "fixture_bin", "api_validator", "seal_validator", "contract_sha256", "acquisition_probe", "compact_recipe"]
+OUTPUTS ∈ list[dict[str, str]] ← [{"role": "standalone-transfer-script", "type": "grease-script", "suffix": ".sh"}, {"role": "human-transfer-paste", "type": "grease-paste", "suffix": ".paste.grease"}]
+EXPORTER ∈ str ← "chatgpt-exporter-regression-acceptance"
+EXPORTER_CHECKS ∈ list[str] ← ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"]
+EXPORTER_OUTPUTS ∈ list[dict[str, str]] ← [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]
+EXPORTER_FIELDS ∈ list[str] ← ["operation", "operation_version", "registry_generation", "authority", "required_checks", "control_commit", "ithon", "worker", "watchdog", "node", "test_runner", "baseline_root", "candidate_root", "baseline_commit", "candidate_commit", "corpus_commit", "matrix", "case_verifier", "contract_sha256", "worker_environment"]
+
+def required_checks(config ∈ dict[str, object]) → list[str]:
+    return EXPORTER_CHECKS if config["operation"] == EXPORTER else REQUIRED
+
+def output_roles(config ∈ dict[str, object]) → list[dict[str, str]]:
+    return EXPORTER_OUTPUTS if config["operation"] == EXPORTER else OUTPUTS
+
+def operation_fields(config ∈ dict[str, object]) → list[str]:
+    return EXPORTER_FIELDS if config["operation"] == EXPORTER else OPERATION_FIELDS
+
+def interrupt(number ∈ int, frame ∈ object) → None:
+    raise KeyboardInterrupt("supervisor interrupted")
+
+signal.signal(signal.SIGTERM, interrupt)
+
+def process_fields(pid ∈ int) → list[str]:
+    state ∈ str ← Path("/proc/" + str(pid) + "/stat").read_text()
+    end ∈ int ← state.rfind(")")
+    fields ∈ list[str] ← state[end + 2:].split()
+    return fields
+
+def record_process(path ∈ str, child ∈ object) → None:
+    pid ∈ int ← child.pid
+    fields ∈ list[str] ← process_fields(pid)
+    atomic(path, {"pid": pid, "start_time": fields[19], "state": "RUNNING"})
+
+def watch_process(directory ∈ str, child ∈ object, config ∈ dict[str, object], seconds ∈ int) → object:
+    parent ∈ int ← os.getpid()
+    parent_fields ∈ list[str] ← process_fields(parent)
+    target_fields ∈ list[str] ← process_fields(child.pid)
+    plan ∈ str ← directory + "/guard-plan.json"
+    atomic(plan, {"parent_pid": parent, "parent_start": parent_fields[19], "target_pid": child.pid, "target_start": target_fields[19], "seconds": seconds})
+    command ∈ list[str] ← list(config["ithon"])
+    command.extend([str(config["watchdog"]), plan, directory + "/guard-result.json"])
+    guard ∈ object ← subprocess.Popen(command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    return guard
+
+def reap_interrupted(run ∈ str) → None:
+    records ∈ list[Path] ← list(Path(run).rglob("process.json"))
+    for path in records:
+        record ∈ dict[str, object] ← read(str(path))
+        if record["state"] == "RUNNING":
+            pid ∈ int ← int(record["pid"])
+            process_file ∈ str ← "/proc/" + str(pid) + "/stat"
+            exists ∈ bool ← Path(process_file).exists()
+            if exists:
+                fields ∈ list[str] ← process_fields(pid)
+                if fields[19] == record["start_time"]:
+                    os.killpg(pid, signal.SIGKILL)
+            record["state"] ← "INTERRUPTED"
+            atomic(str(path), record)
+
+def digest(data ∈ bytes) → str:
+    answer ∈ str ← hashlib.sha256(data).hexdigest()
+    return answer
+
+def encode(value ∈ object) → bytes:
+    text ∈ str ← json.dumps(value, sort_keys=True, separators=(",", ":"))
+    return text.encode()
+
+def atomic(path ∈ str, value ∈ object) → None:
+    temporary ∈ str ← path + "." + str(uuid.uuid4()) + ".tmp"
+    with open(temporary, "xb") as stream:
+        stream.write(encode(value))
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+def read(path ∈ str) → dict[str, object]:
+    value ∈ dict[str, object] ← json.loads(Path(path).read_bytes())
+    if not isinstance(value, dict):
+        raise ValueError("OBJECT_REQUIRED")
+    return value
+
+def unique_object(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
+    result ∈ dict[str, object] ← {}
+    for pair in pairs:
+        key ∈ str ← pair[0]
+        if result.__contains__(key):
+            raise ValueError("DUPLICATE_JSON_KEY")
+        result[key] ← pair[1]
+    return result
+
+def clean_environment() → dict[str, str]:
+    return {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_NO_REPLACE_OBJECTS": "1", "GIT_TERMINAL_PROMPT": "0", "HOME": "/nonexistent"}
+
+def git(repo ∈ str, args ∈ list[str]) → bytes:
+    command ∈ list[str] ← ["/usr/bin/git", "--no-replace-objects", "-c", "safe.directory=" + repo, "-C", repo]
+    command.extend(args)
+    child ∈ object ← subprocess.run(command, env=clean_environment(), capture_output=True, timeout=15)
+    code ∈ int ← child.returncode
+    output ∈ bytes ← child.stdout
+    if code != 0:
+        raise ValueError("SOURCE_UNAVAILABLE")
+    return output
+
+def checked_request(raw ∈ bytes) → dict[str, object]:
+    if len(raw) > 16384:
+        raise ValueError("REQUEST_SIZE")
+    request ∈ dict[str, object] ← json.loads(raw, object_pairs_hook=unique_object)
+    if not isinstance(request, dict) or set(request) != set(["schema_version", "request_id", "pipeline", "inputs"]):
+        raise ValueError("REQUEST_FIELDS")
+    if type(request["schema_version"]) != int or request["schema_version"] != 1 or request["pipeline"] != "kitchen-transfer-script" and request["pipeline"] != EXPORTER:
+        raise ValueError("UNKNOWN_OPERATION")
+    import re
+    if not isinstance(request["request_id"], str):
+        raise ValueError("REQUEST_ID")
+    matched ∈ object ← re.fullmatch("[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", str(request["request_id"]))
+    if matched == None:
+        raise ValueError("REQUEST_ID")
+    if not isinstance(request["inputs"], dict):
+        raise ValueError("INPUT_OBJECT")
+    inputs ∈ dict[str, object] ← dict(request["inputs"])
+    if request["pipeline"] == EXPORTER:
+        if set(inputs) != set(["source_ref", "scope"]):
+            raise ValueError("INPUT_FIELDS")
+        if not isinstance(inputs["source_ref"], str):
+            raise ValueError("INPUT_SOURCE_REF")
+        matched ← re.fullmatch("[a-f0-9]{40}", str(inputs["source_ref"]))
+        if matched == None:
+            raise ValueError("INPUT_SOURCE_REF")
+        if inputs["scope"] != "all":
+            raise ValueError("UNQUALIFIED_ACCEPTANCE_SCOPE")
+        return request
+    if set(inputs) != set(FIELDS):
+        raise ValueError("INPUT_FIELDS")
+    for name in ["source_owner", "repository", "destination_owner", "expected_login"]:
+        value ∈ object ← inputs[name]
+        if not isinstance(value, str):
+            raise ValueError("INPUT_TYPE")
+        matched ∈ object ← re.fullmatch("[A-Za-z0-9][A-Za-z0-9_.-]{0,99}", str(value))
+        if matched == None:
+            raise ValueError("INPUT_NAME")
+    if type(inputs["expected_repository_id"]) != int or int(inputs["expected_repository_id"]) <= 0:
+        raise ValueError("INPUT_ID")
+    if inputs["target_context"] != "linux-x86_64-grease-v1":
+        raise ValueError("UNQUALIFIED_CONTEXT")
+    if inputs["source_owner"] == inputs["destination_owner"]:
+        raise ValueError("SAME_OWNER")
+    return request
+
+def protected_file(path ∈ str, private ∈ bool) → None:
+    selected ∈ Path ← Path(path)
+    if not selected.is_absolute() or private and selected.is_symlink():
+        raise ValueError("UNPROTECTED_AUTHORITY_PATH")
+    resolved ∈ Path ← selected.resolve(strict=True)
+    info ∈ object ← resolved.stat()
+    if int(info.st_uid) != 0 or int(info.st_mode) & 18 != 0 or private and int(info.st_mode) & 511 != 384:
+        raise ValueError("UNPROTECTED_AUTHORITY_FILE")
+    parents ∈ list[Path] ← list(selected.parents)
+    parents.extend(list(resolved.parents))
+    for directory in parents:
+        directory_info ∈ object ← directory.stat()
+        if int(directory_info.st_uid) != 0 or int(directory_info.st_mode) & 18 != 0:
+            raise ValueError("UNPROTECTED_AUTHORITY_DIRECTORY")
+
+def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → None:
+    if config["schema_version"] != 1 or config["operation"] != "kitchen-transfer-script" and config["operation"] != EXPORTER or config["qualified"] != True:
+        raise ValueError("UNQUALIFIED_ADAPTER")
+    if config["required_checks"] != required_checks(config):
+        raise ValueError("MANDATORY_CHILD_MISSING")
+    if not diagnostic and config["authority"] != "deployed-trusted":
+        raise ValueError("DEPLOYMENT_INACTIVE")
+    if not diagnostic:
+        protected_file("/etc/flexible-pipes/deployment.json", True)
+        protected_file(__file__, False)
+        protected_file(str(config["contract"]), False)
+        protected_file(str(config["qualification"]), False)
+        state_path ∈ Path ← Path(str(config["state_root"]))
+        protected_file(str(state_path if state_path.exists() else state_path.parent), False)
+    uid ∈ int ← os.getuid()
+    if uid != 0:
+        raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: distinct worker UID required")
+    # Namespace root can map only UID 0. Report this before generator effects.
+    uid_map ∈ str ← Path("/proc/self/uid_map").read_text()
+    mappings ∈ list[str] ← uid_map.split()
+    if len(mappings) == 3 and mappings[2] == "1":
+        raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace")
+    verify_materials(config, diagnostic)
+
+def verify_materials(config ∈ dict[str, object], diagnostic ∈ bool) → None:
+    # Source/tool/contract preflight alone grants no execution authority.
+    materials ∈ list[dict[str, object]] ← list(config["materials"])
+    bound_paths ∈ list[str] ← []
+    for material in materials:
+        path ∈ str ← str(material["path"])
+        if not diagnostic:
+            protected_file(path, False)
+        bound_paths.append(path)
+        actual ∈ bytes ← Path(path).read_bytes()
+        if digest(actual) != material["sha256"]:
+            raise ValueError("MATERIAL_CHANGED: " + path)
+        if path.endswith(".pi"):
+            checked ∈ object ← ithon_frontend.check_source(actual.decode(), path)
+        repo ∈ str ← str(material["checkout"])
+        commit ∈ str ← str(material["commit"])
+        head ∈ str ← git(repo, ["rev-parse", "HEAD"]).decode().strip()
+        if head != commit:
+            raise ValueError("WRONG_SOURCE")
+        blob ∈ bytes ← git(repo, ["show", commit + ":" + str(material["relative_path"])])
+        if digest(blob) != material["sha256"]:
+            raise ValueError("UNPUBLISHED_SOURCE")
+        origin ∈ str ← git(repo, ["config", "--local", "--get", "remote.origin.url"]).decode().strip()
+        if origin != material["origin"]:
+            raise ValueError("WRONG_ORIGIN")
+        # Publication ancestry is an availability check, not promotion.
+        git(repo, ["merge-base", "--is-ancestor", commit, str(material["published_ref"])])
+    tools ∈ list[dict[str, object]] ← list(config["tools"])
+    tool_paths ∈ list[str] ← []
+    for tool in tools:
+        executable ∈ str ← str(tool["path"])
+        if not diagnostic:
+            protected_file(executable, False)
+        tool_paths.append(executable)
+        exists ∈ bool ← os.path.isfile(executable)
+        if not exists:
+            raise ValueError("MISSING_EXECUTABLE: " + executable)
+        if digest(Path(executable).read_bytes()) != tool["sha256"]:
+            raise ValueError("TOOL_CHANGED")
+    roles ∈ list[str] ← ["worker", "watchdog", "matrix", "case_verifier"] if config["operation"] == EXPORTER else ["worker", "watchdog", "generator", "parent_probe", "fixture_server", "api_validator", "seal_validator", "acquisition_probe", "compact_recipe"]
+    for role in roles:
+        selected ∈ str ← str(config[role])
+        if not bound_paths.__contains__(selected):
+            raise ValueError("UNBOUND_IMPLEMENTATION: " + role)
+    commands ∈ list[str] ← list(config["ithon"])
+    if config["operation"] == EXPORTER:
+        commands.extend([str(config["node"]), str(config["test_runner"])])
+    else:
+        grease_command ∈ list[str] ← list(config["grease"])
+        commands.extend(grease_command[:2])
+    for selected in commands:
+        if not tool_paths.__contains__(selected) and not bound_paths.__contains__(selected):
+            raise ValueError("UNBOUND_RUNTIME")
+    contract ∈ dict[str, object] ← read(str(config["contract"]))
+    if contract["required_checks"] != required_checks(config) or contract["operation"] != config["operation"]:
+        raise ValueError("CONTRACT_CHANGED")
+    if contract["outputs"] != output_roles(config):
+        raise ValueError("OUTPUT_CONTRACT_CHANGED")
+    if digest(Path(str(config["contract"])).read_bytes()) != config["contract_sha256"]:
+        raise ValueError("CONTRACT_CHANGED")
+    qualification ∈ dict[str, object] ← read(str(config["qualification"]))
+    if qualification["status"] != "PASS" or qualification["scope"] != config["authority"] or qualification["materials_sha256"] != digest(encode(materials)):
+        raise ValueError("STALE_QUALIFICATION")
+    environment_field ∈ str ← "worker_environment" if config["operation"] == EXPORTER else "grease_environment"
+    if qualification["tools_sha256"] != digest(encode(tools)) or qualification["environment_sha256"] != digest(encode(config[environment_field])):
+        raise ValueError("STALE_RUNTIME_QUALIFICATION")
+    operation_identity ∈ dict[str, object] ← {}
+    for field in operation_fields(config):
+        operation_identity[field] ← config[field]
+    if qualification["operation_sha256"] != digest(encode(operation_identity)):
+        raise ValueError("STALE_OPERATION_QUALIFICATION")
+    if digest(Path(str(config["qualification"])).read_bytes()) != config["qualification_sha256"]:
+        raise ValueError("QUALIFICATION_CHANGED")
+
+def release_identity(config ∈ dict[str, object]) → str:
+    # Identity of already verified authority; hashing does not approve a release.
+    selected ∈ dict[str, object] ← {}
+    for field in operation_fields(config):
+        selected[field] ← config[field]
+    release_fields ∈ list[str] ← ["materials", "tools", "worker_environment", "qualification_sha256"] if config["operation"] == EXPORTER else ["materials", "tools", "grease_environment", "qualification_sha256"]
+    for field in release_fields:
+        selected[field] ← config[field]
+    return digest(encode(selected))
+
+def accepted_release(config ∈ dict[str, object]) → dict[str, object]:
+    contract ∈ dict[str, object] ← read(str(config["contract"]))
+    return {"release_sha256": release_identity(config), "control_commit": config["control_commit"], "authority": config["authority"], "required_checks": config["required_checks"], "contract_sha256": config["contract_sha256"], "operation_version": config["operation_version"], "registry_generation": config["registry_generation"], "outputs": contract["outputs"]}
+
+def validate_cached_result(config ∈ dict[str, object], raw ∈ bytes, result ∈ dict[str, object], diagnostic ∈ bool) → None:
+    request ∈ dict[str, object] ← checked_request(raw)
+    cached_release ∈ str ← str(result.get("release_sha256", ""))
+    if cached_release != release_identity(config):
+        raise ValueError("STALE_ACCEPTED_RELEASE")
+    cached_request_id ∈ str ← str(result.get("request_id", ""))
+    cached_request_sha ∈ str ← str(result.get("request_sha256", ""))
+    cached_operation ∈ str ← str(result.get("operation_id", ""))
+    cached_inputs ∈ dict[str, object] ← dict(result["inputs"])
+    if cached_request_id != request["request_id"] or cached_request_sha != digest(raw) or cached_operation != request["pipeline"] or encode(cached_inputs) != encode(request["inputs"]):
+        raise ValueError("CACHED_REQUEST_MISMATCH")
+    control ∈ dict[str, object] ← dict(result["control"])
+    if result["operation_version"] != config["operation_version"] or type(result["registry_generation"]) != int or result["registry_generation"] != config["registry_generation"] or control["commit"] != config["control_commit"] or control["deployment_identity"] != config["authority"] or control["repository_id"] != 1405888814 or control["executable_sha256"] != digest(Path(__file__).read_bytes()):
+        raise ValueError("CACHED_CONTROL_MISMATCH")
+    if result["source"] != config["materials"] or result["dependencies"] != config["tools"] or result["qualification_sha256"] != config["qualification_sha256"] or result["contract_sha256"] != config["contract_sha256"]:
+        raise ValueError("CACHED_EVIDENCE_MISMATCH")
+    promotion ∈ dict[str, object] ← dict(result["promotion"])
+    scope ∈ str ← "local-fixture-qualification" if diagnostic else ("exporter-regression-transition" if config["operation"] == EXPORTER else "generated-script")
+    state ∈ str ← "candidate-verified" if diagnostic else "accepted"
+    if result["acceptance_scope"] != scope or promotion["state"] != state or promotion["trusted_identity"] != config["authority"]:
+        raise ValueError("CACHED_AUTHORITY_MISMATCH")
+    stages ∈ list[dict[str, object]] ← list(result["stages"])
+    names ∈ list[str] ← []
+    for stage in stages:
+        names.append(str(stage["check_id"]))
+        if type(stage["required"]) != bool or stage["required"] != True or stage["state"] != "PASS" or stage["implementation_sha256"] != control["executable_sha256"] or stage["contract_sha256"] != config["contract_sha256"]:
+            raise ValueError("CACHED_CHECKS_MISMATCH")
+    if names != required_checks(config) or promotion["decision_sha256"] != digest(encode(stages)):
+        raise ValueError("CACHED_CHECKS_MISMATCH")
+    artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+    if len(artifacts) != len(output_roles(config)):
+        raise ValueError("STALE_ACCEPTED_ARTIFACT")
+    inputs ∈ dict[str, object] ← dict(request["inputs"])
+    basename ∈ str ← "exporter-regression-transition" if config["operation"] == EXPORTER else "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"])
+    selected_outputs ∈ list[dict[str, str]] ← output_roles(config)
+    for index in range(len(selected_outputs)):
+        artifact ∈ dict[str, object] ← artifacts[index]
+        selected ∈ dict[str, str] ← selected_outputs[index]
+        actual ∈ bytes ← Path(str(artifact["retrieval_locator"])).read_bytes()
+        if artifact["name"] != basename + selected["suffix"] or artifact["type"] != selected["type"] or artifact["role"] != selected["role"] or artifact["state"] != ("diagnostic" if diagnostic else "accepted") or type(artifact["size"]) != int or len(actual) != artifact["size"] or digest(actual) != artifact["sha256"]:
+            raise ValueError("STALE_ACCEPTED_ARTIFACT")
+
+def adapter(config ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, object]) → tuple[bytes, dict[str, object]]:
+    if route == "workflow_dispatch":
+        if envelope["workflow_ref"] != "refs/heads/main" or envelope["workflow_sha"] != config["control_commit"]:
+            raise ValueError("UNQUALIFIED_WORKFLOW_REF")
+        if envelope["repository_id"] != 1405888814:
+            raise ValueError("WRONG_REPOSITORY")
+        request_text ∈ str ← str(envelope["request"])
+        source ∈ dict[str, object] ← {}
+        payload ∈ bytes ← request_text.encode()
+        return (payload, source)
+    if route != "pipeline-requests":
+        raise ValueError("UNKNOWN_ROUTE")
+    repo ∈ str ← str(config["request_mirror"])
+    commit ∈ str ← str(envelope["request_commit"])
+    import re
+    matched ∈ object ← re.fullmatch("[a-f0-9]{40}", commit)
+    if matched == None:
+        raise ValueError("REQUEST_COMMIT")
+    if config["authority"] == "deployed-trusted":
+        # Acquisition follows signed admission, uses a fixed canonical remote,
+        # and creates an explicit ref. Neither checkout nor FETCH_HEAD is used.
+        with open(str(config["state_root"]) + "/request-fetch.lock", "ab") as fetch_lock:
+            fcntl.flock(fetch_lock.fileno(), fcntl.LOCK_EX)
+            target ∈ str ← "refs/fp-intake/" + str(uuid.uuid4())
+            git(repo, ["fetch", "--no-tags", "--no-write-fetch-head", "https://github.com/isomorphisms/flexible-pipes.git", commit + ":" + target])
+    # Resolve once; use only immutable objects, never a worktree or GITHUB_SHA.
+    resolved ∈ str ← git(repo, ["rev-parse", "--verify", commit + "^{commit}"]).decode().strip()
+    paths ∈ list[str] ← git(repo, ["diff", "--name-only", str(config["request_base"]), resolved]).decode().splitlines()
+    if len(paths) != 1:
+        raise ValueError("NON_REQUEST_CHANGE")
+    path ∈ str ← paths[0]
+    separators ∈ int ← path.count("/")
+    if not path.startswith("requests/") or not path.endswith(".json") or separators != 1:
+        raise ValueError("NON_REQUEST_CHANGE")
+    entry ∈ str ← git(repo, ["ls-tree", resolved, "--", path]).decode()
+    if not entry.startswith("100644 blob "):
+        raise ValueError("NON_REQUEST_BLOB")
+    raw ∈ bytes ← git(repo, ["show", resolved + ":" + path])
+    parts ∈ list[str] ← entry.split()
+    source ∈ dict[str, object] ← {"repository_id": 1405888814, "commit": resolved, "path": path, "blob_sha1": parts[2], "request_sha256": digest(raw)}
+    return (raw, source)
+
+def bounded(command ∈ list[str], cwd ∈ str, environment ∈ dict[str, str], directory ∈ str, worker_uid ∈ int, config ∈ dict[str, object], peer ∈ object) → int:
+    Path(directory).mkdir(mode=448)
+    stdout_path ∈ str ← directory + "/stdout.bin"
+    stderr_path ∈ str ← directory + "/stderr.bin"
+    with open(stdout_path, "xb") as out:
+        with open(stderr_path, "xb") as err:
+            if worker_uid > 0:
+                plan ∈ str ← directory + "/worker-plan.json"
+                atomic(plan, {"argv": command, "environment": environment, "profile": config["operation"]})
+                os.chmod(directory, 493)
+                ithon ∈ list[str] ← list(config["ithon"])
+                bootstrap ∈ list[str] ← list(ithon)
+                bootstrap.extend([str(config["worker"]), plan])
+                no_groups ∈ list[int] ← []
+                child ∈ object ← subprocess.Popen(bootstrap, cwd=cwd, env=clean_environment(), stdout=out, stderr=err, user=worker_uid, group=worker_uid, extra_groups=no_groups, start_new_session=True)
+            else:
+                child ∈ object ← subprocess.Popen(command, cwd=cwd, env=environment, stdout=out, stderr=err, start_new_session=True)
+            start ∈ float ← time.monotonic()
+            process_record ∈ str ← directory + "/process.json"
+            record_process(process_record, child)
+            guard ∈ object ← watch_process(directory, child, config, 62)
+            try:
+                while True:
+                    if peer != None:
+                        peer_code ∈ object ← peer.poll()
+                        if peer_code != None:
+                            raise RuntimeError("FIXTURE_SERVICE_FAILED: " + str(peer_code))
+                    code ∈ object ← child.poll()
+                    if code != None:
+                        return int(code)
+                    now ∈ float ← time.monotonic()
+                    output_size ∈ int ← Path(stdout_path).stat().st_size
+                    error_size ∈ int ← Path(stderr_path).stat().st_size
+                    scratch_files ∈ Iterable[Path] ← Path(cwd).rglob("*")
+                    scratch_size ∈ int ← 0
+                    scratch_count ∈ int ← 0
+                    for scratch_file in scratch_files:
+                        scratch_count ← scratch_count + 1
+                        if scratch_count > 8192:
+                            raise RuntimeError("SCRATCH_ENTRY_BOUND_EXCEEDED")
+                        try:
+                            info ∈ object ← scratch_file.lstat()
+                        except FileNotFoundError:
+                            # A worker may finish an atomic write between
+                            # enumeration and inspection. Count the observed
+                            # entry, but absent bytes cannot consume scratch.
+                            continue
+                        size ∈ int ← info.st_size
+                        scratch_size ← scratch_size + size
+                    if now - start > 60.0 or output_size > 1048576 or error_size > 1048576 or scratch_size > 67108864:
+                        raise RuntimeError("EXECUTION_BOUND_EXCEEDED")
+                    time.sleep(0.02)
+            finally:
+                running ∈ object ← child.poll()
+                if running == None:
+                    os.killpg(child.pid, signal.SIGKILL)
+                    child.wait()
+                final_code ∈ int ← child.returncode
+                guard.wait(timeout=5)
+                atomic(process_record, {"pid": child.pid, "state": "FINISHED", "exit_code": final_code, "argv": command, "executable_sha256": digest(Path(command[0]).read_bytes()), "stdout_sha256": digest(Path(stdout_path).read_bytes()), "stderr_sha256": digest(Path(stderr_path).read_bytes()), "stdout_bytes": Path(stdout_path).stat().st_size, "stderr_bytes": Path(stderr_path).stat().st_size})
+    return 125
+
+def fixture(config ∈ dict[str, object], inputs ∈ dict[str, object], artifact ∈ str, mode ∈ str, run ∈ str, uid ∈ int) → dict[str, object]:
+    base ∈ str ← run + "/fixture-" + mode
+    Path(base).mkdir(mode=493)
+    io ∈ str ← base + "/io"
+    Path(io).mkdir(mode=488)
+    os.chown(io, 0, uid)
+    os.mkfifo(io + "/request", 400)
+    os.mkfifo(io + "/response", 416)
+    os.chown(io + "/request", 0, uid)
+    os.chown(io + "/response", 0, uid)
+    os.chmod(io + "/request", 400)
+    os.chmod(io + "/response", 416)
+    specification ∈ str ← base + "/fixture.json"
+    atomic(specification, {"mode": mode, "inputs": inputs, "artifact_sha256": digest(Path(artifact).read_bytes())})
+    no_events ∈ list[dict[str, object]] ← []
+    atomic(io + "/observations.json", {"mode": mode, "events": no_events, "mutations": 0, "owner": str(inputs["source_owner"]) + "/" + str(inputs["repository"]), "repository_id": inputs["expected_repository_id"], "visibility": "private"})
+    artifact_name ∈ str ← Path(artifact).name
+    executed_artifact ∈ str ← base + "/" + artifact_name
+    shutil.copyfile(artifact, executed_artifact)
+    os.chmod(executed_artifact, 292)
+    private_state ∈ str ← base + "/transfer-state"
+    Path(private_state).mkdir(mode=448)
+    os.chown(private_state, uid, uid)
+    ithon ∈ list[str] ← list(config["ithon"])
+    server_command ∈ list[str] ← list(ithon)
+    server_command.extend([str(config["fixture_server"]), io, specification])
+    server_log ∈ object ← open(base + "/server.stderr.bin", "xb")
+    server ∈ object ← subprocess.Popen(server_command, env=clean_environment(), stdout=subprocess.DEVNULL, stderr=server_log, start_new_session=True)
+    record_process(base + "/process.json", server)
+    guard ∈ object ← watch_process(base, server, config, 125)
+    codes ∈ list[int] ← []
+    runs ∈ list[dict[str, int]] ← []
+    home ∈ str ← base + "/fresh home \""
+    Path(home).mkdir(mode=448)
+    os.chown(home, uid, uid)
+    try:
+        executions ∈ int ← 2 if mode == "personal" or mode == "organization" or mode == "accepted-unverified" or mode == "accepted-still-pending" else 1
+        for index in range(executions):
+            work ∈ str ← base + "/unrelated directory '" + str(index)
+            Path(work).mkdir(mode=448)
+            os.chown(work, uid, uid)
+            environment ∈ dict[str, str] ← dict(config["grease_environment"])
+            environment["PATH"] ← str(config["fixture_bin"]) + ":/usr/bin:/bin"
+            environment["HOME"] ← home
+            environment["FP_FIXTURE_IO"] ← io
+            environment["FP_ACQUISITION_RECORD"] ← home + "/acquisition.json"
+            environment["GH_TOKEN"] ← "disposable-fixture-token"
+            environment["GITHUB_TOKEN"] ← "disposable-fixture-token"
+            environment["GH_HOST"] ← "invalid.fixture"
+            grease ∈ list[str] ← list(config["grease"])
+            grease.append(str(config["parent_probe"]))
+            grease.extend(list(config["grease"]))
+            grease.append(executed_artifact)
+            before ∈ int ← 0
+            if Path(io + "/observations.json").exists():
+                before_observation ∈ dict[str, object] ← read(io + "/observations.json")
+                before_events ∈ list[object] ← list(before_observation["events"])
+                before ← len(before_events)
+            code ∈ int ← bounded(grease, work, environment, base + "/execution-" + str(index), uid, config, server)
+            parent_output ∈ bytes ← Path(base + "/execution-" + str(index) + "/stdout.bin").read_bytes()
+            if not parent_output.endswith(b"PARENT_SURVIVED\n"):
+                raise ValueError("PARENT_SHELL_TERMINATED")
+            if artifact_name.endswith(".paste.grease"):
+                markers ∈ list[str] ← []
+                output_lines ∈ list[str] ← parent_output.decode().splitlines()
+                for line in output_lines:
+                    if line.startswith("KITCHEN_TRANSFER_CHILD_EXIT:"):
+                        markers.append(line[28:])
+                if len(markers) != 1 or code != 0:
+                    raise ValueError("PASTE_CHILD_STATUS")
+                code ← int(markers[0])
+                verified_marker ∈ bool ← parent_output.__contains__(b"OWNERSHIP_TRANSFER_VERIFIED\n")
+                if (code == 0) != verified_marker:
+                    raise ValueError("PASTE_OUTCOME_MISMATCH")
+            if digest(Path(executed_artifact).read_bytes()) != digest(Path(artifact).read_bytes()):
+                raise ValueError("EXECUTED_ARTIFACT_CHANGED")
+            codes.append(code)
+            after_observation ∈ dict[str, object] ← read(io + "/observations.json")
+            after_events ∈ list[object] ← list(after_observation["events"])
+            runs.append({"exit": code, "event_begin": before, "event_end": len(after_events)})
+        if len(codes) == 1:
+            codes.append(-125)
+        execution ∈ str ← base + "/execution.json"
+        atomic(execution, {"first_exit": codes[0], "second_exit": codes[1], "second_state": "NOT_RUN" if executions == 1 else "EXECUTED", "runs": runs})
+        validator ∈ list[str] ← list(ithon)
+        decision ∈ str ← base + "/decision.json"
+        validator.extend([str(config["api_validator"]), specification, io + "/observations.json", execution, artifact, decision])
+        code ← bounded(validator, base, clean_environment(), base + "/validation", 0, config, None)
+        if code != 0:
+            raise ValueError("FIXTURE_VALIDATION_FAILED: " + mode)
+        result ∈ dict[str, object] ← read(decision)
+        if result["status"] != "PASS" or result["artifact_sha256"] != digest(Path(artifact).read_bytes()):
+            raise ValueError("VALIDATOR_RECEIPT_MISMATCH")
+        return result
+    finally:
+        try:
+            os.killpg(server.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        server.wait()
+        guard.wait(timeout=5)
+        server_log.close()
+        atomic(base + "/process.json", {"pid": server.pid, "state": "FINISHED"})
+
+def exporter_sources(config ∈ dict[str, object]) → None:
+    candidate ∈ str ← str(config["candidate_root"])
+    for role in ["baseline", "candidate"]:
+        root ∈ str ← str(config[role + "_root"])
+        expected ∈ str ← str(config[role + "_commit"])
+        observed ∈ str ← git(root, ["rev-parse", "HEAD"]).decode().strip()
+        if observed != expected:
+            raise ValueError("EXPORTER_SOURCE_CHANGED")
+        git(root, ["diff", "--exit-code", expected, "--"])
+        git(root, ["diff", "--cached", "--exit-code", "--"])
+        origin ∈ str ← git(root, ["config", "--local", "--get", "remote.origin.url"]).decode().strip()
+        if origin != "https://github.com/dilapidated-shed/ChatGPTExporter.git" and origin != "https://github.com/dilapidated-shed/ChatGPTExporter":
+            raise ValueError("EXPORTER_WRONG_ORIGIN")
+        for path in ["tests/chatgpt/assets-adversarial.test.ts", "tests/chatgpt/inventory-adversarial.test.ts", "tests/chatgpt/pagination-adversarial.test.ts", "tests/integration/evidence-adversarial.test.ts", "tests/fixtures/adversarial.ts"]:
+            original ∈ bytes ← git(candidate, ["show", str(config["corpus_commit"]) + ":" + path])
+            actual ∈ bytes ← Path(root + "/" + path).read_bytes()
+            if actual != original:
+                raise ValueError("EXPORTER_CORPUS_CHANGED")
+
+def exporter_stage(config ∈ dict[str, object], check ∈ str, run ∈ str, uid ∈ int, result ∈ dict[str, object], stage ∈ dict[str, object], diagnostic ∈ bool) → None:
+    exporter_sources(config)
+    if check == "baseline-run" or check == "candidate-run":
+        work ∈ str ← run + "/" + check + "-work"
+        Path(work).mkdir(mode=448)
+        os.chown(work, uid, uid)
+        report_path ∈ str ← work + "/report.json"
+        root ∈ str ← str(config["baseline_root"] if check == "baseline-run" else config["candidate_root"])
+        command ∈ list[str] ← [str(config["node"]), "--max-old-space-size=512", str(config["test_runner"]), "run", "--root", root, "--maxWorkers=2", "--no-file-parallelism", "--configLoader=runner", "--cache=false", "--reporter=json", "--outputFile=" + report_path]
+        if check == "baseline-run":
+            command.extend(["tests/chatgpt/assets-adversarial.test.ts", "tests/chatgpt/inventory-adversarial.test.ts", "tests/chatgpt/pagination-adversarial.test.ts", "tests/integration/evidence-adversarial.test.ts"])
+        environment ∈ dict[str, str] ← dict(config["worker_environment"])
+        environment["TMPDIR"] ← work
+        code ∈ int ← bounded(command, work, environment, run + "/" + check + "-logs", uid, config, None)
+        stage["exit_code"] ← code
+        if code != (1 if check == "baseline-run" else 0):
+            raise ValueError("EXPORTER_TEST_EXIT")
+        selected ∈ Path ← Path(report_path)
+        if not selected.exists():
+            for stream in ["stdout", "stderr"]:
+                captured ∈ str ← run + "/" + check + "-logs/" + stream + ".bin"
+                actual_log ∈ bytes ← Path(captured).read_bytes()
+                print(str(actual_log[:8192].decode()))
+            raise ValueError("EXPORTER_REPORT_MISSING: " + check)
+        info ∈ object ← selected.lstat()
+        size ∈ int ← int(info.st_size)
+        if not stat.S_ISREG(info.st_mode) or size <= 0 or size > 8388608:
+            raise ValueError("EXPORTER_REPORT_INVALID")
+        raw_report ∈ bytes ← selected.read_bytes()
+        sealed ∈ str ← run + "/sealed-" + check + ".json"
+        Path(sealed).write_bytes(raw_report)
+        os.chmod(sealed, 292)
+        stage["report_sha256"] ← digest(raw_report)
+    elif check == "independent-comparison":
+        command ← list(config["ithon"])
+        command.extend([str(config["case_verifier"]), str(config["matrix"]), run + "/sealed-baseline-run.json", run + "/sealed-candidate-run.json", "all", run + "/exporter-regression-transition.txt"])
+        code ← bounded(command, run, clean_environment(), run + "/comparison-logs", 0, config, None)
+        stage["exit_code"] ← code
+        if code != 0:
+            raise ValueError("EXPORTER_INDEPENDENT_REJECTION")
+        stage["decision_sha256"] ← digest(Path(run + "/exporter-regression-transition.txt").read_bytes())
+    elif check == "publish":
+        verify_deployment(config, diagnostic)
+        name ∈ str ← "exporter-regression-transition.txt"
+        source ∈ bytes ← Path(run + "/" + name).read_bytes()
+        if not source.__contains__(b"status=PASS\n"):
+            raise ValueError("EXPORTER_DECISION_MISSING")
+        destination ∈ str ← run + "/accepted"
+        Path(destination).mkdir(mode=448)
+        final ∈ str ← destination + "/" + name
+        Path(final).write_bytes(source)
+        os.chmod(final, 292)
+        result["artifacts"] ← [{"role": "regression-decision", "name": name, "type": "text-report", "size": len(source), "sha256": digest(source), "scope": "exporter-regression-transition", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": final}]
+        result["promotion"] ← {"state": "candidate-verified" if diagnostic else "accepted", "trusted_identity": config["authority"]}
+    else:
+        raise ValueError("EXPORTER_UNKNOWN_CHECK")
+    exporter_sources(config)
+    stage["state"] ← "PASS"
+
+def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry ∈ bool, diagnostic ∈ bool) → dict[str, object]:
+    request ∈ dict[str, object] ← checked_request(raw)
+    verify_deployment(config, diagnostic)
+    if request["pipeline"] != config["operation"]:
+        raise ValueError("OPERATION_CONFIG_MISMATCH")
+    if config["operation"] == EXPORTER:
+        selected_inputs ∈ dict[str, object] ← dict(request["inputs"])
+        if selected_inputs["source_ref"] != config["candidate_commit"]:
+            raise ValueError("EXPORTER_UNQUALIFIED_SOURCE")
+    state ∈ str ← str(config["state_root"])
+    Path(state).mkdir(mode=457, parents=True, exist_ok=True)
+    request_id ∈ str ← str(request["request_id"])
+    index_path ∈ str ← state + "/" + request_id + ".json"
+    lock ∈ object ← open(state + "/" + request_id + ".lock", "ab")
+    fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+    try:
+        previous ∈ dict[str, object] ← {}
+        exists ∈ bool ← Path(index_path).exists()
+        attempt ∈ int ← 1
+        if exists:
+            previous ← read(index_path)
+            if previous["request_sha256"] != digest(raw):
+                raise ValueError("DUPLICATE_ID_DIFFERENT_BYTES")
+            if not retry:
+                existing_result ∈ dict[str, object] ← read(str(previous["result"]))
+                if existing_result["status"] == "RUNNING":
+                    prior_run ∈ str ← str(Path(str(previous["result"])).parent)
+                    reap_interrupted(prior_run)
+                    existing_result["status"] ← "INTERRUPTED"
+                    existing_result["first_failure"] ← "SUPERVISOR_INTERRUPTED"
+                    atomic(str(previous["result"]), existing_result)
+                if existing_result["status"] == "PASS":
+                    validate_cached_result(config, raw, existing_result, diagnostic)
+                return existing_result
+            existing_result ∈ dict[str, object] ← read(str(previous["result"]))
+            if existing_result["status"] == "RUNNING":
+                prior_run ∈ str ← str(Path(str(previous["result"])).parent)
+                reap_interrupted(prior_run)
+                existing_result["status"] ← "INTERRUPTED"
+                existing_result["first_failure"] ← "SUPERVISOR_INTERRUPTED"
+                atomic(str(previous["result"]), existing_result)
+            attempt ← int(previous["attempt"]) + 1
+        run_id ∈ str ← request_id + "-" + str(attempt) + "-" + str(uuid.uuid4())
+        run ∈ str ← state + "/" + run_id
+        Path(run).mkdir(mode=493)
+        result_path ∈ str ← run + "/result.json"
+        inputs ∈ dict[str, object] ← dict(request["inputs"])
+        stages ∈ list[dict[str, object]] ← []
+        for check in required_checks(config):
+            stages.append({"check_id": check, "required": True, "state": "NOT_RUN"})
+        result ∈ dict[str, object] ← {"schema_version": 2, "request_id": request_id, "request_sha256": digest(raw), "run_id": run_id, "attempt": attempt, "operation_id": "kitchen-transfer-script", "operation_version": config["operation_version"], "registry_generation": config["registry_generation"], "control": {"repository_id": 1405888814, "commit": config["control_commit"], "executable_sha256": digest(Path(__file__).read_bytes()), "deployment_identity": config["authority"]}, "qualification_sha256": config["qualification_sha256"], "contract_sha256": config["contract_sha256"], "source": config["materials"], "dependencies": config["tools"], "observed_build_host": {"system": platform.system(), "machine": platform.machine()}, "route": route, "stages": stages, "artifacts": [], "status": "RUNNING", "first_failure": None, "blockers": [], "acceptance_scope": "local-fixture-qualification" if diagnostic else "generated-script", "excluded_claims": ["live-transfer", "physical-device", "deployed-trusted-execution"] if diagnostic else ["live-transfer", "physical-device"], "promotion": {"state": "candidate" if diagnostic else "pending"}, "started_at": time.time(), "prior_attempt": previous}
+        result["inputs"] ← inputs
+        result["operation_id"] ← config["operation"]
+        if config["operation"] == EXPORTER:
+            result["acceptance_scope"] ← "local-fixture-qualification" if diagnostic else "exporter-regression-transition"
+            result["excluded_claims"] ← ["live-provider", "private-export", "physical-device", "merge"] if not diagnostic else ["live-provider", "private-export", "physical-device", "merge", "deployed-trusted-execution"]
+        result["release_sha256"] ← release_identity(config)
+        atomic(result_path, result)
+        atomic(index_path, {"request_sha256": digest(raw), "attempt": attempt, "result": result_path})
+        # A different UID for every attempt prevents concurrent workers from
+        # reading/writing another attempt's private scratch, even if located.
+        with open(state + "/worker-uid.lock", "ab") as uid_lock:
+            fcntl.flock(uid_lock.fileno(), fcntl.LOCK_EX)
+            uid_path ∈ str ← state + "/worker-uid.json"
+            uid ∈ int ← 60000
+            uid_exists ∈ bool ← Path(uid_path).exists()
+            if uid_exists:
+                uid_record ∈ dict[str, object] ← read(uid_path)
+                uid ← int(uid_record["last_uid"])
+            uid ← uid + 1
+            if uid > 600000:
+                raise ValueError("WORKER_UID_POOL_EXHAUSTED")
+            atomic(uid_path, {"last_uid": uid})
+        result["worker_uid"] ← uid
+        started ∈ float ← time.monotonic()
+        try:
+            for stage in stages:
+                now_before ∈ float ← time.monotonic()
+                elapsed_before ∈ float ← now_before - started
+                if elapsed_before > 120.0:
+                    raise RuntimeError("RUN_BOUND_EXCEEDED")
+                check_id ∈ str ← str(stage["check_id"])
+                stage["state"] ← "RUNNING"
+                stage["started_at"] ← time.time()
+                atomic(result_path, result)
+                if check_id == "prepare":
+                    # Every .pi is checked by the qualified frontend before
+                    # generator execution; full immutable identities preflighted.
+                    stage["state"] ← "PASS"
+                    if config["operation"] == EXPORTER:
+                        exporter_sources(config)
+                elif config["operation"] == EXPORTER:
+                    exporter_stage(config, check_id, run, uid, result, stage, diagnostic)
+                elif check_id == "generate-a" or check_id == "generate-b":
+                    work ∈ str ← run + "/" + check_id + " space '"
+                    Path(work).mkdir(mode=448)
+                    os.chown(work, uid, uid)
+                    environment ∈ dict[str, str] ← dict(config["grease_environment"])
+                    environment["HOME"] ← work
+                    command ∈ list[str] ← list(config["grease"])
+                    command.append(str(config["generator"]))
+                    for field in FIELDS:
+                        command.append(str(inputs[field]))
+                    code ∈ int ← bounded(command, work, environment, run + "/" + check_id + "-logs", uid, config, None)
+                    stage["exit_code"] ← code
+                    if code != 0:
+                        raise ValueError("GENERATOR_FAILED")
+                    stage["state"] ← "PASS"
+                elif check_id == "determinism":
+                    filename ∈ str ← "transfer-" + str(inputs["repository"]) + "-from-" + str(inputs["source_owner"]) + "-to-" + str(inputs["destination_owner"]) + ".sh"
+                    candidate ∈ str ← run + "/generate-a space '/" + filename
+                    second ∈ str ← run + "/generate-b space '/" + filename
+                    generated ∈ bytes ← Path(candidate).read_bytes()
+                    second_bytes ∈ bytes ← Path(second).read_bytes()
+                    if generated != second_bytes:
+                        raise ValueError("NONDETERMINISTIC_GENERATION")
+                    artifact_digest ∈ str ← digest(generated)
+                    paste_filename ∈ str ← filename[:-3] + ".paste.grease"
+                    paste_candidate ∈ str ← run + "/generate-a space '/" + paste_filename
+                    paste_second ∈ str ← run + "/generate-b space '/" + paste_filename
+                    paste_generated ∈ bytes ← Path(paste_candidate).read_bytes()
+                    paste_repeated ∈ bytes ← Path(paste_second).read_bytes()
+                    if paste_generated != paste_repeated:
+                        raise ValueError("NONDETERMINISTIC_PRESENTATION")
+                    paste_digest ∈ str ← digest(paste_generated)
+                    stage["sha256"] ← artifact_digest
+                    stage["paste_sha256"] ← paste_digest
+                    stage["state"] ← "PASS"
+                elif check_id == "seal":
+                    artifact ∈ str ← run + "/" + filename
+                    seal_command ∈ list[str] ← list(config["ithon"])
+                    seal_command.extend([str(config["seal_validator"]), candidate, artifact_digest, artifact])
+                    code ← bounded(seal_command, run, clean_environment(), run + "/seal-logs", 0, config, None)
+                    if code != 0:
+                        raise ValueError("SEAL_FAILED")
+                    paste_artifact ∈ str ← run + "/" + paste_filename
+                    paste_seal ∈ list[str] ← list(config["ithon"])
+                    paste_seal.extend([str(config["seal_validator"]), paste_candidate, paste_digest, paste_artifact])
+                    code ← bounded(paste_seal, run, clean_environment(), run + "/paste-seal-logs", 0, config, None)
+                    if code != 0:
+                        raise ValueError("PASTE_SEAL_FAILED")
+                    stage["state"] ← "PASS"
+                elif check_id.startswith("fixture-"):
+                    mode ∈ str ← check_id[8:]
+                    observation ∈ dict[str, object] ← fixture(config, inputs, paste_artifact, mode, run, uid)
+                    stage["observation"] ← observation
+                    stage["state"] ← "PASS"
+                elif check_id == "publish":
+                    # Recheck material closure and sealed bytes at publication.
+                    verify_deployment(config, diagnostic)
+                    if digest(Path(artifact).read_bytes()) != artifact_digest:
+                        raise ValueError("ARTIFACT_CHANGED_AFTER_CHECK")
+                    if digest(Path(paste_artifact).read_bytes()) != paste_digest:
+                        raise ValueError("PRESENTATION_CHANGED_AFTER_CHECK")
+                    accepted ∈ str ← run + "/accepted"
+                    Path(accepted).mkdir(mode=448)
+                    publication ∈ str ← accepted + "/" + filename
+                    shutil.copyfile(artifact, publication)
+                    if digest(Path(publication).read_bytes()) != artifact_digest:
+                        raise ValueError("PUBLICATION_BYTE_MISMATCH")
+                    paste_publication ∈ str ← accepted + "/" + paste_filename
+                    shutil.copyfile(paste_artifact, paste_publication)
+                    if digest(Path(paste_publication).read_bytes()) != paste_digest:
+                        raise ValueError("PRESENTATION_PUBLICATION_MISMATCH")
+                    result["artifacts"] ← [{"role": "standalone-transfer-script", "name": filename, "type": "grease-script", "size": len(generated), "sha256": artifact_digest, "scope": "generated-script-fixtures", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": publication}, {"role": "human-transfer-paste", "name": paste_filename, "type": "grease-paste", "size": len(paste_generated), "sha256": paste_digest, "scope": "generated-script-fixtures", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": paste_publication}]
+                    result["promotion"] ← {"state": "candidate-verified" if diagnostic else "accepted", "decision_sha256": digest(encode(stages)), "trusted_identity": config["authority"]}
+                    stage["state"] ← "PASS"
+                stage["finished_at"] ← time.time()
+                stage["implementation_sha256"] ← digest(Path(__file__).read_bytes())
+                stage["contract_sha256"] ← config["contract_sha256"]
+                atomic(result_path, result)
+                elapsed ∈ float ← time.monotonic()
+                if elapsed - started > 120.0:
+                    raise RuntimeError("RUN_BOUND_EXCEEDED")
+            result["status"] ← "PASS"
+            accepted_promotion ∈ dict[str, object] ← dict(result["promotion"])
+            accepted_promotion["decision_sha256"] ← digest(encode(stages))
+            result["promotion"] ← accepted_promotion
+        except KeyboardInterrupt:
+            stage["state"] ← "INTERRUPTED"
+            result["status"] ← "INTERRUPTED"
+            result["first_failure"] ← "INTERRUPTED"
+            result["artifacts"] ← []
+            result["promotion"] ← {"state": "rejected", "reason": "INTERRUPTED"}
+        except Exception as failure:
+            stage["state"] ← "FAIL"
+            result["status"] ← "FAIL"
+            result["first_failure"] ← str(failure)
+            result["artifacts"] ← []
+            result["promotion"] ← {"state": "rejected", "reason": str(failure)}
+        finally:
+            stage["finished_at"] ← time.time()
+            result["finished_at"] ← time.time()
+            if result["status"] == "PASS":
+                accepted_promotion ← dict(result["promotion"])
+                accepted_promotion["decision_sha256"] ← digest(encode(stages))
+                result["promotion"] ← accepted_promotion
+            atomic(result_path, result)
+        return result
+    finally:
+        lock.close()
+
+def main() → None:
+    argv ∈ list[str] ← sys.argv
+    diagnostic ∈ bool ← argv[1] == "qualify"
+    configuration_path ∈ str ← argv[2] if diagnostic else "/etc/flexible-pipes/deployment.json"
+    route ∈ str ← argv[3] if diagnostic else argv[1]
+    try:
+        configuration ∈ dict[str, object] ← read(configuration_path)
+        envelope ∈ dict[str, object] ← read(argv[4] if diagnostic else argv[2])
+        if not diagnostic:
+            verify_deployment(configuration, False)
+            admission_root ∈ str ← str(configuration["state_root"]) + "/admissions"
+            Path(admission_root).mkdir(mode=448, parents=True, exist_ok=True)
+            admission ∈ str ← admission_root + "/" + str(uuid.uuid4())
+            admission_command ∈ list[str] ← list(configuration["ithon"])
+            decision ∈ str ← admission + ".json"
+            admission_command.extend(["/opt/flexible-pipes/current/scripts/verify-admission.pi", configuration_path, argv[2], decision, route])
+            verified ∈ int ← bounded(admission_command, admission_root, clean_environment(), admission, 0, configuration, None)
+            if verified != 0:
+                raise ValueError("SIGNED_ADMISSION_REJECTED")
+            provider ∈ dict[str, object] ← read(decision)
+            if provider["status"] != "PASS":
+                raise ValueError("SIGNED_ADMISSION_REJECTED")
+            nonce ∈ str ← admission_root + "/nonce-" + digest(str(provider["jti"]).encode()) + ".json"
+            with open(nonce, "xb") as once:
+                once.write(encode(provider))
+        intake ∈ tuple[bytes, dict[str, object]] ← adapter(configuration, route, envelope)
+        raw ∈ bytes ← intake[0]
+        retry ∈ bool ← bool(envelope.get("retry", False)) if diagnostic else int(provider["run_attempt"]) > 1
+        outcome ∈ dict[str, object] ← execute(configuration, raw, route, retry, diagnostic)
+        # Per-submission provenance may wrap a reused accepted execution; it
+        # cannot change the cached operation, checks, authority or bytes.
+        outcome["route"] ← route
+        outcome["request_source"] ← intake[1]
+        if route == "pipeline-requests":
+            outcome["request_commit"] ← envelope["request_commit"]
+        outcome["request_bytes_base64"] ← base64.b64encode(raw).decode()
+        print(json.dumps(outcome, sort_keys=True))
+        sys.exit(0 if outcome["status"] == "PASS" else 1)
+    except Exception as failure:
+        rejected ∈ dict[str, object] ← {"status": "BLOCKED", "blocker": str(failure), "artifacts": []}
+        print(json.dumps(rejected))
+        sys.exit(2)
+
+entry_arguments ∈ list[str] ← sys.argv
+entry_path ∈ str ← entry_arguments[0]
+if entry_path == __file__:
+    main()

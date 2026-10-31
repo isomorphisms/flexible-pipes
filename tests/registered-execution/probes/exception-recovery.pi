@@ -1,0 +1,7 @@
+from builtins import ValueError
+import json
+print("EFFECT_BEFORE_CHECK")
+try:
+    request ∈ dict[str, object] ← json.loads("invalid input")
+except ValueError:
+    print("RECOVERED")

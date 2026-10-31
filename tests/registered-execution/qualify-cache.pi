@@ -1,0 +1,211 @@
+"""Exercise real cached-result reuse with real receipts and artifact files.
+
+Only deployment preflight is mocked: this is a local cache regression, not
+qualification of a release, the worker boundary, TLS, or a deployed caller.
+Every cache hit must avoid generation; matching production and diagnostic
+receipts are positive controls against an implementation that always refuses.
+"""
+import sys
+import json
+import hashlib
+import importlib
+from pathlib import Path
+from unittest.mock import patch
+from builtins import dict, list, ValueError, Exception
+
+argv ∈ list[str] ← sys.argv
+fp ∈ str ← argv[1]
+output ∈ str ← argv[2]
+Path(output).mkdir(parents=True, exist_ok=False)
+sys.path.insert(0, fp + "/scripts")
+execution ∈ object ← importlib.import_module("registered-execution")
+implementation ∈ str ← hashlib.sha256(Path(fp + "/scripts/registered-execution.pi").read_bytes()).hexdigest()
+payload ∈ bytes ← b"maintained cache fixture bytes\n"
+artifact_digest ∈ str ← hashlib.sha256(payload).hexdigest()
+paste_payload ∈ bytes ← b"maintained cache paste fixture bytes\n"
+paste_digest ∈ str ← hashlib.sha256(paste_payload).hexdigest()
+outputs ∈ list[dict[str, str]] ← [{"role": "standalone-transfer-script", "type": "grease-script", "suffix": ".sh"}, {"role": "human-transfer-paste", "type": "grease-paste", "suffix": ".paste.grease"}]
+rows ∈ list[dict[str, object]] ← []
+
+def changed(value ∈ dict[str, object], path ∈ str, replacement ∈ object) → None:
+    keys ∈ list[str] ← path.split(".")
+    selected ∈ dict[str, object] ← value
+    for key in keys[:-1]:
+        parent ∈ dict[str, object] ← selected
+        selected ← dict(parent[key])
+        parent[key] ← selected
+    selected[keys[-1]] ← replacement
+
+def setup(name ∈ str, diagnostic ∈ bool) → tuple[dict[str, object], bytes, dict[str, object], str]:
+    directory ∈ str ← output + "/" + name
+    state ∈ str ← directory + "/state"
+    run ∈ str ← state + "/fixture-run"
+    Path(run + "/accepted").mkdir(parents=True)
+    inputs ∈ dict[str, object] ← {"source_owner": "source", "repository": "example", "destination_owner": "destination", "expected_login": "actor", "expected_repository_id": 42, "target_context": "linux-x86_64-grease-v1"}
+    request ∈ dict[str, object] ← {"schema_version": 1, "request_id": "cache-request", "pipeline": "kitchen-transfer-script", "inputs": inputs}
+    raw ∈ bytes ← execution.encode(request)
+    authority ∈ str ← "local-qualification" if diagnostic else "deployed-trusted"
+    material ∈ dict[str, object] ← {"path": "/fixture/kitchen/generator", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "checkout": "/fixture/kitchen", "commit": "1111111111111111111111111111111111111111", "relative_path": "generator", "origin": "https://github.com/isomorphisms/kitchen.git", "published_ref": "origin/fp2/qualified-transfer-generator"}
+    checker ∈ dict[str, object] ← {"path": "/fixture/ai-ci/checker.pi", "sha256": "2222222222222222222222222222222222222222222222222222222222222222", "checkout": "/fixture/ai-ci", "commit": "2222222222222222222222222222222222222222", "relative_path": "checker.pi", "origin": "https://github.com/isomorphisms/ai-ci.git", "published_ref": "origin/fp2/transfer-observation-validator"}
+    tool ∈ dict[str, object] ← {"path": "/fixture/runtime/grease", "sha256": "3333333333333333333333333333333333333333333333333333333333333333"}
+    config ∈ dict[str, object] ← {"schema_version": 1, "qualified": True, "operation": "kitchen-transfer-script", "operation_version": "fixture-v1", "registry_generation": 1, "authority": authority, "required_checks": list(execution.REQUIRED), "control_commit": "4444444444444444444444444444444444444444", "ithon": ["/fixture/runtime/ithon"], "grease": ["/fixture/runtime/grease"], "worker": "/fixture/worker.pi", "watchdog": "/fixture/watchdog.pi", "generator": "/fixture/kitchen/generator", "parent_probe": "/fixture/parent-probe", "fixture_server": "/fixture/fixture-server.pi", "fixture_bin": "/fixture/bin", "api_validator": "/fixture/ai-ci/checker.pi", "seal_validator": "/fixture/seal.pi", "contract_sha256": "5555555555555555555555555555555555555555555555555555555555555555", "materials": [material, checker], "tools": [tool], "grease_environment": {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, "qualification_sha256": "6666666666666666666666666666666666666666666666666666666666666666", "state_root": state}
+    config["acquisition_probe"] ← "/fixture/kitchen/fixture-acquisition.pi"
+    config["compact_recipe"] ← "/fixture/kitchen/github-repository-transfer.grease"
+    contract ∈ dict[str, object] ← {"operation": "kitchen-transfer-script", "required_checks": config["required_checks"], "outputs": outputs}
+    contract_path ∈ str ← directory + "/contract.json"
+    execution.atomic(contract_path, contract)
+    config["contract"] ← contract_path
+    config["contract_sha256"] ← execution.digest(Path(contract_path).read_bytes())
+    stages ∈ list[dict[str, object]] ← []
+    required ∈ list[str] ← list(execution.REQUIRED)
+    for check in required:
+        stages.append({"check_id": check, "required": True, "state": "PASS", "implementation_sha256": implementation, "contract_sha256": config["contract_sha256"]})
+    filename ∈ str ← "transfer-example-from-source-to-destination.sh"
+    artifact_path ∈ str ← run + "/accepted/" + filename
+    Path(artifact_path).write_bytes(payload)
+    artifact ∈ dict[str, object] ← {"name": filename, "role": "standalone-transfer-script", "type": "grease-script", "size": len(payload), "sha256": artifact_digest, "scope": "generated-script-fixtures", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": artifact_path}
+    paste_name ∈ str ← "transfer-example-from-source-to-destination.paste.grease"
+    paste_path ∈ str ← run + "/accepted/" + paste_name
+    Path(paste_path).write_bytes(paste_payload)
+    paste_artifact ∈ dict[str, object] ← {"name": paste_name, "role": "human-transfer-paste", "type": "grease-paste", "size": len(paste_payload), "sha256": paste_digest, "scope": "generated-script-fixtures", "state": "diagnostic" if diagnostic else "accepted", "retrieval_locator": paste_path}
+    result ∈ dict[str, object] ← {"schema_version": 2, "status": "PASS", "request_id": request["request_id"], "request_sha256": execution.digest(raw), "inputs": inputs, "operation_id": request["pipeline"], "operation_version": config["operation_version"], "registry_generation": config["registry_generation"], "release_sha256": execution.release_identity(config), "control": {"repository_id": 1405888814, "commit": config["control_commit"], "executable_sha256": implementation, "deployment_identity": authority}, "qualification_sha256": config["qualification_sha256"], "contract_sha256": config["contract_sha256"], "source": config["materials"], "dependencies": config["tools"], "stages": stages, "artifacts": [artifact, paste_artifact], "acceptance_scope": "local-fixture-qualification" if diagnostic else "generated-script", "promotion": {"state": "candidate-verified" if diagnostic else "accepted", "decision_sha256": execution.digest(execution.encode(stages)), "trusted_identity": authority}}
+    result_path ∈ str ← run + "/result.json"
+    execution.atomic(state + "/cache-request.json", {"request_sha256": execution.digest(raw), "attempt": 1, "result": result_path})
+    return (config, raw, result, result_path)
+
+def exercise(name ∈ str, active_field ∈ str, active_value ∈ object, saved_field ∈ str, saved_value ∈ object, expected ∈ str, diagnostic ∈ bool) → None:
+    setup_values ∈ tuple[dict[str, object], bytes, dict[str, object], str] ← setup(name, diagnostic)
+    config ∈ dict[str, object] ← setup_values[0]
+    raw ∈ bytes ← setup_values[1]
+    result ∈ dict[str, object] ← setup_values[2]
+    result_path ∈ str ← setup_values[3]
+    if active_field != "":
+        changed(config, active_field, active_value)
+    if saved_field != "":
+        changed(result, saved_field, saved_value)
+    if result["status"] != "PASS":
+        result["artifacts"] ← []
+    if name == "changed-delivered-bytes" or name == "changed-paste-bytes":
+        artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+        Path(str(artifacts[0 if name == "changed-delivered-bytes" else 1]["retrieval_locator"])).write_bytes(b"changed after verification\n")
+    elif name == "missing-source" or name == "missing-checker":
+        source ∈ list[dict[str, object]] ← list(result["source"])
+        result["source"] ← source[1:] if name == "missing-source" else source[:1]
+    elif name == "recipe-same-head" or name == "checker-same-head":
+        materials ∈ list[dict[str, object]] ← list(config["materials"])
+        materials[0 if name == "recipe-same-head" else 1]["sha256"] ← "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    elif name == "runtime-bytes":
+        tools ∈ list[dict[str, object]] ← list(config["tools"])
+        tools[0]["sha256"] ← "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    elif name.startswith("stage-") or name == "removed-check-and-declaration":
+        stages ∈ list[dict[str, object]] ← list(result["stages"])
+        if name == "stage-skipped":
+            stages[0]["state"] ← "SKIPPED"
+        elif name == "stage-optional":
+            stages[0]["required"] ← False
+        elif name == "stage-integer-required":
+            stages[0]["required"] ← 1
+        elif name == "stage-unrelated":
+            stages[0]["check_id"] ← "other-operation"
+        elif name == "stage-checker-bytes":
+            stages[0]["implementation_sha256"] ← "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        elif name == "stage-contract-bytes":
+            stages[0]["contract_sha256"] ← "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        else:
+            result["stages"] ← stages[1:]
+            if name == "removed-check-and-declaration":
+                required ∈ list[str] ← list(execution.REQUIRED)
+                config["required_checks"] ← required[1:]
+        promotion ∈ dict[str, object] ← dict(result["promotion"])
+        promotion["decision_sha256"] ← execution.digest(execution.encode(result["stages"]))
+        result["promotion"] ← promotion
+    elif name.startswith("artifact-"):
+        artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
+        if name == "artifact-empty":
+            result["artifacts"] ← []
+        elif name == "artifact-duplicate":
+            result["artifacts"] ← [artifacts[0], artifacts[0]]
+        elif name == "artifact-wrong-operation":
+            artifacts[0]["name"] ← "fork-example.sh"
+        elif name == "artifact-wrong-state":
+            artifacts[0]["state"] ← "candidate"
+        elif name == "artifact-wrong-size":
+            artifacts[0]["size"] ← len(payload) + 1
+        elif name == "artifact-missing-paste" or name == "artifact-removed-paste-and-declaration":
+            result["artifacts"] ← artifacts[:1]
+            if name == "artifact-removed-paste-and-declaration":
+                contract ∈ dict[str, object] ← execution.read(str(config["contract"]))
+                contract["outputs"] ← outputs[:1]
+                execution.atomic(str(config["contract"]), contract)
+        elif name == "artifact-swapped-order":
+            result["artifacts"] ← [artifacts[1], artifacts[0]]
+        elif name == "artifact-swapped-roles":
+            artifacts[0]["role"] ← "human-transfer-paste"
+            artifacts[1]["role"] ← "standalone-transfer-script"
+        elif name == "artifact-wrong-paste-name":
+            artifacts[1]["name"] ← "transfer-unrelated.paste.grease"
+        elif name == "artifact-wrong-paste-type":
+            artifacts[1]["type"] ← "grease-script"
+        elif name == "artifact-wrong-paste-size":
+            artifacts[1]["size"] ← len(paste_payload) + 1
+        elif name == "artifact-bool-size":
+            artifacts[1]["size"] ← True
+    elif name == "index-wrong-request-bytes":
+        execution.atomic(str(config["state_root"]) + "/cache-request.json", {"request_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "attempt": 1, "result": result_path})
+    execution.atomic(result_path, result)
+    failure ∈ str ← ""
+    observed ∈ dict[str, object] ← {}
+    with patch.object(execution, "verify_deployment", return_value=None):
+        with patch.object(execution, "bounded", side_effect=ValueError("CACHE_UNEXPECTED_EXECUTION")):
+            try:
+                observed ← execution.execute(config, raw, "workflow_dispatch", False, diagnostic)
+            except Exception as error:
+                failure ← str(error)
+    if expected == "PASS":
+        if failure != "" or observed != result or observed["status"] != "PASS":
+            raise ValueError("CACHE_POSITIVE_CONTROL_FAILED: " + name + ": " + failure)
+    elif expected == "INTERRUPTED":
+        if failure != "" or observed["status"] != "INTERRUPTED" or observed["first_failure"] != "SUPERVISOR_INTERRUPTED":
+            raise ValueError("CACHE_PENDING_STATE_LOST: " + name + ": " + failure)
+    elif expected == "FAIL" or expected == "BLOCKED":
+        if failure != "" or observed["status"] != expected:
+            raise ValueError("CACHE_NONPASS_STATE_LOST: " + name + ": " + failure)
+    elif not failure.startswith(expected):
+        raise ValueError("CACHE_INCORRECT_ACCEPTANCE: " + name + ": " + failure)
+    rows.append({"case": name, "status": "PASS", "observed_status": str(observed.get("status", "REJECTED")), "failure": failure})
+
+exercise("valid-production-reuse", "", None, "", None, "PASS", False)
+exercise("valid-diagnostic-reuse", "", None, "", None, "PASS", True)
+exercise("pending-preserved", "", None, "status", "RUNNING", "INTERRUPTED", False)
+exercise("failed-preserved", "", None, "status", "FAIL", "FAIL", False)
+exercise("blocked-preserved", "", None, "status", "BLOCKED", "BLOCKED", False)
+active_changes ∈ list[dict[str, object]] ← [{"case": "registry-generation", "field": "registry_generation", "value": 2}, {"case": "qualification-release", "field": "qualification_sha256", "value": "0000000000000000000000000000000000000000000000000000000000000000"}, {"case": "control-release", "field": "control_commit", "value": "0000000000000000000000000000000000000000"}, {"case": "authority-release", "field": "authority", "value": "different-authority"}, {"case": "contract-release", "field": "contract_sha256", "value": "0000000000000000000000000000000000000000000000000000000000000000"}, {"case": "recipe-selection", "field": "generator", "value": "/substitute/generator"}, {"case": "checker-selection", "field": "api_validator", "value": "/substitute/checker.pi"}, {"case": "runtime-selection", "field": "grease", "value": ["/substitute/grease"]}, {"case": "runtime-environment", "field": "grease_environment", "value": {"PATH": "/substitute"}}]
+for row in active_changes:
+    exercise(str(row["case"]), str(row["field"]), row["value"], "", None, "STALE_ACCEPTED_RELEASE", False)
+exercise("bool-registry-release", "registry_generation", True, "", None, "STALE_ACCEPTED_RELEASE", False)
+exercise("compact-recipe-selection", "compact_recipe", "/substitute/recipe.grease", "", None, "STALE_ACCEPTED_RELEASE", False)
+exercise("acquisition-checker-selection", "acquisition_probe", "/substitute/acquisition.pi", "", None, "STALE_ACCEPTED_RELEASE", False)
+for name in ["recipe-same-head", "checker-same-head", "runtime-bytes", "removed-check-and-declaration"]:
+    exercise(name, "", None, "", None, "STALE_ACCEPTED_RELEASE", False)
+request_changes ∈ list[dict[str, object]] ← [{"case": "wrong-request-id", "field": "request_id", "value": "other-request"}, {"case": "wrong-request-digest", "field": "request_sha256", "value": "0000000000000000000000000000000000000000000000000000000000000000"}, {"case": "wrong-operation", "field": "operation_id", "value": "github-fork"}, {"case": "wrong-source-owner", "field": "inputs.source_owner", "value": "other-source"}, {"case": "wrong-destination", "field": "inputs.destination_owner", "value": "other-destination"}, {"case": "wrong-repository", "field": "inputs.repository", "value": "other-repository"}, {"case": "wrong-repository-id", "field": "inputs.expected_repository_id", "value": 43}]
+for row in request_changes:
+    exercise(str(row["case"]), "", None, str(row["field"]), row["value"], "CACHED_REQUEST_MISMATCH", False)
+control_changes ∈ list[dict[str, object]] ← [{"case": "wrong-control-commit", "field": "control.commit", "value": "0000000000000000000000000000000000000000"}, {"case": "wrong-control-bytes", "field": "control.executable_sha256", "value": "0000000000000000000000000000000000000000000000000000000000000000"}, {"case": "wrong-control-repository", "field": "control.repository_id", "value": 1}, {"case": "wrong-recorded-authority", "field": "control.deployment_identity", "value": "other-authority"}, {"case": "wrong-recorded-version", "field": "operation_version", "value": "other-version"}, {"case": "wrong-recorded-generation", "field": "registry_generation", "value": 2}]
+for row in control_changes:
+    exercise(str(row["case"]), "", None, str(row["field"]), row["value"], "CACHED_CONTROL_MISMATCH", False)
+exercise("bool-recorded-generation", "", None, "registry_generation", True, "CACHED_CONTROL_MISMATCH", False)
+for name in ["missing-source", "missing-checker"]:
+    exercise(name, "", None, "", None, "CACHED_EVIDENCE_MISMATCH", False)
+exercise("wrong-recorded-qualification", "", None, "qualification_sha256", "0000000000000000000000000000000000000000000000000000000000000000", "CACHED_EVIDENCE_MISMATCH", False)
+exercise("wrong-recorded-contract", "", None, "contract_sha256", "0000000000000000000000000000000000000000000000000000000000000000", "CACHED_EVIDENCE_MISMATCH", False)
+exercise("diagnostic-cannot-inherit-production", "", None, "acceptance_scope", "generated-script", "CACHED_AUTHORITY_MISMATCH", True)
+exercise("unpromoted-result", "", None, "promotion.state", "candidate", "CACHED_AUTHORITY_MISMATCH", False)
+exercise("unrelated-promotion", "", None, "promotion.trusted_identity", "other-authority", "CACHED_AUTHORITY_MISMATCH", False)
+exercise("fabricated-success-decision", "", None, "promotion.decision_sha256", "0000000000000000000000000000000000000000000000000000000000000000", "CACHED_CHECKS_MISMATCH", False)
+for name in ["stage-skipped", "stage-optional", "stage-integer-required", "stage-unrelated", "stage-missing", "stage-checker-bytes", "stage-contract-bytes"]:
+    exercise(name, "", None, "", None, "CACHED_CHECKS_MISMATCH", False)
+for name in ["artifact-empty", "artifact-duplicate", "artifact-wrong-operation", "artifact-wrong-state", "artifact-wrong-size", "artifact-missing-paste", "artifact-removed-paste-and-declaration", "artifact-swapped-order", "artifact-swapped-roles", "artifact-wrong-paste-name", "artifact-wrong-paste-type", "artifact-wrong-paste-size", "artifact-bool-size", "changed-delivered-bytes", "changed-paste-bytes"]:
+    exercise(name, "", None, "", None, "STALE_ACCEPTED_ARTIFACT", False)
+exercise("index-wrong-request-bytes", "", None, "", None, "DUPLICATE_ID_DIFFERENT_BYTES", False)
+Path(output + "/checks.json").write_text(json.dumps({"scope": "local-cached-result-regression", "status": "PASS", "checks": rows, "excluded_claims": ["deployment-preflight", "worker-boundary", "TLS", "deployed-caller", "live-transfer"]}, sort_keys=True))
+print("cached result regression passed")
