@@ -1,0 +1,16 @@
+#!/workspace/scratch/30b0a80117bc/grease-runtime/_bin/cxx-asan/ysh
+setglobal ENV.IDRIC_ROOT = '/tmp/jobicy-idric-source'
+setglobal ENV.IDRIC_JSON_ROOT = '/workspace/scratch/30b0a80117bc/Idric-JSON'
+setglobal ENV.IDRIC_NET_ROOT = '/workspace/scratch/30b0a80117bc/Idric-Net'
+setglobal ENV.ICU_ROOT = '/workspace/scratch/30b0a80117bc/icu'
+setglobal ENV.ICK_SOURCE_ROOT = '/workspace/scratch/30b0a80117bc/ick'
+setglobal ENV.IDRIC = '/tmp/jobicy-idric-source/_/build/exec/idris2'
+setglobal ENV.IDRIS2_PREFIX = '/tmp/jobicy-idric-source/_/bootstrap-build'
+setglobal ENV.CHEZ = '/tmp/jobicy-idric-tools/bin/scheme'
+setglobal ENV.SCHEMEHEAPDIRS = '/tmp/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/chez-10.4.1/lib/csv10.4.1/ta6le'
+setglobal ENV.ICK = '/tmp/jobicy-ick-stage/bin/ick'
+setglobal ENV.HOST_LIBGCC_DIR = '/usr/lib/gcc/x86_64-linux-gnu/13'
+setglobal ENV.KITCHEN_ROOT = '/workspace/scratch/30b0a80117bc/kitchen'
+setglobal ENV.GREASE = '/workspace/scratch/30b0a80117bc/tool-bin/grease'
+setglobal ENV.JOBICY_PROGRAM = '/tmp/jobicy-installed/bin/jobicy'
+exec "$@"

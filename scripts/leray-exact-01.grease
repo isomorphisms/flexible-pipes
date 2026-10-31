@@ -1,0 +1,27 @@
+#!/usr/bin/env grease
+set -o errexit -o nounset -o pipefail
+if (int($#) !== 4) { echo 'requires FP_ROOT ICK GREASE NEW_EVIDENCE' >&2; exit 2 }
+var fp = $1
+var compiler = $2
+var grease = $3
+var evidence = $4
+for path in "$@" { case "$path" in /*) ;; *) echo 'absolute paths required' >&2; exit 2 ;; esac }
+var inputs = "$(dirname "$fp")"
+var leaf = "$(dirname "$inputs")"
+var kitchen = "$inputs/kitchen"
+var aici = "$inputs/aici"
+var ike = "$inputs/ike"
+var origin = "$(git -C "$leaf" remote get-url origin)"
+case "$origin" in
+    https://github.com/walnut-burgundy/leray-overlooking-the-seine|https://github.com/walnut-burgundy/leray-overlooking-the-seine.git) ;;
+    *) echo 'producer origin mismatch' >&2; exit 2 ;;
+esac
+test "$(git -C "$kitchen" rev-parse HEAD)" = d75ad256a32b9594530128772db1387af0487f21
+test "$(git -C "$aici" rev-parse HEAD)" = 398c260db362e235a9ebaa3f2a00e8a3cd1198e5
+test "$(git -C "$ike" rev-parse HEAD)" = 93f9eb0aee9094757414df8a7929c89b6a294b0c
+sha256sum -c "$fp/tasks/leray-exact-01/materials.sha256"
+if test ! -x "$compiler" { echo 'BLOCKED: qualified ICK compiler unavailable; consumer fallback forbidden' >&2; exit 2 }
+"$grease" "$kitchen/tasks/leray-exact-01/2.grease" "$leaf" "$aici" "$ike" "$compiler" "$grease" "$evidence"
+"$evidence/accept" --self-test "$evidence/producer.tsv" > "$evidence/aici-mutants.tsv" 2> "$evidence/aici-mutants.stderr"
+test ! -s "$evidence/aici-mutants.stderr"
+sha256sum "$evidence/result.tsv" "$evidence/aici-mutants.tsv" "$evidence/outputs.sha256" > "$evidence/seal.sha256"

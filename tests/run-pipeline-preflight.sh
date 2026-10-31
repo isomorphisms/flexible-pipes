@@ -66,5 +66,7 @@ GITHUB_SHA="$fake_sha" python3 "$root/scripts/run-pipeline-legacy.py" regression
 
 grep -Fq "\"repository_commit\": \"$head\"" "$work/identity.out"
 grep -Fq "\"github_sha_declared\": \"$fake_sha\"" "$work/identity.out"
+grep -Fq '"qualified_operation": false' "$work/identity.out"
+grep -Fq '"acceptance_scope": "caller-supplied-command-execution"' "$work/identity.out"
 
 printf 'flexible-pipes pipeline preflight tests: PASS\n'

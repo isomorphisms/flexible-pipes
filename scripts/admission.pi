@@ -46,4 +46,22 @@ def verify_token(token ∈ str, config ∈ dict[str, object], jwks ∈ dict[str,
     actor ∈ str ← str(claims["actor_id"])
     if not allowed.__contains__(actor):
         raise ValueError("UNAUTHORIZED_ACTOR")
-    return {"status": "PASS", "issuer": claims["iss"], "actor_id": actor, "workflow_sha": claims["sha"], "jti": claims["jti"], "run_id": claims["run_id"], "run_attempt": claims["run_attempt"]}
+    if claims["event_name"] != "workflow_dispatch" and claims["event_name"] != "workflow_run":
+        raise ValueError("UNQUALIFIED_EVENT")
+    return {"status": "PASS", "issuer": claims["iss"], "actor_id": actor, "event_name": claims["event_name"], "workflow_sha": claims["sha"], "jti": claims["jti"], "run_id": claims["run_id"], "run_attempt": claims["run_attempt"]}
+
+def verify_submission(decision ∈ dict[str, object], route ∈ str, envelope ∈ dict[str, object]) → None:
+    # Bind the authenticated workflow to the selected route and run identity.
+    if route != "workflow_dispatch" and route != "pipeline-requests":
+        raise ValueError("UNKNOWN_ROUTE")
+    event ∈ str ← "workflow_dispatch" if route == "workflow_dispatch" else "workflow_run"
+    if decision["event_name"] != event:
+        raise ValueError("ADMISSION_ROUTE_IDENTITY")
+    fields ∈ list[str] ← ["provider_token", "workflow_ref", "workflow_sha", "repository_id", "run_id", "run_attempt"]
+    fields.append("request" if route == "workflow_dispatch" else "request_commit")
+    if set(envelope) != set(fields):
+        raise ValueError("ADMISSION_ENVELOPE_FIELDS")
+    if envelope["run_id"] != decision["run_id"] or envelope["run_attempt"] != decision["run_attempt"]:
+        raise ValueError("ADMISSION_RUN_IDENTITY")
+    if envelope["workflow_ref"] != "refs/heads/main" or envelope["workflow_sha"] != decision["workflow_sha"] or type(envelope["repository_id"]) != int or envelope["repository_id"] != 1405888814:
+        raise ValueError("ADMISSION_CONTROL_IDENTITY")

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "rhs-glyph-acceptance",
+  "parameters": {
+    "kitchen_task": {"required": true, "pattern": "/.+"},
+    "rhs": {"required": true, "pattern": "/.+"},
+    "evidence": {"required": true, "pattern": "/.+"},
+    "ithon": {"required": true, "pattern": "/.+"},
+    "checker": {"required": true, "pattern": "/.+"}
+  },
+  "required_stages": ["independent-native-glyph-acceptance"],
+  "stages": [
+    {"kind": "command", "name": "independent-native-glyph-acceptance", "argv": ["grease", "{{kitchen_task}}", "{{rhs}}", "{{evidence}}", "{{ithon}}", "{{checker}}"]}
+  ]
+}

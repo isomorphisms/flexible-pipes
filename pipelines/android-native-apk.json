@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "android-native-apk",
+  "required_stages": ["registered-build-and-companion-artifact-gate"],
+  "stages": [
+    {
+      "name": "registered-build-and-companion-artifact-gate",
+      "kind": "command",
+      "argv": ["bash", "scripts/android-producer-stage", "registered"],
+      "cwd": "."
+    }
+  ]
+}

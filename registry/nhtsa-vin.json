@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "name": "nhtsa-vin",
+  "service": "US Department of Transportation / NHTSA vPIC",
+  "official_api": "https://vpic.nhtsa.dot.gov/api/Home/Index",
+  "api_operation": "GET /api/vehicles/DecodeVinValues/{vin}?format=json[&modelyear=YYYY]",
+  "cli": {
+    "repository": "dilapidated-shed/idric-cli",
+    "branch": "cli",
+    "source": "checkpoints/nhtsa/idric/Nhtsa.idric",
+    "package": "nhtsa-vin.ipkg",
+    "command": "nhtsa-vin",
+    "language": "Idriç"
+  },
+  "transport": {
+    "semantic_package": "dilapidated-shed/Idric-Net",
+    "client": "dilapidated-shed/icu",
+    "api": "Response.fetch_response",
+    "native_compiler": "ICK"
+  },
+  "catfood": {
+    "repository": "isomorphisms/catfood",
+    "inventory_row": "idric-cli",
+    "command_link": "$CATFOOD_ROOT/bin/nhtsa-vin",
+    "prebuilt_requirement": true,
+    "android_armv7": "gap:android-package-missing",
+    "android_arm64": "gap:android-package-missing"
+  },
+  "kitchen": {
+    "repository": "isomorphisms/kitchen",
+    "task": "tasks/nhtsa-vin/1.grease"
+  },
+  "ai_ci": {
+    "repository": "isomorphisms/ai-ci",
+    "oracle": "nhtsa/vin-cli-acceptance.sh"
+  },
+  "pipelines": {
+    "open": "pipelines/nhtsa-vin-open.json",
+    "acceptance": "pipelines/nhtsa-vin-acceptance.json"
+  },
+  "evidence": {
+    "source_committed": true,
+    "synthetic_fixtures_committed": true,
+    "compiled_execution": "NOT_RUN",
+    "installed_execution": "NOT_RUN",
+    "live_provider": "NOT_RUN",
+    "a1_armv7": "NOT_RUN",
+    "c67_arm64": "NOT_RUN"
+  },
+  "provenance_rule": "Never treat the HTTP status, decoding outcome, and a vehicle registration as interchangeable."
+}

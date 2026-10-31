@@ -1,0 +1,106 @@
+name: Subpixel registered host qualification
+on:
+  push:
+    branches: ['work/subpixel-registration']
+    paths:
+      - 'pipelines/subpixel-acceptance.json'
+      - 'registry/subpixel-acceptance.json'
+      - 'tasks/subpixel/**'
+      - 'tests/subpixel-registration.grease'
+      - '.github/workflows/subpixel-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  subpixel-host:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+    steps:
+      - name: Check out exact FP candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Materialize pinned Kitchen recipe
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/kitchen
+          ref: f57ad8ce9ddbecde12c0d57e3d66939bd2b2e139
+          path: _subpixel/kitchen
+          persist-credentials: false
+      - name: Materialize exact producer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/rough.framebuffer
+          ref: efff5fbe71d8722d713282c478dbdb52fa280f9b
+          path: _subpixel/producer
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Materialize independent oracle
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: abcd1a657845badf539b9699da98d1e124ea2c6b
+          path: _subpixel/aici
+          persist-credentials: false
+      - name: Materialize owned ICK and retained GCC reference
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ick
+          ref: c61e448251744a2f40ad743ebef1a027bdcd2f9d
+          path: _subpixel/ick
+          submodules: true
+          persist-credentials: false
+      - name: Materialize owned Ike source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ike
+          ref: a92fe68bf8aad8dfcfe9f7a7abd84e07290f7fe0
+          path: _subpixel/ike
+          persist-credentials: false
+      # Narrow stage-zero shell boundary: acquire the real native Grease binary
+      # before Grease can execute. This does not implement product/build policy.
+      - name: Acquire and verify published native Grease runtime
+        shell: sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          gh api repos/dilapidated-shed/grease/actions/artifacts/11727693085/zip > "$RUNNER_TEMP/subpixel-grease.zip"
+          printf '%s  %s\n' 20c526c8bae5dc32a7b3d01a39eca5bdb7ee4c63fe540f34a07af7ba8b0d0039 "$RUNNER_TEMP/subpixel-grease.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/subpixel-grease.zip" _bin/cxx-asan/ysh > _subpixel/ysh
+          sha256sum -c tasks/subpixel/materials.sha256
+          chmod 755 _subpixel/ysh
+      - name: Install explicitly declared ICK stage-zero dependencies
+        shell: sh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential flex texinfo libgmp-dev libmpfr-dev libmpc-dev libisl-dev libzstd-dev binutils
+      - name: Verify refusals before any compiler build
+        shell: '/usr/bin/env _subpixel/ysh {0}'
+        run: |
+          var python = "$(command -v python3)"
+          var workspace = ENV.GITHUB_WORKSPACE
+          _subpixel/ysh tests/subpixel-registration.grease "$workspace" "$workspace/_subpixel/ysh" "$python"
+      - name: Execute the named FP pipeline
+        shell: '/usr/bin/env _subpixel/ysh {0}'
+        run: |
+          var python = "$(command -v python3)"
+          var workspace = ENV.GITHUB_WORKSPACE
+          "$python" scripts/run-pipeline-legacy.py subpixel-acceptance --param "workspace=$workspace"
+      - name: Retain real stage receipts, diagnostics and PPM
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: subpixel-host-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            .flexible-pipes/runs/subpixel-acceptance-*/
+            _subpixel/evidence/
+          if-no-files-found: warn
+          retention-days: 14
+          include-hidden-files: true

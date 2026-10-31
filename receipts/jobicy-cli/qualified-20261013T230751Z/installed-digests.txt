@@ -1,0 +1,5 @@
+5647cf58f9ca38930b2db3ae591b454b0b5d5d7bacf23ad504d1ff5594f3ea84  /tmp/jobicy-installed/bin/jobicy
+1c8c310fe2aa2bf1a44bc1b33620a0a4350461188e37e9a1fe7487b3d95f0a09  /tmp/jobicy-installed/bin/jobicy_app/jobicy.so
+642283720cef191f26800f50f87dfd9136a31db8c4f91b0830ef89e185f77f5e  /tmp/jobicy-installed/bin/jobicy_app/libicu_transport.so
+8077799a817d100398f271097b2c583250655bf0adbe767c12cdeafd2d333da8  /tmp/jobicy-aici
+ce03a25d04aa7f8e5b998812402ae4f04000d029c6160a82638b107faef629a2  /tmp/jobicy-icu-proxy-tests

@@ -4,7 +4,7 @@ import sys
 import urllib.request
 from pathlib import Path
 from builtins import dict, list, ValueError
-from admission import verify_token
+from admission import verify_token, verify_submission
 argv ∈ list[str] ← sys.argv
 config ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
 envelope ∈ dict[str, object] ← json.loads(Path(argv[2]).read_bytes())
@@ -14,6 +14,5 @@ if len(key_bytes) > 1048576:
     raise ValueError("ADMISSION_KEY_SIZE")
 jwks ∈ dict[str, object] ← json.loads(key_bytes)
 decision ∈ dict[str, object] ← verify_token(str(envelope["provider_token"]), config, jwks)
-if envelope["run_id"] != decision["run_id"] or envelope["run_attempt"] != decision["run_attempt"]:
-    raise ValueError("ADMISSION_RUN_IDENTITY")
+verify_submission(decision, argv[4], envelope)
 Path(argv[3]).write_text(json.dumps(decision, sort_keys=True))

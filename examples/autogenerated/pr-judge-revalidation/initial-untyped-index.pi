@@ -1,0 +1,47 @@
+# A prior success cannot survive failed revalidation of the same saved stage.
+def unavailable_read_text(message_id ∈ str) → dict[str, object]:
+    raise RuntimeError("fixture readback unavailable")
+
+unavailable_reader ∈ object ← SimpleNamespace(read_text=unavailable_read_text, read_attachment=read_attachment)
+with tempfile.TemporaryDirectory(prefix="delivery-revalidation-") as temporary:
+    for resume_mode in ["display-only", "display-and-dispatch"]:
+        for resume_failure in ["bytes", "exception"]:
+            effects.clear()
+            captured.clear()
+            remote_calls.clear()
+            remote.clear()
+            mutation ← "none"
+            readback_mutation ← False
+            stage ← fresh(payload, resume_mode)
+            record ← dict(stage["handoff"])
+            expected ← {"audience": record["audience"], "model": record["model"], "source_context": record["source_context"], "request": record["request"]}
+            revalidation_requirements ∈ list[str] ← []
+            state_path ← str(temporary) + "/" + resume_mode + "-" + resume_failure + ".json"
+            result ← handoff.deliver_controlled(stage, payload, expected, revalidation_requirements, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+            if str(result["delivery_status"]) != "FIXTURE_PASS":
+                raise AssertionError("positive control did not establish saved success")
+            before_effects ← len(effects)
+            before_calls ← len(remote_calls)
+            readback_mutation ← resume_failure == "bytes"
+            resumed_reader ∈ object ← unavailable_reader if resume_failure == "exception" else reader
+            caught_message ← ""
+            try:
+                handoff.deliver_controlled(stage, payload, expected, revalidation_requirements, sink, resumed_reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+            except (ValueError, RuntimeError) as error:
+                caught_message ← str(error)
+            readback_mutation ← False
+            expected_rejection ∈ str ← "fixture readback unavailable" if resume_failure == "exception" else "HANDOFF_VISIBLE_MISSING"
+            if caught_message != expected_rejection:
+                raise AssertionError("resumed readback did not reject for the expected reason")
+            persisted ∈ dict[str, object] ← json.loads(Path(state_path).read_bytes())
+            if str(persisted["delivery_status"]) != "AWAITING_HANDOFF_DELIVERY":
+                raise AssertionError("revalidation failure retained a saved passing delivery receipt")
+            resumed_handoff ∈ dict[str, object] ← dict(persisted["handoff"])
+            if str(resumed_handoff["dispatch_state"]) != str(dict(result["handoff"])["dispatch_state"]):
+                raise AssertionError("failed revalidation erased completed dispatch history")
+            result ← handoff.deliver_controlled(stage, payload, expected, revalidation_requirements, sink, reader, controlled_dispatcher, controlled_gate, state_path, "fixture")
+            if str(result["delivery_status"]) != "FIXTURE_PASS" or len(effects) != before_effects or len(remote_calls) != before_calls:
+                raise AssertionError("valid retry failed or repeated completed effects")
+            passed("controller revalidation " + resume_mode + " " + resume_failure + " invalidates success and retries without effects")
+
+print("runtime cases PASS: " + str(len(passed_cases)))

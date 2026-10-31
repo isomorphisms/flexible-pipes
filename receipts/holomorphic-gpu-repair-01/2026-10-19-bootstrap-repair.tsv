@@ -1,0 +1,18 @@
+schema	holomorphic-bootstrap-repair-v1
+failed_control_commit	179bc031b6d641cc8f339b2ab92789d83b9c1044
+failed_workflow	https://github.com/isomorphisms/flexible-pipes/actions/runs/39295550628
+failed_job	https://github.com/isomorphisms/flexible-pipes/actions/runs/39295550628/job/118206980923
+failed_stage	Acquire the exact published native Grease artifact
+observed_result	FAIL
+observed_diagnostic	gh: Artifact has expired (HTTP 410)
+expired_artifact_id	11727693085
+replacement_artifact_id	12192502970
+owner_source	8bad10b21e0fe7fc93e851d705dc9b63dbf9d8fd
+owner_workflow_run	38206821183
+replacement_archive_sha256	295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5
+verified_executable_sha256	7e31cd05b7a9d8fb2a4a9e003a7f3fcb0159138506d17f0fb28da8cbe22aa85c
+replacement_executable_bytes	UNCHANGED
+replacement_expires_utc	2026-10-26T14:08:05Z
+local_archive_and_executable_digest_verification	PASS
+refreshed_hosted_qualification	NOT_RUN
+mathematical_acceptance_contract	UNCHANGED

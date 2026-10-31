@@ -1,0 +1,38 @@
+SUN AMAZON-JOBS-ORG-01 — Idriç requisition evidence for Blackball
+
+Human authority: register and use the Amazon.jobs Idriç CLI through Cat Food
+and Flexible Pipes to audit Blackball's previously researched Amazon
+organizational structure. Source of NEW Amazon.jobs observations: only the
+installed, independently accepted Idriç amazon-jobs command.
+
+Work sequence
+1. Verify exact Idriç CLI revision, executable hash, Cat Food command path,
+   offline self-test, and independent ai-ci acceptance before using output.
+2. Query the complete Amazon Software Development category using
+   --category software-development --sort relevant --all --max-pages 100
+   --format jsonl. Save literal stdout/stderr, argv, status, UTC retrieval
+   interval, source/executable revisions, and SHA-256 receipts. Do not treat
+   partial results or transport failures as zero vacancies.
+3. Separately inspect explicit entry gates using narrow CLI searches for
+   data-center technicians, new-graduate SDEs, and AWS early-career hardware.
+4. Compare the dated new requisition sample with Blackball's 2026-09-16
+   2,613-record census, which recorded 42 business-category labels, 125
+   team labels and 143 business/team combinations. Count matching job IDs and
+   label attachments. Preserve additions, removals, changed org labels and
+   denominator differences; do not infer employee counts or causal layoffs.
+5. Preserve source_record_id separately from the public requisition ID.
+   Never promote business_category or team feed labels into parent-child
+   organizational edges without independent explicit Amazon posting evidence.
+   Central recruiting labels and missing labels are not departments.
+6. Write a dated audit and attach it to bl4ckb4ll/blackball/FAANG/amazon,
+   with CLI receipt paths, exact commands, comparison tables, and any unknowns.
+
+Admission and rejection
+- No direct web/search substitute for Amazon.jobs facts in this audit.
+- No Python client, jq-only scraper, fabricated provider response, or fixture
+  may substitute for the Idriç CLI.
+- A failed/blocked live request or unaccepted compiler artifact blocks any
+  CURRENT count/organization conclusion; retain historical findings as dated.
+- AICI independently verifies identity, toolchain and job outputs; a green
+  fixture is not live-provider or Android device evidence.
+- No automatic merge/publish without the FP envelope and AICI receipts.

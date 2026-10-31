@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "name": "leray-exact-01-import",
+  "required_stages": [
+    "job-envelope",
+    "source-artifact",
+    "prepare-import-directory",
+    "import-source-artifact",
+    "imported-source-identities"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/leray-exact-01/assignment.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-artifact",
+      "argv": [
+        "sha256sum",
+        "-c",
+        "tasks/leray-exact-01/source-artifact.sha256"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "prepare-import-directory",
+      "argv": ["mkdir", "-p", ".flexible-pipes/imported/leray-exact-01"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "import-source-artifact",
+      "argv": [
+        "unzip",
+        "-n",
+        "tasks/leray-exact-01/leray-verification.zip",
+        "-d",
+        ".flexible-pipes/imported/leray-exact-01"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "imported-source-identities",
+      "argv": [
+        "sha256sum",
+        ".flexible-pipes/imported/leray-exact-01/leray-verification/FP-JOB-PROPOSAL.txt",
+        ".flexible-pipes/imported/leray-exact-01/leray-verification/proposed-status-fix.patch",
+        ".flexible-pipes/imported/leray-exact-01/leray-verification/results.txt",
+        ".flexible-pipes/imported/leray-exact-01/leray-verification/experiments/exact-beltrami/beltrami.c",
+        ".flexible-pipes/imported/leray-exact-01/leray-verification/experiments/exact-beltrami/README.md"
+      ],
+      "cwd": "."
+    }
+  ]
+}

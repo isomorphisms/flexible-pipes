@@ -1,0 +1,27 @@
+field	value
+qualification_date	2026-10-14
+owner	isomorphisms/flexible-pipes
+source_repository	isomorphismes/wegert
+source_commit	71e6f969b102d70a06ebb2d98b6426f79f287173
+source_run_url	https://github.com/isomorphismes/wegert/actions/runs/37727204424
+source_run_attempt_observed	1
+artifact_id	11528177870
+artifact_name	wegert-debug-apk
+artifact_expired	false
+archive_size	1406538
+archive_sha256	7a69447a00e3a674d12aeaa41c3e4895e30f53e6a8c8373775df5e3e19c6478c
+archive_member	app-debug.apk
+payload_name	app-debug.apk
+payload_mime	application/vnd.android.package-archive
+payload_size	1558364
+payload_sha256	a6897b357365b2e59ee653f3e39736ec328aa34eafa532da7e32d444e6e9ed67
+FP_materialization	LIVE_PASS
+independent_service_readback	STORAGE_BYTES_PASS
+service_recovery	same retained storage identity; exact basename restored; prepared replacement retained bytes and supplied APK MIME
+service_identity_and_raw_metadata	retained privately; no private handles or signed URLs in this public receipt
+pipeline_handoff	AWAITING_HANDOFF_DELIVERY
+client_presentation	NOT_VERIFIED
+package_install_launch_and_physical_behavior	NOT_RUN
+artifact_attempt_binding	NOT_PROVIDED_BY_ARTIFACT_METADATA
+Young_Tableaux_selected_archive	ACCESS_UNKNOWN; KeyError for id; no bytes obtained
+merge_closure_or_deployment	NOT_PERFORMED

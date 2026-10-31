@@ -1,0 +1,2 @@
+# repository	contract	recipe	a1_apk	c67_apk
+isomorphismes/wegert	_/build/ci/android-application.tsv	_/build/nativeactivity/build-paired.sh	wegert-armeabi-v7a.apk	wegert-arm64-v8a.apk

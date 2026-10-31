@@ -9,11 +9,13 @@ from delivery import submit
 from event_adapter import envelope
 argv ∈ list[str] ← sys.argv
 environment ∈ dict[str, str] ← os.environ
-client ∈ dict[str, object] ← json.loads(Path("/etc/flexible-pipes/client.json").read_bytes())
-directory ∈ str ← "/var/lib/flexible-pipes/export/" + environment["GITHUB_RUN_ID"] + "-" + environment["GITHUB_RUN_ATTEMPT"]
-if client["state"] != "active":
+readiness ∈ bool ← len(argv) == 4 and argv[1] == "readiness"
+client_path ∈ str ← argv[2] if readiness else "/etc/flexible-pipes/client.json"
+client ∈ dict[str, object] ← json.loads(Path(client_path).read_bytes())
+directory ∈ str ← argv[3] if readiness else "/var/lib/flexible-pipes/export/" + environment["GITHUB_RUN_ID"] + "-" + environment["GITHUB_RUN_ATTEMPT"]
+if readiness or client["state"] != "active":
     Path(directory).mkdir(mode=448, parents=True, exist_ok=False)
-    blocked ∈ dict[str, object] ← {"status": "BLOCKED", "blocker": "DEPLOYMENT_INACTIVE", "artifacts": [], "acceptance_scope": "client-readiness", "excluded_claims": ["trusted-execution", "deployment"]}
+    blocked ∈ dict[str, object] ← {"status": "BLOCKED", "blocker": "DEPLOYMENT_INACTIVE" if client["state"] != "active" else "CLIENT_RUNTIME_NOT_ADMITTED", "artifacts": [], "acceptance_scope": "client-readiness", "excluded_claims": ["trusted-execution", "deployment"]}
     Path(directory + "/result.json").write_text(json.dumps(blocked, sort_keys=True))
     print(json.dumps(blocked))
     sys.exit(2)

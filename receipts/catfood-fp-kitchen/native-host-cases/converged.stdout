@@ -1,0 +1,6 @@
+status=verified
+action=already_transferred
+repository_id=1412731191
+repository_url=https://github.com/functorial-games/Museum_of_Shaders
+upstream=conanwu777/Museum_of_Shaders
+evidence=/workspace/scratch/4742a1c942e7/acceptance-committed-2/interrupted/job/observation.4EWHnp

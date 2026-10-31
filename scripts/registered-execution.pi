@@ -208,6 +208,10 @@ def verify_deployment(config ∈ dict[str, object], diagnostic ∈ bool) → Non
     mappings ∈ list[str] ← uid_map.split()
     if len(mappings) == 3 and mappings[2] == "1":
         raise ValueError("SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace")
+    verify_materials(config, diagnostic)
+
+def verify_materials(config ∈ dict[str, object], diagnostic ∈ bool) → None:
+    # Source/tool/contract preflight alone grants no execution authority.
     materials ∈ list[dict[str, object]] ← list(config["materials"])
     bound_paths ∈ list[str] ← []
     for material in materials:
@@ -839,7 +843,7 @@ def main() → None:
             admission ∈ str ← admission_root + "/" + str(uuid.uuid4())
             admission_command ∈ list[str] ← list(configuration["ithon"])
             decision ∈ str ← admission + ".json"
-            admission_command.extend(["/opt/flexible-pipes/current/scripts/verify-admission.pi", configuration_path, argv[2], decision])
+            admission_command.extend(["/opt/flexible-pipes/current/scripts/verify-admission.pi", configuration_path, argv[2], decision, route])
             verified ∈ int ← bounded(admission_command, admission_root, clean_environment(), admission, 0, configuration, None)
             if verified != 0:
                 raise ValueError("SIGNED_ADMISSION_REJECTED")

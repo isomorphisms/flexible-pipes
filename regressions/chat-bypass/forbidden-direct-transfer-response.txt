@@ -1,0 +1,3 @@
+gh api -X POST \
+  repos/isomorphisms/consider/transfer \
+  -f new_owner=fuego-ironworks

@@ -50,7 +50,7 @@ The workflow_dispatch route runs run-pipeline.yml at its selected workflow revis
 
 The runner validates each stage only when reached, takes argv from the same checkout, inherits environment/PATH/Git settings, and uses GITHUB_SHA in preference to observing Git HEAD. Cwd containment does not confine subprocess effects. It buffers output without a limit, supplies no stage timeout, and records its final receipt only at shutdown. GitHub reruns reuse GITHUB_RUN_ID without an attempt suffix. The existing receipt does not establish required check completion, qualified executable provenance, artifact promotion, or independent acceptance.
 
-The existing smoke checks the shape of 13 corpus records, not any prose oracle. Empty cases also pass. [Existing hosted request run](https://github.com/isomorphisms/flexible-pipes/actions/runs/37334198791) was observed completed/success at request head 124275f2d5ded53d5ea0d50b8e499b62aca3b9ae; that is historical route/corpus evidence, not qualification of this design. No new hosted dispatch was made in this audit.
+The existing smoke checks the shape of 14 corpus records, not any prose oracle. Empty cases also pass. [Existing hosted request run](https://github.com/isomorphisms/flexible-pipes/actions/runs/37334198791) was observed completed/success at request head 124275f2d5ded53d5ea0d50b8e499b62aca3b9ae; that is historical route/corpus evidence, not qualification of this design. No new hosted dispatch was made in this audit.
 
 Repository rulesets returned an empty list. Branch-protection inspection returned 403 (integration cannot inspect that endpoint); no gh executable was available locally. Therefore this audit does not claim protected-main or credential separation is already configured.
 
@@ -97,7 +97,7 @@ Local Linux x86_64 only; no mobile mutation, APK build, emulator, signing, model
 
 - Kitchen main: tests/source-handoff.sh: 27/27 PASS; tests/github-repository-transfer.sh: 9 named scenarios PASS. These prove only their actual fixture scope.
 - Cat Food main: tests/ib-handoff.sh: 14/14 PASS; tests/android-delivery.sh: exit 0. Existing Android package schema supports archive/file/dex-jni, not a first-class APK record.
-- FP documented Python invocation: regression-history-smoke PASS with 13 corpus records.
+- FP documented Python invocation: regression-history-smoke PASS with 14 corpus records.
 - Unchanged FP runner copied by a local isolated Git clone; runner diff from inspected main empty. Seven synthetic pipeline data files exercised real scripts/run-pipeline. Unknown operation, forged metadata and empty corpus were additional probes.
 - Positive command PASS. Nonzero child FAIL with downstream marker absent. Missing executable FAIL with child code 127. Unknown name rejects with exit 2.
 - Omitted mandatory check: PASS and scratch export-marker created. No-op success printer as required-test: PASS. Unknown executable-related fields: ignored/PASS. Later invalid stage: FAIL but earlier scratch marker already created. GITHUB_SHA of forty ones: receipt reports that value despite actual HEAD. Empty corpus: exit 0.

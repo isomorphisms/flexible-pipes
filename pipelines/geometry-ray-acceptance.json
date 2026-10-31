@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "name": "geometry-ray-acceptance",
+  "parameters": {
+    "compiler": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "fp-source",
+    "geometry-source",
+    "oracle-source",
+    "compiler-identity",
+    "compiler-target",
+    "build-directory",
+    "compile-shared-verifier",
+    "geometry-build-contract",
+    "oracle-build-contract",
+    "compile-recenter",
+    "compile-ray",
+    "compile-frozen-direction",
+    "compile-reset-travel",
+    "compile-oracle",
+    "recenter-tests",
+    "ray-tests",
+    "independent-oracle",
+    "source-output-digests"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/geometry-ray/SUN-GEO-RAY-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fp-source",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "geometry-source",
+      "argv": [
+        "git",
+        "-C",
+        "source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "oracle-source",
+      "argv": [
+        "git",
+        "-C",
+        "oracle",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-identity",
+      "argv": [
+        "sha256sum",
+        "{{compiler}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-target",
+      "argv": [
+        "{{compiler}}",
+        "-dumpmachine"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "build-directory",
+      "argv": [
+        "mkdir",
+        "-p",
+        "build"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-shared-verifier",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "oracle/src/aici.c",
+        "-o",
+        "build/aici"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "geometry-build-contract",
+      "argv": [
+        "build/aici",
+        "verify",
+        "oracle/contracts/build-toolchain-v0.contract.tsv",
+        "source"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "oracle-build-contract",
+      "argv": [
+        "build/aici",
+        "verify",
+        "oracle/contracts/build-toolchain-v0.contract.tsv",
+        "oracle"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-recenter",
+      "cwd": "source/refactor/c",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "recenter.c",
+        "test_recenter.c",
+        "-lm",
+        "-o",
+        "../../../build/recenter-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "compile-ray",
+      "cwd": "source/refactor/c",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "h3_ray.c",
+        "test_h3_ray.c",
+        "-lm",
+        "-o",
+        "../../../build/h3-ray-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "compile-frozen-direction",
+      "cwd": "source/refactor/c",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "mutants/frozen_direction.c",
+        "test_h3_ray.c",
+        "-lm",
+        "-o",
+        "../../../build/frozen-direction-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "compile-reset-travel",
+      "cwd": "source/refactor/c",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "mutants/reset_travel.c",
+        "test_h3_ray.c",
+        "-lm",
+        "-o",
+        "../../../build/reset-travel-test"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "compile-oracle",
+      "cwd": "oracle/geometry/h3-ray",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "accept.c",
+        "-lm",
+        "-o",
+        "../../../build/h3-ray-accept"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "recenter-tests",
+      "argv": [
+        "timeout",
+        "30",
+        "build/recenter-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ray-tests",
+      "argv": [
+        "timeout",
+        "30",
+        "build/h3-ray-test",
+        "--emit",
+        "build/oracle-values.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-oracle",
+      "argv": [
+        "timeout",
+        "30",
+        "build/h3-ray-accept",
+        "build/oracle-values.tsv",
+        "./build/recenter-test",
+        "./build/frozen-direction-test",
+        "./build/reset-travel-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-output-digests",
+      "argv": [
+        "sha256sum",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/h3_ray.h",
+        "source/refactor/c/test_h3_ray.c",
+        "source/refactor/c/recenter.c",
+        "source/refactor/c/test_recenter.c",
+        "oracle/geometry/h3-ray/accept.c",
+        "build/oracle-values.tsv"
+      ],
+      "cwd": "."
+    }
+  ]
+}
+

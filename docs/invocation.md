@@ -11,11 +11,16 @@ input. Its canonical-main event adapter and immutable `pipeline-requests`
 intake submit to the same separate supervisor. Requests cannot select the
 runner, checker, recipe, policy or approval requirements.
 
-The only registered operation is `kitchen-transfer-script`. Its explicit inputs
-are source owner, repository, destination owner, expected login, numeric
+The registered operation `kitchen-transfer-script` takes explicit inputs that
+identify source owner, repository, destination owner, expected login, numeric
 repository ID and qualified target context. It generates and checks a script;
 it does not execute a live transfer. Kitchen owns the recipe, AICI the independent
 API observation validator, and Cat Food the sealed-artifact validator.
+
+`chatgpt-exporter-regression-acceptance` is the second fixed operation. It
+accepts only an exact `source_ref` and `scope=all`; it preserves the original
+baseline/candidate assertions and independently sealed diagnostic decision.
+Neither operation accepts caller-selected runners, checkers, policies or skips.
 
 The installed `scripts/run-pipeline` takes `github-event EVENT_FILE`. It requires
 the fixed installed Grease/Ithon client and authenticated GitHub event context;
@@ -23,6 +28,12 @@ it is not an arbitrary-directory terminal generator. `deployment/client.json`
 is inactive. The candidate returns `DEPLOYMENT_INACTIVE` before token acquisition.
 See `deployment/README.md` for the unfulfilled activation boundary. Do not
 silently activate it or promote diagnostic qualification to deployment.
+
+The reconciled hosted workflow performs readiness only and returns BLOCKED
+before token acquisition. It no longer bootstraps the Python-2 development
+launcher or installs a client as a side effect of a request. Cat Food #131's
+eligible non-C++ runtime closure and authorized installed promotion are missing.
+This source reconciliation does not establish a working deployed public route.
 
 ## Existing generic execution
 

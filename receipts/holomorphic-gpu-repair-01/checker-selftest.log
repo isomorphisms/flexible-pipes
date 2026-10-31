@@ -1,0 +1,82 @@
+one-exact-0	PASS
+one-exact-1	PASS
+one-exact-2	PASS
+one-exact-3	PASS
+one-exact-4	PASS
+one-displaced-0	PASS
+one-displaced-1	PASS
+one-displaced-2	PASS
+one-displaced-3	PASS
+twentyfour-exact-0	PASS
+twentyfour-exact-1	PASS
+twentyfour-exact-2	PASS
+twentyfour-exact-3	PASS
+twentyfour-exact-4	PASS
+twentyfour-displaced-0	PASS
+twentyfour-displaced-1	PASS
+twentyfour-displaced-2	PASS
+twentyfour-displaced-3	PASS
+multiplicity-residual	PASS
+multiplicity-at-zero	PASS
+multiplicity-at-pole	PASS
+large-radius	PASS
+tiny-radius	PASS
+normalization-z-over-three	PASS
+large-q-small-divisor	PASS
+camera-0	PASS
+camera-1	PASS
+camera-2	PASS
+moving-0	PASS
+moving-1	PASS
+moving-2	PASS
+viewport-relative-motion	REJECTED	camera-1	SEMANTIC-PHASE
+missing-cancellation	REJECTED	one-exact-0	SEMANTIC-NONFINITE
+late-cancellation	REJECTED	one-exact-0	SEMANTIC-NONFINITE
+displaced-pair-reduction	REJECTED	one-displaced-0	SEMANTIC-CLASS-OR-MULTIPLICITY
+wrong-multiplicity	REJECTED	multiplicity-residual	SEMANTIC-CLASS-OR-MULTIPLICITY
+changed-normalization	REJECTED	one-exact-0	SEMANTIC-PHASE
+wrong-pole-count	REJECTED	one-exact-0	SEMANTIC-CLASS-OR-MULTIPLICITY
+wrong-phase-sign	REJECTED	one-exact-0	SEMANTIC-PHASE
+wrong-log-sign	REJECTED	one-exact-0	SEMANTIC-LOG-MODULUS
+divisor-disappears	REJECTED	large-q-small-divisor	SEMANTIC-PHASE
+changed-bytes-same-sidecar	REJECTED	PROVENANCE-SUBMITTED-BYTES
+swapped-asset	REJECTED	PROVENANCE-SUBMITTED-BYTES
+missing-provenance	REJECTED	PROVENANCE-MISSING-OR-DUPLICATE
+handwritten-fallback	REJECTED	PROVENANCE-FALLBACK
+driver-source-changed	REJECTED	PROVENANCE-DRIVER_READBACK_SHA256
+one_exact:0	PASS
+one_exact:1	PASS
+one_exact:2	PASS
+one_exact:3	PASS
+one_displaced:0	PASS
+one_displaced:1	PASS
+one_displaced:2	PASS
+one_displaced:3	PASS
+24_exact:0	PASS
+24_exact:1	PASS
+24_exact:2	PASS
+24_exact:3	PASS
+24_displaced:0	PASS
+24_displaced:1	PASS
+24_displaced:2	PASS
+24_displaced:3	PASS
+multiplicity:0	PASS
+multiplicity:1	PASS
+multiplicity:2	PASS
+multiplicity:3	PASS
+moving0:0	PASS
+moving0:1	PASS
+moving0:2	PASS
+moving0:3	PASS
+moving7_5:0	PASS
+moving7_5:1	PASS
+moving7_5:2	PASS
+moving7_5:3	PASS
+moving7_5_zoom:0	PASS
+moving7_5_zoom:1	PASS
+moving7_5_zoom:2	PASS
+moving7_5_zoom:3	PASS
+24_displaced_large:0	PASS
+24_displaced_small:0	PASS
+PASS GPU log checker fixtures; synthetic binary64 observations are not GPU execution
+PASS independent checker fixtures; producer/GPU/emulator/physical acceptance NOT_RUN

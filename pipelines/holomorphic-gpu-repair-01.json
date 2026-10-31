@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "name": "holomorphic-gpu-repair-01",
+  "description": "Existing HOLO-GPU-REPAIR-01 envelope: genuine host math/checker execution through Kitchen/Grease/Ike; fail closed at unavailable generated/physical boundaries.",
+  "parameters": {
+    "kitchen_recipe": { "required": true, "pattern": "/.+/tasks/holomorphic-gpu-repair/6\\.grease" },
+    "context": { "required": true, "pattern": "/.+" }
+  },
+  "required_stages": ["job-envelope", "source-preflight", "retained-oracle", "independent-checker", "producer-field", "independent-field", "compiler-bootstrap", "compiler-api", "generated-compiler", "generated-binding"],
+  "stages": [
+    { "kind": "command", "name": "job-envelope", "argv": ["sha256sum", "tasks/holomorphic-gpu-repair/assignment.txt"], "cwd": "." },
+    { "kind": "command", "name": "source-preflight", "argv": ["grease", "{{kitchen_recipe}}", "preflight", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "retained-oracle", "argv": ["grease", "{{kitchen_recipe}}", "retained-oracle", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "independent-checker", "argv": ["grease", "{{kitchen_recipe}}", "independent-checker", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "producer-field", "argv": ["grease", "{{kitchen_recipe}}", "producer-field", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "independent-field", "argv": ["grease", "{{kitchen_recipe}}", "independent-field", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "compiler-bootstrap", "argv": ["grease", "{{kitchen_recipe}}", "compiler-bootstrap", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "compiler-api", "argv": ["grease", "{{kitchen_recipe}}", "compiler-api", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "generated-compiler", "argv": ["grease", "{{kitchen_recipe}}", "generated-compiler", "{{context}}"], "cwd": "." },
+    { "kind": "command", "name": "generated-binding", "argv": ["grease", "{{kitchen_recipe}}", "generated-binding", "{{context}}"], "cwd": "." }
+  ]
+}

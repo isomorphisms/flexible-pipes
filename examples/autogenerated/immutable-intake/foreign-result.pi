@@ -1,0 +1,5 @@
+"""Preserved rejected foreign-result concatenation; not a passing example."""
+import subprocess
+from builtins import ValueError
+child ∈ object ← subprocess.run(["/usr/bin/false"], capture_output=True)
+raise ValueError("FIXTURE_GIT: " + child.stderr.decode())

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "name": "leray-exact-01",
+  "description": "Reduced exact periodic flow; pinned Kitchen/Ike C11 execution then independent MOON/AI-CI recomputation. Source integration remains separate from production and physical acceptance.",
+  "parameters": {
+    "fp": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "compiler": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    },
+    "evidence": {
+      "required": true,
+      "pattern": "^/[^\\n]+$"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "source-artifact",
+    "kitchen-ike-producer-independent-acceptance"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/leray-exact-01/assignment.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-artifact",
+      "argv": [
+        "sha256sum",
+        "-c",
+        "tasks/leray-exact-01/source-artifact.sha256"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-producer-independent-acceptance",
+      "argv": [
+        "timeout",
+        "--kill-after=10s",
+        "10m",
+        "{{grease}}",
+        "scripts/leray-exact-01.grease",
+        "{{fp}}",
+        "{{compiler}}",
+        "{{grease}}",
+        "{{evidence}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

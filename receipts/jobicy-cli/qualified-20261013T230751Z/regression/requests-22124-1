@@ -1,0 +1,6 @@
+GET /api/v2/remote-jobs?get=industries HTTP/1.0
+Host: 127.0.0.1:22124
+Connection: close
+Accept-Encoding: identity
+User-Agent: idric-net/0.1
+

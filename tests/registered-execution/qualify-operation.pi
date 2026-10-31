@@ -19,15 +19,22 @@ workspace ∈ str ← argv[1]
 output ∈ str ← argv[2]
 Path(output).mkdir(mode=493, parents=True, exist_ok=False)
 Path(output + "/attempt.txt").write_text("qualification started; no deployment authority\n")
+uid_map ∈ list[str] ← Path("/proc/self/uid_map").read_text().split()
+if len(uid_map) == 3 and uid_map[2] == "1":
+    Path(output + "/status.txt").write_text("BLOCKED SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace\nKitchen generation and public operation execution NOT_RUN.\n")
+    print("BLOCKED SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace")
+    sys.exit(2)
+if len(argv) != 7:
+    raise ValueError("QUALIFIED_RUNTIME_INPUTS_REQUIRED: no historical scratch-path defaults")
 fp ∈ str ← workspace + "/flexible-pipes"
 ithon ∈ str ← workspace + "/ithon"
 kitchen ∈ str ← workspace + "/kitchen"
 aici ∈ str ← workspace + "/ai-ci"
 catfood ∈ str ← workspace + "/catfood"
-grease_source ∈ str ← argv[3] if len(argv) > 3 else "/workspace/scratch/af185923d929/grease/source"
-grease_launcher ∈ str ← argv[4] if len(argv) > 4 else "/workspace/scratch/af185923d929/runtime/grease"
-python ∈ str ← argv[5] if len(argv) > 5 else "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
-grease_python ∈ str ← argv[6] if len(argv) > 6 else grease_source + "/Python-2.7.13/python"
+grease_source ∈ str ← argv[3]
+grease_launcher ∈ str ← argv[4]
+python ∈ str ← argv[5]
+grease_python ∈ str ← argv[6]
 grease_entry ∈ str ← grease_source + "/bin/oils_for_unix.py"
 ithon_command ∈ list[str] ← [python, ithon + "/ithon_host.py"]
 environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1", "GIT_NO_REPLACE_OBJECTS": "1"}

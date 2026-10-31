@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "name": "geometry-ray-open",
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "runner-identity"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/geometry-ray/SUN-GEO-RAY-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "runner-identity",
+      "argv": [
+        "sha256sum",
+        "scripts/run-pipeline-legacy.py"
+      ],
+      "cwd": "."
+    }
+  ]
+}
+

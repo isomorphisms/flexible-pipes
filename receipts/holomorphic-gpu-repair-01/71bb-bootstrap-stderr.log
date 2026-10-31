@@ -1,0 +1,14 @@
+      rg --files --hidden --no-ignore -0 "$idric_build/_/build/exec" | sort -z | xargs -0 sha256sum > "$output/idric-payload.sha256"
+      ^~
+/home/runner/work/holomorphic/holomorphic/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease:188: Command 'rg' not found (OILS-ERR-100)
+/home/runner/work/holomorphic/holomorphic/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease:188: errexit PID 11032: Command failed with status 127
+      rg --files --hidden --no-ignore -0 "$idric_build/_/build/exec" | sort -z | xargs -0 sha256sum > "$output/idric-payload.sha256"
+      ^~
+/home/runner/work/holomorphic/holomorphic/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease:188: errexit PID 7114: Pipeline failed with status 127
+  "$[ENV.HOLO_GREASE]" "$[ENV.HOLO_KITCHEN_RECIPE]" recipe-bootstrap "$[ENV.HOLO_CONTEXT]"
+  ^
+/tmp/ike-recipe-dAk8xB:1: errexit PID 7113: Command failed with status 127
+ike: recipe for 'compiler-bootstrap' failed with status 127
+  env HOLO_GREASE="$grease" HOLO_KITCHEN_RECIPE="$recipe" HOLO_CONTEXT="$context" \
+  ^~~
+/home/runner/work/holomorphic/holomorphic/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/5.grease:278: errexit PID 6950: Command failed with status 1

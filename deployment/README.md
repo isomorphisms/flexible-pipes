@@ -1,13 +1,20 @@
 The implementation is a candidate; no publishing authority is activated.
 
-The maintained workflow runs on hosted Ubuntu. It installs only a fixed
-transport client and its checked Ithon/Grease frontend. The committed client
+The maintained workflow runs readiness checks on hosted Ubuntu without installing
+a client or bootstrapping the historical Python-2 Grease launcher. The committed client
 configuration is inactive and produces a reviewable BLOCKED result before
 requesting an OIDC token. The separate `registered-service.pi` TLS supervisor
 owns the execution registry, admission checks and accepted output; a job runner
 never receives that authority. `flexible-pipes.service` and
 `transport-contract.json` describe the concrete service candidate. No service
 unit is installed or enabled by qualification.
+
+BC-FP01-S01 preserves the old Kitchen workflow under
+`registered-operation-legacy-qualification.yml` as historical, inactive source.
+Its source-development runtime does not establish the eligible non-C++ default
+required by [Cat Food #131](https://github.com/isomorphisms/catfood/issues/131).
+The active source-check workflow deliberately ends with BLOCKED readiness;
+passing parser/material fixtures cannot replace full Kitchen worker acceptance.
 
 The TLS adapter tests execute the real Kitchen operation through both routes
 and verify the delivered bytes. Disposable RSA fixtures exercise the exact

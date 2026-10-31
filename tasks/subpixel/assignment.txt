@@ -1,0 +1,13 @@
+SUBPIXEL-REGISTER-01 — Qualify the current subpixel baseline through Flexible Pipes
+
+Origin: https://github.com/isomorphisms/flexible-pipes/issues/120
+Next implementation: https://github.com/isomorphisms/flexible-pipes/issues/145
+
+Execute the current renamed 3×3/5×5 producer at
+efff5fbe71d8722d713282c478dbdb52fa280f9b through Kitchen and Ike.
+Run the separately pinned ai-ci rational coverage/alpha oracle, four compiled
+source mutants and strict receipt checker. Retain exact sources, stage receipts,
+the actual PPM, failure logs and final digests. Fail before build on changed
+materials or source revisions. A baseline pass does not complete whole-curve
+subdivision/selection, authorize merging, prove trusted deployment, or qualify
+physical A1/C67 behavior. No model worker is dispatched by this deterministic job.
