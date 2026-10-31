@@ -1,3 +1,3 @@
-# repository	contract	recipe	a1_apk	c67_apk
+# repository	contract	recipe	arm32_apk	arm64_apk
 isomorphismes/wegert	_/build/ci/android-application.tsv	_/build/nativeactivity/build-paired.sh	wegert-armeabi-v7a.apk	wegert-arm64-v8a.apk
 isomorphisms/fastchat	ci/android-application.tsv	scripts/build-paired.sh	fastchat-armeabi-v7a.apk	fastchat-arm64-v8a.apk

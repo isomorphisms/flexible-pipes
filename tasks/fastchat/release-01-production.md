@@ -55,3 +55,18 @@ application DEX. The exact run, artifact, signer and source identities are in
 These are build and hosted semantic results. Shared production admission,
 consumer-account login, real API-provider access, installed update retention,
 physical UI behavior and handset performance are not inferred from them.
+
+## October 31 successor: TAB_P10 candidate, production blocked
+
+TAB_P10 is the active physical Android target. A1/C67 retain historical
+receipts. Their ARM32/ARM64 source and signing lanes are preserved, but the
+shared producer now requires a separate, canonical `android-plan-tablet.tsv`.
+It replays this plan against the approved Cat Food checkout, checks exact
+FastChat source and tablet ABI eligibility, and only then continues the
+existing AICI paired-ABI verification. AICI's phone/C67 rows are not
+physical tablet acceptance.
+
+A Cat Food planning candidate is not approved main policy. This work still
+cannot prove tablet inspection/installation/launch, signed update retention,
+live provider behavior, or production admission. Existing source receipts
+remain historical for their original exact commits; successors need new checks.

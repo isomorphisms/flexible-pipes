@@ -38,3 +38,34 @@ fi
 grep -Fq '"status": "FAIL"' "$tmp/pipeline.log"
 grep -Fq '"failed_stage": "registered-build-and-companion-artifact-gate"' "$tmp/pipeline.log"
 printf '%s\n' 'Flexible Pipes Android registered producer negative fixtures: PASS'
+
+# TAB_P10 gate: synthetic source/ABI checks do not prove installed behavior.
+source_sha=1111111111111111111111111111111111111111
+{
+    printf 'schema\tcatfood-android-build-plan-v1\n'
+    printf 'source_sha\t%s\n' "$source_sha"
+    printf 'requested_target\ttablet\n'
+    printf 'package_id\torg.isomorphisms.fastchat.diskstreaming.arena\n'
+    printf 'target\tdevice\tabi\tobligation\tacceptance\n'
+    printf 'tablet\tTAB_P10\tarm64-v8a\trequired\tnot_run\n'
+} > "$tmp/tablet-plan.tsv"
+bash "$root/scripts/fastchat-tablet-plan-gate.sh" "$tmp/tablet-plan.tsv" "$source_sha"
+reject_tablet() {
+    if bash "$root/scripts/fastchat-tablet-plan-gate.sh" "$tmp/tablet-plan.tsv" "$source_sha" >"$tmp/out" 2>"$tmp/err"; then
+        echo 'bad tablet plan was accepted' >&2; exit 1
+    fi
+}
+cp "$tmp/tablet-plan.tsv" "$tmp/valid-plan.tsv"
+sed 's/TAB_P10/MIRO_C67/' "$tmp/valid-plan.tsv" > "$tmp/tablet-plan.tsv"
+reject_tablet
+sed 's/arm64-v8a/armeabi-v7a/' "$tmp/valid-plan.tsv" > "$tmp/tablet-plan.tsv"
+reject_tablet
+sed 's/not_run/PASS/' "$tmp/valid-plan.tsv" > "$tmp/tablet-plan.tsv"
+reject_tablet
+sed 's/source_sha/source_SHA/' "$tmp/valid-plan.tsv" > "$tmp/tablet-plan.tsv"
+reject_tablet
+sed 's/requested_target.*tablet/requested_target  c67/' "$tmp/valid-plan.tsv" > "$tmp/tablet-plan.tsv"
+reject_tablet
+rm "$tmp/tablet-plan.tsv"
+reject_tablet
+printf '%s\n' 'PASS FastChat tablet refusal fixtures (no physical/signer acceptance)'

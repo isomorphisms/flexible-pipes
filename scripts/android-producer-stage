@@ -34,7 +34,7 @@ registered_android() {
         $1==repository {count++; result=$0}
         END {if(count!=1) exit 2; print result}
     ' "$registry") || fail 'application not uniquely registered'
-    IFS=$'\t' read -r registered contract_path recipe_path a1_file c67_file <<< "$row"
+    IFS=$'\t' read -r registered contract_path recipe_path arm32_file arm64_file <<< "$row"
     [[ "$registered" == "$FP_ANDROID_REPOSITORY" ]] || fail 'invalid registration identity'
     for rel in "$contract_path" "$recipe_path"; do
         [[ "$rel" != /* && "$rel" != *../* && "$rel" != */../* ]] ||
@@ -44,8 +44,8 @@ registered_android() {
         git -C "$FP_ANDROID_APP_ROOT" diff --quiet HEAD -- "$rel" ||
             fail "registered application source changed: $rel"
     done
-    [[ "$a1_file" =~ ^[A-Za-z0-9_.-]+\.apk$ &&
-       "$c67_file" =~ ^[A-Za-z0-9_.-]+\.apk$ ]] ||
+    [[ "$arm32_file" =~ ^[A-Za-z0-9_.-]+\.apk$ &&
+       "$arm64_file" =~ ^[A-Za-z0-9_.-]+\.apk$ ]] ||
         fail 'unsafe registered APK artifact names'
     actual_sha=$(git -C "$FP_ANDROID_APP_ROOT" rev-parse HEAD) ||
         fail 'application checkout is not Git'
@@ -75,15 +75,32 @@ registered_android() {
     export ANDROID_NDK_REPO="$FP_ANDROID_NDK_CHECKOUT"
     export WEGERT_ICK_OBJECT="$FP_ANDROID_ICK_OBJECT"
     bash "$FP_ANDROID_APP_ROOT/$recipe_path" "$FP_ANDROID_OUTPUT_DIR"
-    for artifact in "$a1_file" "$c67_file"; do
+    for artifact in "$arm32_file" "$arm64_file"; do
         [[ -s "$FP_ANDROID_OUTPUT_DIR/$artifact" ]] ||
             fail "required paired APK missing: $artifact"
     done
+    if [[ "$registered" == isomorphisms/fastchat ]]; then
+        # Current AICI uses historical phone/C67 ABI mapping, not physical evidence.
+        # Replay a distinct tablet plan against the exact approved Cat Food policy.
+        tablet_plan="$FP_ANDROID_OUTPUT_DIR/android-plan-tablet.tsv"
+        [[ -s "$tablet_plan" ]] || fail 'FastChat TAB_P10 plan unavailable'
+        replay=$(mktemp)
+        trap 'rm -f "$replay"' EXIT
+        sh "$FP_CATFOOD_CHECKOUT/catfood" plan-android-build \
+            "$FP_ANDROID_APP_ROOT/$contract_path" tablet "$FP_ANDROID_SOURCE_SHA" > "$replay" ||
+            fail 'Cat Food does not admit independent TAB_P10 target'
+        cmp -s "$replay" "$tablet_plan" ||
+            fail 'FastChat tablet plan differs from exact approved Cat Food policy'
+        bash "$root/scripts/fastchat-tablet-plan-gate.sh" "$tablet_plan" "$FP_ANDROID_SOURCE_SHA" ||
+            fail 'FastChat tablet plan failed independent source/ABI validation'
+        [[ -s "$FP_ANDROID_OUTPUT_DIR/$arm64_file" ]] ||
+            fail 'FastChat ARM64 candidate missing'
+    fi
     map="$FP_ANDROID_OUTPUT_DIR/apk-map.tsv"
     {
         printf 'target\tapk\n'
-        printf 'phone\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$a1_file"
-        printf 'c67\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$c67_file"
+        printf 'phone\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$arm32_file"
+        printf 'c67\t%s\n' "$FP_ANDROID_OUTPUT_DIR/$arm64_file"
     } > "$map"
     export AICI_COMPANION_RECEIPT="$FP_ANDROID_OUTPUT_DIR/aici-companion.receipt.tsv"
     bash "$FP_AICI_CHECKOUT/android-companion/verify.sh" \
