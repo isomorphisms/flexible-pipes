@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'scripts/install-client.pi'
-      - 'scripts/installed-client.pi'
+      - 'scripts/installed_client.pi'
       - 'scripts/github-event.pi'
       - 'tests/registered-execution/qualify-installed-boundary.pi'
       - '.github/workflows/bc-fp01-s02-install.yml'
