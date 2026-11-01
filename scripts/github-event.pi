@@ -35,18 +35,25 @@ except Exception as failure:
     Path(directory + "/result.json").write_text(json.dumps(blocked, sort_keys=True))
     print(json.dumps(blocked))
     sys.exit(2)
-job_request ∈ str ← environment["ACTIONS_ID_TOKEN_REQUEST_URL"]
-if not job_request.startswith("https://"):
-    raise ValueError("ADMISSION_TRANSPORT")
-job_request ← job_request + "&audience=flexible-pipes-registered-v1"
-authorization ∈ str ← "Bearer " + environment["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]
-query ∈ object ← urllib.request.Request(job_request, headers={"Authorization": authorization})
-with urllib.request.urlopen(query, timeout=15) as response:
-    token_payload ∈ bytes ← response.read(32769)
-if len(token_payload) > 32768:
-    raise ValueError("ADMISSION_SIZE")
-token_record ∈ dict[str, object] ← json.loads(token_payload)
-mapped ∈ dict[str, object] ← envelope(event, environment, str(token_record["value"]))
+try:
+    job_request ∈ str ← environment["ACTIONS_ID_TOKEN_REQUEST_URL"]
+    if not job_request.startswith("https://"):
+        raise ValueError("ADMISSION_TRANSPORT")
+    job_request ← job_request + "&audience=flexible-pipes-registered-v1"
+    authorization ∈ str ← "Bearer " + environment["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]
+    query ∈ object ← urllib.request.Request(job_request, headers={"Authorization": authorization})
+    with urllib.request.urlopen(query, timeout=15) as response:
+        token_payload ∈ bytes ← response.read(32769)
+    if len(token_payload) > 32768:
+        raise ValueError("ADMISSION_SIZE")
+    token_record ∈ dict[str, object] ← json.loads(token_payload)
+    mapped ∈ dict[str, object] ← envelope(event, environment, str(token_record["value"]))
+except Exception:
+    Path(directory).mkdir(mode=448, parents=True, exist_ok=False)
+    rejected ∈ dict[str, object] ← {"status": "BLOCKED", "blocker": "OIDC_ADMISSION_UNAVAILABLE", "artifacts": [], "acceptance_scope": "client-oidc", "excluded_claims": ["trusted-execution", "deployment"]}
+    Path(directory + "/result.json").write_text(json.dumps(rejected, sort_keys=True))
+    print(json.dumps(rejected))
+    sys.exit(2)
 result ∈ dict[str, object] ← submit(str(client["endpoint"]), str(client["ca_certificate"]), str(mapped["route"]), dict(mapped["envelope"]), directory, dict(client["accepted_release"]))
 print(json.dumps({"status": result["status"], "export": directory}))
 sys.exit(0 if result["status"] == "PASS" else 1)
