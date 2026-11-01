@@ -156,22 +156,24 @@ def submit(url ∈ str, certificate ∈ str, route ∈ str, envelope ∈ dict[st
     checked_release(expected_release)
     if not url.startswith("https://"):
         raise ValueError("UNQUALIFIED_TRANSPORT")
-    context ∈ object ← ssl.create_default_context(cafile=certificate if certificate != "" else None)
     encoded ∈ str ← json.dumps({"route": route, "envelope": envelope}, sort_keys=True)
     if len(encoded.encode()) > 49152:
         raise ValueError("SUBMISSION_BOUND_EXCEEDED")
-    request ∈ object ← urllib.request.Request(url, data=encoded.encode(), headers={"Content-Type": "application/json"}, method="POST")
-    with urllib.request.urlopen(request, context=context, timeout=140) as response:
-        data ∈ bytes ← response.read(12582913)
-    if len(data) > 12582912:
-        raise ValueError("RESULT_BOUND_EXCEEDED")
     Path(output).mkdir(mode=448, parents=True, exist_ok=False)
-    # A server claim is evidence to check, never the client's accepted result.
-    Path(output + "/service-response.json").write_bytes(data)
     empty ∈ list[dict[str, object]] ← []
     pending ∈ dict[str, object] ← {"status": "PENDING", "artifacts": empty, "acceptance_scope": "client-delivery"}
     Path(output + "/result.json").write_text(json.dumps(pending, sort_keys=True))
     try:
+        # A failed TLS handshake, broken connection or oversized response must
+        # leave a durable non-PASS receipt, not an absent result directory.
+        context ∈ object ← ssl.create_default_context(cafile=certificate if certificate != "" else None)
+        request ∈ object ← urllib.request.Request(url, data=encoded.encode(), headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(request, context=context, timeout=140) as response:
+            data ∈ bytes ← response.read(12582913)
+        if len(data) > 12582912:
+            raise ValueError("RESULT_BOUND_EXCEEDED")
+        # A service claim is evidence to check, never the client's accepted result.
+        Path(output + "/service-response.json").write_bytes(data)
         decoded ∈ dict[str, object] ← json.loads(data, object_pairs_hook=unique_object)
         if set(decoded) != set(["result", "delivery"]):
             raise ValueError("RESULT_RESPONSE_FIELDS")
