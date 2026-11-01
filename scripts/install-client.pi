@@ -55,7 +55,7 @@ def digest(path ∈ str) → str:
 
 source_commit ∈ str ← revision(fp)
 ithon_commit ∈ str ← revision(ithon)
-scripts ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed-client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
+scripts ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed_client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
 ithon_files ∈ list[str] ← ["ithon_host.py", "Lib/ithon_static.py", "Lib/ithon_frontend.py", "Lib/ithon_run.py"]
 for relative in scripts:
     payload ∈ bytes ← Path(fp + "/" + relative).read_bytes()
