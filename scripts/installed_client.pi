@@ -33,7 +33,10 @@ def protected(path ∈ str, symlink_allowed ∈ bool) → None:
     if not selected.is_absolute() or selected.is_symlink() and not symlink_allowed:
         raise ValueError("CLIENT_PATH_UNPROTECTED")
     resolved ∈ Path ← selected.resolve(strict=True)
-    for node in [resolved] + list(resolved.parents):
+    ancestors ∈ list[Path] ← list(resolved.parents)
+    nodes ∈ list[Path] ← [resolved]
+    nodes.extend(ancestors)
+    for node in nodes:
         info ∈ object ← node.stat()
         owner ∈ int ← int(info.st_uid)
         mode ∈ int ← int(info.st_mode)
