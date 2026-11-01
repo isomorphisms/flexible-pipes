@@ -126,7 +126,8 @@ command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py
 again ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=30)
 again_code ∈ int ← int(again.returncode)
 again_stderr ∈ bytes ← again.stderr
-if again_code == 0 or b"EXISTING_CLIENT_PRESERVED" not in again_stderr or sha(root + "/scripts/github-event.pi") != installed_source:
+again_detail ∈ str ← again_stderr.decode(errors="replace")
+if again_code == 0 or "EXISTING_CLIENT_PRESERVED" not in again_detail or sha(root + "/scripts/github-event.pi") != installed_source:
     raise ValueError("S02_REINSTALL_OVERWROTE_CLIENT")
 cases.append({"case": "immutable-install-retry", "status": "PASS"})
 # Readiness must reject without an ACTIONS token, even in a fresh environment.
