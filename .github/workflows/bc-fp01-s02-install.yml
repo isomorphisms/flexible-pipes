@@ -1,0 +1,55 @@
+name: BC-FP01-S02 disposable installed-client qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/install-client.pi'
+      - 'scripts/installed_client.pi'
+      - 'scripts/github-event.pi'
+      - 'scripts/registered-execution.pi'
+      - 'tests/registered-execution/qualify-cache.pi'
+      - 'tests/registered-execution/qualify-installed-boundary.pi'
+      - '.github/workflows/bc-fp01-s02-install.yml'
+  push:
+    branches: [sun/bc-fp01-s02]
+permissions:
+  contents: read
+jobs:
+  installed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: flexible-pipes
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: ithon
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install exact candidate bytes into two isolated disposable roots and test rejection
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-checked.jsonl
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-boundary.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-installed'
+      - name: Reject accepted replay and stale accepted artifacts
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-cache.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-cache'
+      - name: Reuse the signed issuer, audience, actor and route rejection controls
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-admission.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-admission.json'
+      - name: Reuse exact-byte delivery and partial-exposure rejection controls
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-delivery.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-delivery'
+      - name: Preserve raw qualification and source-check receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bc-fp01-s02-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/s02-installed/result.json
+            ${{ runner.temp }}/s02-checked.jsonl
+            ${{ runner.temp }}/s02-cache/checks.json
+            ${{ runner.temp }}/s02-admission.json
+            ${{ runner.temp }}/s02-delivery/
+          if-no-files-found: warn

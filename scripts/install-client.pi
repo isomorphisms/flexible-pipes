@@ -1,47 +1,109 @@
-"""Install a fixed, inactive transport client; never activate execution authority."""
+"""Stage a fixed inactive client/supervisor source closure.
+
+The qualified operator, not this candidate installer, owns release promotion.
+The explicit qualify prefix changes only disposable fixture locations.
+"""
 import os
 import sys
 import shutil
 import hashlib
 import json
+import subprocess
 import ithon_frontend
 from pathlib import Path
 from builtins import ValueError, list, dict
+
 argv ∈ list[str] ← sys.argv
-workspace ∈ str ← argv[1]
-launcher ∈ str ← argv[2]
+fixture ∈ bool ← len(argv) == 5 and argv[1] == "qualify"
+if not fixture and len(argv) != 3:
+    raise ValueError("CLIENT_INSTALL_ARGUMENTS")
+workspace ∈ str ← argv[2] if fixture else argv[1]
+launcher ∈ str ← argv[3] if fixture else argv[2]
+prefix ∈ str ← argv[4] if fixture else ""
+if fixture:
+    selected ∈ Path ← Path(prefix)
+    if not selected.is_absolute() or str(selected.resolve()) == "/" or not selected.is_dir() or selected.is_symlink():
+        raise ValueError("CLIENT_FIXTURE_ROOT")
+uid ∈ int ← os.getuid()
+if not fixture and uid != 0:
+    raise ValueError("CLIENT_INSTALL_REQUIRES_ADMINISTRATIVE_CONTEXT")
+if not Path(launcher).is_absolute() or not Path(launcher).is_file():
+    raise ValueError("CLIENT_LAUNCHER_REQUIRED")
 ithon ∈ str ← workspace + "/ithon"
 fp ∈ str ← workspace + "/flexible-pipes"
-uid ∈ int ← os.getuid()
-if uid != 0:
-    raise ValueError("CLIENT_INSTALL_REQUIRES_ADMINISTRATIVE_CONTEXT")
-destination ∈ str ← "/opt/flexible-pipes/current"
-exists ∈ bool ← Path(destination).exists()
-if exists:
+destination ∈ str ← prefix + "/opt/flexible-pipes/current"
+runtime ∈ str ← prefix + "/opt/catfood"
+configuration ∈ str ← prefix + "/etc/flexible-pipes/client.json"
+export ∈ str ← prefix + "/var/lib/flexible-pipes/export"
+if Path(destination).exists() or Path(runtime + "/bin/grease").exists():
     raise ValueError("EXISTING_CLIENT_PRESERVED")
-files ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi"]
-for relative in files:
+
+def revision(repo ∈ str) → str:
+    observed ∈ object ← subprocess.run(["/usr/bin/git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, timeout=10)
+    stdout ∈ bytes ← observed.stdout
+    commit ∈ str ← stdout.decode().strip()
+    exit_code ∈ int ← int(observed.returncode)
+    if exit_code != 0 or len(commit) != 40:
+        raise ValueError("CLIENT_SOURCE_REVISION")
+    return commit
+
+def checked_blob(repo ∈ str, commit ∈ str, relative ∈ str, payload ∈ bytes) → None:
+    command ∈ list[str] ← ["/usr/bin/git", "-C", repo, "show", commit + ":" + relative]
+    observed ∈ object ← subprocess.run(command, capture_output=True, timeout=10)
+    exit_code ∈ int ← int(observed.returncode)
+    stdout ∈ bytes ← observed.stdout
+    if exit_code != 0 or stdout != payload:
+        raise ValueError("CLIENT_UNPUBLISHED_SOURCE: " + relative)
+
+def digest(path ∈ str) → str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+source_commit ∈ str ← revision(fp)
+ithon_commit ∈ str ← revision(ithon)
+scripts ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed_client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
+ithon_files ∈ list[str] ← ["ithon_host.py", "Lib/ithon_static.py", "Lib/ithon_frontend.py", "Lib/ithon_run.py"]
+for relative in scripts:
     payload ∈ bytes ← Path(fp + "/" + relative).read_bytes()
+    checked_blob(fp, source_commit, relative, payload)
     if relative.endswith(".pi"):
         checked ∈ object ← ithon_frontend.check_source(payload.decode(), relative)
+for relative in ithon_files:
+    payload ← Path(ithon + "/" + relative).read_bytes()
+    checked_blob(ithon, ithon_commit, relative, payload)
 Path(destination + "/scripts").mkdir(mode=493, parents=True)
-for relative in files:
+source_hashes ∈ dict[str, str] ← {}
+for relative in scripts:
     shutil.copyfile(fp + "/" + relative, destination + "/" + relative)
     os.chmod(destination + "/" + relative, 365 if relative == "scripts/run-pipeline" else 292)
-runtime ∈ str ← "/opt/catfood"
-Path(runtime + "/bin").mkdir(mode=493, parents=True, exist_ok=True)
-Path(runtime + "/ithon/Lib").mkdir(mode=493, parents=True, exist_ok=False)
-for relative in ["ithon_host.py", "Lib/ithon_static.py", "Lib/ithon_frontend.py", "Lib/ithon_run.py"]:
-    shutil.copyfile(ithon + "/" + relative, runtime + "/ithon/" + relative)
-    os.chmod(runtime + "/ithon/" + relative, 292)
+    source_hashes[relative] ← digest(destination + "/" + relative)
+Path(runtime + "/bin").mkdir(mode=493, parents=True)
+Path(runtime + "/ithon/Lib").mkdir(mode=493, parents=True)
+runtime_hashes ∈ dict[str, str] ← {}
+for relative in ithon_files:
+    copied ∈ str ← runtime + "/ithon/" + relative
+    shutil.copyfile(ithon + "/" + relative, copied)
+    os.chmod(copied, 292)
+    runtime_hashes["ithon/" + relative] ← digest(copied)
 os.symlink(launcher, runtime + "/bin/grease")
-Path(runtime + "/bin/ithon").write_text("#!/opt/catfood/bin/grease\nexec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 /opt/catfood/ithon/ithon_host.py \"$@\"\n")
+ithon_launcher ∈ str ← "#!/opt/catfood/bin/grease\nexec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 /opt/catfood/ithon/ithon_host.py \"$@\"\n"
+Path(runtime + "/bin/ithon").write_text(ithon_launcher)
 os.chmod(runtime + "/bin/ithon", 365)
+runtime_hashes["bin/ithon"] ← digest(runtime + "/bin/ithon")
+manifest ∈ dict[str, object] ← {"schema_version": 1, "source_commit": source_commit, "ithon_commit": ithon_commit, "source_files": source_hashes, "runtime_files": runtime_hashes, "grease_sha256": digest(launcher), "python_sha256": digest("/usr/bin/python3"), "state": "candidate-unpromoted"}
+manifest_path ∈ str ← destination + "/manifest.json"
+Path(manifest_path).write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")))
+os.chmod(manifest_path, 292)
 client ∈ dict[str, object] ← json.loads(Path(fp + "/deployment/client.json").read_bytes())
-Path("/etc/flexible-pipes").mkdir(mode=493, exist_ok=True)
-Path("/etc/flexible-pipes/client.json").write_text(json.dumps(client, sort_keys=True))
-os.chmod("/etc/flexible-pipes/client.json", 292)
-Path("/var/lib/flexible-pipes/export").mkdir(mode=493, parents=True, exist_ok=False)
-# Untrusted delivery copies; the separate supervisor owns accepted storage.
-os.chmod("/var/lib/flexible-pipes/export", 1023)
-print(json.dumps({"state": client["state"], "authority": "unprivileged-transport-only", "client_sha256": hashlib.sha256(Path(destination + "/scripts/github-event.pi").read_bytes()).hexdigest()}))
+client["state"] ← "inactive"
+client["endpoint"] ← ""
+client["ca_certificate"] ← ""
+empty_release ∈ dict[str, object] ← {}
+client["accepted_release"] ← empty_release
+client.pop("ca_sha256", None)
+client.pop("accepted_install_sha256", None)
+Path(configuration).parent.mkdir(mode=493, parents=True, exist_ok=True)
+Path(configuration).write_text(json.dumps(client, sort_keys=True))
+os.chmod(configuration, 292)
+Path(export).mkdir(mode=493, parents=True)
+os.chmod(export, 1023 if not fixture else 448)
+print(json.dumps({"status": "CANDIDATE_INSTALLED", "state": "inactive", "authority": "unprivileged-transport-only", "scope": "disposable-fixture" if fixture else "unpromoted-installed-candidate", "source_commit": source_commit, "ithon_commit": ithon_commit, "manifest_sha256": digest(manifest_path)}, sort_keys=True))
