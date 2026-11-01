@@ -40,14 +40,16 @@ if Path(destination).exists() or Path(runtime + "/bin/grease").exists():
 def revision(repo ∈ str) → str:
     observed ∈ object ← subprocess.run(["/usr/bin/git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, timeout=10)
     commit ∈ str ← observed.stdout.decode().strip()
-    if observed.returncode != 0 or len(commit) != 40:
+    exit_code ∈ int ← int(observed.returncode)
+    if exit_code != 0 or len(commit) != 40:
         raise ValueError("CLIENT_SOURCE_REVISION")
     return commit
 
 def checked_blob(repo ∈ str, commit ∈ str, relative ∈ str, payload ∈ bytes) → None:
     command ∈ list[str] ← ["/usr/bin/git", "-C", repo, "show", commit + ":" + relative]
     observed ∈ object ← subprocess.run(command, capture_output=True, timeout=10)
-    if observed.returncode != 0 or observed.stdout != payload:
+    exit_code ∈ int ← int(observed.returncode)
+    if exit_code != 0 or observed.stdout != payload:
         raise ValueError("CLIENT_UNPUBLISHED_SOURCE: " + relative)
 
 def digest(path ∈ str) → str:
