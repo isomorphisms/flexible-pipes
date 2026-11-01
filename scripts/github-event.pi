@@ -7,6 +7,8 @@ from pathlib import Path
 from builtins import dict, list, ValueError
 from delivery import submit
 from event_adapter import envelope
+from installed_client import preflight
+from builtins import Exception
 argv ∈ list[str] ← sys.argv
 environment ∈ dict[str, str] ← os.environ
 readiness ∈ bool ← len(argv) == 4 and argv[1] == "readiness"
@@ -19,7 +21,20 @@ if readiness or client["state"] != "active":
     Path(directory + "/result.json").write_text(json.dumps(blocked, sort_keys=True))
     print(json.dumps(blocked))
     sys.exit(2)
-event ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+# No hosted token is acquired until installed bytes, CA, selected endpoint,
+# promoted authority, canonical control revision and route shape all agree.
+try:
+    admitted_install ∈ dict[str, object] ← preflight(client, client_path, "/opt/flexible-pipes/current", "/opt/catfood", True)
+    if environment["GITHUB_SHA"] != admitted_install["control_commit"]:
+        raise ValueError("CLIENT_STALE_WORKFLOW")
+    event ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
+    preliminary ∈ dict[str, object] ← envelope(event, environment, "")
+except Exception as failure:
+    Path(directory).mkdir(mode=448, parents=True, exist_ok=False)
+    blocked ∈ dict[str, object] ← {"status": "BLOCKED", "blocker": str(failure), "artifacts": [], "acceptance_scope": "client-pre-token", "excluded_claims": ["trusted-execution", "deployment"]}
+    Path(directory + "/result.json").write_text(json.dumps(blocked, sort_keys=True))
+    print(json.dumps(blocked))
+    sys.exit(2)
 job_request ∈ str ← environment["ACTIONS_ID_TOKEN_REQUEST_URL"]
 if not job_request.startswith("https://"):
     raise ValueError("ADMISSION_TRANSPORT")
