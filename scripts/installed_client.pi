@@ -31,7 +31,9 @@ def protected(path ∈ str, symlink_allowed ∈ bool) → None:
     resolved ∈ Path ← selected.resolve(strict=True)
     for node in [resolved] + list(resolved.parents):
         info ∈ object ← node.stat()
-        if info.st_uid != 0 or info.st_mode & 18 != 0:
+        owner ∈ int ← int(info.st_uid)
+        mode ∈ int ← int(info.st_mode)
+        if owner != 0 or mode & 18 != 0:
             raise ValueError("CLIENT_PATH_UNPROTECTED")
 
 def manifest_check(root ∈ str, runtime ∈ str, expected_sha ∈ str, trusted ∈ bool) → dict[str, object]:
@@ -90,7 +92,14 @@ def preflight(client ∈ dict[str, object], config_path ∈ str, root ∈ str, r
     if trusted:
         protected(config_path, False)
     url ∈ object ← urlsplit(str(client["endpoint"]))
-    if url.scheme != "https" or url.hostname == None or url.path != "/v1/execute" or url.username != None or url.password != None or url.query != "" or url.fragment != "":
+    scheme ∈ str ← str(url.scheme)
+    host ∈ str ← str(url.hostname)
+    route ∈ str ← str(url.path)
+    username ∈ str ← str(url.username)
+    password ∈ str ← str(url.password)
+    query ∈ str ← str(url.query)
+    fragment ∈ str ← str(url.fragment)
+    if scheme != "https" or host == "None" or route != "/v1/execute" or username != "None" or password != "None" or query != "" or fragment != "":
         raise ValueError("CLIENT_SUPERVISOR_ENDPOINT")
     certificate ∈ str ← str(client["ca_certificate"])
     if certificate == "" or Path(certificate).is_symlink() or not proper_hash(client["ca_sha256"], 64):
