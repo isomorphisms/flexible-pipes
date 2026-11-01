@@ -68,7 +68,7 @@ cases.append({"case": "fresh-install-and-relocation", "status": "PASS"})
 
 # A fixture-only, non-authorizing promotion-shaped record exercises validation.
 # It is never written into an installed client's state file.
-release ∈ dict[str, object] ← {"release_sha256": "3" * 64, "control_commit": manifest["source_commit"], "authority": "deployed-trusted", "required_checks": ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"], "contract_sha256": "2" * 64, "operation_version": "fixture", "registry_generation": 1, "outputs": [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]}
+release ∈ dict[str, object] ← {"release_sha256": "3333333333333333333333333333333333333333333333333333333333333333", "control_commit": manifest["source_commit"], "authority": "deployed-trusted", "required_checks": ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"], "contract_sha256": "2222222222222222222222222222222222222222222222222222222222222222", "operation_version": "fixture", "registry_generation": 1, "outputs": [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]}
 ca ∈ str ← output + "/fixture-ca-not-a-cert.pem"
 Path(ca).write_text("not a trusted certificate\n")
 client ∈ dict[str, object] ← {"schema_version": 1, "state": "active", "endpoint": "https://fixture.invalid/v1/execute", "ca_certificate": ca, "ca_sha256": sha(ca), "accepted_release": release, "accepted_install_sha256": first["manifest_sha256"], "activation_requires": "independent promotion"}
@@ -97,10 +97,10 @@ reject_file("modified-runtime", runtime + "/bin/ithon", "CLIENT_RUNTIME_CHANGED:
 reject_file("modified-grease", launcher, "CLIENT_RUNTIME_CHANGED: grease_sha256")
 reject_file("modified-ca", ca, "CLIENT_CA_CHANGED")
 before ∈ str ← str(client["accepted_install_sha256"])
-client["accepted_install_sha256"] ← "0" * 64
+client["accepted_install_sha256"] ← "0000000000000000000000000000000000000000000000000000000000000000"
 record("wrong-manifest-pin", "CLIENT_MANIFEST_CHANGED")
 client["accepted_install_sha256"] ← before
-release["control_commit"] ← "f" * 40
+release["control_commit"] ← "ffffffffffffffffffffffffffffffffffffffff"
 record("stale-control-ref", "CLIENT_CONTROL_COMMIT_MISMATCH")
 release["control_commit"] ← manifest["source_commit"]
 release["authority"] ← "local-qualification"
