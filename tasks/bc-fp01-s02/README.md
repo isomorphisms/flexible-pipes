@@ -41,6 +41,19 @@ control commit, canonical GitHub SHA/ref and event shape. A failure writes
 a BLOCKED pre-token receipt and exposes no accepted artifact. The supervisor
 still owns independent signed admission, nonce persistence and execution.
 
+## Accepted-result retry boundary
+
+The retained `registered-execution.pi` now checks and reuses an already
+accepted `PASS` result even when GitHub supplies a later run attempt. Before
+returning the receipt, it verifies the exact request bytes, current release,
+required checks, all output identities and artifact bytes. The maintained
+`qualify-cache.pi` source fixture includes positive production/diagnostic
+retries and rejects changed accepted artifacts and stale releases on retry.
+No re-execution is permitted solely because a successful request's transport
+was retried. These fixtures do **not** prove a deployed exactly-once effect
+boundary; a failed or interrupted run may still require an independently
+validated recovery decision before any effectful retry.
+
 ## Distinct evidence boundaries
 
 | Boundary | What can establish it | Current claim |
