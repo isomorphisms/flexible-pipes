@@ -9,7 +9,7 @@ import os
 import re
 from pathlib import Path
 from urllib.parse import urlsplit
-from builtins import dict, list, ValueError
+from builtins import dict, list, ValueError, isinstance
 from delivery import checked_release
 
 SCRIPTS ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed-client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
@@ -70,13 +70,15 @@ def manifest_check(root ∈ str, runtime ∈ str, expected_sha ∈ str, trusted 
             protected(path, False)
         if fingerprint(path) != runtime_files[relative]:
             raise ValueError("CLIENT_RUNTIME_CHANGED: " + relative)
-    for name, path in [("grease_sha256", runtime + "/bin/grease"), ("python_sha256", "/usr/bin/python3")]:
-        if not proper_hash(manifest[name], 64):
-            raise ValueError("CLIENT_RUNTIME_PIN")
-        if trusted:
-            protected(path, True)
-        if fingerprint(path) != manifest[name]:
-            raise ValueError("CLIENT_RUNTIME_CHANGED: " + name)
+    if not proper_hash(manifest["grease_sha256"], 64) or not proper_hash(manifest["python_sha256"], 64):
+        raise ValueError("CLIENT_RUNTIME_PIN")
+    if trusted:
+        protected(runtime + "/bin/grease", True)
+        protected("/usr/bin/python3", True)
+    if fingerprint(runtime + "/bin/grease") != manifest["grease_sha256"]:
+        raise ValueError("CLIENT_RUNTIME_CHANGED: grease_sha256")
+    if fingerprint("/usr/bin/python3") != manifest["python_sha256"]:
+        raise ValueError("CLIENT_RUNTIME_CHANGED: python_sha256")
     return manifest
 
 def preflight(client ∈ dict[str, object], config_path ∈ str, root ∈ str, runtime ∈ str, trusted ∈ bool) → dict[str, object]:
