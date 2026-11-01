@@ -38,7 +38,8 @@ def install(root ∈ str) → dict[str, object]:
     Path(root).mkdir(mode=448)
     command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, root]
     child ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=45)
-    if child.returncode != 0:
+    exit_code ∈ int ← int(child.returncode)
+    if exit_code != 0:
         raise ValueError("S02_INSTALL_FAILED: " + child.stderr.decode(errors="replace"))
     report ∈ dict[str, object] ← json.loads(child.stdout)
     if report["state"] != "inactive" or report["scope"] != "disposable-fixture":
@@ -120,13 +121,15 @@ cases.append({"case": "noncanonical-root", "status": "PASS"})
 installed_source ∈ str ← sha(root + "/scripts/github-event.pi")
 command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, first_root]
 again ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=30)
-if again.returncode == 0 or b"EXISTING_CLIENT_PRESERVED" not in again.stderr or sha(root + "/scripts/github-event.pi") != installed_source:
+again_code ∈ int ← int(again.returncode)
+if again_code == 0 or b"EXISTING_CLIENT_PRESERVED" not in again.stderr or sha(root + "/scripts/github-event.pi") != installed_source:
     raise ValueError("S02_REINSTALL_OVERWROTE_CLIENT")
 cases.append({"case": "immutable-install-retry", "status": "PASS"})
 # Readiness must reject without an ACTIONS token, even in a fresh environment.
 readiness ∈ str ← output + "/inactive-readiness"
 read ∈ object ← subprocess.run(["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/github-event.pi", "readiness", workspace + "/flexible-pipes/deployment/client.json", readiness], env={"PATH": "/usr/bin:/bin"}, capture_output=True, timeout=20)
-if read.returncode != 2:
+read_code ∈ int ← int(read.returncode)
+if read_code != 2:
     raise ValueError("S02_INACTIVE_TOKEN_BOUNDARY")
 blocked ∈ dict[str, object] ← json.loads(Path(readiness + "/result.json").read_bytes())
 if blocked["status"] != "BLOCKED" or blocked["blocker"] != "DEPLOYMENT_INACTIVE":
