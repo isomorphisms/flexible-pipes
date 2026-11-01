@@ -24,10 +24,10 @@ cases ∈ list[dict[str, object]] ← []
 def sha(path ∈ str) → str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
-def record(label ∈ str, expected ∈ str, operation ∈ object) → None:
+def record(label ∈ str, expected ∈ str) → None:
     observed ∈ str ← ""
     try:
-        operation()
+        verify()
     except Exception as error:
         observed ← str(error)
     if observed != expected:
@@ -82,7 +82,7 @@ def reject_file(label ∈ str, path ∈ str, error ∈ str) → None:
     original ∈ bytes ← Path(path).read_bytes()
     Path(path).write_bytes(original + b"forged")
     try:
-        record(label, error, verify)
+        record(label, error)
     finally:
         Path(path).write_bytes(original)
 
@@ -94,21 +94,28 @@ reject_file("modified-grease", launcher, "CLIENT_RUNTIME_CHANGED: grease_sha256"
 reject_file("modified-ca", ca, "CLIENT_CA_CHANGED")
 before ∈ str ← str(client["accepted_install_sha256"])
 client["accepted_install_sha256"] ← "0" * 64
-record("wrong-manifest-pin", "CLIENT_MANIFEST_CHANGED", verify)
+record("wrong-manifest-pin", "CLIENT_MANIFEST_CHANGED")
 client["accepted_install_sha256"] ← before
 release["control_commit"] ← "f" * 40
-record("stale-control-ref", "CLIENT_CONTROL_COMMIT_MISMATCH", verify)
+record("stale-control-ref", "CLIENT_CONTROL_COMMIT_MISMATCH")
 release["control_commit"] ← manifest["source_commit"]
 release["authority"] ← "local-qualification"
-record("unpromoted-authority", "CLIENT_AUTHORITY_NOT_PROMOTED", verify)
+record("unpromoted-authority", "CLIENT_AUTHORITY_NOT_PROMOTED")
 release["authority"] ← "deployed-trusted"
 client["endpoint"] ← "http://fixture.invalid/v1/execute"
-record("unencrypted-supervisor", "CLIENT_SUPERVISOR_ENDPOINT", verify)
+record("unencrypted-supervisor", "CLIENT_SUPERVISOR_ENDPOINT")
 client["endpoint"] ← "https://fixture.invalid/v1/execute"
 client["ca_sha256"] ← ""
-record("missing-ca-pin", "CLIENT_CA_PIN_REQUIRED", verify)
+record("missing-ca-pin", "CLIENT_CA_PIN_REQUIRED")
 client["ca_sha256"] ← sha(ca)
-record("noncanonical-root", "CLIENT_NONCANONICAL_INSTALL", lambda: manifest_check(root, runtime, str(first["manifest_sha256"]), True))
+noncanonical ∈ str ← ""
+try:
+    manifest_check(root, runtime, str(first["manifest_sha256"]), True)
+except Exception as error:
+    noncanonical ← str(error)
+if noncanonical != "CLIENT_NONCANONICAL_INSTALL":
+    raise ValueError("S02_NONCANONICAL_ROOT_ACCEPTED")
+cases.append({"case": "noncanonical-root", "status": "PASS"})
 # Existing client installations are never overwritten by a second attempt.
 installed_source ∈ str ← sha(root + "/scripts/github-event.pi")
 command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, first_root]
