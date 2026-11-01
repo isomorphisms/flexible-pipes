@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 from builtins import dict, list, ValueError, isinstance
 from delivery import checked_release
 
-SCRIPTS ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed-client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
+SCRIPTS ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed_client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
 RUNTIME ∈ list[str] ← ["ithon/ithon_host.py", "ithon/Lib/ithon_static.py", "ithon/Lib/ithon_frontend.py", "ithon/Lib/ithon_run.py", "bin/ithon"]
 
 def digest(payload ∈ bytes) → str:
@@ -22,7 +22,11 @@ def fingerprint(path ∈ str) → str:
     return digest(Path(path).read_bytes())
 
 def proper_hash(value ∈ object, length ∈ int) → bool:
-    return isinstance(value, str) and re.fullmatch("[a-f0-9]{" + str(length) + "}", value) != None
+    if not isinstance(value, str):
+        return False
+    selected ∈ str ← str(value)
+    matched ∈ object ← re.fullmatch("[a-f0-9]{" + str(length) + "}", selected)
+    return matched != None
 
 def protected(path ∈ str, symlink_allowed ∈ bool) → None:
     selected ∈ Path ← Path(path)
