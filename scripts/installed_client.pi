@@ -91,7 +91,8 @@ def manifest_check(root ∈ str, runtime ∈ str, expected_sha ∈ str, trusted 
     return manifest
 
 def preflight(client ∈ dict[str, object], config_path ∈ str, root ∈ str, runtime ∈ str, trusted ∈ bool) → dict[str, object]:
-    if client.get("state") != "active":
+    state ∈ str ← str(client.get("state", ""))
+    if state != "active":
         raise ValueError("DEPLOYMENT_INACTIVE")
     required ∈ list[str] ← ["schema_version", "state", "endpoint", "ca_certificate", "ca_sha256", "accepted_release", "accepted_install_sha256", "activation_requires"]
     if set(client) != set(required) or type(client["schema_version"]) != int or client["schema_version"] != 1:
