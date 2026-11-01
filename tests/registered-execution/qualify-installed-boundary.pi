@@ -84,11 +84,16 @@ cases.append({"case": "fixture-preflight", "status": "PASS", "scope": "not-autho
 
 def reject_file(label ∈ str, path ∈ str, error ∈ str) → None:
     original ∈ bytes ← Path(path).read_bytes()
-    Path(path).write_bytes(original + b"forged")
+    permissions ∈ int ← int(Path(path).stat().st_mode) & 511
+    # Installed scripts are intentionally read-only; only this disposable
+    # mutation fixture temporarily permits the owning test user to alter bytes.
+    os.chmod(path, permissions | 128)
     try:
+        Path(path).write_bytes(original + b"forged")
         record(label, error)
     finally:
         Path(path).write_bytes(original)
+        os.chmod(path, permissions)
 
 reject_file("modified-client", root + "/scripts/github-event.pi", "CLIENT_SOURCE_CHANGED: scripts/github-event.pi")
 reject_file("modified-supervisor", root + "/scripts/registered-execution.pi", "CLIENT_SOURCE_CHANGED: scripts/registered-execution.pi")
