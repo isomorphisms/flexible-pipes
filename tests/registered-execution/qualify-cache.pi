@@ -87,7 +87,7 @@ def exercise(name ∈ str, active_field ∈ str, active_value ∈ object, saved_
         result["artifacts"] ← []
     if name == "changed-delivered-bytes" or name == "changed-paste-bytes" or name == "changed-delivered-bytes-retry":
         artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
-        Path(str(artifacts[0 if name == "changed-delivered-bytes" else 1]["retrieval_locator"])).write_bytes(b"changed after verification\n")
+        Path(str(artifacts[0 if name.startswith("changed-delivered-bytes") else 1]["retrieval_locator"])).write_bytes(b"changed after verification\n")
     elif name == "missing-source" or name == "missing-checker":
         source ∈ list[dict[str, object]] ← list(result["source"])
         result["source"] ← source[1:] if name == "missing-source" else source[:1]
