@@ -85,7 +85,7 @@ def exercise(name ∈ str, active_field ∈ str, active_value ∈ object, saved_
         changed(result, saved_field, saved_value)
     if result["status"] != "PASS":
         result["artifacts"] ← []
-    if name == "changed-delivered-bytes" or name == "changed-paste-bytes":
+    if name == "changed-delivered-bytes" or name == "changed-paste-bytes" or name == "changed-delivered-bytes-retry":
         artifacts ∈ list[dict[str, object]] ← list(result["artifacts"])
         Path(str(artifacts[0 if name == "changed-delivered-bytes" else 1]["retrieval_locator"])).write_bytes(b"changed after verification\n")
     elif name == "missing-source" or name == "missing-checker":
@@ -158,7 +158,8 @@ def exercise(name ∈ str, active_field ∈ str, active_value ∈ object, saved_
     with patch.object(execution, "verify_deployment", return_value=None):
         with patch.object(execution, "bounded", side_effect=ValueError("CACHE_UNEXPECTED_EXECUTION")):
             try:
-                observed ← execution.execute(config, raw, "workflow_dispatch", False, diagnostic)
+                retry ∈ bool ← name.endswith("-retry")
+                observed ← execution.execute(config, raw, "workflow_dispatch", retry, diagnostic)
             except Exception as error:
                 failure ← str(error)
     if expected == "PASS":
@@ -176,6 +177,10 @@ def exercise(name ∈ str, active_field ∈ str, active_value ∈ object, saved_
 
 exercise("valid-production-reuse", "", None, "", None, "PASS", False)
 exercise("valid-diagnostic-reuse", "", None, "", None, "PASS", True)
+exercise("valid-production-retry", "", None, "", None, "PASS", False)
+exercise("valid-diagnostic-retry", "", None, "", None, "PASS", True)
+exercise("registry-generation-retry", "registry_generation", 2, "", None, "STALE_ACCEPTED_RELEASE", False)
+exercise("changed-delivered-bytes-retry", "", None, "", None, "STALE_ACCEPTED_ARTIFACT", False)
 exercise("pending-preserved", "", None, "status", "RUNNING", "INTERRUPTED", False)
 exercise("failed-preserved", "", None, "status", "FAIL", "FAIL", False)
 exercise("blocked-preserved", "", None, "status", "BLOCKED", "BLOCKED", False)
