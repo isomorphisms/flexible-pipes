@@ -22,7 +22,7 @@ launcher ∈ str ← argv[3] if fixture else argv[2]
 prefix ∈ str ← argv[4] if fixture else ""
 if fixture:
     selected ∈ Path ← Path(prefix)
-    if not selected.is_absolute() or selected.resolve() == Path("/") or not selected.is_dir() or selected.is_symlink():
+    if not selected.is_absolute() or str(selected.resolve()) == "/" or not selected.is_dir() or selected.is_symlink():
         raise ValueError("CLIENT_FIXTURE_ROOT")
 if not fixture and os.getuid() != 0:
     raise ValueError("CLIENT_INSTALL_REQUIRES_ADMINISTRATIVE_CONTEXT")
