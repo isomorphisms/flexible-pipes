@@ -33,6 +33,10 @@ jobs:
         env:
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-checked.jsonl
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-boundary.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-installed'
+      - name: Reuse the signed issuer, audience, actor and route rejection controls
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-admission.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-admission.json'
+      - name: Reuse exact-byte delivery and partial-exposure rejection controls
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-delivery.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-delivery'
       - name: Preserve raw qualification and source-check receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -41,4 +45,6 @@ jobs:
           path: |
             ${{ runner.temp }}/s02-installed/result.json
             ${{ runner.temp }}/s02-checked.jsonl
+            ${{ runner.temp }}/s02-admission.json
+            ${{ runner.temp }}/s02-delivery/
           if-no-files-found: warn
