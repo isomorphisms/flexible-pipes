@@ -97,7 +97,8 @@ client ∈ dict[str, object] ← json.loads(Path(fp + "/deployment/client.json")
 client["state"] ← "inactive"
 client["endpoint"] ← ""
 client["ca_certificate"] ← ""
-client["accepted_release"] ← {}
+empty_release ∈ dict[str, object] ← {}
+client["accepted_release"] ← empty_release
 client.pop("ca_sha256", None)
 client.pop("accepted_install_sha256", None)
 Path(configuration).parent.mkdir(mode=493, parents=True, exist_ok=True)

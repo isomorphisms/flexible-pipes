@@ -56,7 +56,7 @@ second ∈ dict[str, object] ← install(second_root)
 if first["manifest_sha256"] != second["manifest_sha256"]:
     raise ValueError("S02_RELOCATION_CHANGED_MANIFEST")
 first_client ∈ dict[str, object] ← json.loads(Path(first_root + "/etc/flexible-pipes/client.json").read_bytes())
-if first_client["state"] != "inactive" or first_client["endpoint"] != "" or first_client["accepted_release"] != {}:
+if first_client["state"] != "inactive" or first_client["endpoint"] != "" or len(dict(first_client["accepted_release"])) != 0:
     raise ValueError("S02_INSTALL_ACTIVATED_CLIENT")
 root ∈ str ← first_root + "/opt/flexible-pipes/current"
 runtime ∈ str ← first_root + "/opt/catfood"
