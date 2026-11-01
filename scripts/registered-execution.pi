@@ -649,6 +649,13 @@ def execute(config ∈ dict[str, object], raw ∈ bytes, route ∈ str, retry �
             previous ← read(index_path)
             if previous["request_sha256"] != digest(raw):
                 raise ValueError("DUPLICATE_ID_DIFFERENT_BYTES")
+            # A successful accepted operation is immutable across GitHub run
+            # attempts. Rerunning transport must never repeat its effects.
+            # Revalidate checks and artifact bytes before reuse.
+            accepted_result ∈ dict[str, object] ← read(str(previous["result"]))
+            if accepted_result["status"] == "PASS":
+                validate_cached_result(config, raw, accepted_result, diagnostic)
+                return accepted_result
             if not retry:
                 existing_result ∈ dict[str, object] ← read(str(previous["result"]))
                 if existing_result["status"] == "RUNNING":
