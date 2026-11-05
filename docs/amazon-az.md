@@ -12,7 +12,7 @@ The exact Kitchen helper is pinned in
 
 ```
 tasks/product-lookup/amazon-az.sh
-blob d2c71bdbb64467d063b6b97c2727880a7931ad11
+blob 94c14c02ee44625ed304f6721baed203ff1135f3
 ```
 
 Before execution, `scripts/amazon-az` verifies:
@@ -62,6 +62,16 @@ python3 scripts/run-pipeline amazon-az
 The pipeline runner's normal receipt captures command execution, output, exit
 status, and hashes. The Amazon response remains run evidence rather than
 timeless repository data.
+
+## Named product lookup
+
+For source-bound product identity/use gating and explicit `PARTIAL` vs
+`BLOCKED` shopping verdicts, use the candidate named pipeline
+[`amazon-product-lookup`](amazon-product-lookup.md). The existing
+`amazon-az` stage remains the maintained provider adapter; its zero exit
+status for `link` never represents an inspected product listing. This
+draft pipeline keeps separate known historical ASIN/product identity evidence,
+compatibility, price and availability.
 
 ## Ownership boundary
 

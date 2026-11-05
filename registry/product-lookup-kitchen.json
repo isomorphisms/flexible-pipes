@@ -5,7 +5,7 @@
   "helpers": {
     "amazon-az": {
       "path": "tasks/product-lookup/amazon-az.sh",
-      "git_blob_sha": "d2c71bdbb64467d063b6b97c2727880a7931ad11"
+      "git_blob_sha": "94c14c02ee44625ed304f6721baed203ff1135f3"
     }
   }
 }

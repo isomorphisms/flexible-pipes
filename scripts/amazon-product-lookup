@@ -1,0 +1,129 @@
+#!/bin/sh
+# One provider adapter: scripts/amazon-az -> pinned Kitchen -> Cat Food AZ.
+# This program classifies the results; it does not scrape Amazon or make URLs.
+set -eu
+
+blocked() {
+    printf 'status\tBLOCKED\nreason\t%s\n' "$1"
+    exit 2
+}
+
+[ "$#" -eq 4 ] || blocked "expected action target repair_role associates_tag"
+action=$1
+target=$2
+repair_role=$3
+tag=$4
+case "$action" in search|link|price) ;; *) blocked "invalid action" ;; esac
+case "$repair_role" in
+    exterior-weatherstrip|interior-moisture-barrier|unknown) ;;
+    *) blocked "unknown repair role" ;;
+esac
+case "$tag" in
+    ''|*[!A-Za-z0-9-]*) blocked "invalid Associates tag" ;;
+esac
+[ -n "$target" ] || blocked "missing query or ASIN"
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+provider_out=$work/provider.stdout
+provider_err=$work/provider.stderr
+search_status=$work/search-status.tsv
+
+# The runner retains stdout/stderr and binds their SHA-256 to the stage.
+# Include each inner invocation's exact status and stream digests as well.
+provider() {
+    provider_command=$1
+    provider_input=$2
+    if AZ_COMMAND="$provider_command" AMAZON_QUERY="$provider_input" \
+       AMAZON_TARGET="$provider_input" AZ_PARTNER_TAG="$tag" \
+       AZ_SEARCH_STATUS_FILE="$search_status" \
+       /bin/sh scripts/amazon-az >"$provider_out" 2>"$provider_err"; then
+        provider_exit=0
+    else
+        provider_exit=$?
+    fi
+    cat "$provider_err" >&2
+    printf 'provider_command\t%s\n' "$provider_command"
+    printf 'provider_exit_code\t%s\n' "$provider_exit"
+    printf 'provider_stdout_sha256\t%s\n' "$(sha256sum "$provider_out" | awk '{print $1}')"
+    printf 'provider_stderr_sha256\t%s\n' "$(sha256sum "$provider_err" | awk '{print $1}')"
+}
+
+printf 'schema_version\t1\n'
+printf 'pipeline_operation\tamazon-product-lookup\n'
+printf 'action\t%s\nrepair_role\t%s\n' "$action" "$repair_role"
+printf 'associates_tag\t%s\n' "$tag"
+printf 'affiliate_disclosure\tThe operator may earn from qualifying purchases\n'
+printf 'identity_evidence\tNOT_LIVE_VERIFIED\navailability\tUNKNOWN\nprice\tUNKNOWN\n'
+printf 'catalog_source\tregistry/amazon-product-fit.tsv\n'
+printf 'provider_adapter\tscripts/amazon-az\n'
+
+if [ "$action" = search ]; then
+    provider search "$target"
+    if [ "$provider_exit" -ne 0 ]; then
+        blocked "AZ search failed or no qualified search results; consult provider stderr and status"
+    fi
+    [ -f "$search_status" ] ||
+        blocked "AZ search returned no machine-readable status"
+    grep -Fx "$(printf 'status\tEXTRACTED_UNVERIFIED')" "$search_status" >/dev/null ||
+        blocked "AZ search did not classify candidates as unverified"
+    [ "$(wc -l < "$provider_out")" -gt 1 ] ||
+        blocked "AZ returned zero product rows"
+    printf 'search_status\tEXTRACTED_UNVERIFIED\n'
+    printf 'candidate_tsv_begin\n'
+    cat "$provider_out"
+    printf 'candidate_tsv_end\n'
+    printf 'status\tPARTIAL\nreason\tASIN candidates have no verified product identity or current availability\n'
+    exit 0
+fi
+
+# A product URL is not proof that an ASIN identifies the requested product.
+# Current catalog evidence is historical: these are conditional examples, not
+# live Amazon listing or vehicle/substrate compatibility verification.
+case "$target" in
+    ??????????) ;;
+    *) blocked "ASIN must be exactly ten characters" ;;
+esac
+case "$target" in *[!A-Za-z0-9]*) blocked "malformed ASIN" ;; esac
+asin=$(printf '%s' "$target" | tr '[:lower:]' '[:upper:]')
+evidence=$(awk -F '\t' -v asin="$asin" '$1 == asin { print; exit }' \
+    registry/amazon-product-fit.tsv)
+if [ -n "$evidence" ]; then
+    evidence_role=$(printf '%s\n' "$evidence" | cut -f3)
+    evidence_name=$(printf '%s\n' "$evidence" | cut -f2)
+    evidence_date=$(printf '%s\n' "$evidence" | cut -f5)
+    evidence_ref=$(printf '%s\n' "$evidence" | cut -f4)
+    printf 'product_name\t%s\nproduct_role\t%s\n' "$evidence_name" "$evidence_role"
+    printf 'evidence_reference\t%s\nevidence_as_of\t%s\n' "$evidence_ref" "$evidence_date"
+    if [ "$repair_role" != unknown ] && [ "$repair_role" != "$evidence_role" ]; then
+        blocked "the selected ASIN serves a different repair role"
+    fi
+else
+    if [ "$repair_role" != unknown ]; then
+        blocked "no recorded identity/use evidence for this ASIN and repair role"
+    fi
+    printf 'product_name\tUNKNOWN\nproduct_role\tUNKNOWN\n'
+fi
+printf 'vehicle_substrate_compatibility\tUNKNOWN\n'
+provider link "$asin"
+[ "$provider_exit" -eq 0 ] || blocked "AZ link failed"
+link=$(cat "$provider_out")
+# Compare, but never emit, a synthesised provider URL. The emitted URL must
+# be the original stdout of az link.
+expected=https://www.amazon.com/dp/$asin?tag=$tag
+[ "$link" = "$expected" ] || blocked "AZ link did not match selected ASIN and configured tag"
+printf 'affiliate_link\t%s\n' "$link"
+
+if [ "$action" = price ]; then
+    provider price "$asin"
+    if [ "$provider_exit" -eq 0 ]; then
+        quoted_asin=$(awk -F '\t' 'NR == 1 { print $2 }' "$provider_out")
+        [ "$quoted_asin" = "$asin" ] || blocked "AZ price returned mismatched ASIN"
+        printf 'price_observation_tsv\t%s\n' "$(cat "$provider_out")"
+        printf 'price_status\tREPORTED_BY_AZ_NOT_LIVE_STOCK\n'
+    else
+        printf 'price_status\tUNKNOWN_OR_UNAVAILABLE_CREDENTIALS\n'
+    fi
+fi
+printf 'status\tPARTIAL\n'
+printf 'reason\tThe affiliate URL was generated by AZ; current seller, availability, delivery and vehicle fit remain unverified\n'
