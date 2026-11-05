@@ -17,19 +17,19 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/kitchen
-          ref: 2c7d45076bd66a0c278018882209db3e6dde404e
+          ref: 8f512749602b80f36864f17e9fc12212aec50f41
           path: _runtime/kitchen
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: Ashtray-Archer/az
-          ref: cf3aa04cfba2da2158bfccf3d8744481156903d5
+          ref: 5e3b55c85918d0cbdaa5f08432d5629de151286b
           path: _runtime/az
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: isomorphisms/catfood
-          ref: 7f1c213d64dc9a9e32a191431ae471ad8d42cba7
+          ref: a7e4af49a00cf7d3d35299be31214c6db5c6f5f2
           path: _catfood-build
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
