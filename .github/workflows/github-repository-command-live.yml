@@ -1,0 +1,99 @@
+name: GPT-OSS real repository command evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test-gpt-oss-repository-command-understanding]
+
+permissions:
+  contents: read
+
+jobs:
+  inference:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-command-gpt-oss]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        condition: [title-only, kitchen-task-card, task-card-with-distractor]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          path: flexible-pipes
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 52c8ae726ed586aef7a614d7f20aa6db57a1ec63
+          path: aici
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: _ithon
+          persist-credentials: false
+      - name: Check the independent evaluator and rejection controls
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+        run: _ithon/ithon aici/model-evaluation/evaluate.pi self-test
+      - name: Check the actual HTTP adapter through Ithon
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+        run: _ithon/ithon aici/model-evaluation/infer-http.pi check
+      - name: Freeze all 24 cases and three trials for this prompt condition
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+        run: >-
+          _ithon/ithon aici/model-evaluation/evaluate.pi prepare
+          flexible-pipes/evals/github-repository-transfer/suite.json
+          flexible-pipes/models/catalog.toml gpt-oss-20b
+          '${{ runner.temp }}/command-live' '${{ matrix.condition }}'
+      - name: Refresh Ubuntu package indexes for archive decompression
+        run: sudo apt-get update -qq
+      - name: Install the zstd archive runtime
+        run: sudo apt-get install -y zstd
+      - name: Download the exact Ollama 0.40.2 runtime archive
+        run: >-
+          curl --fail --location --retry 3 --max-time 300
+          https://github.com/ollama/ollama/releases/download/v0.40.2/ollama-linux-amd64.tar.zst
+          --output '${{ runner.temp }}/ollama-linux-amd64.tar.zst'
+      - name: Verify the retained archive SHA-256 before extraction
+        working-directory: ${{ runner.temp }}
+        run: sha256sum --check '${{ github.workspace }}/flexible-pipes/models/ollama-0.40.2.sha256'
+      - name: Create the temporary runtime directory
+        run: mkdir '${{ runner.temp }}/ollama'
+      - name: Extract the verified runtime
+        run: tar --zstd -xf '${{ runner.temp }}/ollama-linux-amd64.tar.zst' -C '${{ runner.temp }}/ollama'
+      - name: Release only the temporary verified download archive
+        run: rm -- '${{ runner.temp }}/ollama-linux-amd64.tar.zst'
+      - name: Download pinned GPT-OSS-20B weights and execute all 72 frozen requests
+        timeout-minutes: 60
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+          OLLAMA_MODELS: ${{ runner.temp }}/gpt-oss-models
+        run: >-
+          _ithon/ithon aici/model-evaluation/infer-http.pi ollama
+          '${{ runner.temp }}/command-live' '${{ runner.temp }}/ollama/bin/ollama'
+      - name: Independently grade raw model responses and retain failures
+        if: ${{ always() && hashFiles('aici/model-evaluation/evaluate.pi') != '' }}
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/command-live-frontend.jsonl
+        run: _ithon/ithon aici/model-evaluation/evaluate.pi grade '${{ runner.temp }}/command-live' live
+      - name: Preserve raw requests, responses, identity, and all partial results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: command-live-${{ matrix.condition }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/command-live/
+            ${{ runner.temp }}/command-live-frontend.jsonl
+            flexible-pipes/evals/github-repository-transfer/suite.json
+            flexible-pipes/models/catalog.toml
+            flexible-pipes/models/ollama-0.40.2.sha256
+            aici/model-evaluation/
+          if-no-files-found: error
+          retention-days: 30
