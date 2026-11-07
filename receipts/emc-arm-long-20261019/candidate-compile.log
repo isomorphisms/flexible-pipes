@@ -1,0 +1,4 @@
+1/3: Building EnglishMajorC.A32Atoms (research/EnglishMajorC/A32Atoms.idric)
+2/3: Building EnglishMajorC.A32Decode (research/EnglishMajorC/A32Decode.idric)
+3/3: Building EnglishMajorC.A32Parser (research/EnglishMajorC/A32Parser.idric)
+Now compiling the executable: english-a32
