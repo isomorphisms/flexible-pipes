@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "name": "m004-followup-acceptance",
+  "parameters": {
+    "compiler": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "workspace": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "ithon": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "kitchen_recipe": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "atlas_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    },
+    "view_checker": {
+      "required": true,
+      "pattern": "/[^\\r\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "fp-source",
+    "leaf-source",
+    "oracle-source",
+    "kitchen-source",
+    "catfood-source",
+    "ithon-source",
+    "build-directory",
+    "foreign-runtime",
+    "foreign-binary-packages",
+    "foreign-package-manifest",
+    "acquire-grease",
+    "compiler-identity",
+    "compiler-target",
+    "compile-build-verifier",
+    "leaf-build-contract",
+    "compile-atlas",
+    "compile-permutation-mutant",
+    "compile-tangent-mutant",
+    "compile-view",
+    "compile-renderer",
+    "atlas-tests",
+    "view-tests",
+    "render-marked-scene",
+    "kitchen-invocation-controls",
+    "atlas-oracle-controls",
+    "independent-atlas-and-snappy",
+    "view-oracle-controls",
+    "independent-view",
+    "source-and-output-digests"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/geometry-followups/SUN-M004-ATLAS-01.txt",
+        "tasks/geometry-followups/SUN-M004-VIEW-01.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "fp-source",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "leaf-source",
+      "argv": [
+        "git",
+        "-C",
+        "source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "oracle-source",
+      "argv": [
+        "git",
+        "-C",
+        "oracle",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-source",
+      "argv": [
+        "git",
+        "-C",
+        "kitchen",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "catfood-source",
+      "argv": [
+        "git",
+        "-C",
+        "catfood",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ithon-source",
+      "argv": [
+        "git",
+        "-C",
+        "ithon",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "build-directory",
+      "argv": [
+        "mkdir",
+        "-p",
+        "build"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-runtime",
+      "argv": [
+        "python3",
+        "-m",
+        "venv",
+        "foreign-runtime"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-binary-packages",
+      "argv": [
+        "foreign-runtime/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--only-binary=:all:",
+        "--report",
+        "build/foreign-install.json",
+        "snappy==3.3.2",
+        "regina==7.4.1"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "foreign-package-manifest",
+      "argv": [
+        "foreign-runtime/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "acquire-grease",
+      "argv": [
+        "ithon/ithon",
+        "catfood/profiles/rhs-evaluation/provision.pi",
+        "grease",
+        "{{workspace}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-identity",
+      "argv": [
+        "sha256sum",
+        "{{compiler}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compiler-target",
+      "argv": [
+        "{{compiler}}",
+        "-dumpmachine"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-build-verifier",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "oracle/src/aici.c",
+        "-lm",
+        "-o",
+        "build/aici"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "leaf-build-contract",
+      "argv": [
+        "build/aici",
+        "verify",
+        "oracle/contracts/build-toolchain-v0.contract.tsv",
+        "source"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-atlas",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/m004_atlas.c",
+        "source/refactor/c/test_m004_atlas.c",
+        "-lm",
+        "-o",
+        "build/m004-atlas-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-permutation-mutant",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/mutants/m004_wrong_permutation.c",
+        "source/refactor/c/test_m004_atlas.c",
+        "-lm",
+        "-o",
+        "build/m004-wrong-permutation"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-tangent-mutant",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/mutants/m004_frozen_tangent.c",
+        "source/refactor/c/test_m004_atlas.c",
+        "-lm",
+        "-o",
+        "build/m004-frozen-tangent"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-view",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/m004_atlas.c",
+        "source/refactor/c/m004_view.c",
+        "source/refactor/c/test_m004_view.c",
+        "-lm",
+        "-o",
+        "build/m004-view-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "compile-renderer",
+      "argv": [
+        "{{compiler}}",
+        "-fno-link-libatomic",
+        "-std=c17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/m004_atlas.c",
+        "source/refactor/c/m004_view.c",
+        "source/refactor/c/render_m004.c",
+        "-lm",
+        "-o",
+        "build/m004-render"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "atlas-tests",
+      "argv": [
+        "timeout",
+        "60",
+        "build/m004-atlas-test",
+        "--emit",
+        "build/m004.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "view-tests",
+      "argv": [
+        "timeout",
+        "60",
+        "build/m004-view-test",
+        "--emit",
+        "build/m004-view.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "render-marked-scene",
+      "argv": [
+        "timeout",
+        "180",
+        "build/m004-render",
+        "build/m004.ppm",
+        "build/render.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-invocation-controls",
+      "argv": [
+        "ithon/ithon",
+        "oracle/geometry/common/kitchen_controls.pi",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{atlas_checker}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "atlas-oracle-controls",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/atlas-oracle-controls-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{atlas_checker}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-atlas-and-snappy",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-atlas-and-snappy-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{atlas_checker}}",
+        "build/m004.tsv",
+        "source/refactor/m004-source.tri",
+        "build/snappy.tsv",
+        "./build/m004-wrong-permutation",
+        "./build/m004-frozen-tangent"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "view-oracle-controls",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/view-oracle-controls-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{view_checker}}",
+        "--self-test"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-view",
+      "argv": [
+        "env",
+        "ITHON_CHECK_RECEIPT=build/independent-view-frontend.json",
+        "{{grease}}",
+        "{{kitchen_recipe}}",
+        "{{ithon}}",
+        "{{view_checker}}",
+        "build/m004-view.tsv"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "source-and-output-digests",
+      "argv": [
+        "sha256sum",
+        "source/refactor/c/h3_ray.c",
+        "source/refactor/c/m004_atlas.c",
+        "source/refactor/c/test_m004_atlas.c",
+        "source/refactor/c/m004_view.c",
+        "source/refactor/c/test_m004_view.c",
+        "source/refactor/m004-source.tri",
+        "oracle/geometry/m004-atlas/accept.pi",
+        "oracle/geometry/m004-atlas/math_oracle.pi",
+        "oracle/geometry/m004-view/accept.pi",
+        "kitchen/tasks/geometry-acceptance/1.grease",
+        "build/m004.tsv",
+        "build/m004-view.tsv",
+        "build/snappy.tsv",
+        "build/m004.ppm",
+        "build/render.tsv"
+      ],
+      "cwd": "."
+    }
+  ]
+}
+

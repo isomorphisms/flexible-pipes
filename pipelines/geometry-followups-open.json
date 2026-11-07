@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "geometry-followups-open",
+  "required_stages": [
+    "job-envelope",
+    "host-identity",
+    "runner-identity"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/geometry-followups/SUN-M004-ATLAS-01.txt",
+        "tasks/geometry-followups/SUN-M004-VIEW-01.txt",
+        "tasks/geometry-followups/SUN-FLOWER-JOBS.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "host-identity",
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "runner-identity",
+      "argv": [
+        "sha256sum",
+        "scripts/run-pipeline"
+      ],
+      "cwd": "."
+    }
+  ]
+}
+
