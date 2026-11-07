@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ib="$root/source"
+aici="$root/oracle"
+test -x /tmp/ib-surfer-equation-probe
+test -x "$ib/src/build/exec/ib-exact-surface"
+test -f "$aici/scientific-equation/verify.sh"
+test -f "$aici/scientific-equation/self-test.sh"
+IB_SURFER_PROBE=/tmp/ib-surfer-equation-probe \
+IB_EXACT_SURFACE_POLICY="$ib/src/build/exec/ib-exact-surface" \
+  sh "$aici/scientific-equation/self-test.sh" "$ib"

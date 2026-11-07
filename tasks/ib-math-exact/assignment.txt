@@ -1,0 +1,33 @@
+SUN IB-MATH-EXACT-01 — Exact Schur affine equation acceptance
+Authorization: user request, October 21, 2026.
+Envelope: https://github.com/isomorphisms/flexible-pipes/issues/239
+IB: https://github.com/isomorphisms/ib/issues/160, implementation PR #161.
+SURFER: https://github.com/isomorphismes/algebraic-variety-explorer-mobile/pull/33 (draft).
+Independent AICI: https://github.com/isomorphisms/ai-ci/pull/309 (draft).
+
+Mathematical input: x^4 - x*y^3 - z^4 + z = 0.
+Interpretation: real zero set in the affine W=1 chart; clipping is the
+unit sphere and the first host camera is orthographic with height=2.4,
+yaw=0.25, pitch=0.25 and zoom=1.
+
+Ordered stages:
+1. Bind this human-authorized task and exact FP/IB/SURFER/AICI revisions.
+2. Reuse IB's scientific HTML-first harvester, retaining the unmodified
+   document, source manifest and image harvest.
+3. Extract a MathML equation with source identity/document digest/math
+   ordinal. Reject image alt text as mathematical source.
+4. Invoke actual pinned SURFER native formula parser (not a mock) and
+   its ray tracer, verifying exact sparse signed monomials. Reject signs,
+   exponents, unsupported expressions and conflicting MathML sources.
+5. Let typed IB Idriç policy choose SURFER only for the exact real W=1 case.
+6. Run separate AICI source/provenance/numeric/mutant acceptance. Preserve
+   its verdict separately from the owner and FP stage receipts.
+7. Never claim a verified still/movie, working Android interactive open-with
+   exact expression, or physical device success without their own witnesses.
+
+An owner host probe cannot certify an illustration. SURFER PR #33 has no
+qualified Android restore-through-intent; interactive link is BLOCKED.
+Keep both the original paper and ordinary images readable on any failure.
+Leave all application/acceptance PRs draft until independent CI receipts pass.
+An FP pipeline launched by the repository's CI proves checked stage execution,
+not trusted-controller admission, actual prompt dispatch, or physical Android.

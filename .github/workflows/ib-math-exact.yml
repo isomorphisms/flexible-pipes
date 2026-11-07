@@ -1,0 +1,94 @@
+name: Registered IB exact mathematical surface host acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'tasks/ib-math-exact/**'
+      - 'pipelines/ib-math-exact.json'
+      - '.github/workflows/ib-math-exact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-host-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      IDRIC_REF: 7050c116326c9c8e8d0a56c2db7baf2119cbae19
+    steps:
+      - name: Check out exact FP control source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Check out the pinned IB scientific harvester and equation policy
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: 20711f085b18c0ffb3ab90ec5b4e958f716fe52b
+          path: source
+          submodules: true
+          persist-credentials: false
+
+      - name: Check out pinned native SURFER expression parser/engine
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphismes/algebraic-variety-explorer-mobile
+          ref: 9113596d732f1c44db7d6e11ad8a12df3dc8d369
+          path: source/.tools/surfer
+          persist-credentials: false
+
+      - name: Check out the independent AICI oracle source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: e7957d3707654d5e32d3e866fd591abb9eb45fee
+          path: oracle
+          persist-credentials: false
+
+      - name: Verify the exact reviewed cross-repository pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          for role in ib surfer ai-ci; do
+            want="$(awk -F '\t' -v key="$role" '$1 == key { print $2 }' tasks/ib-math-exact/source-pins.tsv)"
+            test -n "$want"
+            case "$role" in
+              ib) path=source ;;
+              surfer) path=source/.tools/surfer ;;
+              ai-ci) path=oracle ;;
+            esac
+            test "$(git -C "$path" rev-parse HEAD)" = "$want"
+            printf '%s=%s\n' "$role" "$want"
+          done
+
+      - name: Install the existing IB scientific-media prerequisites
+        run: sh source/bin/ci_browser_foundation.grease install-dependencies
+
+      - name: Restore exact pinned Idriç compiler where available
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25
+        with:
+          path: /tmp/idric
+          key: idric-relocatable-v2-${{ runner.os }}-7050c116326c9c8e8d0a56c2db7baf2119cbae19
+
+      - name: Execute the registered FP envelope and AICI stages
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/run-pipeline ib-math-exact
+          find .flexible-pipes/runs -name receipt.json -path '*ib-math-exact*' -print
+
+      - name: Record executed stage evidence without widening any verdict
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fp-ib160-bounded-host-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            .flexible-pipes/runs/ib-math-exact-*/
+            /tmp/ib-exact-math-idric-compile.txt
+            /tmp/ib-exact-math-acceptance.txt
+            /tmp/ib-exact-math-input-hashes.txt
+          if-no-files-found: warn
