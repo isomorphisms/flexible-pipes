@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "fragment-byte-display-samples",
+  "description": "Six generated-shader byte framebuffer observations under the explicit Mesa host profile; not rotation or physical-GPU acceptance.",
+  "required_stages": [
+    "byte-display-samples"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "byte-display-samples",
+      "argv": [
+        "/workspace/scratch/30b0a80117bc/tool-bin/grease",
+        "/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease",
+        "/workspace/scratch/3e1c4c6b7433/idris-shader-backend",
+        "env",
+        "EGL_PLATFORM=surfaceless",
+        "./build/coordinate-primitives"
+      ],
+      "cwd": "."
+    }
+  ]
+}

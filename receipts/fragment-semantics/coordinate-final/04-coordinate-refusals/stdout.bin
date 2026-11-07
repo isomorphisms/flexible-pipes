@@ -1,0 +1,12 @@
+$[ENV.IDRIC_COMPILER] --build backend.ipkg
+ 7/11: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-glsles
+$[ENV.IDRIC_COMPILER] --source-dir src --check src/Example/CoordinatePairing32Grayscale.idr
+$[ENV.GREASE] tools/check_coordinate_interface.grease $[ENV.BACKEND_ROOT] $[ENV.IDRIC_COMPILER]
+PASS source refusal: CoordinateRoleMismatch
+PASS source refusal: CoordinateSpaceMismatch
+PASS source refusal: CoordinateDimensionMismatch
+PASS backend refusal: SpoofCoordinatePairing
+PASS backend refusal: SpoofShaderTuple

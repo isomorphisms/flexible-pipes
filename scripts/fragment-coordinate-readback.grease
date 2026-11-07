@@ -1,0 +1,7 @@
+#!/usr/bin/env grease
+var backend = $1
+var output = $2
+if (not backend.startsWith('/') or not output.startsWith('/')) { echo 'requires absolute source and output paths' >&2; exit 2 }
+cd -- "$backend"
+env EGL_PLATFORM=surfaceless ./build/coordinate-primitives --coordinate-record > "$output"
+sha256sum "$output" generated/coordinate-pairing32-grayscale.frag generated/coordinate-pairing32-grayscale.source-interface build/coordinate-primitives

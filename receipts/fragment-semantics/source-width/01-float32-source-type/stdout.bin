@@ -1,0 +1,21 @@
+1/1: Building SourceFloat32Probe (SourceFloat32Probe.idric)
+Error: While processing type of identity_float32. Undefined name Float32. 
+
+SourceFloat32Probe:5:20--5:27
+ 1 | module SourceFloat32Probe
+ 2 |
+ 3 | %unbound_implicits off
+ 4 |
+ 5 | identity_float32 : Float32 → Float32
+                        ^^^^^^^
+
+Error: No type declaration for SourceFloat32Probe.identity_float32.
+
+SourceFloat32Probe:6:1--6:31
+ 2 |
+ 3 | %unbound_implicits off
+ 4 |
+ 5 | identity_float32 : Float32 → Float32
+ 6 | identity_float32 value = value
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
