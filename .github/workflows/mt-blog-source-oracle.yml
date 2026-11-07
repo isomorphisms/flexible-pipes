@@ -1,0 +1,75 @@
+name: Mock Theta blog source and oracle
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/mt-blog-source-oracle.yml"
+      - "assets/mock-theta-blog/**"
+      - "oracle/mock-theta-blog.c"
+      - "pipelines/mt-blog-source-oracle.json"
+      - "scripts/run-pipeline"
+      - "tasks/mock-theta/STAR-MT-BLOG-01.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-oracle:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact Flexible Pipes source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Check out exact Mock Theta candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphismes/mock-theta
+          ref: 50b8ee6f8c9fa24e7b20eb777372ad1079fcde2f
+          path: source
+          persist-credentials: false
+
+      - name: Check out exact AI-CI policy
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 2843a804fea1bbc4e3e40b6c236064bb1d41f316
+          path: oracle-policy
+          persist-credentials: false
+
+      - name: Recover canonical source bytes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p blog-images
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/88dba0129a22064eb39f37e60cb0bcc8/tumblr_on7hhhOtj61qc38e9o1_1280.pnj' --output blog-images/blog-frame-1.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/25dd57d5dd5e5b5c3a16772e609ba6c6/tumblr_on7hhhOtj61qc38e9o2_1280.pnj' --output blog-images/blog-frame-2.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/512755f09595d8d8ff1100d1929c784a/tumblr_on7hhhOtj61qc38e9o3_1280.pnj' --output blog-images/blog-frame-3.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/e67d92f3cc64afafe3a694c24736fd1d/tumblr_on7hhhOtj61qc38e9o6_500.pnj' --output blog-images/blog-frame-4.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/961acefd1e7f3363c15d760fe5aadba2/tumblr_on7hhhOtj61qc38e9o4_1280.pnj' --output blog-images/blog-frame-5.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/bcecd9e8e30114c3f972991f428689b6/tumblr_on7hhhOtj61qc38e9o5_1280.pnj' --output blog-images/blog-frame-6.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/d3e2c73c3cf3fdb34af99a532a81e1e8/tumblr_on7hhhOtj61qc38e9o9_1280.pnj' --output blog-images/blog-frame-7.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/90773037818bf3cb8abb4ef7f9c8e3c8/tumblr_on7hhhOtj61qc38e9o8_640.pnj' --output blog-images/blog-frame-8.pnj
+          curl --fail --location --silent --show-error 'https://64.media.tumblr.com/1e68d235df21e2e8df63d7a262bd9796/tumblr_on7hhhOtj61qc38e9o7_640.pnj' --output blog-images/blog-frame-9.pnj
+
+      - name: Qualify pinned host ICK
+        id: host-ick
+        uses: isomorphisms/ai-ci/ick-host@ba3ff90023b09e525313793554edecf2141ff95b
+
+      - name: Run checked Flexible Pipes stages
+        env:
+          ICK_HOST_CC: ${{ steps.host-ick.outputs.compiler }}
+        run: python3 scripts/run-pipeline mt-blog-source-oracle --param "compiler=$ICK_HOST_CC"
+
+      - name: Retain source, oracle, render, and stage receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mt-blog-source-oracle-${{ github.run_id }}
+          path: |
+            .flexible-pipes/runs/
+            build/mt-blog/*.tsv
+            build/mt-blog/*.ppm
+          if-no-files-found: error
