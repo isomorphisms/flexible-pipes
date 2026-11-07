@@ -1,0 +1,6 @@
+component	revision	role
+fastchat-main	442e8135c018ee003021f1c3f681686c80be9fd0	current merged baseline
+fastchat-reading-and-provider	410ce85df1eebc06c01768bbc0084ce6292c65c2	unmerged source inspection for request/history interface
+fastchat-grease-repair	7d70c331862e36cdf26981aa8c2558a5d0758eb4	predecessor owns failed Icky C workflow; not a green prerequisite
+flexible-pipes-main	181c6011956a39454fd8b018380c2ea54f0ab8e7	maintained run-pipeline and captured handoff contract
+ithon	d6e83969f82512e920fb17b44326cb54f31d015c	verified clean entrypoint for existing handoff module
