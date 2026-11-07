@@ -1,0 +1,86 @@
+name: FP ICU Arena PFD acceptance via ICK and Ike
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ib-c67-source-acceptance.yml'
+      - 'pipelines/ib-c67-source-acceptance.json'
+      - 'tasks/ib-c67-source-acceptance/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  icu-arena-host-stage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact FP candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check out exact IB #152 source producer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: d6c74283fa6bc41462a5af53c022894fe66cad90
+          path: .deps/ib152
+          persist-credentials: false
+      - name: Check out exact IB #153 native source owner
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ib
+          ref: d9f18955801864cce2e8c8ac02df853772b271ac
+          path: .deps/ib153
+          persist-credentials: false
+      - name: Check out ICU #35 native transport
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/icu
+          ref: 0da041fbe906657f4f705da45a842d96832e5ee1
+          path: .deps/icu
+          persist-credentials: false
+      - name: Check out canonical appendfat Arena
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/sd-card-append-fat
+          ref: 05a0cb7246c5a9f46abfbe92925812e7b607f454
+          path: .deps/appendfat
+          persist-credentials: false
+      - name: Check out independent AI-CI source oracle
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 634626a14834e14b776616440e0a9071708f81b7
+          path: .deps/ai-ci
+          persist-credentials: false
+      - name: Check out default native Ike
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ike
+          ref: 93f9eb0aee9094757414df8a7929c89b6a294b0c
+          path: .deps/ike
+          persist-credentials: false
+      - id: ick
+        uses: isomorphisms/ai-ci/ick-host@015cc7901ae0b3ad262b476f24e129b53c56db95
+      - name: Execute checked FP stage and independently observed Ike receipt
+        env:
+          ICK: ${{ steps.ick.outputs.compiler }}
+        run: |
+          set -euo pipefail
+          test -x "$ICK"
+          for script in tasks/ib-c67-source-acceptance/*.sh; do
+            sh -n "$script"
+          done
+          python3 -m json.tool pipelines/ib-c67-source-acceptance.json > /dev/null
+          python3 scripts/run-pipeline ib-c67-source-acceptance
+      - name: Retain stage stdout/stderr, FP receipt and Ike build receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ib-c67-fp-ick-ike-source-acceptance
+          path: |
+            .flexible-pipes/runs/
+            .flexible-pipes/ib-c67-source-acceptance/
+          if-no-files-found: warn

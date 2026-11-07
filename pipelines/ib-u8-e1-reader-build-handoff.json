@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "ib-u8-e1-reader-build-handoff",
+  "required_stages": [
+    "ike-reader-input-preflight",
+    "reader-build-handoff"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "ike-reader-input-preflight",
+      "argv": [
+        "../../.tools/ike",
+        "ike-reader-input-preflight"
+      ],
+      "cwd": "tasks/ib-u8-e1-reader-build"
+    },
+    {
+      "kind": "command",
+      "name": "reader-build-handoff",
+      "argv": [
+        "cat",
+        "tasks/ib-u8-e1-reader-build/JOB.txt"
+      ],
+      "cwd": ".",
+      "handoff": {
+        "audience": "Kitchen",
+        "model": "Ike",
+        "source_context": "FP #180 / IB-U8-E1",
+        "execution_target": "Kitchen",
+        "request": {
+          "id": "ib-u8-e1-reader-build",
+          "text": "Prepare the source-pinned native reader build only after the listed gates are satisfied. Display this assignment before any dispatch."
+        }
+      }
+    }
+  ]
+}

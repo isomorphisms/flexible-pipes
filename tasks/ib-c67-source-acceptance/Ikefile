@@ -1,0 +1,8 @@
+pfd-host-execution depends on icu-host-execution build-native-pfd.sh
+    sh build-native-pfd.sh
+
+icu-host-execution depends on admitted-source-pins build-native-icu.sh
+    sh build-native-icu.sh
+
+admitted-source-pins depends on check-pins.sh
+    sh check-pins.sh
