@@ -1,0 +1,81 @@
+1/1: Building GeometricFinite (GeometricFinite.idric)
+Error: While processing type of integer_power. Undefined name ±Number. 
+
+GeometricFinite:9:17--9:24
+ 5 | -- quantified identity is proved independently in proofs/Geometric/Finite.agda.
+ 6 | -- These witnesses are concrete normalization cases, not proof by testing.
+ 7 |
+ 8 | public export
+ 9 | integer_power : ±Number → Number → ±Number
+                     ^^^^^^^
+
+Error: No type declaration for GeometricFinite.integer_power.
+
+GeometricFinite:10:1--10:26
+ 06 | -- These witnesses are concrete normalization cases, not proof by testing.
+ 07 |
+ 08 | public export
+ 09 | integer_power : ±Number → Number → ±Number
+ 10 | integer_power ratio Z = 1
+      ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Error: While processing type of geometric_sum. Undefined name ±Number. 
+
+GeometricFinite:15:17--15:24
+ 11 | integer_power ratio (S count) =
+ 12 |   ratio × integer_power ratio count
+ 13 |
+ 14 | public export
+ 15 | geometric_sum : ±Number → Number → ±Number
+                      ^^^^^^^
+
+Error: No type declaration for GeometricFinite.geometric_sum.
+
+GeometricFinite:16:1--16:26
+ 12 |   ratio × integer_power ratio count
+ 13 |
+ 14 | public export
+ 15 | geometric_sum : ±Number → Number → ±Number
+ 16 | geometric_sum ratio Z = 0
+      ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Error: While processing type of one_four. Undefined name geometric_sum. 
+
+GeometricFinite:21:12--21:25
+ 17 | geometric_sum ratio (S count) =
+ 18 |   geometric_sum ratio count + integer_power ratio count
+ 19 |
+ 20 | public export
+ 21 | one_four : geometric_sum 1 4 = 4
+                 ^^^^^^^^^^^^^
+
+Error: While processing type of two_four. Undefined name geometric_sum. 
+
+GeometricFinite:25:12--25:25
+ 21 | one_four : geometric_sum 1 4 = 4
+ 22 | one_four = Refl
+ 23 |
+ 24 | public export
+ 25 | two_four : geometric_sum 2 4 = 15
+                 ^^^^^^^^^^^^^
+
+Error: While processing type of zero_four. Undefined name geometric_sum. 
+
+GeometricFinite:29:13--29:26
+ 25 | two_four : geometric_sum 2 4 = 15
+ 26 | two_four = Refl
+ 27 |
+ 28 | public export
+ 29 | zero_four : geometric_sum 0 4 = 1
+                  ^^^^^^^^^^^^^
+
+Error: While processing type of closed_finite_identity. Undefined name −. 
+
+GeometricFinite:34:35--34:36
+ 30 | zero_four = Refl
+ 31 |
+ 32 | public export
+ 33 | closed_finite_identity :
+ 34 |   (1 − 2) × geometric_sum 2 4 = 1 − integer_power 2 4
+                                        ^
+
