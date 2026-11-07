@@ -1,0 +1,61 @@
+{
+  "finished_at": "2026-10-19T22:51:33.198852+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "application": "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe_app/protocol-version-probe.so",
+    "body": "/workspace/scratch/d9cf5c50308f/captured-sources/FSU3700-IA.body",
+    "library": "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe_app/libicu_transport.so",
+    "metadata": "/workspace/scratch/d9cf5c50308f/captured-sources/FSU3700-IA.metadata",
+    "probe": "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe",
+    "url": "https://archive.org/wayback/available?url=https%3A%2F%2Fphilosophy.fsu.edu%2Fsites%2Fg%2Ffiles%2Fimported%2Fstorage%2Foriginal%2Fapplication%2F6bada3c0d1243a63cf917563d5d03e18.pdf"
+  },
+  "pipeline": "syllabus-source-response",
+  "pipeline_path": "pipelines/syllabus-source-response.json",
+  "pipeline_sha256": "bec23a0a1252af21622593c15a3978965c06ee5be3ec2b881ebb4a027b8b638d",
+  "repository_commit": "8b9de5b54cf1482ab210053d0ac1877f3b16ecee",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe",
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe_app/protocol-version-probe.so",
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe_app/libicu_transport.so"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:51:27.905763+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "bind-executable-identity",
+      "started_at": "2026-10-19T22:51:27.903978+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d20c9eec5ac917aee540bcfd93ac6ca9315b01c54f521a1de3fdcc9a34a9e4c6"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe",
+        "https://archive.org/wayback/available?url=https%3A%2F%2Fphilosophy.fsu.edu%2Fsites%2Fg%2Ffiles%2Fimported%2Fstorage%2Foriginal%2Fapplication%2F6bada3c0d1243a63cf917563d5d03e18.pdf",
+        "/workspace/scratch/d9cf5c50308f/captured-sources/FSU3700-IA.body",
+        "/workspace/scratch/d9cf5c50308f/captured-sources/FSU3700-IA.metadata"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:51:33.198821+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "capture-response-not-source-acceptance",
+      "started_at": "2026-10-19T22:51:27.905803+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "501b19a107ddb35cad3d27976c3e3651b989e398581189b2c1df2b6c86b76859"
+    }
+  ],
+  "started_at": "2026-10-19T22:51:27.903916+00:00",
+  "status": "PASS"
+}

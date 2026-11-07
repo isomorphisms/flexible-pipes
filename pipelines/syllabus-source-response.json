@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-source-response",
+  "description": "Capture a bounded source response using the already compiled candidate ICU Idriç probe. HTTP/error-body and discovery semantics require separate validation.",
+  "parameters": {
+    "probe": {"required": true}, "application": {"required": true},
+    "library": {"required": true}, "url": {"required": true},
+    "body": {"required": true}, "metadata": {"required": true}
+  },
+  "stages": [
+    {"kind":"command","name":"bind-executable-identity","argv":["sha256sum","{{probe}}","{{application}}","{{library}}"]},
+    {"kind":"command","name":"capture-response-not-source-acceptance","argv":["{{probe}}","{{url}}","{{body}}","{{metadata}}"]}
+  ]
+}

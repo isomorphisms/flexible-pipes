@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-icu-acceptance",
+  "description": "Run the independent ICU installed-client fixtures, including valid chunked transfer and malformed twins, against the already installed artifact.",
+  "parameters": {
+    "grease": {"required": true},
+    "acceptance": {"required": true},
+    "installed": {"required": true},
+    "evidence": {"required": true},
+    "aici": {"required": true},
+    "phase": {"required": true, "pattern": "capture|proxy"}
+  },
+  "required_stages": ["independent-installed-acceptance"],
+  "stages": [
+    {"kind": "command", "name": "independent-installed-acceptance", "argv": ["env", "ASAN_OPTIONS=detect_leaks=0", "{{grease}}", "{{acceptance}}", "{{installed}}", "{{evidence}}", "{{aici}}", "{{phase}}"]}
+  ]
+}

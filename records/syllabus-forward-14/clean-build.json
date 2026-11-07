@@ -1,0 +1,79 @@
+{
+  "finished_at": "2026-10-19T22:43:30.809101+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "aici": "/workspace/scratch/d9cf5c50308f/aici-range-qualified",
+    "chez-setting": "CHEZ=/workspace/scratch/a17a779c0b0f/Idric/_/.tools/bin/scheme",
+    "evidence": "/workspace/scratch/d9cf5c50308f/icu-build-evidence",
+    "grease": "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+    "ick-root-setting": "ICK_SOURCE_ROOT=/workspace/scratch/5e7dcaebed89/ick-source-c61",
+    "ick-setting": "ICK=/workspace/scratch/5e7dcaebed89/ick-package-complete/ick-host-stage/bin/gcc",
+    "icu": "/workspace/scratch/d9cf5c50308f/icu-qualified",
+    "idric-root-setting": "IDRIC_ROOT=/workspace/scratch/a17a779c0b0f/Idric",
+    "idric-setting": "IDRIC=/workspace/scratch/a17a779c0b0f/Idric/_/build/exec/idris2",
+    "installed": "/workspace/scratch/d9cf5c50308f/icu-installed",
+    "net-root-setting": "IDRIC_NET_ROOT=/workspace/scratch/d9cf5c50308f/net-qualified",
+    "prefix-setting": "IDRIS2_PREFIX=/workspace/scratch/d9cf5c50308f/compiler-prefix",
+    "recipe": "/workspace/scratch/d9cf5c50308f/kitchen-icu/tasks/syllabus-range-01/build.grease"
+  },
+  "pipeline": "syllabus-source-recovery",
+  "pipeline_path": "pipelines/syllabus-source-recovery.json",
+  "pipeline_sha256": "3991af755a71f69712656cff4536f37de36936dfc1aaeb46ec6301fba0ceb73c",
+  "repository_commit": "8b9de5b54cf1482ab210053d0ac1877f3b16ecee",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:43:19.767278+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "runtime-identity",
+      "started_at": "2026-10-19T22:43:19.751581+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "a593bdfaac40c53834250b3344edfbc776d229f3e3ad8299e01d46bbf79a25d6"
+    },
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "IDRIC_ROOT=/workspace/scratch/a17a779c0b0f/Idric",
+        "IDRIC=/workspace/scratch/a17a779c0b0f/Idric/_/build/exec/idris2",
+        "CHEZ=/workspace/scratch/a17a779c0b0f/Idric/_/.tools/bin/scheme",
+        "IDRIS2_PREFIX=/workspace/scratch/d9cf5c50308f/compiler-prefix",
+        "IDRIC_NET_ROOT=/workspace/scratch/d9cf5c50308f/net-qualified",
+        "ICK_SOURCE_ROOT=/workspace/scratch/5e7dcaebed89/ick-source-c61",
+        "ICK=/workspace/scratch/5e7dcaebed89/ick-package-complete/ick-host-stage/bin/gcc",
+        "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+        "/workspace/scratch/d9cf5c50308f/kitchen-icu/tasks/syllabus-range-01/build.grease",
+        "/workspace/scratch/d9cf5c50308f/icu-qualified",
+        "/workspace/scratch/d9cf5c50308f/icu-installed",
+        "/workspace/scratch/d9cf5c50308f/aici-range-qualified",
+        "/workspace/scratch/d9cf5c50308f/icu-build-evidence"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:43:30.808866+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "kitchen-build-install",
+      "started_at": "2026-10-19T22:43:19.767346+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4d572c55aad00baa9b0d8a617509c5695048bb4a53f975234ffb7a8f60c4e11c"
+    }
+  ],
+  "started_at": "2026-10-19T22:43:19.751505+00:00",
+  "status": "PASS"
+}

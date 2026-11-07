@@ -1,0 +1,46 @@
+{
+  "finished_at": "2026-10-19T22:46:11.349193+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "acceptance": "/workspace/scratch/d9cf5c50308f/aici-range-qualified/icu/range-accept.grease",
+    "evidence": "/workspace/scratch/d9cf5c50308f/icu-build-evidence/range-clean-acceptance",
+    "fixture": "/workspace/scratch/d9cf5c50308f/icu-build-evidence/fixture",
+    "grease": "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+    "probe": "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe"
+  },
+  "pipeline": "syllabus-icu-range-acceptance",
+  "pipeline_path": "pipelines/syllabus-icu-range-acceptance.json",
+  "pipeline_sha256": "7f302c142b47d73cf26d9afd67333c55cce5fd5b419c9214706d92edd3f7ec13",
+  "repository_commit": "8b9de5b54cf1482ab210053d0ac1877f3b16ecee",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+        "/workspace/scratch/d9cf5c50308f/aici-range-qualified/icu/range-accept.grease",
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/protocol-version-probe",
+        "/workspace/scratch/d9cf5c50308f/icu-build-evidence/fixture",
+        "/workspace/scratch/d9cf5c50308f/icu-build-evidence/range-clean-acceptance"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:46:11.349161+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "independent-range-acceptance",
+      "started_at": "2026-10-19T22:46:09.630158+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5a0ccd9c2824e0c11179e5f7b8eebae647d8ed14cc4ed50c6db6583955deef27"
+    }
+  ],
+  "started_at": "2026-10-19T22:46:09.630087+00:00",
+  "status": "PASS"
+}
