@@ -1,0 +1,61 @@
+{
+  "failed_stage": "ike-bootstrap-and-qualifier",
+  "finished_at": "2026-10-14T12:00:31.146113+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "ib-linux-native-ick",
+  "pipeline_path": "pipelines/ib-linux-native-ick.json",
+  "pipeline_sha256": "95709226eaa781c10aefbcf7e80f1fcf780c740b520dcd41c52efc2600967998",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/65d93ecc1fc0/ai-ci-ick",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:30:31.119884+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "producer-source",
+      "started_at": "2026-10-14T11:30:31.114042+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "dac43798023dc1e351be34c4bc319984cc657c7a13c17a24e99a459361ac1bac"
+    },
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "IKE_RECIPE_RUNNER=/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "IKE_RECEIPT=/workspace/scratch/65d93ecc1fc0/ick-build-ike.tsv",
+        "IKE_IKEFILE_IDENTITY=sha256:f0e5d35bec8898ef7aa0892c31d369ba50e272875b9e5de8ecc1858be1fa6b47",
+        "timeout",
+        "1800",
+        "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "qualified-ick"
+      ],
+      "cwd": ".flexible-pipes/ick-bootstrap",
+      "exit_code": 124,
+      "finished_at": "2026-10-14T12:00:31.144816+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "ike-bootstrap-and-qualifier",
+      "started_at": "2026-10-14T11:30:31.119960+00:00",
+      "stderr_sha256": "594c4ef37eb331060fc8bb437a681f68368d3b588bc69f7b361f25d31b0db0c7",
+      "stdout_sha256": "8881bbb3b0c223e69057482a448205f112a916e224bfbd4ab6e984e4ffbf0801"
+    }
+  ],
+  "started_at": "2026-10-14T11:30:31.113890+00:00",
+  "status": "FAIL"
+}

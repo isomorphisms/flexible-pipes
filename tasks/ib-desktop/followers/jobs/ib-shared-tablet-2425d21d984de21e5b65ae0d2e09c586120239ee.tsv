@@ -1,0 +1,25 @@
+schema	aici-follower-job-v1
+job_id	ib-shared-tablet-2425d21d984de21e5b65ae0d2e09c586120239ee
+repository	isomorphisms/ib
+branch	work/linux-shared-contract
+pr	148
+trigger_commit	2425d21d984de21e5b65ae0d2e09c586120239ee
+leader_platform	linux-build-container
+leader_arch	x86_64
+leader_evidence	receipts/ib-desktop/20261014/final-native/evidence.tsv
+artifact	-
+artifact_sha256	-
+follower_platform	tab-p10
+follower_arch	arm64-v8a
+required	yes
+action	Build on a qualified host and execute the same 38 shared semantic cases on tab-p10
+acceptance_kind	physical-device
+acceptance_action	Produce native Idriç/DEX/NDK artifact on build host, deliver through Cat Food, execute oracle and record exact source/artifact/OS/device receipts; never compile on device
+state	blocked
+last_attempt_commit	-
+blocker	No qualified physical artifact/execution receipt; legacy Android ordinary-tab store still conflicts with durable policy
+evidence	-
+depends_on	-
+reason	Required exact-source acceptance for the bounded shared-core slice; not full desktop milestone or whole SUN job acceptance
+superseded_by	-
+follow_policy	exact

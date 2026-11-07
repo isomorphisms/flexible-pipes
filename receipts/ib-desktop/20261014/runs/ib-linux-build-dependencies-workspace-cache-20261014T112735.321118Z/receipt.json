@@ -1,0 +1,54 @@
+{
+  "finished_at": "2026-10-14T11:27:54.796329+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "ib-linux-build-dependencies-workspace-cache",
+  "pipeline_path": "pipelines/ib-linux-build-dependencies-workspace-cache.json",
+  "pipeline_sha256": "fc05d6bd8b33372b306159b28b631938cde5c250499392d290789ae713065d71",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "timeout",
+        "120",
+        "apt-get",
+        "-o",
+        "APT::Sandbox::User=root",
+        "-o",
+        "Dir::Cache::archives=/workspace/scratch/65d93ecc1fc0/apt-archives",
+        "-o",
+        "Acquire::http::Timeout=15",
+        "-o",
+        "Acquire::https::Timeout=15",
+        "--no-install-recommends",
+        "install",
+        "-y",
+        "build-essential",
+        "flex",
+        "bison",
+        "texinfo",
+        "libgmp-dev",
+        "libmpfr-dev",
+        "libmpc-dev"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:27:54.796282+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "compiler-bootstrap-packages",
+      "started_at": "2026-10-14T11:27:35.325423+00:00",
+      "stderr_sha256": "7bb6198585a220d7a8080da61aa33ceaa2a267360ae245c4d5c5f780aa90213f",
+      "stdout_sha256": "4d39ba09398224fb185952ae1d8cac6b1606a72465ee56057d4b1d700145220c"
+    }
+  ],
+  "started_at": "2026-10-14T11:27:35.325312+00:00",
+  "status": "PASS"
+}

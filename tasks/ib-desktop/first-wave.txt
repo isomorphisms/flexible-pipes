@@ -1,0 +1,69 @@
+IB-LINUX-FIRST-WAVE-01
+User continuation: Go, 2026-10-14 America/Detroit.
+Authority: execute the existing first implementation wave; no merge or release.
+Target: current Linux x86-64 build host; native graphical/Android acceptance remains separately required.
+
+SUN IB-X64-00 — Reconcile the shared browser contract
+
+Model: SUN — extra-high reasoning.
+Repository: isomorphisms/ib. Parent assessment: https://github.com/isomorphisms/ib/issues/137
+Execution: Flexible Pipes → Kitchen / Ike; dependencies through Cat Food and Grease; independent acceptance: isomorphisms/ai-ci.
+Recheck live source and existing work before edits. Use one Idriç core, narrow C adapters and no Java/Python/C++ application implementation, Electron or duplicate browser state. New shared semantics require Linux and Android ARM32/ARM64 evidence. Follow current build policy; no undeclared fallback.
+Receipts: source/dependency revisions, executable hashes, OS/ABI, actual outputs/exits, targeted failures and recovery, with semantic/native/graphical/network/physical results separated. Missing evidence is NOT_RUN. No merge or release authority.
+
+Depends on: No implementation predecessor; read the parent assessment.
+Estimated effort: 12–20 focused engineering hours.
+Status: CREATED / NOT_EXECUTED / NOT_DISPATCHED. Initial source/contract work can begin; executable acceptance requires a qualified FP/toolchain entrypoint.
+
+Outcome: one source-backed command/state contract consumed by Linux and Android.
+Start with IB main 10fa7bbe93ff9ffa1ba7b9f62e0dd8f6c10a86bc and reconcile the canonical successor 631052fbeccd183c4fd409428180b3eab824c481, fragment work a3bbcb5741d34318d85ab32ad9627abddb6f4a62, and lifecycle work 41d4cae9c15e42d3b0b4ed4ed957ba86a7ac396a. Refresh live ancestry first.
+Files: src/IB/{Information,Strand,Prepaint,History,LongViewTask,LongViewLifecycle,FragmentStore}.idric; docs/{architecture,storage-model,prepaint-display-contract,renderer-interface}.md. Reuse existing owners; proposed tests belong under tests/desktop/shared/.
+Keep acquisition, decoding, extraction, projection, layout, and presentation separate. Fix the current conflict between durable ordinary tabs and persistence_for ordinary_tab = renderer_lifetime_only. Define ordinary navigation replay without weakening protected-address redaction. Preserve requested/resolved/resource/representation/event/tab/task identities separately. Add checked mappings from decoded source coordinates to displayed blocks; the current extractor collapses whitespace and a source reference alone does not prove exact spans.
+Acceptance: identical semantic traces on Linux and Android for duplicate visits, redirects, source revision changes, stale callbacks, unavailable bytes, and restart. UTF-8 bytes, Unicode code points, and toolkit offsets must not be interchangeable. Reject mutated source bindings and an origin-only replacement of a restorable ordinary path.
+Output: bounded integration PR, migration decisions, shared fixtures, and exact receipts. Native execution follows 01; do not claim evaluator results as runtime acceptance.
+
+
+---
+
+SUN IB-X64-01 — Qualify the Linux executable and C boundary
+
+Model: SUN — extra-high reasoning.
+Repository: isomorphisms/ib. Parent assessment: https://github.com/isomorphisms/ib/issues/137
+Execution: Flexible Pipes → Kitchen / Ike; dependencies through Cat Food and Grease; independent acceptance: isomorphisms/ai-ci.
+Recheck live source and existing work before edits. Use one Idriç core, narrow C adapters and no Java/Python/C++ application implementation, Electron or duplicate browser state. New shared semantics require Linux and Android ARM32/ARM64 evidence. Follow current build policy; no undeclared fallback.
+Receipts: source/dependency revisions, executable hashes, OS/ABI, actual outputs/exits, targeted failures and recovery, with semantic/native/graphical/network/physical results separated. Missing evidence is NOT_RUN. No merge or release authority.
+
+Depends on: No implementation predecessor; read the parent assessment.
+Estimated effort: 16–32 hours for qualification and packaging; compiler capability expansion is separately estimated if blocked.
+Status: CREATED / NOT_EXECUTED / NOT_DISPATCHED. Initial source/contract work can begin; executable acceptance requires a qualified FP/toolchain entrypoint.
+
+Outcome: reproducible Linux x86-64 executables from maintained Idriç, with a usable narrow C interface.
+Inspect IB's .github/workflows/idric-core.yml and bin/ci_browser_foundation.grease at 10fa7bbe93ff9ffa1ba7b9f62e0dd8f6c10a86bc; canonical Idriç e8b9173ab2d840ef0cf212698ea2fee97bd9e807; ICK c61e448251744a2f40ad743ebef1a027bdcd2f9d; direct x86 backend 00716e7f07176438960cca6b2b1ec692249ebb17.
+Qualification candidate: the existing maintained Idriç/Chez route with an explicitly declared native Chez runtime and ICK-built C support. This is not a direct-ELF or runtime-free IB claim. Do not silently choose RefC/generated C. The direct x86 backend explicitly lacks general strings, allocation, external input, C interoperability, and dynamic linking; keep those as real upstream gaps.
+Add proposed src/DesktopMain.idric, native/linux/ib_platform.{h,c}, qualification/linux-x86-64/, and a Kitchen tasks/ib-desktop/ recipe using Ike and Cat Food. Adapt names only after checking existing owners. Every maintained compile/link stage must satisfy AI-CI's current build-toolchain contract; an unsupported glibc/Linux stage blocks rather than using Android Bionic.
+Acceptance: fresh-cache builds twice, explicit reproducibility result, relocation and arbitrary launch directory, ELF/ABI/dependency inspection, Unicode round-trip, C ownership/lifetime, event delivery, errors, and missing-library refusal. Compile and run actual shared IB modules, not a lookalike canary. Record compiler, runtime and executable hashes.
+Output: qualified executable bundle and prerequisite receipt, or an exact upstream blocker with a bounded compiler follow-up. No desktop milestone PASS from this job alone.
+
+
+---
+
+SUN IB-X64-08 — Enforce continuous parity, package and measure
+
+Model: SUN — extra-high reasoning.
+Repository: isomorphisms/ib. Parent assessment: https://github.com/isomorphisms/ib/issues/137
+Execution: Flexible Pipes → Kitchen / Ike; dependencies through Cat Food and Grease; independent acceptance: isomorphisms/ai-ci.
+Recheck live source and existing work before edits. Use one Idriç core, narrow C adapters and no Java/Python/C++ application implementation, Electron or duplicate browser state. New shared semantics require Linux and Android ARM32/ARM64 evidence. Follow current build policy; no undeclared fallback.
+Receipts: source/dependency revisions, executable hashes, OS/ABI, actual outputs/exits, targeted failures and recovery, with semantic/native/graphical/network/physical results separated. Missing evidence is NOT_RUN. No merge or release authority.
+
+Depends on: No implementation predecessor; read the parent assessment.
+Estimated effort: 16–24 hours for gate/packaging plus 8–16 hours for integrated measurements.
+Status: CREATED / NOT_EXECUTED / NOT_DISPATCHED. Initial source/contract work can begin; executable acceptance requires a qualified FP/toolchain entrypoint.
+
+Outcome: every shared IB change keeps Linux x86-64 and Android ARM32/ARM64 independently buildable and testable.
+Start immediately alongside 00/01; finish only after 02–05's first milestone and then extend to 07/06. Reuse .github/workflows/{idric-core,exact-text,merge-gate}.yml, bin/ci_browser_foundation.grease, and the producer-status repair 19a103842159c41c3fe50054a03601157c86f131. Audit all compiler/program pipelines: main's foundation still pipes producers through tee. Reject plausible output followed by nonzero exit.
+Proposed IB paths: .github/workflows/linux-desktop.yml, ci/desktop-parity.tsv, qualification/linux-x86-64/. Reusable verifier belongs in isomorphisms/ai-ci; recipes in Kitchen, execution registration in Flexible Pipes, artifacts and target inventory in Cat Food. Use Ike. Do not invent an unregistered dispatch command.
+Create separate required results for shared semantics, native Linux execution, native graphical integration, real network, restart/fault recovery, Android runtime and named physical-device acceptance. No missing/skipped/stale result is PASS. Use exact source/dependency hashes, pinned actions, complete trigger coverage and producer exit checks.
+First integrated test must launch ib-desktop, fetch real HTTPS, paint extracted content, reflow on resize, copy Unicode into an independent application, follow a link, restart with history intact, and survive a terminated worker/presentation process. Wayland and X11 are display lanes; Android x86-64 is emulator evidence only.
+Package a launchable desktop entry and relocatable declared runtime closure. Measure cold/warm startup, first useful paint, input/reflow latency, peak/steady memory and worker/renderer counts; report sample sizes and machine/GPU/font identity. Adopt explicit budgets from measured baselines.
+Output: enforced parity workflow, independent receipts, package hashes and release-ready artifacts. Publishing or merging requires separate authority.
+

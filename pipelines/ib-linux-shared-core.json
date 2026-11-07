@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "name": "ib-linux-shared-core",
+  "description": "Check the actual shared IB source through Kitchen and pinned Ike/native Grease; AI-CI owns the 38-case oracle and production mutations.",
+  "parameters": {
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "grease-engine": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ike": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "compiler-program": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "kitchen-runner": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "oracle": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ib": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "aici": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "bundle": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "output": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ick-stage": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ike-receipt": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "runtime-and-recipe-identities",
+    "kitchen-ike-acceptance",
+    "ike-receipt"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/ib-desktop/first-wave.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "runtime-and-recipe-identities",
+      "argv": [
+        "sha256sum",
+        "{{grease-engine}}",
+        "{{ike}}",
+        "{{compiler-program}}",
+        "{{kitchen-runner}}",
+        "{{kitchen-task}}",
+        "{{oracle}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-acceptance",
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "{{grease}}",
+        "{{kitchen-runner}}",
+        "shared",
+        "{{ib}}",
+        "{{aici}}",
+        "{{bundle}}",
+        "{{output}}",
+        "{{ick-stage}}",
+        "{{grease}}",
+        "{{ike}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ike-receipt",
+      "argv": [
+        "cat",
+        "{{ike-receipt}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}
