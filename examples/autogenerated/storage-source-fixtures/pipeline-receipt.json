@@ -1,0 +1,51 @@
+{
+  "finished_at": "2026-10-06T17:35:04.380451+00:00",
+  "github_sha_declared": null,
+  "pipeline": "storage-retained-source-fixtures",
+  "pipeline_path": "pipelines/storage-retained-source-fixtures.json",
+  "pipeline_sha256": "08118b1da4e6b70d6f45ff4637b2d5e87f224735f999c1920a2da9268d8c660d",
+  "repository_commit": "3f131200333967e943b796d371a6a14e4aa66c80",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "grease",
+        "scripts/storage-source-stage.grease",
+        "execute"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T17:35:04.180789+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "qualify-retained-source",
+      "started_at": "2026-10-06T17:35:00.339369+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f02b05cfd2324bcce1640443b130fe80aeb16339953ac3f21f3b59990e094ce4"
+    },
+    {
+      "argv": [
+        "grease",
+        "scripts/storage-source-stage.grease",
+        "verify"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-06T17:35:04.380422+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "validate-receipt",
+      "started_at": "2026-10-06T17:35:04.180897+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8b7c9fccb9504ea4f3b77f49bf0b98668714305b3e1679d53d8e0c487f3a0f9d"
+    }
+  ],
+  "started_at": "2026-10-06T17:35:00.339285+00:00",
+  "status": "PASS"
+}
