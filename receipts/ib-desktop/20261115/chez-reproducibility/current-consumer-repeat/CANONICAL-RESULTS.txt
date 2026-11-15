@@ -1,0 +1,111 @@
+Corrected material-identity experiment, 2026-11-15
+
+Correction and preserved earlier evidence:
+The earlier material.tsv and registered-material.tsv included execution receipt
+hashes, clocks, run IDs, paths and receipt serialization in the UID namespace.
+Those tests remain untouched as superseded conditional diagnostics: they prove
+repeatability only for an identical receipt-seeded declaration, not stable
+material identity across independent executions. Do not use their output hashes
+as canonical reproducibility acceptance. Existing RESULTS.txt is unchanged.
+
+Canonical input construction:
+Two independent sha256sum invocations hashed the actual source/native/support
+files from qualification/native-current-second/consumer/ttc/exec/ib-linux-foundation-check_app
+and qualification/fp-native-current/consumer/ttc/exec/ib-linux-foundation-check_app.
+Each also hashed the same actual compiler program and its runtime/support,
+selected compilation kernel and patched boots, compile driver, fixed canonical
+option/target/unit files and the kernel's libc/libm/loader content.
+Raw, path-bearing hash observations are canonical-native/raw-content.sha256 and
+canonical-fp/raw-content.sha256. cut extracted only each 64hex content hash;
+paste paired it with canonical-inputs/roles.txt in the fixed listed order.
+Neither run's canonical manifest was copied from the other's manifest.
+
+The canonical TSV contains exactly18 role-to-content-hash rows. It contains no
+execution receipt hash, clock, run ID, file path, output root or receipt format.
+The only canonical configuration files are compile-options.txt, target.txt and
+unit.txt under canonical-inputs; their exact bytes are themselves content-bound.
+Changing execution receipts or where those files reside cannot change this
+namespace. Runtime source/build provenance is recorded outside the namespace;
+the actual selected kernel and boot bytes are material identities.
+
+cmp canonical-native/material.tsv canonical-fp/material.tsv exited0.
+Both manifests SHA256:
+fb882f8d0b170d03147a2468b99166672e3ebd75a8be7bd86baf16b9e7458694
+This same digest, not any provenance digest, was passed as CLOSURE below.
+
+Actual source identity:
+Both actual generated Scheme inputs have SHA256
+cdde742cf86e19cd674e38dcf8bf0d21e8327db1810ed582e05b9d7b15e6544a.
+Each was independently copied from its corresponding actual consumer root into
+canonical-native or canonical-fp as ib-linux-foundation-check.ss. No input bytes
+were rewritten. Generated-source compiler94dfd99bd3e376507fedc8611053b7173b2519f0;
+IB2425d21d984de21e5b65ae0d2e09c586120239ee; independent oracle
+4cc61d96c02ebeff408c33dc065a4a6948696967. This source differs from the retained
+October input hash6b446268... only in its original interpreter bundle path.
+
+Exact selected invocation paths:
+kernel=/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/bin/scheme
+petite=/workspace/scratch/2990a35631ac/chez-repro-probe/boot-regeneration/boot/ta6le/petite.boot
+scheme=/workspace/scratch/2990a35631ac/chez-repro-probe/boot-regeneration/boot/ta6le/scheme.boot
+driver=/workspace/scratch/2990a35631ac/chez-repro-probe/current-consumer-repeat/compile.ss
+BASE=/workspace/scratch/2990a35631ac/chez-repro-probe/current-consumer-repeat
+CLOSURE=fb882f8d0b170d03147a2468b99166672e3ebd75a8be7bd86baf16b9e7458694
+Compilation argv:
+[kernel,-B,petite,-B,scheme,--script,driver,scoped,program,
+ ib-linux-foundation-check.ss,OUTPUT,IB/NativeFoundationOracle,CLOSURE]
+New native Scheme process for every invocation; original compile-program,
+optimize-level3, compile-file-message false and original runtime-default
+compressed FASL. No output rewriting, inspector stripping or alternate compiler.
+
+cwd BASE/canonical-native; OUTPUT canonical-a.so; exit0
+cwd BASE/canonical-native; OUTPUT canonical-b.so; exit0
+cwd BASE/canonical-fp; OUTPUT canonical-c.so; exit0
+All3 compressed FASLs SHA256:
+69bc65136bc328014e852d93401aff2bc336a8021a2981006a0e6902288e171c
+cmp canonical-native/canonical-a.so canonical-native/canonical-b.so exited0.
+cmp canonical-native/canonical-a.so canonical-fp/canonical-c.so exited0.
+All compile stdout/stderr and generated-ID traces remain beside each output.
+
+Runtime invocation argv:
+[kernel,-B,petite,-B,scheme,--program,absolute-canonical-FASL]
+LD_LIBRARY_PATH was the absolute corresponding private app directory.
+canonical-native/canonical-a.so exited0: all46 assertions True, stderr empty.
+canonical-fp/canonical-c.so exited0: all46 assertions True, stderr empty.
+Both runtime outputs match each other and registered FP consumer/clean.txt,
+cmp0. Output SHA256:
+10816ab5a8c6116244e856a2bf101eaed2f933a9062c0751957f5b0bda90a7ec
+
+Fresh negative/recovery controls used the canonical FASL itself:
+Only canonical-fp/libib_linux.so was replaced with the registered consumer's
+qualified wrong-bytecount mutant SHA256
+2f02c837b58b1b389dcacfba186da71ab5d0bd933459a852702798bad8e36693.
+canonical-c.so exited1 with native-empty-bytes=False.
+Renaming that private library away yielded exit255:
+Exception: (while loading libib_linux.so) libib_linux.so: cannot open shared object file: No such file or directory
+Restoring the exact qualified library yielded exit0 and all46 True; recovery
+output cmp with canonical-native/program.stdout exited0.
+Logs canonical-fp/mutant.*, missing.*, recovery.* are retained.
+
+Canonical FASL relocation:
+Copied canonical-a.so plus both exact libraries into private directory
+BASE/canonical relocated it's 東京🙂. With its absolute FASL and LD_LIBRARY_PATH,
+the same kernel and explicit boots ran exit0 and all46 True; output cmp0 with
+canonical-native/program.stdout. Logs in that relocation directory.
+
+Separate provenance, not generator input:
+canonical-provenance.tsv links the native Ike receipt and registered FP/Ike
+receipts with their exact hashes. It is not in either canonical manifest.
+Registered FP run ib-linux-native-foundation-20261115T185938.399026Z is PASS,
+repository c22a8412955141aa424e2493d1b72ad1955e2190, Kitchen
+57e33309c8999f01e4e54caab8b5c6546843043b, all4 stages exit0. This local
+canonical repeat experiment is not itself a newly dispatched FP run.
+
+Limits:
+These results establish identical declared material across two independently
+executed actual-consumer runs, matching original-compression FASLs under that
+shared namespace, and the real46-case CFFI behavior on this prototype runtime.
+The compiler/material roles bind the executable content used here, not a fresh
+sourcecompiler rebuild or a claim that compiler source identity alone determines
+its executable. No production runtime publication, boot-build reproducibility,
+arbitrary Scheme reproducibility, GUI/network/disk recovery or Android/device
+acceptance is claimed. All admitted inputs and old attempts remain unchanged.

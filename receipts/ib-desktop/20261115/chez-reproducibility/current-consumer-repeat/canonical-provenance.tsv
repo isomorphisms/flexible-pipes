@@ -1,0 +1,6 @@
+role	path	sha256
+native-ike-receipt	/workspace/scratch/2990a35631ac/qualification/native-current-second/ike.tsv	d1295561bba9a532226e4f54c226d9f6a3c582ba256a98d505b74d96f7b58469
+registered-fp-run-receipt	/workspace/scratch/2990a35631ac/qualification/fp-runs/ib-linux-native-foundation-20261115T185938.399026Z/receipt.json	662d24d5014d74af8bf25e55dc5e488d2d54048a6f47f01c14b4e81ebd9c3b63
+registered-fp-ike-receipt	/workspace/scratch/2990a35631ac/qualification/fp-native-current/ike.tsv	0a2f47bcf0abe87428804e15f6ea2a01980ae781406bcc99efebd07f81b7d51e
+native-evidence	/workspace/scratch/2990a35631ac/qualification/native-current-second/consumer/evidence.tsv	9a6022b6946946c7835d206904ed443e185d6f0cf8d39b2ee532493116ff21ee
+registered-fp-evidence	/workspace/scratch/2990a35631ac/qualification/fp-native-current/consumer/evidence.tsv	9a6022b6946946c7835d206904ed443e185d6f0cf8d39b2ee532493116ff21ee

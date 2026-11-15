@@ -87,3 +87,9 @@ prototype. It is not yet integrated into the maintained Idriç compiler or a
 published runtime package. The renewed native C/FFI baseline above passed;
 final reproducible packaging, desktop GUI/network/recovery, Android followers,
 and physical devices remain separate unfinished obligations.
+
+## Independent material identity correction
+
+The latest current-consumer comparison derives its material signature separately from the direct native run and registered FP run. Both eighteen-role content manifests match `fb882f8d0b170d03147a2468b99166672e3ebd75a8be7bd86baf16b9e7458694`. Three compressed FASLs across those roots match `69bc65136bc328014e852d93401aff2bc336a8021a2981006a0e6902288e171c`; both executables pass all 46 cases, and fresh mutation, missing-library, recovery and Unicode relocation controls pass their intended results.
+
+Execution receipts, clocks, run identifiers, paths and receipt serialization supply provenance only and are excluded from the identifier-producing material signature. Earlier receipt-seeded repetitions in `current-consumer-repeat/RESULTS.txt` remain preserved as superseded conditional experiments, not independent-build acceptance. `CANONICAL-RESULTS.txt` and both independently constructed material manifests record the corrected result. This is the already described runtime prototype; it does not publish or promote a new compiler-source feature or production runtime.
