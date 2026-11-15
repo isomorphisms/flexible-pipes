@@ -187,11 +187,24 @@ loading both libraries failed255 with the intended duplicate-library error:
 Exception: attempting to re-install compile-time part of library (probe two).
 Logs: patched-program*, patched-libraries*, patched-constant-libraries*.
 
+Actual retained consumer runtime acceptance:
+The qualified current ICK library was copied into private runtime-acceptance/app;
+its SHA256 is 1db655e223561357f96fb742801fadef457429851a4dc6d19a0067a5f51312b6.
+The original94df Idric support library SHA256 is
+970b7014118d45951364e900b170c276dbef82c82343e2db6cb88ecc4149743f.
+With LD_LIBRARY_PATH bound to that private app, the explicit prototype kernel
+and both -B boot arguments executed actual-a/patched-two-a.so: all46 lines True,
+exit0. Logs runtime-acceptance/control.stdout and control.stderr.
+The receipt-backed wrong-bytecount ICK mutant SHA256
+2f02c837b58b1b389dcacfba186da71ab5d0bd933459a852702798bad8e36693
+replaced only this private library copy: native-empty-bytes=False and exit1.
+Removing that private library produced the intended load-shared-object missing
+libib_linux.so exception and exit255. Restoring qualified original library then
+re-executed all46 cases True, exit0. Logs runtime-acceptance/mutant.*, missing.*,
+recovery.* retain the failing and recovery outputs. No admitted bundle changed.
+
 Remaining exact boundary:
-These are actual consumer compilation and small independent semantic controls,
-not yet execution of the46-case real consumer with its ICK C FFI library.
 No source-level Idric compiler integration, renewed runtime package publication,
 bootfile rebuild reproducibility, general library reproducibility, complete
 fresh-host toolchain qualification, Android parity, GUI, network or disk recovery
-acceptance is claimed. The first missing local execution input is qualified
-libib_linux.so; no substitute compiler or hand-written lookalike was used.
+acceptance is claimed. No substitute compiler or hand-written lookalike was used.

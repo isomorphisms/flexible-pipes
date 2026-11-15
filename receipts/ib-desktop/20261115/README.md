@@ -1,7 +1,36 @@
 # IB Linux qualification continuation — November 15, 2026
 
-This records actual direct execution during SUN IB-X64-01 continuation. It is
-not a Flexible Pipes dispatch or a new pipeline acceptance verdict.
+The registered native-foundation replay passed. Direct source replay and
+reproducibility experiments below carry their own separately identified evidence.
+
+## Registered native pipeline replay
+
+`ib-linux-native-foundation-20261115T185938.399026Z` completed with status PASS
+and controller exit 0. All four registered stages exited 0. The exact receipt
+and byte-preserved stage streams are under `runs/`; selected native diagnostics
+and the generated Scheme are under `native-current/`.
+
+Execution source: FP `c22a8412955141aa424e2493d1b72ad1955e2190`, Kitchen
+`57e33309c8999f01e4e54caab8b5c6546843043b`, unchanged IB
+`2425d21d984de21e5b65ae0d2e09c586120239ee`, independent AI-CI
+`4cc61d96c02ebeff408c33dc065a4a6948696967`, and delivered native ICK
+`34a463354975cdc8dfce4d96edb8d0aa17300968`. The actual target is this Debian
+13.6 Linux x86-64 container, glibc 2.41; the producer's Ubuntu evidence remains
+separate. Package database records are unavailable here and are recorded as
+such; actual resolved runtime files were hashed and checked unchanged.
+
+The real 46-case generated Idriç/C ABI program passed. A compiled wrong-bytecount
+library failed its intended case, a missing library failed to load, and clean
+recovery plus Unicode/apostrophe-path relocation passed all 46 cases again.
+The independent Icky C O0/O2 controls passed, wrong division exited 2, and
+preprocessor division was rejected. Source, recipe, material, compiler, own
+runtime, and actual host runtime checks passed unchanged.
+
+This is actual registered FP command execution through native Grease and Ike.
+It is not a model-backed SUN dispatch or a complete graphical desktop result.
+Source admission, generated-program execution, byte reproducibility, native
+graphical behavior, real network, disk recovery, Android, and physical-device
+claims remain distinct.
 
 ## Shared source replay
 
@@ -55,6 +84,6 @@ constant namespace fails its duplicate-library check.
 The exact two-line patch, boot driver, and inputs are preserved beside the
 diagnosis. This is actual retained-consumer compilation under an isolated
 prototype. It is not yet integrated into the maintained Idriç compiler or a
-published runtime package. Native C/FFI execution with the renewed material,
-final packaging, desktop GUI/network/recovery, Android followers, and physical
-devices remain separate unfinished obligations.
+published runtime package. The renewed native C/FFI baseline above passed;
+final reproducible packaging, desktop GUI/network/recovery, Android followers,
+and physical devices remain separate unfinished obligations.
