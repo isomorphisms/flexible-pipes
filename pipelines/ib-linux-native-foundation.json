@@ -47,10 +47,6 @@
       "required": true,
       "pattern": "/[^\\t\\r\\n]+"
     },
-    "kitchen-root": {
-      "required": true,
-      "pattern": "/[^\\t\\r\\n]+"
-    },
     "material": {
       "required": true,
       "pattern": "/[^\\t\\r\\n]+"
@@ -74,6 +70,10 @@
     "runtime-receipt-sha256": {
       "required": true,
       "pattern": "[0-9a-f]{64}"
+    },
+    "kitchen-runner": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
     }
   },
   "required_stages": [
@@ -101,6 +101,7 @@
         "{{ike}}",
         "{{compiler-program}}",
         "{{kitchen-task}}",
+        "{{kitchen-runner}}",
         "{{oracle}}",
         "{{probe}}"
       ],
@@ -110,13 +111,8 @@
       "kind": "command",
       "name": "kitchen-ike-acceptance",
       "argv": [
-        "env",
-        "GREASE={{grease}}",
-        "IKE={{ike}}",
-        "KITCHEN_ROOT={{kitchen-root}}",
         "{{grease}}",
-        "{{kitchen-task}}",
-        "run",
+        "{{kitchen-runner}}",
         "{{ib}}",
         "{{aici}}",
         "{{bundle}}",
@@ -126,7 +122,9 @@
         "{{ick-archive-sha256}}",
         "{{probe}}",
         "{{compiler-receipt-sha256}}",
-        "{{runtime-receipt-sha256}}"
+        "{{runtime-receipt-sha256}}",
+        "{{grease}}",
+        "{{ike}}"
       ],
       "cwd": "."
     },
