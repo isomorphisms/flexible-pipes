@@ -108,3 +108,90 @@ Minimal repair candidate requiring real rebuilt-runtime proof:
    roots, changed-input namespace separation and generativity/collision mutants.
 No compiled-runtime repair, Idric-source repair or reproducibility PASS is
 claimed before that real execution.
+
+==== Scheme-only runtime prototype, subsequent executed repair ====
+
+Exact official csv10.4.1.tar.gz was downloaded and its SHA256 matched the
+runtime_source_sha256 above before extraction. Original archive and old admitted
+runtime stayed unchanged. Scratch source changes are exactly two source lines;
+current-generate-id-runtime.patch contains the stable-path diff.
+
+One-line programUID prototype:
+Only syntax.ss:2860 changed to ((current-generate-id) 'program).
+Scheme-only direct instantiation of official s/build.zuo bootall stages exited0.
+No configure, Make, Zuo, C compiler or linker was invoked.
+Its boot files and modified syntax are retained under boot-program-only.
+Petite SHA256 38db214da6a113aab4990140ee9b6e377c23c00d3306e8c859479d2214e7fe65
+Scheme SHA256 e90aa0e898a662b231ccb00fccfc986a2f6e25e0507015dbc2d58ecddb980b3e
+Syntax SHA256 ae9e71da3a1450fb86c0c5d3f7e407b64b597369f99532b74a58c5ea46472644
+The programUID then appeared in scoped generated-ID logs as intended, but real
+consumer FASL retained two additional random g0/g1 binder UID strings inside
+foreign-procedure inspector metadata. Uncompressed repeats differed only at
+40793..40817 and50318..50342. Source path:
+syntax.ss:9080 generate-temporaries for FFI arguments;
+syntax.ss:7318 gen-temp directly used (gensym), bypassing scoped generation.
+
+Two-line prototype:
+syntax.ss:7318 now uses (wrap ((current-generate-id) 'temporary) top-wrap).
+Default current-generate-id remains the native fresh-gensym implementation;
+determinism is enabled only by the separately scoped compile driver.
+Second Scheme-only boot generation exited0 and printed
+scheme-only-boot-regeneration=PASS. All56Scheme implementation source files
+compiled, including the real macro expander and compiler. Build logs:
+boot-regeneration/two-line-build.stdout and two-line-build.stderr.
+Three earlier driver setup failures remain as attempt1/2/3 records and do not
+count as source/runtime failures or accepted builds.
+
+Exact boot command:
+SCHEMEHEAPDIRS=/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/lib/csv10.4.1/ta6le /workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/bin/scheme --script /workspace/scratch/2990a35631ac/chez-repro-probe/boot-regeneration/build.ss
+The script instantiates official ta6le tunix.def configuration, system compilation
+preamble, source lists, optimize/debug/GC settings and $make-boot-file stages.
+It creates replacement Scheme boot files without recompiling the native kernel.
+Driver SHA256 de789141012621642777434a5557b2437e3418a8eab75727863d9980b9ef6670.
+Patched syntax SHA256 7ab7c22173a8aed66b79ccb20586252de38ca7adb30bb9b482321fec07f001d6.
+New petite.boot SHA256 f73ec00dcb27139179daa527b4e7384af9c7f4b3be4043a79781c9c5c2349e84.
+New scheme.boot SHA256 a7bf003cdbd9c6660e2139ff2b91fae76464c900a6281096174aaae5b6a84347.
+Original native scheme binary SHA256 remains
+09ddda27046038a2703f350cbed827821b7c1e9c3724731d1d8b0178420e48a4.
+
+Runtime prototype selection (no installation or replacement of admitted bundle):
+/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/bin/scheme -B /workspace/scratch/2990a35631ac/chez-repro-probe/boot-regeneration/boot/ta6le/petite.boot -B /workspace/scratch/2990a35631ac/chez-repro-probe/boot-regeneration/boot/ta6le/scheme.boot
+
+Actual consumer compressed-output reproducibility PASS:
+Input namespace manifest actual-patched-inputs.tsv binds the original complete
+consumer input manifest, unchanged kernel, patched boots, exactsource, two-line
+syntax source, Scheme build recipe, stable relative filename and compile options.
+Manifest SHA256 26b45c4be64e0db73012d17547713a5e3143ddc19026b6b971e429f5fde2d2af.
+From cwd actual-a, two fresh prototype-runtime processes ran:
+--script /workspace/scratch/2990a35631ac/chez-repro-probe/compile.ss scoped program ib-linux-foundation-check.ss patched-two-a.so IB/NativeFoundationOracle 26b45c4be64e0db73012d17547713a5e3143ddc19026b6b971e429f5fde2d2af
+and the identical command with output patched-two-b.so.
+From cwd actual-b, a third fresh process used output patched-two-c.so.
+All compiled successfully, exit0, without changing the original generated
+Scheme bytes, turning off inspector information or rewriting generated output.
+All three original-compression FASL SHA256 values are exactly:
+088a34f4d9ce1d7b2355054aba325e3c5a6eb25c036e883886b2208ea28409a5.
+cmp patched-two-a.so patched-two-b.so exited0.
+cmp actual-a/patched-two-a.so actual-b/patched-two-c.so exited0.
+Each associated stdout/stderr is retained beside its output.
+
+Semantics/collision controls on two-line runtime:
+Control closure manifest control-runtime-inputs.tsv SHA256
+357bc74336023d24f8316607617e9b170e060403ffbed8c1c7d52cd9082d3cc6.
+Small sample compiled with this runtime and executed with explicit --program:
+runtime-generativity=PASS, exit0. Runtime records stay generative; runtime
+gensyms stay fresh; fixed record payload and legacy thread/semaphore types work.
+Two different content/unit-scoped libraries compiled and loaded together:
+compilation-unit-record-separation=PASS, exit0.
+The deliberately unsafe constant-unit/closure namespace mutant compiled but
+loading both libraries failed255 with the intended duplicate-library error:
+Exception: attempting to re-install compile-time part of library (probe two).
+Logs: patched-program*, patched-libraries*, patched-constant-libraries*.
+
+Remaining exact boundary:
+These are actual consumer compilation and small independent semantic controls,
+not yet execution of the46-case real consumer with its ICK C FFI library.
+No source-level Idric compiler integration, renewed runtime package publication,
+bootfile rebuild reproducibility, general library reproducibility, complete
+fresh-host toolchain qualification, Android parity, GUI, network or disk recovery
+acceptance is claimed. The first missing local execution input is qualified
+libib_linux.so; no substitute compiler or hand-written lookalike was used.

@@ -42,7 +42,19 @@ times. Relative source filenames separately remove build-root path differences.
 Uncompressed output is diagnostic evidence; it is not normalized production
 acceptance or a change to the selected compile-program mechanism.
 
-Compiled-byte reproducibility remains FAILED. The scoped generator is an
-experiment, not an accepted compiler/runtime change. Native C/FFI execution with
-the renewed material, final packaging, desktop GUI/network/recovery, Android
-followers, and physical-device work remain separate unfinished obligations.
+The original delivered runtime still fails compiled-byte reproducibility. A
+two-line runtime prototype routes program identity and foreign-procedure
+temporary binders through the scoped generator. Rebuilding all 56 Scheme
+implementation files through the official boot stages required no C compilation
+or kernel replacement. Three fresh compressed compile-program outputs, across
+two roots, now match SHA-256
+`088a34f4d9ce1d7b2355054aba325e3c5a6eb25c036e883886b2208ea28409a5`.
+Runtime generativity and distinct-library controls pass; a deliberately unsafe
+constant namespace fails its duplicate-library check.
+
+The exact two-line patch, boot driver, and inputs are preserved beside the
+diagnosis. This is actual retained-consumer compilation under an isolated
+prototype. It is not yet integrated into the maintained Idriç compiler or a
+published runtime package. Native C/FFI execution with the renewed material,
+final packaging, desktop GUI/network/recovery, Android followers, and physical
+devices remain separate unfinished obligations.
