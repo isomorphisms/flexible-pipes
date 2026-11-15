@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "ib-linux-native-foundation",
-  "description": "Generate and run the actual IB core and independent oracle on Linux x86-64 through Kitchen/Ike, with an ICK-built C boundary, targeted native mutation and missing-library refusal.",
+  "description": "Replay delivered native ICK material through Kitchen and Ike, qualify its literal C dialect on the consuming host, and execute the maintained 46-case IB C/FFI consumer with failure and recovery controls.",
   "parameters": {
     "grease": {
       "required": true,
@@ -16,10 +16,6 @@
       "pattern": "/[^\\t\\r\\n]+"
     },
     "compiler-program": {
-      "required": true,
-      "pattern": "/[^\\t\\r\\n]+"
-    },
-    "kitchen-runner": {
       "required": true,
       "pattern": "/[^\\t\\r\\n]+"
     },
@@ -47,13 +43,37 @@
       "required": true,
       "pattern": "/[^\\t\\r\\n]+"
     },
-    "ick-stage": {
-      "required": true,
-      "pattern": "/[^\\t\\r\\n]+"
-    },
     "ike-receipt": {
       "required": true,
       "pattern": "/[^\\t\\r\\n]+"
+    },
+    "kitchen-root": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "material": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "probe": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ick-source": {
+      "required": true,
+      "pattern": "[0-9a-f]{40}"
+    },
+    "ick-archive-sha256": {
+      "required": true,
+      "pattern": "[0-9a-f]{64}"
+    },
+    "compiler-receipt-sha256": {
+      "required": true,
+      "pattern": "[0-9a-f]{64}"
+    },
+    "runtime-receipt-sha256": {
+      "required": true,
+      "pattern": "[0-9a-f]{64}"
     }
   },
   "required_stages": [
@@ -80,9 +100,9 @@
         "{{grease-engine}}",
         "{{ike}}",
         "{{compiler-program}}",
-        "{{kitchen-runner}}",
         "{{kitchen-task}}",
-        "{{oracle}}"
+        "{{oracle}}",
+        "{{probe}}"
       ],
       "cwd": "."
     },
@@ -91,17 +111,22 @@
       "name": "kitchen-ike-acceptance",
       "argv": [
         "env",
-        "ASAN_OPTIONS=detect_leaks=0",
+        "GREASE={{grease}}",
+        "IKE={{ike}}",
+        "KITCHEN_ROOT={{kitchen-root}}",
         "{{grease}}",
-        "{{kitchen-runner}}",
-        "native",
+        "{{kitchen-task}}",
+        "run",
         "{{ib}}",
         "{{aici}}",
         "{{bundle}}",
         "{{output}}",
-        "{{ick-stage}}",
-        "{{grease}}",
-        "{{ike}}"
+        "{{material}}",
+        "{{ick-source}}",
+        "{{ick-archive-sha256}}",
+        "{{probe}}",
+        "{{compiler-receipt-sha256}}",
+        "{{runtime-receipt-sha256}}"
       ],
       "cwd": "."
     },
