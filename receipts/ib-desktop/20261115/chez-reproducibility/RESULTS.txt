@@ -1,0 +1,110 @@
+Chez consumer reproducibility diagnosis — 2026-11-15
+
+RESULT: definite nondeterminism in the actual retained IB NativeFoundationOracle
+generated source. No production/compiler/runtime source changed by this probe.
+No generated artifact was normalized. Real consumer execution remains NOT_RUN;
+only compilation is claimed until libib_linux.so is available.
+
+Observed host: disposable Linux x86_64 workspace.
+Verified runtime:
+/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/bin/scheme
+SCHEMEHEAPDIRS:
+/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/lib/csv10.4.1/ta6le
+Runtime package source: 5b55b4444fd66ab940cb8f9b74ee2f79043f148a.
+Package tar SHA256: d8e8420250c8c7e4715d13a8f69b58eaa5a0c32c3ea5a73c477ca759ffe598a9.
+Parent independently admitted all914files before execution.
+Admission: PASS MATERIAL-ADMISSION
+9a2e01351d4146d456588a057e719897871c47204d46b2b14b200ab60d5193a1.
+Runtime10.4.1 source archive SHA256:
+2e74952db7bc177f0c3602e2217a341ba677d733eec4cd7726418c3a4e1ef308.
+
+Actual consumer input:
+flexible-pipes/receipts/ib-desktop/20261014/final-native/generated-program.ss
+SHA256: 6b446268379dd9a6eb74d04d4688149aba96a0bec327ee92b2204baa90baca55.
+This exactly matches its retained executable.sha256 receipt.
+IB source: 2425d21d984de21e5b65ae0d2e09c586120239ee.
+Independent oracle: 4cc61d96c02ebeff408c33dc065a4a6948696967.
+Original generated-source compiler:94dfd99bd3e376507fedc8611053b7173b2519f0.
+The generated source was copied byte-for-byte to actual-a and actual-b.
+Scoped namespace input manifest actual-inputs.tsv:
+215c4e279b8a7ee487ab2867636da963635eaff2c2136d720ba31f381d3fdec6.
+
+Exact invocation form (all paths absolute, except deliberate relative test):
+SCHEMEHEAPDIRS=/workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/lib/csv10.4.1/ta6le /workspace/scratch/2990a35631ac/deps/idric-runtime-5b55b444/tm-bundle/runtime/bin/scheme --script /workspace/scratch/2990a35631ac/chez-repro-probe/compile.ss MODE program /workspace/scratch/2990a35631ac/chez-repro-probe/actual-a/ib-linux-foundation-check.ss OUTPUT IB/NativeFoundationOracle 215c4e279b8a7ee487ab2867636da963635eaff2c2136d720ba31f381d3fdec6
+MODE/OUTPUT pairs: raw->actual-a/raw-a.so; raw->actual-a/raw-b.so;
+scoped->actual-a/scoped-a.so; scoped->actual-a/scoped-b.so.
+Each was a fresh process and exited0. Logs use corresponding .stdout/.stderr.
+compile.ss has SHA256:
+25a1fbf4132734664a41555e99f611f77bf3f5a7a4a12bbc1e34a4c0444c3bfd.
+
+Same absolute input path, original compression:
+raw-a.so SHA256 105dccfeae620825b0fc69e67d8cfad3ee62e350de989273ff592520b6f9b02e
+raw-b.so SHA256 37fcc6e3c1a3e42c80a91832274bcdbe37e65a94e7966a62c8bf250bba8bacc4
+scoped-a.so SHA256 d108d47eab1f74ede6b39a63ac0ce6962fbaeafc9556a994fb391c5e9d7fb34d
+scoped-b.so SHA256 edb119f6344b4e127157906b37da6c9f70c1474903b3adbe2de00e9ea9aa3b2c
+cmp scoped-a.stderr scoped-b.stderr exited0: all5 generated record IDs match.
+cmp -l scoped-a.so scoped-b.so exited1: actual-scoped-compressed.diff retains
+the complete differences. Program UID is random despite scoped macro/record IDs.
+
+To expose the remaining fields without changing semantics or rewriting output,
+compile-uncompressed.ss sets the official fasl-compressed parameter to #f then
+loads the identical driver. Both fresh compilations exited0.
+Uncompressed-a SHA256 cf1816e51db8686adfc9c0f9dd229257429302c0116dc76684d196af98acc106
+Uncompressed-b SHA256 ce74d8226e76773d4df7ba865babbd9e121880a57238b80104fd27cc6fcbc13a
+ALL differences are the same25-character random program UID at four spans:
+503..527,912..936,40661..40685,50186..50210 (one-based offsets).
+Diff file SHA256:
+47be9c20b0b29b6e9e4fdf2b0fa1a650f58827d62c78fd360c8b49a0de7b0b95.
+The initial diagnostic attempt used eliminated compile-compressed and failed255;
+the corrected official10.4.1 parameter is fasl-compressed. No failed attempt is
+counted as successful compilation.
+
+Separate roots, same relative input filename:
+Each process ran with its cwd exactly actual-a or actual-b and used input
+ib-linux-foundation-check.ss and output relative-uncompressed.so. All other
+arguments above remained identical; both exited0. ALL differences remain only
+the random program UID at503..527,912..936,40603..40627,50128..50152.
+relative A SHA256 a72aabb4b010e9ffdb5c09b46ed01b6e7f6315da2d1f461ea3c08453ce9a4903
+relative B SHA256 da5bc3f954655a5d61ffa513220e650d4024a8fc3d8a55845d9cadb6b9fab478
+Diff file SHA256:
+29d3f24f76ba60eeea3190d2e8d33d7a1eaf3f970db406c76b1ff584ff349614.
+The small fixture's absolute-root comparison additionally isolated one changed
+source-filename byte; using relative input removed it while preserving inspector
+metadata. Do not strip inspector information to disguise path dependence.
+
+Semantics controls (small fixture, separately labelled):
+program.ss scoped compiled executable ran with explicit scheme --program and
+printed runtime-generativity=PASS; fresh runtime record types stay disjoint,
+runtime gensym stays fresh, legacy thread/semaphore records work.
+Two separately scoped libraries loaded together and printed
+compilation-unit-record-separation=PASS, exit0.
+The unsafe constant namespace mutant failed255:
+Exception: attempting to re-install compile-time part of library (probe two).
+Library byte reproducibility still has one additional macro/source UID; this
+whole-program result is not general library-build reproducibility acceptance.
+
+Exact source cause:
+https://github.com/cisco/ChezScheme/blob/v10.4.1/s/syntax.ss#L2860
+  [prog-uid (gensym "program")]
+bypasses the supported current-generate-id parameter. The returned program UID
+is retained by program-info and build-top-program. That explains the four
+observed random strings in the actual uncompressed consumer.
+
+Source-confirmed record path:
+Idric support.ss legacy define-record definitions enter Chez syntax.ss macro,
+which constructs RTDs via make-record-type. Chez record.ss:589 assigns absent
+UID with current-generate-id. Scoping that generator removes record UID drift;
+it cannot affect the direct program gensym above.
+
+Minimal repair candidate requiring real rebuilt-runtime proof:
+1. Route Chez program UID through ((current-generate-id) 'program).
+2. Idric's compile driver uses a deterministic generator only during compilation,
+   namespaced by stable semantic compilation unit + complete immutable compiler/
+   runtime/support/generated-source/options/target closure digest + occurrence.
+   Do not reset global runtime gensym or use one fixed UID for every program.
+3. Compile the generated Scheme using a canonical relative input filename from
+   its actual source directory; preserve debug metadata.
+4. Rerun actual46-case consumer, malformed/missing-library controls, two fresh
+   roots, changed-input namespace separation and generativity/collision mutants.
+No compiled-runtime repair, Idric-source repair or reproducibility PASS is
+claimed before that real execution.
