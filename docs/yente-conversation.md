@@ -46,3 +46,22 @@ replayed, not a model inference or production privacy guarantee.
 The demonstration and acceptance material are fictional. Production privacy,
 authentication, encryption, model quality, and real-person matching do not
 follow from successful process-level acceptance.
+
+## Fresh inference
+
+`pipelines/yente-live-conversation.json` uses the same command-stage runner.
+Its first stage runs Shallow's checked Ithon trial against the supplied Idriç
+candidate, then the separately compiled ai-ci observer checks the retained
+prompts, raw outputs, hashes, scope and actual admission. Supply absolute paths
+for `ithon`, `trial`, `candidate`, `materials`, a fresh `evidence` directory and
+`oracle`. The Ithon interpreter's model runtime must already be provisioned by
+Cat Food on the GitHub Ubuntu x86_64 host, with `ITHON_PYTHON` pointing at its
+verified interpreter. The pipeline does not install a runtime on a phone.
+
+The fictional sequence includes four audiences, a follow-up, a correction, a
+deferral and two exact approved statements in a shared discussion. A separate
+bank-only comparison uses the original first-turn request. Its admission status
+is reported independently; one comparison is not a quality benchmark. The
+small pinned public model is a wiring and behavior control. The observer's
+structural checks do not establish tact or interpretation quality. Refused
+outputs remain in the evidence, and there is no recorded-answer fallback.
