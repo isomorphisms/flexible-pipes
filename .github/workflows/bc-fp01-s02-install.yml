@@ -1,16 +1,8 @@
 name: BC-FP01-S02 disposable installed-client qualification
 on:
   pull_request:
-    paths:
-      - 'scripts/install-client.pi'
-      - 'scripts/installed_client.pi'
-      - 'scripts/github-event.pi'
-      - 'scripts/registered-execution.pi'
-      - 'tests/registered-execution/qualify-cache.pi'
-      - 'tests/registered-execution/qualify-installed-boundary.pi'
-      - '.github/workflows/bc-fp01-s02-install.yml'
   push:
-    branches: [sun/bc-fp01-s02]
+    branches: [main, sun/bc-fp01-s02]
 permissions:
   contents: read
 jobs:
@@ -37,6 +29,14 @@ jobs:
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-boundary.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-installed'
       - name: Reject accepted replay and stale accepted artifacts
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-cache.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-cache'
+      - name: Reject mutable canonical routes through the installed Ithon client
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-trusted-checked.jsonl
+        run: sudo -n --preserve-env=ITHON_CHECK_RECEIPT /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-trusted.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-trusted' disposable-github-runner
+      - name: Reproduce the original lexical-path bug without filesystem mutation
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-paths-checked.jsonl
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-paths.pi '${{ github.workspace }}/flexible-pipes'
       - name: Reuse the signed issuer, audience, actor and route rejection controls
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-admission.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-admission.json'
       - name: Reuse exact-byte delivery and partial-exposure rejection controls
@@ -50,6 +50,9 @@ jobs:
             ${{ runner.temp }}/s02-installed/result.json
             ${{ runner.temp }}/s02-checked.jsonl
             ${{ runner.temp }}/s02-cache/checks.json
+            ${{ runner.temp }}/s02-trusted/
+            ${{ runner.temp }}/s02-trusted-checked.jsonl
+            ${{ runner.temp }}/s02-paths-checked.jsonl
             ${{ runner.temp }}/s02-admission.json
             ${{ runner.temp }}/s02-delivery/
           if-no-files-found: warn

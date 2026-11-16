@@ -1,0 +1,165 @@
+"""Canonical-path filesystem and copied-Ithon-client checks on a disposable runner.
+
+No Grease launcher, token, supervisor, service unit or operation is executed.
+All canonical paths must be absent before this root-only fixture starts.
+"""
+import os
+import sys
+import json
+import hashlib
+import shutil
+import subprocess
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+
+argv ∈ list[str] ← sys.argv
+if len(argv) != 4 or argv[3] != "disposable-github-runner":
+    raise ValueError("S02_DISPOSABLE_RUNNER_REQUIRED")
+uid ∈ int ← os.getuid()
+if uid != 0:
+    raise ValueError("S02_DISPOSABLE_ROOT_REQUIRED")
+workspace ∈ str ← argv[1]
+output ∈ str ← argv[2]
+sys.path.insert(0, workspace + "/flexible-pipes/scripts")
+from installed_client import preflight, protected
+
+root ∈ str ← "/opt/flexible-pipes/current"
+runtime ∈ str ← "/opt/catfood"
+configuration ∈ str ← "/etc/flexible-pipes/client.json"
+approved ∈ str ← "/opt/fp-s02-approved"
+launcher ∈ str ← "/opt/fp-s02-launcher"
+certificate ∈ str ← "/opt/fp-s02-ca.pem"
+event_path ∈ str ← "/opt/fp-s02-event.json"
+owned ∈ list[str] ← ["/opt/flexible-pipes", runtime, "/etc/flexible-pipes", "/var/lib/flexible-pipes", approved, launcher, certificate, event_path]
+for path in owned:
+    if Path(path).exists() or Path(path).is_symlink():
+        raise ValueError("S02_EXISTING_CANONICAL_PATH_PRESERVED: " + path)
+Path(output).mkdir(mode=493, parents=True, exist_ok=False)
+cases ∈ list[dict[str, object]] ← []
+
+def sha(path ∈ str) → str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def former_resolved_only_protection(path ∈ str, symlink_allowed ∈ bool) → None:
+    # Preserve the exact rejected algorithm as an executable hostile control.
+    selected ∈ Path ← Path(path)
+    if not selected.is_absolute() or selected.is_symlink() and not symlink_allowed:
+        raise ValueError("CLIENT_PATH_UNPROTECTED")
+    resolved ∈ Path ← selected.resolve(strict=True)
+    nodes ∈ list[Path] ← [resolved]
+    nodes.extend(list(resolved.parents))
+    for node in nodes:
+        info ∈ object ← node.stat()
+        owner ∈ int ← int(info.st_uid)
+        mode ∈ int ← int(info.st_mode)
+        if owner != 0 or mode & 18 != 0:
+            raise ValueError("CLIENT_PATH_UNPROTECTED")
+
+def client_process(label ∈ str, expected ∈ str, expected_scope ∈ str, revision ∈ str) → None:
+    environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GITHUB_REF": "refs/heads/main", "GITHUB_SHA": revision, "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_RUN_ID": label, "GITHUB_RUN_ATTEMPT": "1", "ACTIONS_ID_TOKEN_REQUEST_URL": "sentinel:no-token-acquisition", "ACTIONS_ID_TOKEN_REQUEST_TOKEN": "not-a-token"}
+    command ∈ list[str] ← ["/usr/bin/python3", runtime + "/ithon/ithon_host.py", root + "/scripts/github-event.pi", event_path]
+    child ∈ object ← subprocess.run(command, env=environment, capture_output=True, timeout=30)
+    code ∈ int ← int(child.returncode)
+    stdout ∈ bytes ← child.stdout
+    stderr ∈ bytes ← child.stderr
+    detail ∈ str ← stderr.decode(errors="replace")
+    Path(output + "/" + label + ".stdout").write_bytes(stdout)
+    Path(output + "/" + label + ".stderr").write_bytes(stderr)
+    result_path ∈ str ← "/var/lib/flexible-pipes/export/" + label + "-1/result.json"
+    if code != 2 or not Path(result_path).is_file():
+        raise ValueError("S02_INSTALLED_CALLER_FAILED: " + label + ":" + detail)
+    result ∈ dict[str, object] ← json.loads(Path(result_path).read_bytes())
+    encoded_result ∈ str ← json.dumps(result, sort_keys=True)
+    if result["status"] != "BLOCKED" or result["blocker"] != expected or result["acceptance_scope"] != expected_scope:
+        raise ValueError("S02_INSTALLED_CALLER_WRONG_BOUNDARY: " + label + ":" + encoded_result)
+    Path(output + "/" + label + ".json").write_text(encoded_result)
+    cases.append({"case": label, "status": "PASS", "blocker": expected, "scope": "copied-installed-ithon-client"})
+
+try:
+    Path(launcher).write_text("source fixture only; Grease is not executed\n")
+    os.chmod(launcher, 365)
+    installer ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", workspace, launcher]
+    install_environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "GIT_CONFIG_COUNT": "2", "GIT_CONFIG_KEY_0": "safe.directory", "GIT_CONFIG_VALUE_0": workspace + "/flexible-pipes", "GIT_CONFIG_KEY_1": "safe.directory", "GIT_CONFIG_VALUE_1": workspace + "/ithon"}
+    installed ∈ object ← subprocess.run(installer, env=install_environment, capture_output=True, timeout=60)
+    install_code ∈ int ← int(installed.returncode)
+    install_stderr ∈ bytes ← installed.stderr
+    install_detail ∈ str ← install_stderr.decode(errors="replace")
+    if install_code != 0:
+        raise ValueError("S02_CANONICAL_INSTALL_FAILED: " + install_detail)
+    manifest ∈ dict[str, object] ← json.loads(Path(root + "/manifest.json").read_bytes())
+    revision ∈ str ← str(manifest["source_commit"])
+    Path(output + "/manifest.json").write_bytes(Path(root + "/manifest.json").read_bytes())
+    Path(certificate).write_text("not a TLS certificate; no request is sent\n")
+    os.chmod(certificate, 292)
+    Path(event_path).write_text(json.dumps({"inputs": {"request": "{}"}}, sort_keys=True))
+    os.chmod(event_path, 292)
+    release ∈ dict[str, object] ← {"release_sha256": "3333333333333333333333333333333333333333333333333333333333333333", "control_commit": revision, "authority": "deployed-trusted", "required_checks": ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"], "contract_sha256": "2222222222222222222222222222222222222222222222222222222222222222", "operation_version": "fixture", "registry_generation": 1, "outputs": [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]}
+    client ∈ dict[str, object] ← {"schema_version": 1, "state": "active", "endpoint": "https://fixture.invalid/v1/execute", "ca_certificate": certificate, "ca_sha256": sha(certificate), "accepted_release": release, "accepted_install_sha256": sha(root + "/manifest.json"), "activation_requires": "disposable missing-token sentinel; not operator authority"}
+    os.chmod(configuration, 420)
+    Path(configuration).write_text(json.dumps(client, sort_keys=True))
+    os.chmod(configuration, 292)
+    positive ∈ dict[str, object] ← preflight(client, configuration, root, runtime, True)
+    if positive["status"] != "CLOSURE_VERIFIED":
+        raise ValueError("S02_TRUSTED_PROTECTED_TWIN_FAILED")
+    protected(runtime + "/bin/grease", True)
+    protected("/usr/bin/python3", True)
+    cases.append({"case": "trusted-protected-twin-and-runtime-leaf-links", "status": "PASS", "scope": "actual-root-owned-filesystem"})
+    client_process("s02-trusted-token-sentinel", "OIDC_ADMISSION_UNAVAILABLE", "client-oidc", revision)
+    client_process("s02-trusted-stale-workflow", "CLIENT_STALE_WORKFLOW", "client-pre-token", "ffffffffffffffffffffffffffffffffffffffff")
+    delivery ∈ str ← root + "/scripts/delivery.pi"
+    delivery_bytes ∈ bytes ← Path(delivery).read_bytes()
+    os.chmod(delivery, 420)
+    Path(delivery).write_bytes(delivery_bytes + b"\n# installed source mutation\n")
+    try:
+        client_process("s02-trusted-changed-delivery", "CLIENT_SOURCE_CHANGED: scripts/delivery.pi", "client-pre-token", revision)
+    finally:
+        Path(delivery).write_bytes(delivery_bytes)
+        os.chmod(delivery, 292)
+    grease_link ∈ str ← runtime + "/bin/grease"
+    Path(grease_link).unlink()
+    os.symlink("/tmp/../opt/fp-s02-launcher", grease_link)
+    try:
+        former_resolved_only_protection(grease_link, True)
+        client_process("s02-trusted-mutable-leaf-target-route", "CLIENT_PATH_UNPROTECTED", "client-pre-token", revision)
+    finally:
+        Path(grease_link).unlink()
+        os.symlink(launcher, grease_link)
+    Path(root).rename(approved)
+    os.symlink(approved, root)
+    alias_positive ∈ dict[str, object] ← preflight(client, configuration, root, runtime, True)
+    if alias_positive["status"] != "CLOSURE_VERIFIED":
+        raise ValueError("S02_PROTECTED_GENERATION_ALIAS_REJECTED")
+    cases.append({"case": "trusted-protected-generation-alias", "status": "PASS", "scope": "actual-canonical-filesystem"})
+    client_process("s02-trusted-protected-alias-token-sentinel", "OIDC_ADMISSION_UNAVAILABLE", "client-oidc", revision)
+    os.chmod("/opt/flexible-pipes", 509)
+    former_resolved_only_protection(root + "/manifest.json", False)
+    refusal ∈ str ← ""
+    try:
+        preflight(client, configuration, root, runtime, True)
+    except Exception as failure:
+        refusal ← str(failure)
+    if refusal != "CLIENT_PATH_UNPROTECTED":
+        raise ValueError("S02_FORMER_LEXICAL_BYPASS_NOT_REJECTED: " + refusal)
+    cases.append({"case": "former-resolved-only-mutant-accepts-writable-lexical-route", "status": "PASS", "repaired_rejection": refusal, "scope": "actual-canonical-filesystem"})
+    client_process("s02-trusted-writable-lexical-route", "CLIENT_PATH_UNPROTECTED", "client-pre-token", revision)
+    os.chmod("/opt/flexible-pipes", 493)
+    Path(root).unlink()
+    Path(approved).rename(root)
+    restored ∈ dict[str, object] ← preflight(client, configuration, root, runtime, True)
+    if restored["status"] != "CLOSURE_VERIFIED":
+        raise ValueError("S02_TRUSTED_TWIN_NOT_RESTORED")
+    cases.append({"case": "protected-twin-restored", "status": "PASS"})
+    result ∈ dict[str, object] ← {"status": "PASS", "scope": "disposable-canonical-path-and-installed-ithon-pre-token", "cases": cases, "source_commit": revision, "manifest_sha256": client["accepted_install_sha256"], "excluded_claims": ["grease-execution", "eligible-managed-runtime", "signed-origin", "supervisor-execution", "service-activation", "production-promotion", "real-operation"]}
+    Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
+    print(json.dumps({"status": "PASS", "cases": len(cases), "scope": result["scope"]}, sort_keys=True))
+finally:
+    if Path(configuration).is_file():
+        os.chmod(configuration, 420)
+        inactive ∈ dict[str, object] ← {"schema_version": 1, "state": "inactive", "endpoint": "", "ca_certificate": "", "accepted_release": {}, "activation_requires": "fixture ended; no production authority"}
+        Path(configuration).write_text(json.dumps(inactive, sort_keys=True))
+        os.chmod(configuration, 292)
+    for path in owned:
+        if Path(path).is_symlink() or Path(path).is_file():
+            Path(path).unlink()
+        elif Path(path).is_dir():
+            shutil.rmtree(path)

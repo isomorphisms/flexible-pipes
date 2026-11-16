@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 from builtins import dict, list, ValueError, isinstance
@@ -30,9 +31,27 @@ def proper_hash(value ∈ object, length ∈ int) → bool:
 
 def protected(path ∈ str, symlink_allowed ∈ bool) → None:
     selected ∈ Path ← Path(path)
-    if not selected.is_absolute() or selected.is_symlink() and not symlink_allowed:
+    if not selected.is_absolute():
         raise ValueError("CLIENT_PATH_UNPROTECTED")
     resolved ∈ Path ← selected.resolve(strict=True)
+    # Inspect the lexical route as well as its resolved target. A protected
+    # target is insufficient when a writable parent can redirect the pathname.
+    lexical ∈ list[Path] ← [selected]
+    lexical.extend(list(selected.parents))
+    for node in lexical:
+        info ∈ object ← node.lstat()
+        owner ∈ int ← int(info.st_uid)
+        mode ∈ int ← int(info.st_mode)
+        symbolic ∈ bool ← stat.S_ISLNK(mode)
+        if owner != 0 or symbolic and node == selected and not symlink_allowed or not symbolic and mode & 18 != 0:
+            raise ValueError("CLIENT_PATH_UNPROTECTED")
+        if symbolic:
+            # Approved generation aliases and runtime leaf links may redirect
+            # only through equally protected target routes.
+            target ∈ str ← os.readlink(str(node))
+            if not Path(target).is_absolute():
+                target ← str(node.parent) + "/" + target
+            protected(target, True)
     ancestors ∈ list[Path] ← list(resolved.parents)
     nodes ∈ list[Path] ← [resolved]
     nodes.extend(ancestors)
