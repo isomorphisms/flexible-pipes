@@ -10,7 +10,7 @@ import hashlib
 import shutil
 import subprocess
 from pathlib import Path
-from builtins import dict, list, ValueError, Exception
+from builtins import dict, list, ValueError, Exception, oct
 
 argv ∈ list[str] ← sys.argv
 if len(argv) != 4 or argv[3] != "disposable-github-runner":
@@ -36,6 +36,39 @@ for path in owned:
         raise ValueError("S02_EXISTING_CANONICAL_PATH_PRESERVED: " + path)
 Path(output).mkdir(mode=493, parents=True, exist_ok=False)
 cases ∈ list[dict[str, object]] ← []
+
+def filesystem_provenance(label ∈ str) → None:
+    rows ∈ list[dict[str, object]] ← []
+    seen ∈ list[str] ← []
+    paths ∈ list[str] ← [certificate, configuration, root + "/manifest.json", runtime + "/bin/grease", "/usr/bin/python3"]
+    for path in paths:
+        selected ∈ Path ← Path(path)
+        resolved ∈ Path ← selected.resolve(strict=False)
+        nodes ∈ list[Path] ← [selected]
+        nodes.extend(list(selected.parents))
+        nodes.append(resolved)
+        nodes.extend(list(resolved.parents))
+        for node in nodes:
+            name ∈ str ← str(node)
+            if seen.__contains__(name):
+                continue
+            seen.append(name)
+            if not node.exists() and not node.is_symlink():
+                rows.append({"path": name, "exists": False})
+                continue
+            lexical_info ∈ object ← node.lstat()
+            resolved_info ∈ object ← node.stat()
+            lexical_mode ∈ int ← int(lexical_info.st_mode)
+            resolved_mode ∈ int ← int(resolved_info.st_mode)
+            lexical_permissions ∈ str ← oct(lexical_mode & 4095)
+            resolved_permissions ∈ str ← oct(resolved_mode & 4095)
+            symbolic ∈ bool ← node.is_symlink()
+            target ∈ str ← os.readlink(name) if symbolic else ""
+            rows.append({"path": name, "exists": True, "symlink": symbolic, "target": target, "lstat_uid": int(lexical_info.st_uid), "lstat_gid": int(lexical_info.st_gid), "lstat_mode": lexical_permissions, "stat_uid": int(resolved_info.st_uid), "stat_gid": int(resolved_info.st_gid), "stat_mode": resolved_permissions})
+    record ∈ dict[str, object] ← {"scope": "actual-disposable-host-filesystem", "uid": uid, "paths": rows}
+    encoded ∈ str ← json.dumps(record, sort_keys=True)
+    Path(output + "/filesystem-" + label + ".json").write_text(encoded)
+    print("S02_FILESYSTEM_PROVENANCE " + label + " " + encoded)
 
 def sha(path ∈ str) → str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -75,7 +108,9 @@ def client_process(label ∈ str, expected ∈ str, expected_scope ∈ str, revi
     Path(output + "/" + label + ".json").write_text(encoded_result)
     cases.append({"case": label, "status": "PASS", "blocker": expected, "scope": "copied-installed-ithon-client"})
 
+fixture_umask ∈ int ← os.umask(18)
 try:
+    filesystem_provenance("before-install")
     Path(launcher).write_text("source fixture only; Grease is not executed\n")
     os.chmod(launcher, 365)
     installer ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", workspace, launcher]
@@ -98,6 +133,7 @@ try:
     os.chmod(configuration, 420)
     Path(configuration).write_text(json.dumps(client, sort_keys=True))
     os.chmod(configuration, 292)
+    filesystem_provenance("before-positive")
     positive ∈ dict[str, object] ← preflight(client, configuration, root, runtime, True)
     if positive["status"] != "CLOSURE_VERIFIED":
         raise ValueError("S02_TRUSTED_PROTECTED_TWIN_FAILED")
@@ -132,6 +168,7 @@ try:
     cases.append({"case": "trusted-protected-generation-alias", "status": "PASS", "scope": "actual-canonical-filesystem"})
     client_process("s02-trusted-protected-alias-token-sentinel", "OIDC_ADMISSION_UNAVAILABLE", "client-oidc", revision)
     os.chmod("/opt/flexible-pipes", 509)
+    filesystem_provenance("writable-alias")
     former_resolved_only_protection(root + "/manifest.json", False)
     refusal ∈ str ← ""
     try:
@@ -153,6 +190,7 @@ try:
     Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
     print(json.dumps({"status": "PASS", "cases": len(cases), "scope": result["scope"]}, sort_keys=True))
 finally:
+    os.umask(fixture_umask)
     if Path(configuration).is_file():
         os.chmod(configuration, 420)
         inactive ∈ dict[str, object] ← {"schema_version": 1, "state": "inactive", "endpoint": "", "ca_certificate": "", "accepted_release": {}, "activation_requires": "fixture ended; no production authority"}
