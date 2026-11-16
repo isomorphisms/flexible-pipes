@@ -17,7 +17,7 @@ hashes and immutable dependency revisions are checked before compilation.
 The producer's workflow owns only pinned bootstrap acquisition and invocation;
 all benchmark build/runtime/acceptance execution goes through this FP operation.
 
-The existing scripts/run-pipeline Python controller is named migration debt;
+The existing scripts/run-pipeline-legacy.py Python controller is named migration debt;
 this registration adds no Python enforcement. This is the existing command
 pipeline contract, not deployment of the registered-execution-v1 supervisor
 or automatic model dispatch. No numerical PASS follows from registration.

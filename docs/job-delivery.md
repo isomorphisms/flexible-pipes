@@ -63,7 +63,7 @@ correction.
 
 ## Adoption and evidence boundary
 
-The maintained `scripts/run-pipeline` now prevalidates handoff metadata through
+The exploratory `scripts/run-pipeline-legacy.py` prevalidates handoff metadata through
 checked Ithon (`--ithon /verified/entrypoint`) before any command effects. When
 the producing stage completes it saves the extended stage and complete
 response artifact and returns nonzero `AWAITING_HANDOFF_DELIVERY`. Later stages
@@ -71,10 +71,14 @@ cannot execute. Neither that response file nor stdout is a visible receipt.
 The trusted transport controller completes the same stage using `deliver`.
 There is currently no deployed ChatGPT visible-sink adapter in this repository.
 The attachment contract makes that adapter implementable and independently
-checkable, but no platform delivery is inferred from local fixtures. The active registered
+checkable, but no platform delivery is inferred from local fixtures. The retained registered
 Kitchen/Android runtime work is separate; this change does not activate it or
-qualify its existing deployment blockers. Its controllers can consume the
+resolve its existing deployment blockers. Its controllers can consume the
 same captured-stage extension when they gain model-job operations.
+
+The generic runner receipt carries `qualified_operation: false`. Captured
+delivery checks prove the declared handoff bytes and lifecycle; they do not
+promote a caller-supplied pipeline into a registered operation.
 
 `review_packet` runs the deterministic gate before supplying actual artifact,
 actual response, original task, corrections and stage evidence to final review.

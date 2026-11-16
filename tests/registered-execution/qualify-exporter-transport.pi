@@ -1,0 +1,79 @@
+"""Actual TLS transport of the fixed exporter decision; no production admission."""
+import sys
+import os
+import json
+import time
+import subprocess
+import signal
+import hashlib
+import importlib
+from pathlib import Path
+from builtins import dict, list, open, ValueError, ProcessLookupError
+args ∈ list[str] ← sys.argv
+workspace ∈ str ← args[1]
+output ∈ str ← args[2]
+fp ∈ str ← workspace + "/flexible-pipes"
+sys.path.insert(0, fp + "/scripts")
+from delivery import submit
+engine ∈ object ← importlib.import_module("registered-execution")
+base ∈ str ← output + "/tls-service"
+Path(base).mkdir(mode=448)
+config ∈ dict[str, object] ← json.loads(Path(output + "/transport-config.json").read_bytes())
+config["listen_host"] ← "127.0.0.1"
+config["listen_port"] ← 0
+config["tls_certificate"] ← base + "/fixture-certificate.pem"
+config["tls_private_key"] ← base + "/fixture-private-key.pem"
+config["service_ready"] ← base + "/ready.json"
+config["service_engine"] ← fp + "/scripts/registered-execution.pi"
+config_path ∈ str ← base + "/deployment.json"
+Path(config_path).write_text(json.dumps(config, sort_keys=True))
+expected ∈ dict[str, object] ← engine.accepted_release(config)
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}
+with open(base + "/certificate.stderr.bin", "xb") as certificate_log:
+    created ∈ object ← subprocess.run(["/usr/bin/openssl", "req", "-new", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=localhost", "-addext", "subjectAltName=IP:127.0.0.1", "-keyout", str(config["tls_private_key"]), "-out", str(config["tls_certificate"])], env=environment, stdout=subprocess.DEVNULL, stderr=certificate_log, timeout=15)
+if int(created.returncode) != 0:
+    raise ValueError("TLS_INTERFACE_UNAVAILABLE")
+os.chmod(str(config["tls_private_key"]), 384)
+command ∈ list[str] ← list(config["ithon"])
+command.extend([fp + "/scripts/registered-service.pi", "qualify", config_path])
+with open(base + "/server.stderr.bin", "xb") as server_log:
+    server ∈ object ← subprocess.Popen(command, env=environment, stdout=subprocess.DEVNULL, stderr=server_log, start_new_session=True)
+    try:
+        started ∈ float ← time.monotonic()
+        ready ∈ bool ← False
+        while not ready:
+            ready ← Path(str(config["service_ready"])).exists()
+            now ∈ float ← time.monotonic()
+            code ∈ object ← server.poll()
+            if code != None or now - started > 10.0:
+                raise ValueError("TLS_SERVICE_NOT_READY")
+            time.sleep(0.02)
+        address ∈ dict[str, object] ← json.loads(Path(str(config["service_ready"])).read_bytes())
+        url ∈ str ← "https://127.0.0.1:" + str(address["port"]) + "/v1/execute"
+        dispatch ∈ dict[str, object] ← json.loads(Path(output + "/dispatch-envelope.json").read_bytes())
+        branch ∈ dict[str, object] ← json.loads(Path(output + "/branch-envelope.json").read_bytes())
+        sealed ∈ dict[str, object] ← json.loads(Path(output + "/result.json").read_bytes())
+        sealed_artifacts ∈ list[dict[str, object]] ← list(sealed["artifacts"])
+        original ∈ bytes ← Path(str(sealed_artifacts[0]["retrieval_locator"])).read_bytes()
+        for route in ["workflow_dispatch", "pipeline-requests"]:
+            envelope ∈ dict[str, object] ← dispatch if route == "workflow_dispatch" else branch
+            result ∈ dict[str, object] ← submit(url, str(config["tls_certificate"]), route, envelope, base + "/" + route, expected)
+            if result["status"] != "PASS" or str(result["run_id"]) != str(sealed["run_id"]):
+                raise ValueError("TLS_EXPORTER_RESULT_CHANGED: " + route)
+            delivered ∈ bytes ← Path(base + "/" + route + "/exporter-regression-transition.txt").read_bytes()
+            delivered_digest ∈ str ← hashlib.sha256(delivered).hexdigest()
+            if delivered != original or delivered_digest != str(sealed_artifacts[0]["sha256"]):
+                raise ValueError("TLS_EXPORTER_BYTES_CHANGED: " + route)
+        dispatch["workflow_ref"] ← "refs/heads/old-workflow"
+        rejected ∈ dict[str, object] ← submit(url, str(config["tls_certificate"]), "workflow_dispatch", dispatch, base + "/old-workflow", expected)
+        if rejected["status"] != "BLOCKED" or rejected["blocker"] != "UNQUALIFIED_WORKFLOW_REF":
+            raise ValueError("TLS_OLD_WORKFLOW_ACCEPTED")
+        Path(base + "/result.json").write_text(json.dumps({"status": "PASS", "scope": "exporter-diagnostic-tls-delivery", "artifact_sha256": hashlib.sha256(original).hexdigest(), "both_routes": "PASS", "old_workflow": "BLOCKED", "excluded_claims": ["installed-promotion", "signed-admission", "native-ChatGPT-delivery", "merge"]}, sort_keys=True))
+    finally:
+        try:
+            os.killpg(server.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        server.wait()
+        Path(str(config["tls_private_key"])).unlink()
+print("PASS actual exporter diagnostic TLS service and exact-byte client delivery")

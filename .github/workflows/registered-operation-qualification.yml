@@ -1,0 +1,52 @@
+name: Registered intake source checks
+on:
+  pull_request:
+  push:
+    branches: [implement/fp2-runtime-qualification, repair/exporter-registered-acceptance, sun/bc-fp01-s01]
+permissions:
+  contents: read
+jobs:
+  intake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: flexible-pipes
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: ithon
+          persist-credentials: false
+      - name: Exercise both real data adapters and immutable material checks
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/intake-checked.jsonl
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-intake.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/intake' '${{ github.workspace }}/ithon/ithon_host.py'
+      - name: Exercise signed origin and route binding
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-admission.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/admission.json'
+      - name: Preserve exact-byte client checks
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-delivery.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/delivery'
+      - name: Preserve cache and revoked-release checks
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-cache.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/cache'
+      - name: Record the unreleased managed-runtime boundary
+        # Source checks cannot qualify Kitchen's worker runtime. Cat Food #131
+        # excludes the historical C++ binary and Python-2 development default.
+        # Do not bootstrap either while awaiting eligible owner closure.
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/scripts/github-event.pi readiness '${{ github.workspace }}/flexible-pipes/deployment/client.json' '${{ runner.temp }}/operation-readiness'
+      - name: Retain source cases, raw failures and the non-PASS operation state
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bc-fp01-s01-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/intake/
+            ${{ runner.temp }}/intake-checked.jsonl
+            ${{ runner.temp }}/admission.json
+            ${{ runner.temp }}/delivery/
+            ${{ runner.temp }}/cache/
+            ${{ runner.temp }}/operation-readiness/
+          if-no-files-found: error

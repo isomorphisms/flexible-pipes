@@ -1,0 +1,24 @@
+case	status	observation
+kitchen-valid-both-adapters	PASS	accepted-source-only
+kitchen-valid-changed-request-runner	PASS	NON_REQUEST_CHANGE
+kitchen-valid-changed-request-checker	PASS	NON_REQUEST_CHANGE
+kitchen-valid-executable-field-argv	PASS	REQUEST_FIELDS
+kitchen-valid-executable-field-checker	PASS	REQUEST_FIELDS
+kitchen-valid-executable-field-policy	PASS	REQUEST_FIELDS
+kitchen-valid-executable-field-skip	PASS	REQUEST_FIELDS
+exporter-valid-both-adapters	PASS	accepted-source-only
+exporter-valid-changed-request-runner	PASS	NON_REQUEST_CHANGE
+exporter-valid-changed-request-checker	PASS	NON_REQUEST_CHANGE
+exporter-valid-executable-field-argv	PASS	REQUEST_FIELDS
+exporter-valid-executable-field-checker	PASS	REQUEST_FIELDS
+exporter-valid-executable-field-policy	PASS	REQUEST_FIELDS
+exporter-valid-executable-field-skip	PASS	REQUEST_FIELDS
+material-positive	PASS	accepted-source-only
+dirty-runner	PASS	MATERIAL_CHANGED: /workspace/scratch/d2c23ee077cc/results/final-source-intake/source/runner
+dirty-checker	PASS	MATERIAL_CHANGED: /workspace/scratch/d2c23ee077cc/results/final-source-intake/source/checker
+forged-source-origin	PASS	WRONG_ORIGIN
+missing-independent-gate	PASS	MANDATORY_CHILD_MISSING
+revoked-release	PASS	UNQUALIFIED_ADAPTER
+revoked-qualification	PASS	STALE_QUALIFICATION
+readiness-inactive	PASS	DEPLOYMENT_INACTIVE
+readiness-active	PASS	CLIENT_RUNTIME_NOT_ADMITTED

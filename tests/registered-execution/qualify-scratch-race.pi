@@ -1,0 +1,53 @@
+"""Exercise the actual monitor's vanished-file race and retained byte bound."""
+import sys
+import os
+import json
+import time
+import importlib
+from pathlib import Path
+from unittest.mock import patch
+from builtins import dict, list, bytes, FileNotFoundError, RuntimeError, ValueError, Exception
+args ∈ list[str] ← sys.argv
+if args[1] == "worker":
+    target ∈ Path ← Path(args[2] + "/transient.txt")
+    target.write_bytes(b"atomic temporary bytes")
+    time.sleep(0.3)
+    sys.exit(0)
+if args[1] == "oversized-worker":
+    target ← Path(args[2] + "/oversized.bin")
+    target.write_bytes(bytes(67108865))
+    time.sleep(1.0)
+    sys.exit(0)
+fp ∈ str ← args[1]
+ithon ∈ str ← args[2]
+output ∈ str ← args[3]
+Path(output).mkdir(parents=True, exist_ok=False)
+sys.path.insert(0, fp + "/scripts")
+engine ∈ object ← importlib.import_module("registered-execution")
+config ∈ dict[str, object] ← {"ithon": [sys.executable, ithon + "/ithon_host.py"], "watchdog": fp + "/scripts/registered-watchdog.pi", "operation": "chatgpt-exporter-regression-acceptance"}
+work ∈ str ← output + "/work"
+Path(work).mkdir()
+environment ∈ dict[str, str] ← {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "HOME": "/nonexistent"}
+command ∈ list[str] ← [sys.executable, ithon + "/ithon_host.py", __file__, "worker", work]
+observations ∈ dict[str, int] ← {"vanished": 0}
+def vanish(path ∈ Path) → object:
+    if str(path) == work + "/transient.txt":
+        path.unlink()
+        observations["vanished"] ← observations["vanished"] + 1
+        raise FileNotFoundError("actual enumerated temporary file disappeared")
+    return os.lstat(str(path))
+with patch.object(Path, "lstat", vanish):
+    code ∈ int ← engine.bounded(command, work, environment, output + "/race-logs", 0, config, None)
+if code != 0 or observations["vanished"] != 1:
+    raise ValueError("VANISHED_FILE_RACE_NOT_EXERCISED")
+command ← [sys.executable, ithon + "/ithon_host.py", __file__, "oversized-worker", work]
+failure ∈ str ← ""
+try:
+    engine.bounded(command, work, environment, output + "/bound-logs", 0, config, None)
+except Exception as error:
+    failure ← str(error)
+if failure != "EXECUTION_BOUND_EXCEEDED":
+    raise ValueError("SCRATCH_BYTE_BOUND_LOST: " + failure)
+Path(work + "/oversized.bin").unlink()
+Path(output + "/result.json").write_text(json.dumps({"status": "PASS", "vanished_file": "PASS", "scratch_byte_bound": "PASS", "scope": "actual-supervisor-monitor", "excluded_claims": ["separate-UID", "deployment", "signed-dispatch"]}, sort_keys=True))
+print("PASS vanished scratch file and retained scratch-byte bound")

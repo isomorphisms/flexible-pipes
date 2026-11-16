@@ -13,7 +13,7 @@ cases, two input rejections, the 17 retained research false records and the
 expanded nine-record continuation rejection matrix. It performs no GitHub
 mutation, physical motion or controller action.
 
-The existing `scripts/run-pipeline` Python controller remains named migration
+The existing `scripts/run-pipeline-legacy.py` Python controller remains named migration
 debt. This change adds no new Python enforcement; authored orchestration uses
 Grease. This is the existing command-pipeline contract, not a claim that the
 registered-execution-v1 supervisor or a trusted ChatGPT delivery sink has been

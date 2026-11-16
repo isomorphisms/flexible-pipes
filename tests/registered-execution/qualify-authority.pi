@@ -1,0 +1,104 @@
+"""Check actual local authority-file protection with disposable root fixtures.
+
+No UID or filesystem calls are mocked; nothing is installed or activated.
+The fixtures are created beneath /root and removed before success is written.
+Foreign-owner coverage is explicit when the current UID namespace permits it.
+"""
+import os
+import sys
+import json
+import tempfile
+import importlib
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+
+argv ∈ list[str] ← sys.argv
+fp ∈ str ← argv[1]
+output ∈ str ← argv[2]
+Path(output).mkdir(parents=True, exist_ok=False)
+sys.path.insert(0, fp + "/scripts")
+execution ∈ object ← importlib.import_module("registered-execution")
+rows ∈ list[dict[str, object]] ← []
+excluded ∈ list[str] ← ["installed-deployment", "worker-isolation", "TLS", "live-transfer"]
+uid ∈ int ← os.getuid()
+if uid != 0:
+    raise ValueError("AUTHORITY_FIXTURE_REQUIRES_ROOT")
+
+def create_file(path ∈ str, mode ∈ int) → None:
+    Path(path).write_bytes(b"authority fixture bytes\n")
+    os.chmod(path, mode)
+
+def exercise(name ∈ str, path ∈ str, private ∈ bool, expected ∈ str) → None:
+    failure ∈ str ← ""
+    try:
+        execution.protected_file(path, private)
+    except Exception as error:
+        failure ← str(error)
+    if expected == "PASS":
+        if failure != "":
+            raise ValueError("AUTHORITY_POSITIVE_CONTROL_FAILED: " + name + ": " + failure)
+    elif not failure.startswith(expected):
+        raise ValueError("AUTHORITY_INCORRECT_ACCEPTANCE: " + name + ": " + failure)
+    rows.append({"case": name, "status": "PASS", "observed_status": "ACCEPTED" if failure == "" else "REJECTED", "failure": failure})
+
+temporary ∈ object ← tempfile.TemporaryDirectory(prefix="fp-authority-fixture-", dir="/root")
+temporary_path ∈ str ← str(temporary.name)
+with temporary:
+    public ∈ str ← temporary_path + "/public-material.bin"
+    private ∈ str ← temporary_path + "/private-authority.json"
+    create_file(public, 292)
+    create_file(private, 384)
+    exercise("root-public-readonly", public, False, "PASS")
+    exercise("root-private-0600", private, True, "PASS")
+    os.chmod(public, 436)
+    exercise("group-writable-file", public, False, "UNPROTECTED_AUTHORITY_FILE")
+    os.chmod(public, 422)
+    exercise("world-writable-file", public, False, "UNPROTECTED_AUTHORITY_FILE")
+    os.chmod(public, 292)
+    os.chmod(private, 420)
+    exercise("private-readable-by-others", private, True, "UNPROTECTED_AUTHORITY_FILE")
+    os.chmod(private, 384)
+    private_link ∈ str ← temporary_path + "/private-authority-link.json"
+    Path(private_link).symlink_to(private)
+    exercise("private-symlink", private_link, True, "UNPROTECTED_AUTHORITY_PATH")
+    ancestor ∈ str ← temporary_path + "/writable-ancestor"
+    Path(ancestor).mkdir(mode=448)
+    nested ∈ str ← ancestor + "/private-authority.json"
+    create_file(nested, 384)
+    os.chmod(ancestor, 504)
+    exercise("group-writable-ancestor", nested, True, "UNPROTECTED_AUTHORITY_DIRECTORY")
+    os.chmod(ancestor, 450)
+    exercise("world-writable-ancestor", nested, True, "UNPROTECTED_AUTHORITY_DIRECTORY")
+    os.chmod(ancestor, 448)
+    relative ∈ str ← os.path.relpath(public)
+    exercise("relative-authority-path", relative, False, "UNPROTECTED_AUTHORITY_PATH")
+    mappings ∈ list[str] ← Path("/proc/self/uid_map").read_text().splitlines()
+    foreign_uid ∈ int ← 0
+    for mapping in mappings:
+        fields ∈ list[str] ← mapping.split()
+        start ∈ int ← int(fields[0])
+        count ∈ int ← int(fields[2])
+        if start == 0 and count > 1:
+            foreign_uid ← 1
+        elif start > 0 and count > 0:
+            foreign_uid ← start
+    if foreign_uid > 0:
+        owned ∈ str ← temporary_path + "/foreign-owner.bin"
+        create_file(owned, 292)
+        os.chown(owned, foreign_uid, -1)
+        exercise("foreign-owner-file", owned, False, "UNPROTECTED_AUTHORITY_FILE")
+        owned_directory ∈ str ← temporary_path + "/foreign-owner-directory"
+        Path(owned_directory).mkdir(mode=448)
+        owned_nested ∈ str ← owned_directory + "/public-material.bin"
+        create_file(owned_nested, 292)
+        os.chown(owned_directory, foreign_uid, -1)
+        exercise("foreign-owner-ancestor", owned_nested, False, "UNPROTECTED_AUTHORITY_DIRECTORY")
+    else:
+        rows.append({"case": "foreign-owner-file", "status": "NOT_RUN", "reason": "single-UID namespace"})
+        rows.append({"case": "foreign-owner-ancestor", "status": "NOT_RUN", "reason": "single-UID namespace"})
+        excluded.append("foreign-owner-in-single-UID-namespace")
+remaining ∈ bool ← Path(temporary_path).exists()
+if remaining:
+    raise ValueError("AUTHORITY_FIXTURES_NOT_REMOVED")
+Path(output + "/checks.json").write_text(json.dumps({"scope": "local-authority-file-protection", "status": "PASS", "checks": rows, "fixtures_removed": True, "excluded_claims": excluded}, sort_keys=True))
+print("authority file protection regression passed")

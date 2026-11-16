@@ -2,11 +2,17 @@ name: Kitchen-backed organization pin preflight
 on:
   pull_request:
     paths:
+      - 'scripts/**'
+      - 'registry/**'
+      - 'deployment/**'
       - 'pipelines/github-organization-pin-preflight.json'
       - 'tests/github-organization-pin-preflight.py'
       - '.github/workflows/github-organization-pin-preflight.yml'
   push:
     paths:
+      - 'scripts/**'
+      - 'registry/**'
+      - 'deployment/**'
       - 'pipelines/github-organization-pin-preflight.json'
       - 'tests/github-organization-pin-preflight.py'
       - '.github/workflows/github-organization-pin-preflight.yml'
@@ -88,7 +94,7 @@ jobs:
           ORGANIZATION: ${{ inputs.organization || steps.select.outputs.organization }}
           REPOSITORIES: ${{ inputs.repositories || steps.select.outputs.repositories }}
         run: |
-          python3 scripts/run-pipeline github-organization-pin-preflight \
+          python3 scripts/run-pipeline-legacy.py github-organization-pin-preflight \
             --param "organization=$ORGANIZATION" \
             --param "repositories=$REPOSITORIES"
       - name: Preserve receipts even when eligibility is BLOCKED

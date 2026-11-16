@@ -1,0 +1,4 @@
+  File "/workspace/scratch/138441f5100a/flexible-pipes/tests/registered-execution/probes/control.pi", line 9
+    source ∈ bytes ← Path(__file__).read_bytes()
+                         ^
+ithon_static.StaticTypeError: name '__file__' has no static type

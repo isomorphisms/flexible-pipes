@@ -30,7 +30,7 @@
       "name": "runner-identity",
       "argv": [
         "sha256sum",
-        "scripts/run-pipeline"
+        "scripts/run-pipeline-legacy.py"
       ],
       "cwd": "."
     }

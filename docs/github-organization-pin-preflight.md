@@ -1,13 +1,16 @@
 # Organization pin eligibility through Kitchen
 
-Public operation: `github-organization-pin-preflight`; maintained policy:
+Command pipeline: `github-organization-pin-preflight`; maintained policy:
 `isomorphisms/kitchen@7953ee33280ff6e276f31204995c2d2491f3e588`, task
 `tasks/github-organization-pin-preflight/1.py`.
 
 The action `.github/workflows/github-organization-pin-preflight.yml` checks out
 Kitchen at that exact SHA **inside** the FP workspace, tests Kitchen's fixture
-suite and the FP pipeline receipt, and invokes the registered `scripts/run-pipeline`
+suite and the FP pipeline receipt, and invokes `scripts/run-pipeline-legacy.py`
 with declared arguments. It preserves receipts even on expected `BLOCKED` failures.
+
+The runner receipt reports caller-supplied command execution with
+`qualified_operation: false`; it does not grant registered-operation acceptance.
 
 Example hosted invocation:
 

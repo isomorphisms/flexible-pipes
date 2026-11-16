@@ -1,0 +1,1 @@
+{"deployment": "inactive", "public_entry_exit": 2, "result": {"acceptance_scope": "client-readiness", "artifacts": [], "blocker": "DEPLOYMENT_INACTIVE", "excluded_claims": ["trusted-execution", "deployment"], "status": "BLOCKED"}, "status": "PASS"}

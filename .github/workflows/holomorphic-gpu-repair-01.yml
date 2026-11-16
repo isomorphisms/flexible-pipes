@@ -240,7 +240,7 @@ jobs:
               "$workspace/_holomorphic/runtime/bin/grease" \
               "$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/6.grease" \
               "$workspace/_holomorphic/run" "$workspace/_holomorphic/admission-fixtures"
-          "$python" scripts/run-pipeline holomorphic-gpu-repair-01 \
+          "$python" scripts/run-pipeline-legacy.py holomorphic-gpu-repair-01 \
               --param "kitchen_recipe=$workspace/_holomorphic/kitchen/tasks/holomorphic-gpu-repair/6.grease" \
               --param "context=$workspace/_holomorphic/run"
 

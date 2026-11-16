@@ -14,7 +14,7 @@ PINNED_KITCHEN_SHA = "7953ee33280ff6e276f31204995c2d2491f3e588"
 KITCHEN_SCRIPT = ROOT / "kitchen/tasks/github-organization-pin-preflight/1.py"
 KITCHEN_TEST = ROOT / "kitchen/tests/github-organization-pin-preflight.py"
 PIPELINE = ROOT / "pipelines/github-organization-pin-preflight.json"
-RUNNER = ROOT / "scripts/run-pipeline"
+RUNNER = ROOT / "scripts/run-pipeline-legacy.py"
 
 spec = json.loads(PIPELINE.read_text())
 assert spec["name"] == "github-organization-pin-preflight"
@@ -83,6 +83,8 @@ with tempfile.TemporaryDirectory() as directory:
         run_dirs = list(run_root.iterdir())
         assert len(run_dirs) == 1
         receipt = json.loads((run_dirs[0] / "receipt.json").read_text())
+        assert receipt["qualified_operation"] is False
+        assert receipt["acceptance_scope"] == "caller-supplied-command-execution"
         report = json.loads(
             (run_dirs[0] / "01-eligibility/stdout.bin").read_text()
         )

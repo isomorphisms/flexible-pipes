@@ -11,7 +11,7 @@ the compiler build and subsequent executions.
 
 On a fresh host prepared by that workflow, invoke the existing maintained runner:
 
-`python3 /absolute/fp/scripts/run-pipeline subpixel-acceptance --param workspace=/absolute/fp`
+`python3 /absolute/fp/scripts/run-pipeline-legacy.py subpixel-acceptance --param workspace=/absolute/fp`
 
 Run from the same FP checkout. The runner resolves stage working directories from
 its own source, so the caller's launch directory does not select inputs. The one

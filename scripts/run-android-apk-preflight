@@ -17,4 +17,4 @@ do
     fi
 done
 
-exec python3 "$root/scripts/run-pipeline" android-apk-preflight "$@"
+exec python3 "$root/scripts/run-pipeline-legacy.py" android-apk-preflight "$@"

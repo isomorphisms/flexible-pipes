@@ -1,0 +1,10 @@
+PASS exporter request refuses argv
+PASS exporter request refuses shell
+PASS exporter request refuses policy
+PASS exporter request refuses checker
+PASS exporter request refuses environment
+PASS exporter request refuses skip
+PASS exporter request refuses a narrowed scope
+PASS exporter request refuses a narrowed scope
+PASS exporter request refuses a narrowed scope
+BLOCKED SECURITY_BOUNDARY_UNAVAILABLE: single-UID namespace

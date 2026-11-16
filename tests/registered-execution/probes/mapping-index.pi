@@ -1,0 +1,5 @@
+import json
+print("EFFECT_BEFORE_CHECK")
+request ∈ dict[str, str] ← json.loads('{"pipeline":"kitchen-transfer-script"}')
+pipeline ∈ str ← request["pipeline"]
+print(pipeline)

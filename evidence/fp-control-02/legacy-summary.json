@@ -1,0 +1,90 @@
+{
+  "cases": [
+    {
+      "case": "valid-control",
+      "characterization_matches": true,
+      "exit": 0,
+      "fixture_effect_count": 1,
+      "observed_status": "PASS",
+      "pipeline_sha256": "e1378b8a9b28094e4d1864ccf6dd571f0f736ade7fb99b4ac4497139c747af1b",
+      "receipt": "valid-control/receipts/boundary-fixture-20261008T164255.121726Z/receipt.json",
+      "repository_commit": "c5f997338cacf629f739b5407817fb5cbe34afcb",
+      "stage_names": [
+        "policy-check",
+        "fixture-effect"
+      ]
+    },
+    {
+      "case": "failing-gate-control",
+      "characterization_matches": true,
+      "exit": 1,
+      "fixture_effect_count": 0,
+      "observed_status": "FAIL",
+      "pipeline_sha256": "e1378b8a9b28094e4d1864ccf6dd571f0f736ade7fb99b4ac4497139c747af1b",
+      "receipt": "failing-gate-control/receipts/boundary-fixture-20261008T164255.218648Z/receipt.json",
+      "repository_commit": "c5f997338cacf629f739b5407817fb5cbe34afcb",
+      "stage_names": [
+        "policy-check"
+      ]
+    },
+    {
+      "case": "missing-stage-retained-requirement",
+      "characterization_matches": true,
+      "exit": 2,
+      "fixture_effect_count": 0,
+      "observed_status": "REJECTED_BEFORE_RECEIPT",
+      "pipeline_sha256": null,
+      "receipt": null,
+      "repository_commit": null,
+      "stage_names": []
+    },
+    {
+      "case": "stage-and-requirement-removed",
+      "characterization_matches": true,
+      "exit": 0,
+      "fixture_effect_count": 1,
+      "observed_status": "PASS",
+      "pipeline_sha256": "a87d5ddf50ba51904c1352d92393359fbbceeee04d77f8b1d00e4c70b9c3a670",
+      "receipt": "stage-and-requirement-removed/receipts/boundary-fixture-20261008T164255.325677Z/receipt.json",
+      "repository_commit": "c5f997338cacf629f739b5407817fb5cbe34afcb",
+      "stage_names": [
+        "fixture-effect"
+      ]
+    },
+    {
+      "case": "gate-file-replaced-at-same-head",
+      "characterization_matches": true,
+      "exit": 0,
+      "fixture_effect_count": 1,
+      "observed_status": "PASS",
+      "pipeline_sha256": "e1378b8a9b28094e4d1864ccf6dd571f0f736ade7fb99b4ac4497139c747af1b",
+      "receipt": "gate-file-replaced-at-same-head/receipts/boundary-fixture-20261008T164255.401989Z/receipt.json",
+      "repository_commit": "c5f997338cacf629f739b5407817fb5cbe34afcb",
+      "stage_names": [
+        "policy-check",
+        "fixture-effect"
+      ]
+    },
+    {
+      "case": "source-revision-unavailable",
+      "characterization_matches": true,
+      "exit": 0,
+      "fixture_effect_count": 1,
+      "observed_status": "PASS",
+      "pipeline_sha256": "e1378b8a9b28094e4d1864ccf6dd571f0f736ade7fb99b4ac4497139c747af1b",
+      "receipt": "source-revision-unavailable/receipts/boundary-fixture-20261008T164255.483568Z/receipt.json",
+      "repository_commit": null,
+      "stage_names": [
+        "policy-check",
+        "fixture-effect"
+      ]
+    }
+  ],
+  "observed_upstream_ref": "9775aa324f523cbc6c758e89461915484a5a0fc7",
+  "scope": "Offline isolated host characterization, simulated local effects only; no hosted workflow, network, model inference, phone test, or GitHub mutation",
+  "source_git_blob": "45e7b509d86a14b6352bb61680b7580036ba2ac4",
+  "source_path": "scripts/run-pipeline",
+  "source_repository": "isomorphisms/flexible-pipes",
+  "source_sha256": "5739ef366c1f4253e2fe969e2d64b00451cda81c38a3164dfcd1b70468188e21",
+  "synthetic_fixture_head": "c5f997338cacf629f739b5407817fb5cbe34afcb"
+}

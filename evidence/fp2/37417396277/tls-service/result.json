@@ -1,0 +1,1 @@
+{"artifact_sha256": "629e940967700138b5ca2c0cd733506c91868af0fd7c4a40ddbe57d54d0ee8af", "deployment": "inactive", "dispatch_run": "tls-dispatch-1-337c5f9a-f8fa-45dd-b5ae-b806310253fc", "old_workflow": "BLOCKED", "request_branch_run": "tls-request-branch-1-02707724-2837-4dca-9c68-50b69666ac1c", "scope": "hosted-candidate-tls-service", "status": "PASS"}

@@ -1,0 +1,9 @@
+import ctypes
+import os
+from builtins import RuntimeError
+lib ∈ object ← ctypes.CDLL(None, use_errno=True)
+version ∈ int ← lib.syscall(444, 0, 0, 1)
+error ∈ int ← ctypes.get_errno()
+print(version, error)
+if version < 1:
+    raise RuntimeError("LANDLOCK_UNAVAILABLE")

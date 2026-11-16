@@ -19,7 +19,7 @@ Required environment for registered mode:
   ANDROID_HOME and ANDROID_NDK_HOME (build-host Android SDK/NDK)
 
 Invoke:
-  python3 scripts/run-pipeline android-native-apk
+  python3 scripts/run-pipeline-legacy.py android-native-apk
 
 The command uses the *registered* application recipe and source revision to
 produce both required APKs. It then constructs the exact target/APK map and

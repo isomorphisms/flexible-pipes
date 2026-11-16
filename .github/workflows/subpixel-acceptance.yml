@@ -92,7 +92,7 @@ jobs:
         run: |
           var python = "$(command -v python3)"
           var workspace = ENV.GITHUB_WORKSPACE
-          "$python" scripts/run-pipeline subpixel-acceptance --param "workspace=$workspace"
+          "$python" scripts/run-pipeline-legacy.py subpixel-acceptance --param "workspace=$workspace"
       - name: Retain real stage receipts, diagnostics and PPM
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
