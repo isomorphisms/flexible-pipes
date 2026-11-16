@@ -17,7 +17,7 @@ mode 0755. Changing only that parent to 0775 must then refuse. Protected aliases
 are not forbidden: each link's ownership and both its lexical and resolved
 target ancestry are checked, including runtime leaf-link target chains.
 
-The test will copy and execute the installed Ithon client with production path
+The hosted fixture copies and executes the installed Ithon client with production path
 validation enabled. A missing-token sentinel distinguishes successful preflight
 from refusal before token acquisition. No token, TLS service, service unit,
 managed installation, production promotion or Grease execution is supplied by
@@ -42,9 +42,13 @@ Local checks used the existing checked Ithon host at
 `installed_client.pi`, cache/retry regressions, signed-admission controls and
 client-delivery regressions all passed. `git diff --check` passed. The new
 filesystem fixtures passed whole-module static checking before their explicit
-host/root refusals. Canonical filesystem behavior, copied-client execution and
-the retained old-algorithm counterexample remain **NOT_RUN** until the new
-hosted workflow completes at the published repair head.
+host/root refusals. Later exact-head hosted runs
+[43794987449](https://github.com/isomorphisms/flexible-pipes/actions/runs/43794987449)
+and [43794977572](https://github.com/isomorphisms/flexible-pipes/actions/runs/43794977572)
+passed all 12 canonical-path/copied-Ithon cases at
+`d453b88a46dedd4c2dde72e4d00a76990df5c8c7`. These are prior-head results; they
+do not qualify the subsequent installer preservation repair below. Successor
+canonical hosted qualification remains pending.
 
 The S02 workflow now runs for every pull request and for main/retained-S02
 pushes. Its eligibility no longer omits client, worker, admission, deployment
@@ -99,3 +103,55 @@ world-writable on that host. `install-client.pi` now creates each missing
 directory with explicit mode 0755, without changing existing directories or
 overwriting an existing final installation path. This repairs producer output;
 the fixture does not chmod installed outputs to obtain acceptance.
+
+## Installer output preservation
+
+The actual installer at
+`d453b88a46dedd4c2dde72e4d00a76990df5c8c7` overwrote an existing regular
+`client.json` sentinel and followed a dangling configuration symlink to create
+an outside-prefix file, reporting `CANDIDATE_INSTALLED` in both cases. The exact
+unaccepted factory is retained as
+`tests/registered-execution/fixtures/prior-output-installer.pi`, SHA-256
+`fee55a8ec83f2ef8f18462e85b440a0048b7881cfbc9024cfdbd453d1444d319`
+(original Git blob `b72ca133f0b6b59ff65ac0654e85d197fe9ec2e8`). The new
+preservation suite executes that specimen to retain both original
+counterexamples rather than substituting a model of its behavior.
+
+The repaired factory checks existing configuration, declared candidate subtrees
+and unsafe routes before candidate effects. It walks directory descriptors
+without following symlinks, verifies production ownership/modes including `/`,
+and checks fixture routes from the explicit prefix inward. It changes modes
+only for directories it creates. The inactive configuration is reserved before
+the candidate source tree. Every regular output leaf uses actual exclusive
+creation with `O_CREAT | O_EXCL | O_NOFOLLOW` below its anchored parent
+descriptor. Runtime symlink creation also uses an anchored parent descriptor.
+Copied source/runtime payloads are the same bytes verified against Git, rather
+than a later reread. Export-directory modes are set through the newly created
+directory descriptor.
+
+Exclusive creation preserves a competing writer's bytes, including one arriving
+after preflight. A later collision can leave an inactive partial candidate;
+this is a failed install requiring review, not rollback or promotion. The
+factory does not overwrite or remove an existing leaf to make retries pass.
+
+`qualify-install-preservation.pi` passed 12 actual-Ithon cases against repaired
+factory SHA-256
+`a0bae4beec51fdc9f60ce70774c596791627f7703f602c405d6f9a8ccc491f86`:
+two old-factory counterexamples, four pre-effect refusals (existing regular or
+dangling configuration, symlink parent and writable parent), a fresh inactive
+positive, and five competing-writer cases covering regular/symlink
+configuration, copied source, Ithon launcher and manifest. The original
+16-case `qualify-installed-boundary.pi` suite also passed against those same
+factory bytes through pinned Ithon
+`d6e83969f82512e920fb17b44326cb54f31d015c`. `git diff --check` passed.
+
+The competing-writer fixture interposes only deterministic timing at the actual
+installer's `os.open` boundary. It runs the complete checked installer through
+the ordinary Ithon runner, delegates every open to the saved real builtin and
+independently checks filesystem sentinel bytes, symlink identity and absence of
+the outside-prefix target. It does not mock the installer, filesystem authority,
+producer result or write syscall. This is bounded competing-writer source
+qualification, not proof against an arbitrary actor with the installer's own
+privileges. Hosted qualification of the successor source is still required;
+runtime eligibility, operational installation and service activation remain
+separate.

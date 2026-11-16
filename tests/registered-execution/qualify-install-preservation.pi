@@ -1,0 +1,139 @@
+"""Actual installer preservation, outside-prefix and competing-writer controls."""
+import os
+import sys
+import json
+import hashlib
+import subprocess
+from pathlib import Path
+from builtins import list, dict, ValueError
+
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+output ∈ str ← argv[2]
+fp ∈ str ← workspace + "/flexible-pipes"
+host ∈ str ← workspace + "/ithon/ithon_host.py"
+installer ∈ str ← fp + "/scripts/install-client.pi"
+prior ∈ str ← fp + "/tests/registered-execution/fixtures/prior-output-installer.pi"
+race ∈ str ← fp + "/tests/registered-execution/install-open-race.pi"
+Path(output).mkdir(mode=448, parents=True, exist_ok=False)
+launcher ∈ str ← output + "/unexecuted-grease-bytes"
+Path(launcher).write_text("not an eligible runtime; installer source fixture only\n")
+os.chmod(launcher, 365)
+cases ∈ list[dict[str, object]] ← []
+sentinel ∈ bytes ← b"EXISTING_CONFIGURATION_PRESERVED"
+
+def child(label ∈ str, program ∈ str, arguments ∈ list[str], expected ∈ str) → dict[str, object]:
+    command ∈ list[str] ← ["/usr/bin/python3", host, program]
+    command.extend(arguments)
+    process ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=60)
+    code ∈ int ← int(process.returncode)
+    stdout ∈ bytes ← process.stdout
+    stderr ∈ bytes ← process.stderr
+    detail ∈ str ← stderr.decode(errors="replace")
+    Path(output + "/" + label + ".stdout").write_bytes(stdout)
+    Path(output + "/" + label + ".stderr").write_bytes(stderr)
+    if expected == "":
+        if code != 0:
+            raise ValueError("INSTALL_PRESERVATION_UNEXPECTED_FAILURE: " + label + ":" + detail)
+        return json.loads(stdout)
+    position ∈ int ← detail.find(expected)
+    if code == 0 or position < 0:
+        raise ValueError("INSTALL_PRESERVATION_WRONG_REFUSAL: " + label + ":" + detail)
+    return {"status": "REFUSED", "diagnostic": expected}
+
+def fresh(label ∈ str) → str:
+    prefix ∈ str ← output + "/" + label
+    Path(prefix).mkdir(mode=448)
+    return prefix
+
+def no_candidate(prefix ∈ str) → None:
+    if Path(prefix + "/opt").exists() or Path(prefix + "/var").exists():
+        raise ValueError("INSTALL_PRESERVATION_EARLY_REFUSAL_HAD_EFFECTS")
+
+# Retain the exact old factory, not a rewritten model of its behavior.
+prior_sha ∈ str ← hashlib.sha256(Path(prior).read_bytes()).hexdigest()
+if prior_sha != "fee55a8ec83f2ef8f18462e85b440a0048b7881cfbc9024cfdbd453d1444d319":
+    raise ValueError("INSTALL_PRIOR_SPECIMEN_CHANGED")
+for kind in ["regular", "dangling"]:
+    prefix ∈ str ← fresh("prior-" + kind)
+    config ∈ str ← prefix + "/etc/flexible-pipes/client.json"
+    Path(config).parent.mkdir(mode=493, parents=True)
+    outside ∈ str ← output + "/prior-outside-" + kind + ".json"
+    if kind == "regular":
+        Path(config).write_bytes(sentinel)
+    else:
+        os.symlink(outside, config)
+    report ∈ dict[str, object] ← child("prior-" + kind, prior, ["qualify", workspace, launcher, prefix], "")
+    observed ∈ bytes ← Path(config if kind == "regular" else outside).read_bytes()
+    if observed == sentinel or report["status"] != "CANDIDATE_INSTALLED":
+        raise ValueError("INSTALL_PRIOR_OVERWRITE_NOT_REPRODUCED")
+    cases.append({"case": "prior-" + kind, "status": "PASS", "scope": "retained-unsafe-counterexample"})
+
+for kind in ["regular", "dangling", "parent-symlink", "writable-parent"]:
+    prefix ← fresh("refuse-" + kind)
+    config ← prefix + "/etc/flexible-pipes/client.json"
+    outside ← output + "/outside-" + kind
+    if kind == "parent-symlink":
+        Path(prefix + "/etc").mkdir(mode=493)
+        Path(outside).mkdir(mode=493)
+        os.symlink(outside, str(Path(config).parent))
+    else:
+        Path(config).parent.mkdir(mode=493, parents=True)
+        if kind == "regular":
+            Path(config).write_bytes(sentinel)
+        elif kind == "dangling":
+            os.symlink(outside, config)
+        else:
+            os.chmod(str(Path(config).parent), 509)
+    diagnostic ∈ str ← "EXISTING_CLIENT_PRESERVED" if kind == "regular" or kind == "dangling" else "CLIENT_INSTALL_UNSAFE_ROUTE"
+    child("refuse-" + kind, installer, ["qualify", workspace, launcher, prefix], diagnostic)
+    no_candidate(prefix)
+    if kind == "regular":
+        retained ∈ bytes ← Path(config).read_bytes()
+        if retained != sentinel:
+            raise ValueError("INSTALL_EXISTING_SENTINEL_CHANGED")
+    if kind == "dangling" and (not Path(config).is_symlink() or Path(outside).exists()):
+        raise ValueError("INSTALL_OUTSIDE_PREFIX_TARGET_CREATED")
+    if kind == "parent-symlink" and len(list(Path(outside).iterdir())) != 0:
+        raise ValueError("INSTALL_UNSAFE_PARENT_TARGET_WRITTEN")
+    cases.append({"case": "refuse-" + kind, "status": "PASS", "diagnostic": diagnostic, "scope": "actual-installer-before-candidate-effects"})
+
+prefix ← fresh("exclusive-positive")
+positive ∈ dict[str, object] ← child("exclusive-positive", installer, ["qualify", workspace, launcher, prefix], "")
+if positive["state"] != "inactive":
+    raise ValueError("INSTALL_POSITIVE_ACTIVATED")
+for relative in ["etc/flexible-pipes/client.json", "opt/flexible-pipes/current/manifest.json", "opt/flexible-pipes/current/scripts/github-event.pi", "opt/catfood/ithon/ithon_host.py"]:
+    mode ∈ int ← int(Path(prefix + "/" + relative).stat().st_mode) & 511
+    if mode != 292:
+        raise ValueError("INSTALL_EXCLUSIVE_FILE_MODE_CHANGED: " + relative)
+cases.append({"case": "exclusive-positive", "status": "PASS", "scope": "actual-inactive-installer"})
+
+race_specs ∈ list[tuple[str, str, str]] ← [("client.json", "regular", "etc/flexible-pipes/client.json"), ("client.json", "symlink", "etc/flexible-pipes/client.json"), ("github-event.pi", "regular", "opt/flexible-pipes/current/scripts/github-event.pi"), ("ithon", "regular", "opt/catfood/bin/ithon"), ("manifest.json", "regular", "opt/flexible-pipes/current/manifest.json")]
+for specification in race_specs:
+    target ∈ str ← specification[0]
+    kind ← specification[1]
+    relative ∈ str ← specification[2]
+    target_label ∈ str ← target.replace(".", "-")
+    label ∈ str ← "race-" + target_label + "-" + kind
+    prefix ← fresh(label)
+    outside ← output + "/outside-" + label
+    record ∈ str ← output + "/" + label + ".json"
+    child(label, race, [workspace, launcher, prefix, target, kind, outside, record], "CLIENT_INSTALL_LEAF_EXISTS")
+    timing ∈ dict[str, object] ← json.loads(Path(record).read_bytes())
+    if timing["fired"] != True or timing["delegate"] != "actual-os.open":
+        raise ValueError("INSTALL_RACE_DID_NOT_RUN_ACTUAL_FACTORY")
+    leaf ∈ str ← prefix + "/" + relative
+    if kind == "symlink":
+        if not Path(leaf).is_symlink() or Path(outside).exists():
+            raise ValueError("INSTALL_RACING_SYMLINK_FOLLOWED")
+    else:
+        racing_bytes ∈ bytes ← Path(leaf).read_bytes()
+        if racing_bytes != b"RACING_WRITER_PRESERVED":
+            raise ValueError("INSTALL_RACING_WRITER_OVERWRITTEN")
+    if target == "client.json":
+        no_candidate(prefix)
+    cases.append({"case": label, "status": "PASS", "scope": "actual-installer-with-deterministic-open-timing"})
+
+result ∈ dict[str, object] ← {"status": "PASS", "scope": "disposable-actual-installer-preservation", "cases": cases, "installer_sha256": hashlib.sha256(Path(installer).read_bytes()).hexdigest(), "prior_installer_sha256": prior_sha, "excluded_claims": ["runtime-eligibility", "service-activation", "production-installation", "signed-dispatch"]}
+Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
+print(json.dumps({"status": "PASS", "cases": len(cases), "scope": result["scope"]}, sort_keys=True))

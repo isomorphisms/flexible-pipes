@@ -29,6 +29,10 @@ jobs:
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-boundary.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-installed'
       - name: Reject accepted replay and stale accepted artifacts
         run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-cache.pi '${{ github.workspace }}/flexible-pipes' '${{ runner.temp }}/s02-cache'
+      - name: Preserve existing configuration and competing writer bytes
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-preservation-checked.jsonl
+        run: /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-install-preservation.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-preservation'
       - name: Reject mutable canonical routes through the installed Ithon client
         env:
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-trusted-checked.jsonl
@@ -50,6 +54,8 @@ jobs:
             ${{ runner.temp }}/s02-installed/result.json
             ${{ runner.temp }}/s02-checked.jsonl
             ${{ runner.temp }}/s02-cache/checks.json
+            ${{ runner.temp }}/s02-preservation/
+            ${{ runner.temp }}/s02-preservation-checked.jsonl
             ${{ runner.temp }}/s02-trusted/
             ${{ runner.temp }}/s02-trusted-checked.jsonl
             ${{ runner.temp }}/s02-paths-checked.jsonl
