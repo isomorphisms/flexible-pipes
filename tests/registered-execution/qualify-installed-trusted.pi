@@ -13,8 +13,8 @@ from pathlib import Path
 from builtins import dict, list, ValueError, Exception, oct
 
 argv ∈ list[str] ← sys.argv
-if len(argv) != 4 or argv[3] != "disposable-github-runner":
-    raise ValueError("S02_DISPOSABLE_RUNNER_REQUIRED")
+if len(argv) != 4 or argv[3] != "disposable-mount-namespace":
+    raise ValueError("S02_DISPOSABLE_MOUNT_NAMESPACE_REQUIRED")
 uid ∈ int ← os.getuid()
 if uid != 0:
     raise ValueError("S02_DISPOSABLE_ROOT_REQUIRED")
@@ -30,12 +30,13 @@ approved ∈ str ← "/opt/fp-s02-approved"
 launcher ∈ str ← "/opt/fp-s02-launcher"
 certificate ∈ str ← "/opt/fp-s02-ca.pem"
 event_path ∈ str ← "/opt/fp-s02-event.json"
+marker ∈ str ← "/opt/flexible-pipes/unverified-delivery.marker"
+inactive_fixture ∈ str ← "/opt/flexible-pipes/inactive-fixture.json"
 owned ∈ list[str] ← ["/opt/flexible-pipes", runtime, "/etc/flexible-pipes", "/var/lib/flexible-pipes", approved, launcher, certificate, event_path]
-for path in owned:
-    if Path(path).exists() or Path(path).is_symlink():
-        raise ValueError("S02_EXISTING_CANONICAL_PATH_PRESERVED: " + path)
 Path(output).mkdir(mode=493, parents=True, exist_ok=False)
 cases ∈ list[dict[str, object]] ← []
+mount_namespace ∈ str ← os.readlink("/proc/self/ns/mnt")
+initial_mount_namespace ∈ str ← os.readlink("/proc/1/ns/mnt")
 
 def filesystem_provenance(label ∈ str) → None:
     rows ∈ list[dict[str, object]] ← []
@@ -65,7 +66,7 @@ def filesystem_provenance(label ∈ str) → None:
             symbolic ∈ bool ← node.is_symlink()
             target ∈ str ← os.readlink(name) if symbolic else ""
             rows.append({"path": name, "exists": True, "symlink": symbolic, "target": target, "lstat_uid": int(lexical_info.st_uid), "lstat_gid": int(lexical_info.st_gid), "lstat_mode": lexical_permissions, "stat_uid": int(resolved_info.st_uid), "stat_gid": int(resolved_info.st_gid), "stat_mode": resolved_permissions})
-    record ∈ dict[str, object] ← {"scope": "actual-disposable-host-filesystem", "uid": uid, "paths": rows}
+    record ∈ dict[str, object] ← {"scope": "actual-disposable-host-filesystem", "uid": uid, "mount_namespace": mount_namespace, "pid1_mount_namespace": initial_mount_namespace, "paths": rows}
     encoded ∈ str ← json.dumps(record, sort_keys=True)
     Path(output + "/filesystem-" + label + ".json").write_text(encoded)
     print("S02_FILESYSTEM_PROVENANCE " + label + " " + encoded)
@@ -108,6 +109,40 @@ def client_process(label ∈ str, expected ∈ str, expected_scope ∈ str, revi
     Path(output + "/" + label + ".json").write_text(encoded_result)
     cases.append({"case": label, "status": "PASS", "blocker": expected, "scope": "copied-installed-ithon-client"})
 
+filesystem_provenance("outer-before-private-opt")
+if mount_namespace == initial_mount_namespace:
+    raise ValueError("S02_PRIVATE_MOUNT_NAMESPACE_REQUIRED")
+mountinfo ∈ str ← Path("/proc/self/mountinfo").read_text()
+Path(output + "/mountinfo-before-private-opt.txt").write_text(mountinfo)
+mount_rows ∈ list[str] ← mountinfo.splitlines()
+for row in mount_rows:
+    fields ∈ list[str] ← row.split()
+    for field in fields:
+        if field.startswith("shared:"):
+            raise ValueError("S02_PRIVATE_MOUNT_PROPAGATION_REQUIRED")
+if not Path("/usr/bin/mount").is_file():
+    raise ValueError("S02_HOST_MOUNT_COMMAND_UNAVAILABLE")
+mount_command ∈ list[str] ← ["/usr/bin/mount", "-t", "tmpfs", "-o", "mode=0755,nosuid,nodev", "s02-disposable-opt", "/opt"]
+mounted ∈ object ← subprocess.run(mount_command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=10)
+mount_code ∈ int ← int(mounted.returncode)
+mount_stdout ∈ bytes ← mounted.stdout
+mount_stderr ∈ bytes ← mounted.stderr
+mount_detail ∈ str ← mount_stderr.decode(errors="replace")
+Path(output + "/private-opt-mount.stdout").write_bytes(mount_stdout)
+Path(output + "/private-opt-mount.stderr").write_bytes(mount_stderr)
+if mount_code != 0:
+    raise ValueError("S02_PRIVATE_OPT_MOUNT_FAILED: " + mount_detail)
+private_opt ∈ object ← Path("/opt").stat()
+private_opt_owner ∈ int ← int(private_opt.st_uid)
+private_opt_mode ∈ int ← int(private_opt.st_mode)
+if private_opt_owner != 0 or private_opt_mode & 511 != 493:
+    raise ValueError("S02_PRIVATE_OPT_NOT_PROTECTED")
+Path(output + "/mountinfo-private-opt.txt").write_text(Path("/proc/self/mountinfo").read_text())
+filesystem_provenance("private-opt")
+for path in owned:
+    if Path(path).exists() or Path(path).is_symlink():
+        raise ValueError("S02_EXISTING_CANONICAL_PATH_PRESERVED: " + path)
+
 fixture_umask ∈ int ← os.umask(18)
 try:
     filesystem_provenance("before-install")
@@ -121,6 +156,8 @@ try:
     install_detail ∈ str ← install_stderr.decode(errors="replace")
     if install_code != 0:
         raise ValueError("S02_CANONICAL_INSTALL_FAILED: " + install_detail)
+    Path(inactive_fixture).write_bytes(Path(configuration).read_bytes())
+    os.chmod(inactive_fixture, 292)
     manifest ∈ dict[str, object] ← json.loads(Path(root + "/manifest.json").read_bytes())
     revision ∈ str ← str(manifest["source_commit"])
     Path(output + "/manifest.json").write_bytes(Path(root + "/manifest.json").read_bytes())
@@ -145,9 +182,41 @@ try:
     delivery ∈ str ← root + "/scripts/delivery.pi"
     delivery_bytes ∈ bytes ← Path(delivery).read_bytes()
     os.chmod(delivery, 420)
-    Path(delivery).write_bytes(delivery_bytes + b"\n# installed source mutation\n")
+    marker_literal ∈ str ← json.dumps(marker)
+    marker_source ∈ str ← "\nPath(" + marker_literal + ").write_text(\"UNVERIFIED_DELIVERY_EXECUTED\")\n"
+    marker_bytes ∈ bytes ← marker_source.encode()
+    Path(delivery).write_bytes(delivery_bytes + marker_bytes)
     try:
+        # Execute the preserved former client itself beside the copied scripts.
+        # Its eager import must reproduce the prior unsafe top-level effect.
+        prior_source ∈ str ← workspace + "/flexible-pipes/tests/registered-execution/fixtures/prior-eager-client.pi"
+        prior_client ∈ str ← root + "/scripts/prior-eager-client.pi"
+        shutil.copyfile(prior_source, prior_client)
+        os.chmod(prior_client, 292)
+        if sha(prior_client) != sha(prior_source):
+            raise ValueError("S02_PRIOR_CLIENT_BYTES_DIFFER")
+        prior_directory ∈ str ← "/var/lib/flexible-pipes/export/prior-eager-readiness"
+        prior_command ∈ list[str] ← ["/usr/bin/python3", runtime + "/ithon/ithon_host.py", prior_client, "readiness", inactive_fixture, prior_directory]
+        prior ∈ object ← subprocess.run(prior_command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=30)
+        prior_code ∈ int ← int(prior.returncode)
+        prior_stdout ∈ bytes ← prior.stdout
+        prior_stderr ∈ bytes ← prior.stderr
+        Path(output + "/prior-eager-readiness.stdout").write_bytes(prior_stdout)
+        Path(output + "/prior-eager-readiness.stderr").write_bytes(prior_stderr)
+        if prior_code != 2 or not Path(marker).is_file():
+            raise ValueError("S02_PRIOR_EAGER_IMPORT_COUNTEREXAMPLE_NOT_REPRODUCED")
+        marker_text ∈ str ← Path(marker).read_text()
+        prior_result ∈ dict[str, object] ← json.loads(Path(prior_directory + "/result.json").read_bytes())
+        if marker_text != "UNVERIFIED_DELIVERY_EXECUTED" or prior_result["blocker"] != "DEPLOYMENT_INACTIVE":
+            raise ValueError("S02_PRIOR_EAGER_IMPORT_WRONG_BOUNDARY")
+        Path(output + "/prior-eager-readiness.json").write_text(json.dumps(prior_result, sort_keys=True))
+        cases.append({"case": "prior-eager-installed-client-executes-unverified-delivery", "status": "PASS", "scope": "retained-unsafe-counterexample", "prior_client_sha256": sha(prior_client), "observed_marker": marker_text})
+        Path(marker).unlink()
+        Path(prior_client).unlink()
         client_process("s02-trusted-changed-delivery", "CLIENT_SOURCE_CHANGED: scripts/delivery.pi", "client-pre-token", revision)
+        if Path(marker).exists():
+            raise ValueError("S02_UNVERIFIED_DELIVERY_EXECUTED_BEFORE_REFUSAL")
+        cases.append({"case": "changed-delivery-refused-before-module-effect", "status": "PASS", "scope": "copied-installed-ithon-client"})
     finally:
         Path(delivery).write_bytes(delivery_bytes)
         os.chmod(delivery, 292)

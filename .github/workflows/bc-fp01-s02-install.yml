@@ -32,7 +32,7 @@ jobs:
       - name: Reject mutable canonical routes through the installed Ithon client
         env:
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-trusted-checked.jsonl
-        run: sudo -n --preserve-env=ITHON_CHECK_RECEIPT /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-trusted.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-trusted' disposable-github-runner
+        run: sudo -n --preserve-env=ITHON_CHECK_RECEIPT /usr/bin/unshare --mount --propagation private /usr/bin/python3 ithon/ithon_host.py flexible-pipes/tests/registered-execution/qualify-installed-trusted.pi '${{ github.workspace }}' '${{ runner.temp }}/s02-trusted' disposable-mount-namespace
       - name: Reproduce the original lexical-path bug without filesystem mutation
         env:
           ITHON_CHECK_RECEIPT: ${{ runner.temp }}/s02-paths-checked.jsonl

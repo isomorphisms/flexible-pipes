@@ -49,3 +49,53 @@ hosted workflow completes at the published repair head.
 The S02 workflow now runs for every pull request and for main/retained-S02
 pushes. Its eligibility no longer omits client, worker, admission, deployment
 or fixture inputs from the installed-source assertion.
+
+## Eager dependency execution counterexample
+
+`tests/registered-execution/fixtures/prior-eager-client.pi` preserves the actual
+client from `71ec5a91ca3994f79fa0e729bf4db3e637af8b7f` before the lazy-import
+repair. It is an explicitly unaccepted specimen, never a maintained entrypoint.
+The hosted test copies that exact file beside the installed scripts and appends
+a harmless marker write to installed `delivery.pi`. The specimen's readiness
+call must create the marker despite returning `DEPLOYMENT_INACTIVE`, retaining
+the original import-before-validation counterexample. It then clears the
+marker and requires the current copied client to return
+`CLIENT_SOURCE_CHANGED: scripts/delivery.pi` while the marker remains absent.
+
+The current client delays event and delivery imports until the manifest closure
+has been checked. `installed_client.pi` checks that closure before lazily
+loading the shared delivery release validator. The pinned Ithon loader and the
+installed bootstrap checker remain explicit trusted inputs; these checks do
+not authenticate a substituted loader/checker or supply independent deployment
+authority.
+
+The local actual-Ithon copied-source experiment reproduced the eager specimen:
+readiness returned `DEPLOYMENT_INACTIVE`, exit 2, and the marker existed. The
+current copied client returned the same inactive receipt with the marker absent.
+This is source-level import ordering evidence, separate from the hosted
+installed active-client refusal.
+
+## Disposable protected filesystem
+
+Hosted diagnostics at repair source
+`23c93c2008d5acb1d0c0bef139f320e3630ea120` observed root ownership with `/opt`
+mode 0777; `/`, `/etc` and `/usr` were root-owned 0755. The production guard
+correctly refused that inherited writable ancestor. The fixture must not chmod
+the existing host `/opt` or relax the guard to manufacture a positive.
+
+The hosted wrapper now selects a private mount namespace. Before mounting, the
+fixture requires its namespace identity to differ from PID 1 and requires no
+shared mount propagation tags. It records the original filesystem metadata,
+then mounts an actual private tmpfs at `/opt` with root-owned mode 0755 and
+records the resulting metadata and mount table. Canonical client paths are
+created only after this check; pre-existing `/etc/flexible-pipes` and
+`/var/lib/flexible-pipes` still cause refusal. Only fixture-created paths are
+removed. Namespace or mount failure remains a concrete blocker with no fallback.
+The private mount disappears with the bounded fixture process; no service is
+installed or activated.
+
+The observed installer also left newly created intermediate directories
+world-writable on that host. `install-client.pi` now creates each missing
+directory with explicit mode 0755, without changing existing directories or
+overwriting an existing final installation path. This repairs producer output;
+the fixture does not chmod installed outputs to obtain acceptance.

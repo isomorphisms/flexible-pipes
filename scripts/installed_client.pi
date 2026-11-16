@@ -11,7 +11,6 @@ import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 from builtins import dict, list, ValueError, isinstance
-from delivery import checked_release
 
 SCRIPTS ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed_client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
 RUNTIME ∈ list[str] ← ["ithon/ithon_host.py", "ithon/Lib/ithon_static.py", "ithon/Lib/ithon_frontend.py", "ithon/Lib/ithon_run.py", "bin/ithon"]
@@ -135,11 +134,14 @@ def preflight(client ∈ dict[str, object], config_path ∈ str, root ∈ str, r
         protected(certificate, False)
     if fingerprint(certificate) != client["ca_sha256"]:
         raise ValueError("CLIENT_CA_CHANGED")
+    # The pinned Ithon loader and this bootstrap checker are trusted inputs.
+    # Authenticate copied dependencies before executing their module bodies.
+    manifest ∈ dict[str, object] ← manifest_check(root, runtime, str(client["accepted_install_sha256"]), trusted)
+    from delivery import checked_release
     release ∈ dict[str, object] ← dict(client["accepted_release"])
     checked_release(release)
     if release["authority"] != "deployed-trusted":
         raise ValueError("CLIENT_AUTHORITY_NOT_PROMOTED")
-    manifest ∈ dict[str, object] ← manifest_check(root, runtime, str(client["accepted_install_sha256"]), trusted)
     if manifest["source_commit"] != release["control_commit"]:
         raise ValueError("CLIENT_CONTROL_COMMIT_MISMATCH")
     return {"status": "CLOSURE_VERIFIED", "control_commit": manifest["source_commit"], "release_sha256": release["release_sha256"], "manifest_sha256": client["accepted_install_sha256"], "endpoint": client["endpoint"]}

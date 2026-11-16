@@ -58,6 +58,26 @@ def checked_blob(repo ∈ str, commit ∈ str, relative ∈ str, payload ∈ byt
 def digest(path ∈ str) → str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def create_directory(path ∈ str, existing_allowed ∈ bool) → None:
+    # Set the modes of directories this installer creates explicitly. An
+    # inherited umask must not leave a mutable route to installed code.
+    selected ∈ Path ← Path(path)
+    if selected.exists() or selected.is_symlink():
+        if existing_allowed and selected.is_dir():
+            return
+        raise ValueError("CLIENT_INSTALL_PATH_EXISTS: " + path)
+    missing ∈ list[Path] ← []
+    current ∈ Path ← selected
+    while not current.exists() and not current.is_symlink():
+        missing.append(current)
+        current ← current.parent
+    if not current.is_dir():
+        raise ValueError("CLIENT_INSTALL_PARENT_UNAVAILABLE: " + path)
+    missing.reverse()
+    for directory in missing:
+        directory.mkdir(mode=493)
+        os.chmod(str(directory), 493)
+
 source_commit ∈ str ← revision(fp)
 ithon_commit ∈ str ← revision(ithon)
 scripts ∈ list[str] ← ["scripts/run-pipeline", "scripts/github-event.pi", "scripts/delivery.pi", "scripts/event_adapter.pi", "scripts/installed_client.pi", "scripts/registered-service.pi", "scripts/registered-execution.pi", "scripts/verify-admission.pi", "scripts/admission.pi", "scripts/registered-worker.pi", "scripts/registered-watchdog.pi"]
@@ -70,14 +90,14 @@ for relative in scripts:
 for relative in ithon_files:
     payload ← Path(ithon + "/" + relative).read_bytes()
     checked_blob(ithon, ithon_commit, relative, payload)
-Path(destination + "/scripts").mkdir(mode=493, parents=True)
+create_directory(destination + "/scripts", False)
 source_hashes ∈ dict[str, str] ← {}
 for relative in scripts:
     shutil.copyfile(fp + "/" + relative, destination + "/" + relative)
     os.chmod(destination + "/" + relative, 365 if relative == "scripts/run-pipeline" else 292)
     source_hashes[relative] ← digest(destination + "/" + relative)
-Path(runtime + "/bin").mkdir(mode=493, parents=True)
-Path(runtime + "/ithon/Lib").mkdir(mode=493, parents=True)
+create_directory(runtime + "/bin", False)
+create_directory(runtime + "/ithon/Lib", False)
 runtime_hashes ∈ dict[str, str] ← {}
 for relative in ithon_files:
     copied ∈ str ← runtime + "/ithon/" + relative
@@ -101,9 +121,9 @@ empty_release ∈ dict[str, object] ← {}
 client["accepted_release"] ← empty_release
 client.pop("ca_sha256", None)
 client.pop("accepted_install_sha256", None)
-Path(configuration).parent.mkdir(mode=493, parents=True, exist_ok=True)
+create_directory(str(Path(configuration).parent), True)
 Path(configuration).write_text(json.dumps(client, sort_keys=True))
 os.chmod(configuration, 292)
-Path(export).mkdir(mode=493, parents=True)
+create_directory(export, False)
 os.chmod(export, 1023 if not fixture else 448)
 print(json.dumps({"status": "CANDIDATE_INSTALLED", "state": "inactive", "authority": "unprivileged-transport-only", "scope": "disposable-fixture" if fixture else "unpromoted-installed-candidate", "source_commit": source_commit, "ithon_commit": ithon_commit, "manifest_sha256": digest(manifest_path)}, sort_keys=True))

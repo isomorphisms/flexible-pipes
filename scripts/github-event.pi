@@ -5,8 +5,6 @@ import json
 import urllib.request
 from pathlib import Path
 from builtins import dict, list, ValueError
-from delivery import submit
-from event_adapter import envelope
 from installed_client import preflight
 from builtins import Exception
 argv ∈ list[str] ← sys.argv
@@ -27,6 +25,7 @@ try:
     admitted_install ∈ dict[str, object] ← preflight(client, client_path, "/opt/flexible-pipes/current", "/opt/catfood", True)
     if environment["GITHUB_SHA"] != admitted_install["control_commit"]:
         raise ValueError("CLIENT_STALE_WORKFLOW")
+    from event_adapter import envelope
     event ∈ dict[str, object] ← json.loads(Path(argv[1]).read_bytes())
     preliminary ∈ dict[str, object] ← envelope(event, environment, "")
 except Exception as failure:
@@ -54,6 +53,7 @@ except Exception:
     Path(directory + "/result.json").write_text(json.dumps(rejected, sort_keys=True))
     print(json.dumps(rejected))
     sys.exit(2)
+from delivery import submit
 result ∈ dict[str, object] ← submit(str(client["endpoint"]), str(client["ca_certificate"]), str(mapped["route"]), dict(mapped["envelope"]), directory, dict(client["accepted_release"]))
 print(json.dumps({"status": result["status"], "export": directory}))
 sys.exit(0 if result["status"] == "PASS" else 1)
