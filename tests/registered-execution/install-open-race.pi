@@ -1,0 +1,50 @@
+"""Deterministic competing writer around the actual installer's os.open call.
+
+Only timing is interposed. Every open delegates to the real saved os.open;
+the checked installer is executed by the normal Ithon runner.
+"""
+import os
+import sys
+import json
+import ithon_run
+from pathlib import Path
+from builtins import list, dict, Exception
+
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+launcher ∈ str ← argv[2]
+prefix ∈ str ← argv[3]
+target ∈ str ← argv[4]
+kind ∈ str ← argv[5]
+outside ∈ str ← argv[6]
+record_path ∈ str ← argv[7]
+saved_open ∈ object ← os.open
+state ∈ dict[str, object] ← {"fired": False, "delegate": "actual-os.open", "target": target, "kind": kind, "scope": "deterministic-competing-writer"}
+
+def racing_open(path ∈ str, flags ∈ int, mode ∈ int = 511, dir_fd ∈ int = -1) → int:
+    exclusive ∈ int ← int(os.O_EXCL)
+    if path == target and flags & exclusive != 0 and state["fired"] == False:
+        state["fired"] ← True
+        if kind == "symlink":
+            os.symlink(outside, path, dir_fd=dir_fd)
+        else:
+            competing ∈ int ← saved_open.__call__(path, flags, mode, dir_fd=dir_fd)
+            try:
+                marker ∈ bytes ← b"RACING_WRITER_PRESERVED"
+                count ∈ int ← os.write(competing, marker)
+                state["writer_bytes"] ← count
+            finally:
+                os.close(competing)
+    if dir_fd < 0:
+        return saved_open.__call__(path, flags, mode)
+    return saved_open.__call__(path, flags, mode, dir_fd=dir_fd)
+
+os.__setattr__("open", racing_open)
+try:
+    ithon_run.main([workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, prefix])
+except Exception as failure:
+    state["failure"] ← str(failure)
+    raise
+finally:
+    os.__setattr__("open", saved_open)
+    Path(record_path).write_text(json.dumps(state, sort_keys=True))

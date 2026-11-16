@@ -1,0 +1,151 @@
+"""Disposable S02 installation, relocation and pre-token rejection controls.
+
+No fixture here is a qualified runtime or deployed authority.
+"""
+import os
+import sys
+import json
+import hashlib
+import subprocess
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+argv ∈ list[str] ← sys.argv
+workspace ∈ str ← argv[1]
+output ∈ str ← argv[2]
+sys.path.insert(0, workspace + "/flexible-pipes/scripts")
+from installed_client import manifest_check, preflight
+
+Path(output).mkdir(mode=448, parents=True, exist_ok=False)
+launcher ∈ str ← output + "/fixture-grease-not-executed"
+Path(launcher).write_text("disposable bytes, not an accepted Grease runtime\n")
+os.chmod(launcher, 365)
+cases ∈ list[dict[str, object]] ← []
+
+def sha(path ∈ str) → str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def record(label ∈ str, expected ∈ str) → None:
+    observed ∈ str ← ""
+    try:
+        verify()
+    except Exception as error:
+        observed ← str(error)
+    if observed != expected:
+        raise ValueError("S02_REJECTION_MISMATCH: " + label + ":" + observed + ":" + expected)
+    cases.append({"case": label, "status": "PASS", "rejection": observed})
+
+def install(root ∈ str) → dict[str, object]:
+    Path(root).mkdir(mode=448)
+    command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, root]
+    child ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=45)
+    exit_code ∈ int ← int(child.returncode)
+    if exit_code != 0:
+        stderr ∈ bytes ← child.stderr
+        detail ∈ str ← stderr.decode(errors="replace")
+        raise ValueError("S02_INSTALL_FAILED: " + detail)
+    stdout ∈ bytes ← child.stdout
+    report ∈ dict[str, object] ← json.loads(stdout)
+    if report["state"] != "inactive" or report["scope"] != "disposable-fixture":
+        raise ValueError("S02_CANDIDATE_PROMOTION")
+    return report
+
+first_root ∈ str ← output + "/first"
+second_root ∈ str ← output + "/relocated"
+first ∈ dict[str, object] ← install(first_root)
+second ∈ dict[str, object] ← install(second_root)
+if first["manifest_sha256"] != second["manifest_sha256"]:
+    raise ValueError("S02_RELOCATION_CHANGED_MANIFEST")
+first_client ∈ dict[str, object] ← json.loads(Path(first_root + "/etc/flexible-pipes/client.json").read_bytes())
+if first_client["state"] != "inactive" or first_client["endpoint"] != "" or len(dict(first_client["accepted_release"])) != 0:
+    raise ValueError("S02_INSTALL_ACTIVATED_CLIENT")
+root ∈ str ← first_root + "/opt/flexible-pipes/current"
+runtime ∈ str ← first_root + "/opt/catfood"
+manifest ∈ dict[str, object] ← manifest_check(root, runtime, str(first["manifest_sha256"]), False)
+relocated ∈ dict[str, object] ← manifest_check(second_root + "/opt/flexible-pipes/current", second_root + "/opt/catfood", str(first["manifest_sha256"]), False)
+if manifest != relocated or manifest["source_commit"] != first["source_commit"]:
+    raise ValueError("S02_RELOCATION_PROVENANCE_MISMATCH")
+cases.append({"case": "fresh-install-and-relocation", "status": "PASS"})
+
+# A fixture-only, non-authorizing promotion-shaped record exercises validation.
+# It is never written into an installed client's state file.
+release ∈ dict[str, object] ← {"release_sha256": "3333333333333333333333333333333333333333333333333333333333333333", "control_commit": manifest["source_commit"], "authority": "deployed-trusted", "required_checks": ["prepare", "baseline-run", "candidate-run", "independent-comparison", "publish"], "contract_sha256": "2222222222222222222222222222222222222222222222222222222222222222", "operation_version": "fixture", "registry_generation": 1, "outputs": [{"role": "regression-decision", "type": "text-report", "suffix": ".txt"}]}
+ca ∈ str ← output + "/fixture-ca-not-a-cert.pem"
+Path(ca).write_text("not a trusted certificate\n")
+client ∈ dict[str, object] ← {"schema_version": 1, "state": "active", "endpoint": "https://fixture.invalid/v1/execute", "ca_certificate": ca, "ca_sha256": sha(ca), "accepted_release": release, "accepted_install_sha256": first["manifest_sha256"], "activation_requires": "independent promotion"}
+configuration ∈ str ← first_root + "/etc/flexible-pipes/client.json"
+
+def verify() → dict[str, object]:
+    return preflight(client, configuration, root, runtime, False)
+
+positive ∈ dict[str, object] ← verify()
+if positive["status"] != "CLOSURE_VERIFIED":
+    raise ValueError("S02_FIXTURE_PREFLIGHT_FAILED")
+cases.append({"case": "fixture-preflight", "status": "PASS", "scope": "not-authorized"})
+
+def reject_file(label ∈ str, path ∈ str, error ∈ str) → None:
+    original ∈ bytes ← Path(path).read_bytes()
+    permissions ∈ int ← int(Path(path).stat().st_mode) & 511
+    # Installed scripts are intentionally read-only; only this disposable
+    # mutation fixture temporarily permits the owning test user to alter bytes.
+    os.chmod(path, permissions | 128)
+    try:
+        Path(path).write_bytes(original + b"forged")
+        record(label, error)
+    finally:
+        Path(path).write_bytes(original)
+        os.chmod(path, permissions)
+
+reject_file("modified-client", root + "/scripts/github-event.pi", "CLIENT_SOURCE_CHANGED: scripts/github-event.pi")
+reject_file("modified-supervisor", root + "/scripts/registered-execution.pi", "CLIENT_SOURCE_CHANGED: scripts/registered-execution.pi")
+reject_file("modified-checker", runtime + "/ithon/Lib/ithon_frontend.py", "CLIENT_RUNTIME_CHANGED: ithon/Lib/ithon_frontend.py")
+reject_file("modified-runtime", runtime + "/bin/ithon", "CLIENT_RUNTIME_CHANGED: bin/ithon")
+reject_file("modified-grease", launcher, "CLIENT_RUNTIME_CHANGED: grease_sha256")
+reject_file("modified-ca", ca, "CLIENT_CA_CHANGED")
+before ∈ str ← str(client["accepted_install_sha256"])
+client["accepted_install_sha256"] ← "0000000000000000000000000000000000000000000000000000000000000000"
+record("wrong-manifest-pin", "CLIENT_MANIFEST_CHANGED")
+client["accepted_install_sha256"] ← before
+release["control_commit"] ← "ffffffffffffffffffffffffffffffffffffffff"
+record("stale-control-ref", "CLIENT_CONTROL_COMMIT_MISMATCH")
+release["control_commit"] ← manifest["source_commit"]
+release["authority"] ← "local-qualification"
+record("unpromoted-authority", "CLIENT_AUTHORITY_NOT_PROMOTED")
+release["authority"] ← "deployed-trusted"
+client["endpoint"] ← "http://fixture.invalid/v1/execute"
+record("unencrypted-supervisor", "CLIENT_SUPERVISOR_ENDPOINT")
+client["endpoint"] ← "https://fixture.invalid/v1/execute"
+client["ca_sha256"] ← ""
+record("missing-ca-pin", "CLIENT_CA_PIN_REQUIRED")
+client["ca_sha256"] ← sha(ca)
+noncanonical ∈ str ← ""
+try:
+    manifest_check(root, runtime, str(first["manifest_sha256"]), True)
+except Exception as error:
+    noncanonical ← str(error)
+if noncanonical != "CLIENT_NONCANONICAL_INSTALL":
+    raise ValueError("S02_NONCANONICAL_ROOT_ACCEPTED")
+cases.append({"case": "noncanonical-root", "status": "PASS"})
+# Existing client installations are never overwritten by a second attempt.
+installed_source ∈ str ← sha(root + "/scripts/github-event.pi")
+command ∈ list[str] ← ["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/install-client.pi", "qualify", workspace, launcher, first_root]
+again ∈ object ← subprocess.run(command, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"}, capture_output=True, timeout=30)
+again_code ∈ int ← int(again.returncode)
+again_stderr ∈ bytes ← again.stderr
+again_detail ∈ str ← again_stderr.decode(errors="replace")
+reinstall_failure_position ∈ int ← int(again_detail.find("EXISTING_CLIENT_PRESERVED"))
+if again_code == 0 or reinstall_failure_position < 0 or sha(root + "/scripts/github-event.pi") != installed_source:
+    raise ValueError("S02_REINSTALL_OVERWROTE_CLIENT")
+cases.append({"case": "immutable-install-retry", "status": "PASS"})
+# Readiness must reject without an ACTIONS token, even in a fresh environment.
+readiness ∈ str ← output + "/inactive-readiness"
+read ∈ object ← subprocess.run(["/usr/bin/python3", workspace + "/ithon/ithon_host.py", workspace + "/flexible-pipes/scripts/github-event.pi", "readiness", workspace + "/flexible-pipes/deployment/client.json", readiness], env={"PATH": "/usr/bin:/bin"}, capture_output=True, timeout=20)
+read_code ∈ int ← int(read.returncode)
+if read_code != 2:
+    raise ValueError("S02_INACTIVE_TOKEN_BOUNDARY")
+blocked ∈ dict[str, object] ← json.loads(Path(readiness + "/result.json").read_bytes())
+if blocked["status"] != "BLOCKED" or blocked["blocker"] != "DEPLOYMENT_INACTIVE":
+    raise ValueError("S02_INACTIVE_TOKEN_BOUNDARY")
+cases.append({"case": "inactive-before-oidc", "status": "PASS"})
+result ∈ dict[str, object] ← {"status": "PASS", "scope": "disposable-package-and-source-preflight", "cases": cases, "source_commit": first["source_commit"], "ithon_commit": first["ithon_commit"], "manifest_sha256": first["manifest_sha256"], "deployment": "inactive", "excluded_claims": ["accepted-non-cpp-runtime", "deployed-supervisor", "signed-origin", "installed-context-promotion", "production-chatgpt-origin", "real-execution"]}
+Path(output + "/result.json").write_text(json.dumps(result, sort_keys=True))
+print(json.dumps({"status": "PASS", "cases": len(cases), "scope": result["scope"]}, sort_keys=True))

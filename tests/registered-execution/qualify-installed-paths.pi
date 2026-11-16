@@ -1,0 +1,51 @@
+"""Run the path regression on existing filesystem bytes without root mutations."""
+import sys
+from pathlib import Path
+from builtins import dict, list, ValueError, Exception
+
+argv ∈ list[str] ← sys.argv
+sys.path.insert(0, argv[1] + "/scripts")
+from installed_client import protected
+
+root_info ∈ object ← Path("/").stat()
+root_owner ∈ int ← int(root_info.st_uid)
+if root_owner != 0:
+    raise ValueError("S02_TRUSTED_HOST_ROOT_REQUIRED")
+
+def former_resolved_only_protection(path ∈ str, symlink_allowed ∈ bool) → None:
+    selected ∈ Path ← Path(path)
+    if not selected.is_absolute() or selected.is_symlink() and not symlink_allowed:
+        raise ValueError("CLIENT_PATH_UNPROTECTED")
+    resolved ∈ Path ← selected.resolve(strict=True)
+    nodes ∈ list[Path] ← [resolved]
+    nodes.extend(list(resolved.parents))
+    for node in nodes:
+        info ∈ object ← node.stat()
+        owner ∈ int ← int(info.st_uid)
+        mode ∈ int ← int(info.st_mode)
+        if owner != 0 or mode & 18 != 0:
+            raise ValueError("CLIENT_PATH_UNPROTECTED")
+
+# Both names resolve to the same real root-owned runtime bytes. The second
+# traverses the writable /tmp component, which resolution alone conceals.
+positive ∈ str ← "/usr/bin/python3"
+hostile ∈ str ← "/tmp/../usr/bin/python3"
+positive_target ∈ Path ← Path(positive).resolve(strict=True)
+hostile_target ∈ Path ← Path(hostile).resolve(strict=True)
+if positive_target != hostile_target:
+    raise ValueError("S02_PATH_TWIN_IDENTITIES_DIFFER")
+temporary_info ∈ object ← Path("/tmp").stat()
+temporary_mode ∈ int ← int(temporary_info.st_mode)
+if temporary_mode & 18 == 0:
+    raise ValueError("S02_WRITABLE_PATH_FIXTURE_UNAVAILABLE")
+protected(positive, True)
+former_resolved_only_protection(positive, True)
+former_resolved_only_protection(hostile, True)
+refusal ∈ str ← ""
+try:
+    protected(hostile, True)
+except Exception as failure:
+    refusal ← str(failure)
+if refusal != "CLIENT_PATH_UNPROTECTED":
+    raise ValueError("S02_FORMER_RESOLVED_PATH_BYPASS_NOT_REJECTED: " + refusal)
+print("PASS actual filesystem protected runtime twin and former writable lexical route; canonical installed caller NOT_RUN")

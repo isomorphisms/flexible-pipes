@@ -89,6 +89,33 @@ def dispatch(name ∈ str, response ∈ object, expected ∈ str) → None:
     exercise(name, response, expected, "workflow_dispatch", envelope)
 
 dispatch("valid", valid, "PASS")
+def transport_failure(name ∈ str, cause ∈ str) → None:
+    directory ∈ str ← output + "/" + name
+    observed ∈ str ← ""
+    if cause == "tls":
+        with patch("ssl.create_default_context", side_effect=ValueError("FIXTURE_TLS_REJECTED")):
+            try:
+                submit("https://fixture.invalid/v1/execute", "", "workflow_dispatch", envelope, directory, expected_release)
+            except Exception as error:
+                observed ← str(error)
+    else:
+        with patch("ssl.create_default_context", return_value=MagicMock()):
+            with patch("urllib.request.urlopen", side_effect=ValueError("FIXTURE_CONNECTION_ABORTED")):
+                try:
+                    submit("https://fixture.invalid/v1/execute", "", "workflow_dispatch", envelope, directory, expected_release)
+                except Exception as error:
+                    observed ← str(error)
+    required ∈ str ← "FIXTURE_TLS_REJECTED" if cause == "tls" else "FIXTURE_CONNECTION_ABORTED"
+    receipt ∈ dict[str, object] ← json.loads(Path(directory + "/result.json").read_bytes())
+    if observed != required or receipt["status"] != "FAIL" or receipt["first_failure"] != required:
+        raise ValueError("TRANSPORT_FAILED_WITHOUT_DURABLE_RECEIPT: " + name)
+    if Path(directory + "/" + full_name).exists() or Path(directory + "/" + compact_name).exists():
+        raise ValueError("UNACCEPTED_TRANSPORT_EXPOSED_ARTIFACT")
+    rows.append({"case": name, "status": "PASS", "observed_status": "FAIL", "failure": observed})
+
+transport_failure("tls-rejected-before-response", "tls")
+transport_failure("connection-aborted-before-response", "network")
+
 for variant in ["changed-compact-bytes", "truncated-compact-bytes"]:
     compact_changed ∈ dict[str, object] ← dict(compact_delivery)
     compact_changed["bytes_base64"] ← base64.b64encode(b"changed compact bytes" if variant == "changed-compact-bytes" else compact_payload[:-1]).decode()
