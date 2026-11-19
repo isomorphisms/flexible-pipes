@@ -1,0 +1,55 @@
+{
+  "finished_at": "2026-10-25T01:19:05.044069+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/203f532a4213/fastchat"
+  },
+  "pipeline": "fastchat-mechanical-close",
+  "pipeline_path": "pipelines/fastchat-mechanical-close.json",
+  "pipeline_sha256": "905774075cc176652174fa6366cab8d5050a78fee55786d90b821d613a0a3307",
+  "repository_commit": "ebfd95b394cc6380aebc34d8252dd57c38aca79d",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "cat",
+        "tasks/fastchat/outcomes.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-25T01:19:05.041977+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-outcomes",
+      "started_at": "2026-10-25T01:19:05.039947+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5feb48ba7a47c1c42dea55b56cfbf6ef9a9caf71ffb5929138ff9caee05ddd9f"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/203f532a4213/fastchat",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-25T01:19:05.044054+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "candidate-revision",
+      "started_at": "2026-10-25T01:19:05.042035+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "7fb62437213743a9337494574b487162de16dad0bf4cc7480e22180459b8550f"
+    }
+  ],
+  "started_at": "2026-10-25T01:19:05.039841+00:00",
+  "status": "PASS"
+}
