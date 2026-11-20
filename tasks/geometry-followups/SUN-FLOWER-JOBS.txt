@@ -1,0 +1,17 @@
+SUN FLOWER-STITCH-01 / FLOWER-METRIC-01 / FLOWER-REALIZATION-01 / FLOWER-HANDMADE-01
+Canonical origins:
+https://github.com/isomorphisms/flexible-pipes/issues/121
+https://github.com/isomorphisms/flexible-pipes/issues/123
+https://github.com/isomorphisms/flexible-pipes/issues/135
+https://github.com/isomorphisms/flexible-pipes/issues/136
+
+The actual stitch ledger inserts stable-ID children and records each increase, seam and uncounted joining/height action. Emit crochetable instructions and material diagram; independently reconstruct all65 counted stitches and19 increases and the no-increase control. Reject missing increase, duplicate stitch, seam, counted chain and broken-parent mutations.
+
+After ledger contract: explicit supplied synthetic/measured gauge, flat and polar hyperbolic reference fixtures, target vs realized lengths, triangle stretch, curvature angle defects and boundary turns, convergence and Gauss-Bonnet. Execute independent established topology software where applicable; do not equate material adjacency and display triangulation.
+
+After metric contract: a finite geometric realization and honest distortion/contact diagnostics. Calibrated yarn mechanics and a solver equilibrium are separate claims. A metric cannot choose a unique shape. Euclidean viewing rays surround this object.
+
+Prepare a traceable human construction/measurement sheet with exact recipe identity, yarn/hook, count/gauge/tension/loading/deviation records. Automated validation never establishes a handmade object. Physical acceptance remains pending until a person constructs and measures it.
+
+FP stages run actual pinned ICK builds; Cat Food acquires supported host runtime; Kitchen invokes separately owned AI-CI checks. Keep source/build/host/GPU/A1/C67/human results distinct. No merge/release.
+
