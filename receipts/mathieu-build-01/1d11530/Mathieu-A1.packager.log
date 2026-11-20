@@ -1,0 +1,24 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Mathieu Public Development, OU=Public Development, O=isomorphisms
+Signer #1 certificate SHA-256 digest: f997a30170a967e073ab47e1212a71b3967ffe2e1e88d78d659c77bf085cb3fe
+Signer #1 certificate SHA-1 digest: f8935d64debb31d1384ff64ea80c4ed1b7fe26ea
+Signer #1 certificate MD5 digest: 3434b1824bb73b2083c59c9b3c25bc0e
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: 050176e0e110086257d90eaba17a35762f81e2d7af1e6fa98ea17ea894187897
+Signer #1 public key SHA-1 digest: 75e97d59ce4d4c89c4a5dd5dc41a89d6e951db1a
+Signer #1 public key MD5 digest: 8d73a6cb5ef0d6ecd810254df1c7fba8
+ANDROID_NDK_APK	PASS
+PACKAGE	org.isomorphisms.mathieu
+VERSION_CODE	2
+ABI	armeabi-v7a
+APK_SHA256	f0d62392c49403f28259d2c4ebcee9e427eb5b2689827dd4f5d52f6298167620
+SIGNER_SHA256	f997a30170a967e073ab47e1212a71b3967ffe2e1e88d78d659c77bf085cb3fe
+RECEIPT	/workspace/scratch/d11de74af5b0/style-candidates/Mathieu-A1.receipt.tsv

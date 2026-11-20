@@ -1,0 +1,50 @@
+{
+  "finished_at": "2026-10-21T14:46:29.717774+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "engine": "/workspace/scratch/d11de74af5b0/mathieu-current/build/Release/engine-test",
+    "evidence": "/workspace/scratch/d11de74af5b0/gap-final",
+    "gap": "/workspace/scratch/d11de74af5b0/gap-runtime/usr/lib/x86_64-linux-gnu/gap/gap",
+    "gap_root": "/workspace/scratch/d11de74af5b0/gap-runtime/usr/share/gap",
+    "gate": "/workspace/scratch/d11de74af5b0/aici-published/mathieu/check.grease",
+    "grease": "/workspace/scratch/b8ece546d46f/grease-runtime/grease",
+    "head": "cc9d23bb74bd31fe63cf601096eb42aee6f21967",
+    "source": "/workspace/scratch/d11de74af5b0/mathieu-current"
+  },
+  "pipeline": "mathieu-accept",
+  "pipeline_path": "pipelines/mathieu-accept.json",
+  "pipeline_sha256": "9987cb5df478419aae57d42b58ee5543874fed49c350f6f6cd27a7c44eae9451",
+  "repository_commit": "8f38cb8980f4ea88f4737b080d80fbdb9a51835c",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/b8ece546d46f/grease-runtime/grease",
+        "/workspace/scratch/d11de74af5b0/aici-published/mathieu/check.grease",
+        "/workspace/scratch/d11de74af5b0/mathieu-current",
+        "cc9d23bb74bd31fe63cf601096eb42aee6f21967",
+        "/workspace/scratch/d11de74af5b0/mathieu-current/build/Release/engine-test",
+        "/workspace/scratch/d11de74af5b0/gap-runtime/usr/lib/x86_64-linux-gnu/gap/gap",
+        "/workspace/scratch/d11de74af5b0/gap-runtime/usr/share/gap",
+        "/workspace/scratch/d11de74af5b0/gap-final"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T14:46:29.717578+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "independent-gap-oracle",
+      "started_at": "2026-10-21T14:46:04.076446+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "95fa763947bad0add4b446f49066c96d8ccb3f1e51c2d45be91cc6180c70bc41"
+    }
+  ],
+  "started_at": "2026-10-21T14:46:04.073798+00:00",
+  "status": "PASS"
+}

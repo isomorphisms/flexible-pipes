@@ -1,0 +1,7 @@
+field	value
+source_head	00bbb878f68eeb4503bd07afda5d2a905706ce61
+parent_head	b338e3c9c92b7c8c32804b63c02dd15f600a79fd
+only_deleted_path	android/signing/mathieu-development.p12
+fixture_dirty_status	CLEAN
+output_directory	ABSENT
+application_keystore	UNCHANGED

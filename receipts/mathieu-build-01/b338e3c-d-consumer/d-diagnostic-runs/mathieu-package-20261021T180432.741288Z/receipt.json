@@ -1,0 +1,56 @@
+{
+  "failed_stage": "kitchen-ike-signed-apks",
+  "finished_at": "2026-10-21T18:04:32.916375+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "build_tools": "/workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0",
+    "driver": "/workspace/scratch/a5ad60ae831f/kitchen/tasks/mathieu-build/5.grease",
+    "evidence": "/workspace/scratch/a5ad60ae831f/d-signed-apks-01",
+    "grease": "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+    "head": "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+    "ike": "/workspace/scratch/a17a779c0b0f/ike-runtime/ike",
+    "ndk": "/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c",
+    "policy": "/workspace/scratch/d11de74af5b0/android-NDK",
+    "sdk": "/workspace/scratch/a5ad60ae831f/sdk",
+    "source": "/workspace/scratch/a5ad60ae831f/mathieu"
+  },
+  "pipeline": "mathieu-package",
+  "pipeline_path": "pipelines/mathieu-package.json",
+  "pipeline_sha256": "ccd01f5cdb56764e0754304a661203932d9e5cf93f8df11d5d2feca669c04ef3",
+  "repository_commit": "8f38cb8980f4ea88f4737b080d80fbdb9a51835c",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+        "/workspace/scratch/a5ad60ae831f/kitchen/tasks/mathieu-build/5.grease",
+        "/workspace/scratch/a5ad60ae831f/mathieu",
+        "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+        "/workspace/scratch/d11de74af5b0/android-NDK",
+        "/workspace/scratch/a5ad60ae831f/sdk",
+        "/workspace/scratch/7d64eaed802d/sdk-materials/build-tools/35.0.0",
+        "/workspace/scratch/7d64eaed802d/ndk/android-ndk-r27c",
+        "/workspace/scratch/a17a779c0b0f/ike-runtime/ike",
+        "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+        "/workspace/scratch/a5ad60ae831f/d-signed-apks-01"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-21T18:04:32.916346+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "kitchen-ike-signed-apks",
+      "started_at": "2026-10-21T18:04:32.747645+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "started_at": "2026-10-21T18:04:32.747416+00:00",
+  "status": "FAIL"
+}

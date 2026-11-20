@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Deliberately Wrong Mathieu Test Certificate
+Signer #1 certificate SHA-256 digest: 62492457c037ad97f9887820285f9c892cfbbe6869e00a9afb0734dedbc45d72
+Signer #1 certificate SHA-1 digest: 0a987c86731d095d7caacbb32c3172674f2f12e6
+Signer #1 certificate MD5 digest: 46f3fab365d29b56dd36e8688c74cebb
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: 050176e0e110086257d90eaba17a35762f81e2d7af1e6fa98ea17ea894187897
+Signer #1 public key SHA-1 digest: 75e97d59ce4d4c89c4a5dd5dc41a89d6e951db1a
+Signer #1 public key MD5 digest: 8d73a6cb5ef0d6ecd810254df1c7fba8
