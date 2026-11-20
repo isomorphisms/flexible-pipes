@@ -1,0 +1,29 @@
+Native read-only HTTPS and private raw-object extension — continued 2026-10-17
+
+Earlier authorizing exchange:
+Human: "Seems like I might build two useful extensions for people: fastchat
+and 'your own export' (not sure why the guy used chromium when he could just
+have you jackhammer through the API layers?)"
+After a proposed shared native engine: "Perfect go"
+Further continuation instruction: "Continue"
+
+New bounded additions:
+- Separate native fixed-origin HTTPS GET/bounded read-only batch POST adapter
+  for typed ChatGPT web-history operations; bearer returned by a caller-owned
+  callback, not read from browser cookies/profiles or stored.
+- Synthetic loopback TLS fixture proving redirect prohibition, TLS host check,
+  HTTP failure classification, limits, and sink semantics.
+- Private user-chosen SHA-256 append-preserving raw object store using staged
+  fsynced files and non-overwriting hardlinks. Never publish a completion
+  marker after failed/uncertain transport.
+- Keep the current Chromium extension as the functioning exporter. No
+  claim of consented session source, live archive completeness, Android
+  packaging, physical device acceptance or FP/AICI release authority.
+
+Source stack:
+dilapidated-shed/ChatGPTExporter PR #10: typed native history planner
+PR #11: bounded HTTPS transport; PR #12: raw-object storage.
+
+This file and the pipeline are a declared deterministic preflight, not a
+registered successful Flexible Pipes dispatch, witnessed visible handoff,
+or independent ai-ci acceptance. Nothing here authorizes merge or release.

@@ -1,0 +1,31 @@
+Native ChatGPT history / FastChat + Your Own Export — authorized 2026-10-17
+
+Human: "Seems like I might build two useful extensions for people: fastchat
+and 'your own export' (not sure why the guy used chromium when he could just
+have you jackhammer through the API layers?)"
+
+After the proposal to create a shared small native engine, separate
+authentication and adapt ChatGPT web-history requests, the human instructed:
+"Perfect go".
+
+Bounded first slice:
+- Keep ChatGPT web-history requests distinct from the public OpenAI inference
+  API and from FastChat's streaming provider.
+- Native C, read-only, credential-free exact-path endpoint planner.
+- Hostile-input tests, independent source pin and FastChat consumer assertions.
+- No token/cookie acquisition, archive data, browser profile, personal
+  conversation or arbitrary authenticated request in public repositories.
+- Keep the working Chromium export application intact and the live session
+  adapter unresolved. No fake browserless-export success.
+- Do not merge independent existing unmerged exporter repair stack or FastChat
+  PR #13 as a side effect.
+
+Existing leaf draft PRs: dilapidated-shed/ChatGPTExporter#10 and
+isomorphisms/fastchat#14.
+Flexible Pipes registration: isomorphisms/flexible-pipes#147.
+
+This authorization file is not observed Flexible Pipes delivery, dispatch,
+or independent ai-ci acceptance. This preflight only proves a pinned source
+and credential-free synthetic host tests. The maintained production
+registration, independent ai-ci and visible delivery must be accepted before
+merging or releasing either leaf PR.
