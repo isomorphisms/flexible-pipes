@@ -1,0 +1,12 @@
+make -f u'/workspace/scratch/65d93ecc1fc0/ai-ci-ick/ick-host/Makefile' u'ICK_SOURCE=/workspace/scratch/65d93ecc1fc0/ick' u'ICK_BUILD=/workspace/scratch/65d93ecc1fc0/ick-build' u'ICK_STAGE=/workspace/scratch/65d93ecc1fc0/ick-stage' BUILD_JOBS=6
+make: Nothing to be done for 'all'.
+make -f u'/workspace/scratch/65d93ecc1fc0/ai-ci-ick/ick-host/Makefile' qualify u'ICK_STAGE=/workspace/scratch/65d93ecc1fc0/ick-stage'
+mkdir -p "/workspace/scratch/65d93ecc1fc0/ick-stage/qualification"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/bin/gcc" -fno-link-libatomic -std=c17 -O0 -Wall -Wextra -Werror "/workspace/scratch/65d93ecc1fc0/ai-ci-ick/ick-host/assignment-arrow.c" -o "/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/glyphs-O0"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/glyphs-O0"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/bin/gcc" -fno-link-libatomic -std=c17 -O2 -Wall -Wextra -Werror "/workspace/scratch/65d93ecc1fc0/ai-ci-ick/ick-host/assignment-arrow.c" -o "/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/glyphs-O2"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/glyphs-O2"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/bin/gcc" -fno-link-libatomic -std=c17 -O2 -Wall -Wextra -Werror -DICK_HOST_WRONG_DIVISION "/workspace/scratch/65d93ecc1fc0/ai-ci-ick/ick-host/assignment-arrow.c" -o "/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/wrong-division"
+"/workspace/scratch/65d93ecc1fc0/ick-stage/qualification/wrong-division"; test "$?" = 2
+/workspace/scratch/65d93ecc1fc0/ick checked it's 東京/Ikefile: OK
+native-ick-producer=PASS

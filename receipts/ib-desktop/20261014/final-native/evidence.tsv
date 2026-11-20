@@ -1,0 +1,9 @@
+semantic	PASS
+linux-generated-program	PASS
+native-ffi	PASS
+elf-only-application	NOT_RUN
+graphical	NOT_RUN
+network	NOT_RUN
+durable-disk-recovery	NOT_RUN
+android-runtime	NOT_RUN
+physical-device	NOT_RUN

@@ -1,0 +1,2 @@
+rm: cannot remove '/var/cache/apt/archives/partial/*.deb': Permission denied
+W: chown to root:adm of file /var/log/apt/term.log failed - OpenLog (22: Invalid argument)

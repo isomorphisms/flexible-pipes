@@ -1,0 +1,2 @@
+native-foundation depends on
+    u'/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease' u'/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/8.grease' native u'/workspace/scratch/65d93ecc1fc0/ib' u'/workspace/scratch/65d93ecc1fc0/ai-ci' u'/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0' u'/workspace/scratch/65d93ecc1fc0/final-native' u'/workspace/scratch/65d93ecc1fc0/ick-stage'

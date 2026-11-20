@@ -1,0 +1,92 @@
+{
+  "finished_at": "2026-10-14T11:26:46.986181+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "ib-linux-shared-core",
+  "pipeline_path": "pipelines/ib-linux-shared-core.json",
+  "pipeline_sha256": "f9f0d0489dcf9947ae1430f3f1fb299fcca1924cbe24ac973eaa2244128a07e9",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/ib-desktop/first-wave.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:26:12.229841+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-14T11:26:12.227478+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ff03f2fc1f66d10e08d243e7a2fc0addda1a1e7d97c371d2299b5069d677ceca"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/ysh",
+        "/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/compiler/build/exec/idris2_app/idris2.so"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:26:12.267919+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "runtime-identities",
+      "started_at": "2026-10-14T11:26:12.229928+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "ad2965672af7154bca12fb8df1ff56bd39cd8e39a9ad81f35372b4cb5c2b6267"
+    },
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "GREASE=/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "IKE=/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "KITCHEN_ROOT=/workspace/scratch/65d93ecc1fc0/kitchen",
+        "/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease",
+        "/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/2.grease",
+        "run",
+        "/workspace/scratch/65d93ecc1fc0/ib",
+        "/workspace/scratch/65d93ecc1fc0/ai-ci",
+        "/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0",
+        "/workspace/scratch/65d93ecc1fc0/ib-shared-acceptance"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:26:46.972845+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "kitchen-ike-checks",
+      "started_at": "2026-10-14T11:26:12.268009+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3951421ed5be930d2b623dadafceaf5c94890bba3440eb786044d11214a52fd7"
+    },
+    {
+      "argv": [
+        "cat",
+        "/workspace/scratch/65d93ecc1fc0/ib-shared-acceptance/ike.tsv"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:26:46.986147+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "ike-receipt",
+      "started_at": "2026-10-14T11:26:46.972962+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d3bc3a04b009a7865c462cbaa7db2297d30d447253a684c28e03dbc6e014c338"
+    }
+  ],
+  "started_at": "2026-10-14T11:26:12.227348+00:00",
+  "status": "PASS"
+}

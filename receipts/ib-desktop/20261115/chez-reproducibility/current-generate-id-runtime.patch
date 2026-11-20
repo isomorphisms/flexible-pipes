@@ -1,0 +1,20 @@
+--- a/s/syntax.ss
++++ b/s/syntax.ss
+@@ -2857,7 +2857,7 @@
+                    ; program.  call/collector reports only import requirements, which we don't let
+                    ; through, and we just want invoke requirements anyway, so we report them here.
+                     (($require-libraries) (map libreq-path invoke-req*))
+-                    (let* ([prog-uid (gensym "program")]
++                    (let* ([prog-uid ((current-generate-id) 'program)]
+                            [pinfo (make-program-info prog-uid invoke-req*)])
+                       (build-group
+                         `(,(if (or (memq 'L rtem) (memq 'R rtem) (memq 'V rtem))
+@@ -7315,7 +7315,7 @@
+         [else x])))
+   (set-who! generate-temporaries
+     (lambda (x)
+-      (define (gen-temp) (wrap (gensym) top-wrap))
++      (define (gen-temp) (wrap ((current-generate-id) 'temporary) top-wrap))
+       (let f ([fast x] [slow x])
+         (let ([fast (strip-outer fast)])
+           (cond

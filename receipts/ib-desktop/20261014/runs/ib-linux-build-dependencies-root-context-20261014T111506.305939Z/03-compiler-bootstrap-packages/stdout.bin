@@ -1,0 +1,159 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+build-essential is already the newest version (12.10ubuntu1).
+The following additional packages will be installed:
+  libauthen-sasl-perl libclone-perl libdata-dump-perl libencode-locale-perl
+  libfile-listing-perl libfl-dev libfl2 libfont-afm-perl libgmpxx4ldbl
+  libhtml-form-perl libhtml-format-perl libhtml-parser-perl
+  libhtml-tagset-perl libhtml-tree-perl libhttp-cookies-perl
+  libhttp-daemon-perl libhttp-date-perl libhttp-message-perl
+  libhttp-negotiate-perl libio-html-perl libio-socket-ssl-perl
+  liblwp-mediatypes-perl liblwp-protocol-https-perl libmailtools-perl
+  libnet-http-perl libnet-smtp-ssl-perl libnet-ssleay-perl libperl5.38t64
+  libtext-unidecode-perl libtimedate-perl libtry-tiny-perl liburi-perl
+  libwww-perl libwww-robotrules-perl libxml-libxml-perl
+  libxml-namespacesupport-perl libxml-parser-perl libxml-sax-base-perl
+  libxml-sax-expat-perl libxml-sax-perl m4 perl perl-base perl-modules-5.38
+  perl-openssl-defaults texinfo-lib
+Suggested packages:
+  bison-doc flex-doc libdigest-hmac-perl libgssapi-perl gmp-doc libgmp10-doc
+  libio-compress-brotli-perl libcrypt-ssleay-perl libmpfr-doc libsub-name-perl
+  libbusiness-isbn-perl libregexp-ipv6-perl libauthen-ntlm-perl
+  libxml-sax-expatxs-perl m4-doc perl-doc libterm-readline-gnu-perl
+  | libterm-readline-perl-perl libtap-harness-archive-perl debhelper
+  texlive-plain-generic
+The following NEW packages will be installed:
+  bison flex libauthen-sasl-perl libclone-perl libdata-dump-perl
+  libencode-locale-perl libfile-listing-perl libfl-dev libfl2 libfont-afm-perl
+  libgmp-dev libgmpxx4ldbl libhtml-form-perl libhtml-format-perl
+  libhtml-parser-perl libhtml-tagset-perl libhtml-tree-perl
+  libhttp-cookies-perl libhttp-daemon-perl libhttp-date-perl
+  libhttp-message-perl libhttp-negotiate-perl libio-html-perl
+  libio-socket-ssl-perl liblwp-mediatypes-perl liblwp-protocol-https-perl
+  libmailtools-perl libmpc-dev libmpfr-dev libnet-http-perl
+  libnet-smtp-ssl-perl libnet-ssleay-perl libtext-unidecode-perl
+  libtimedate-perl libtry-tiny-perl liburi-perl libwww-perl
+  libwww-robotrules-perl libxml-libxml-perl libxml-namespacesupport-perl
+  libxml-parser-perl libxml-sax-base-perl libxml-sax-expat-perl
+  libxml-sax-perl m4 perl-openssl-defaults texinfo texinfo-lib
+The following packages will be upgraded:
+  libperl5.38t64 perl perl-base perl-modules-5.38
+4 upgraded, 48 newly installed, 0 to remove and 84 not upgraded.
+Need to get 15.8 MB of archives.
+After this operation, 23.9 MB of additional disk space will be used.
+Ign:1 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libperl5.38t64 amd64 5.38.2-3.2ubuntu0.4
+Ign:2 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl amd64 5.38.2-3.2ubuntu0.4
+Ign:3 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl-base amd64 5.38.2-3.2ubuntu0.4
+Ign:4 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl-modules-5.38 all 5.38.2-3.2ubuntu0.4
+Err:5 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 m4 amd64 1.4.19-4build1
+  Could not open file /var/cache/apt/archives/partial/m4_1.4.19-4build1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:6 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 flex amd64 2.6.4-8.2build1
+  Could not open file /var/cache/apt/archives/partial/flex_2.6.4-8.2build1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:7 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 bison amd64 2:3.8.2+dfsg-1build2
+  Could not open file /var/cache/apt/archives/partial/bison_2%3a3.8.2+dfsg-1build2_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:8 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libclone-perl amd64 0.46-1build3
+  Could not open file /var/cache/apt/archives/partial/libclone-perl_0.46-1build3_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:9 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libdata-dump-perl all 1.25-1
+  Could not open file /var/cache/apt/archives/partial/libdata-dump-perl_1.25-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:10 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libencode-locale-perl all 1.05-3
+  Could not open file /var/cache/apt/archives/partial/libencode-locale-perl_1.05-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:11 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libtimedate-perl all 2.3300-2
+  Could not open file /var/cache/apt/archives/partial/libtimedate-perl_2.3300-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:12 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhttp-date-perl all 6.06-1ubuntu0.24.04.1
+Err:13 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libfile-listing-perl all 6.16-1
+  Could not open file /var/cache/apt/archives/partial/libfile-listing-perl_6.16-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:14 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libfl2 amd64 2.6.4-8.2build1
+  Could not open file /var/cache/apt/archives/partial/libfl2_2.6.4-8.2build1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:15 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libfl-dev amd64 2.6.4-8.2build1
+  Could not open file /var/cache/apt/archives/partial/libfl-dev_2.6.4-8.2build1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:16 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libfont-afm-perl all 1.20-4
+  Could not open file /var/cache/apt/archives/partial/libfont-afm-perl_1.20-4_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:17 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libgmpxx4ldbl amd64 2:6.3.0+dfsg-2ubuntu6.1
+Ign:18 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libgmp-dev amd64 2:6.3.0+dfsg-2ubuntu6.1
+Err:19 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhtml-tagset-perl all 3.20-6
+  Could not open file /var/cache/apt/archives/partial/libhtml-tagset-perl_3.20-6_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:20 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 liburi-perl all 5.27-1
+  Could not open file /var/cache/apt/archives/partial/liburi-perl_5.27-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:21 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhtml-parser-perl amd64 3.81-1ubuntu0.1
+Err:22 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libio-html-perl all 1.004-3
+  Could not open file /var/cache/apt/archives/partial/libio-html-perl_1.004-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:23 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 liblwp-mediatypes-perl all 6.04-2
+  Could not open file /var/cache/apt/archives/partial/liblwp-mediatypes-perl_6.04-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:24 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhttp-message-perl all 6.45-1ubuntu1
+  Could not open file /var/cache/apt/archives/partial/libhttp-message-perl_6.45-1ubuntu1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:25 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhtml-form-perl all 6.11-1
+  Could not open file /var/cache/apt/archives/partial/libhtml-form-perl_6.11-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:26 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhtml-tree-perl all 5.07-3
+  Could not open file /var/cache/apt/archives/partial/libhtml-tree-perl_5.07-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:27 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhtml-format-perl all 2.16-2
+  Could not open file /var/cache/apt/archives/partial/libhtml-format-perl_2.16-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:28 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhttp-cookies-perl all 6.11-1
+  Could not open file /var/cache/apt/archives/partial/libhttp-cookies-perl_6.11-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:29 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhttp-daemon-perl all 6.16-1ubuntu0.24.04.1
+Err:30 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libhttp-negotiate-perl all 6.01-2
+  Could not open file /var/cache/apt/archives/partial/libhttp-negotiate-perl_6.01-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:31 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 perl-openssl-defaults amd64 7build3
+  Could not open file /var/cache/apt/archives/partial/perl-openssl-defaults_7build3_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:32 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libnet-ssleay-perl amd64 1.94-1build4
+  Could not open file /var/cache/apt/archives/partial/libnet-ssleay-perl_1.94-1build4_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:33 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libio-socket-ssl-perl all 2.085-1
+  Could not open file /var/cache/apt/archives/partial/libio-socket-ssl-perl_2.085-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:34 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libnet-http-perl all 6.23-1
+  Could not open file /var/cache/apt/archives/partial/libnet-http-perl_6.23-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:35 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libtry-tiny-perl all 0.31-2
+  Could not open file /var/cache/apt/archives/partial/libtry-tiny-perl_0.31-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:36 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libwww-robotrules-perl all 6.02-1
+  Could not open file /var/cache/apt/archives/partial/libwww-robotrules-perl_6.02-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:37 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libwww-perl all 6.76-1ubuntu0.1
+Err:38 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 liblwp-protocol-https-perl all 6.13-1
+  Could not open file /var/cache/apt/archives/partial/liblwp-protocol-https-perl_6.13-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:39 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libnet-smtp-ssl-perl all 1.04-2
+  Could not open file /var/cache/apt/archives/partial/libnet-smtp-ssl-perl_1.04-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:40 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libmailtools-perl all 2.21-2
+  Could not open file /var/cache/apt/archives/partial/libmailtools-perl_2.21-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:41 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libmpfr-dev amd64 4.2.1-1build1.1
+  Could not open file /var/cache/apt/archives/partial/libmpfr-dev_4.2.1-1build1.1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:42 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/universe amd64 libtext-unidecode-perl all 1.30-3
+  Could not open file /var/cache/apt/archives/partial/libtext-unidecode-perl_1.30-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:43 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libxml-namespacesupport-perl all 1.12-2
+  Could not open file /var/cache/apt/archives/partial/libxml-namespacesupport-perl_1.12-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:44 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libxml-sax-base-perl all 1.09-3
+  Could not open file /var/cache/apt/archives/partial/libxml-sax-base-perl_1.09-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:45 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libxml-sax-perl all 1.02+dfsg-3
+  Could not open file /var/cache/apt/archives/partial/libxml-sax-perl_1.02+dfsg-3_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:46 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libxml-libxml-perl amd64 2.0207+dfsg+really+2.0134-1build4
+  Could not open file /var/cache/apt/archives/partial/libxml-libxml-perl_2.0207+dfsg+really+2.0134-1build4_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Ign:47 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libxml-parser-perl amd64 2.47-1ubuntu0.24.04.1
+Err:48 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libxml-sax-expat-perl all 0.51-2
+  Could not open file /var/cache/apt/archives/partial/libxml-sax-expat-perl_0.51-2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:49 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/universe amd64 texinfo-lib amd64 7.1-3build2
+  Could not open file /var/cache/apt/archives/partial/texinfo-lib_7.1-3build2_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:50 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/universe amd64 texinfo all 7.1-3build2
+  Could not open file /var/cache/apt/archives/partial/texinfo_7.1-3build2_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:51 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble/main amd64 libauthen-sasl-perl all 2.1700-1
+  Could not open file /var/cache/apt/archives/partial/libauthen-sasl-perl_2.1700-1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:52 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libmpc-dev amd64 1.3.1-1build1.1
+  Could not open file /var/cache/apt/archives/partial/libmpc-dev_1.3.1-1build1.1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:1 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libperl5.38t64 amd64 5.38.2-3.2ubuntu0.4
+  Could not open file /var/cache/apt/archives/partial/libperl5.38t64_5.38.2-3.2ubuntu0.4_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:2 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl amd64 5.38.2-3.2ubuntu0.4
+  Could not open file /var/cache/apt/archives/partial/perl_5.38.2-3.2ubuntu0.4_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:3 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl-base amd64 5.38.2-3.2ubuntu0.4
+  Could not open file /var/cache/apt/archives/partial/perl-base_5.38.2-3.2ubuntu0.4_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:4 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 perl-modules-5.38 all 5.38.2-3.2ubuntu0.4
+  Could not open file /var/cache/apt/archives/partial/perl-modules-5.38_5.38.2-3.2ubuntu0.4_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:12 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhttp-date-perl all 6.06-1ubuntu0.24.04.1
+  Could not open file /var/cache/apt/archives/partial/libhttp-date-perl_6.06-1ubuntu0.24.04.1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:21 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhtml-parser-perl amd64 3.81-1ubuntu0.1
+  Could not open file /var/cache/apt/archives/partial/libhtml-parser-perl_3.81-1ubuntu0.1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:29 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libhttp-daemon-perl all 6.16-1ubuntu0.24.04.1
+  Could not open file /var/cache/apt/archives/partial/libhttp-daemon-perl_6.16-1ubuntu0.24.04.1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:37 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libwww-perl all 6.76-1ubuntu0.1
+  Could not open file /var/cache/apt/archives/partial/libwww-perl_6.76-1ubuntu0.1_all.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:47 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libxml-parser-perl amd64 2.47-1ubuntu0.24.04.1
+  Could not open file /var/cache/apt/archives/partial/libxml-parser-perl_2.47-1ubuntu0.24.04.1_amd64.deb - open (13: Permission denied) [IP: 127.0.0.1 44499]
+Err:17 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libgmpxx4ldbl amd64 2:6.3.0+dfsg-2ubuntu6.1
+  Reading from proxy failed - select (115: Operation now in progress) [IP: 127.0.0.1 44499]
+Err:18 https://snapshot.ubuntu.com/ubuntu/20260828T000000Z noble-updates/main amd64 libgmp-dev amd64 2:6.3.0+dfsg-2ubuntu6.1
+  Reading from proxy failed - select (115: Operation now in progress) [IP: 127.0.0.1 44499]
