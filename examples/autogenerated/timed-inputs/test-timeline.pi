@@ -1,0 +1,84 @@
+import sys
+import shutil
+import tempfile
+from pathlib import Path
+from builtins import dict, list, ValueError
+from timeline import load, sample
+
+def require(success ∈ bool, message ∈ str) → None:
+    if not success:
+        raise ValueError(message)
+
+def reject(source ∈ object, filename ∈ str, old ∈ str, new ∈ str, diagnostic ∈ str) → None:
+    with tempfile.TemporaryDirectory(prefix='wiggle-bad-input-') as temporary:
+        target ∈ object ← Path(temporary).joinpath('trace')
+        shutil.copytree(source,target)
+        path ∈ object ← target.joinpath(filename)
+        text ∈ str ← path.read_text()
+        require(bool(text.__contains__(old)),'mutant did not alter fixture')
+        path.write_text(text.replace(old,new))
+        failed ∈ bool ← False
+        try:
+            load(target)
+        except ValueError as error:
+            failed ← bool(str(error).__contains__(diagnostic))
+        require(failed,'mutant accepted or wrong diagnostic: ' + diagnostic)
+
+def main() → None:
+    arguments ∈ list[str] ← list(sys.argv)
+    inputs ∈ object ← Path(arguments[1])
+    mathieu ∈ object ← inputs.joinpath('mathieu')
+    surfer ∈ object ← inputs.joinpath('surfer')
+    wegert ∈ object ← inputs.joinpath('wegert')
+    florence ∈ object ← inputs.joinpath('florence')
+    reject(mathieu,'controls.tsv','event\tevent','event\tlinear','invalid interpolation')
+    reject(mathieu,'events.tsv','1000000000\t1\tgroup/action\ta','1000000000\t0\tgroup/action\ta','event order')
+    reject(mathieu,'events.tsv','1400000000\t0','-1\t0','event order')
+    reject(surfer,'events.tsv','3.55','300','outside declared range')
+    reject(surfer,'controls.tsv','0.55','nan','nonfinite')
+    reject(florence,'controls.tsv','\t9600\n','\t9600.5\n','sample position')
+    reject(wegert,'events.tsv','0,1','0,1,2','vector shape')
+    reject(wegert,'manifest.tsv','width\t192','width\t191','even frame')
+    reject(mathieu,'events.tsv','group/action','unknown/action','unknown typed control')
+    reject(mathieu,'manifest.tsv','controls_visible\tfalse','controls_visible\ttrue','movie requires controls_visible false')
+    reject(mathieu,'motion-plan.tsv','0\t30','1\t30','motion plan must cover')
+    reject(mathieu,'motion-plan.tsv','hold\tEstablish','unknown\tEstablish','motion plan kind and intent')
+    timeline ∈ dict[str,object] ← load(mathieu)
+    first ∈ dict[str,object] ← sample(timeline,30,0)
+    events ∈ list[dict[str,object]] ← list(first['events'])
+    require(len(events) == 2 and str(events[0]['value']) == 'select:0' and str(events[1]['value']) == 'a','same-time ordered events')
+    rosette ∈ dict[str,object] ← load(inputs.parent.joinpath('rosette/mathieu'))
+    for index in [0,30,75,120,539]:
+        snapshot ∈ dict[str,object] ← sample(rosette,index,0)
+        state ∈ dict[str,object] ← dict(snapshot['state'])
+        position ∈ list[float] ← list(state['layout/frame'])
+        target_frame ∈ int ← 0
+        if index == 75:
+            target_frame ← 45
+        if index >= 120:
+            target_frame ← 90
+        require(position[0] == target_frame,'rosette native layout clock')
+    snapshot ← sample(rosette,150,0)
+    selection ∈ list[str] ← []
+    rosette_events ∈ list[dict[str,object]] ← list(snapshot['events'])
+    for event in rosette_events:
+        if str(event['path']) == 'group/action':
+            selection.append(str(event['value']))
+    require(selection == ['select:0','select:1','select:6','select:7','select:12'],'rosette exact octad selection order')
+    with tempfile.TemporaryDirectory(prefix='wiggle-long-input-') as temporary:
+        target ∈ object ← Path(temporary).joinpath('trace')
+        shutil.copytree(surfer,target)
+        path ∈ object ← target.joinpath('manifest.tsv')
+        text ∈ str ← path.read_text()
+        path.write_text(text.replace('frames\t24','frames\t1000000'))
+        plan_path ∈ object ← target.joinpath('motion-plan.tsv')
+        plan_text ∈ str ← plan_path.read_text()
+        plan_path.write_text(plan_text.replace('17\t24','17\t1000000'))
+        large ∈ dict[str,object] ← load(target)
+        final ∈ dict[str,object] ← sample(large,999999,0)
+        state ∈ dict[str,object] ← dict(final['state'])
+        yaw ∈ list[float] ← list(state['camera/yaw'])
+        require(yaw[0] == 3.55,'long timeline retained terminal state')
+    print('PASS 12 rejected input mutants; ordered events; million-frame clock sample')
+
+main()

@@ -1,0 +1,8 @@
+0	30	hold	Establish the 24 dancers at the identity in the fitted circle viewport
+30	42	move	Begin ATLAS generator a with one selected dancer
+42	54	hold	Freeze the in-flight swap so the curved transport can be inspected
+54	210	move	Resume and complete all twelve transpositions of a
+210	282	move	Apply b through its six sequential three-cycles
+282	300	hold	Hold the completed ab permutation
+300	372	move	Apply inverse B to return every dancer to a
+372	420	hold	Hold the exact recovered a permutation

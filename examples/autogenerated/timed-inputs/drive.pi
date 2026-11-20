@@ -1,0 +1,103 @@
+"""Registered production stage. Output remains a candidate until AI-CI seals it."""
+import sys
+import shutil
+from pathlib import Path
+from builtins import dict, list, ValueError
+from timeline import load, pairs, rows, write_rows, digest, sample, value_text
+from producers import render, run
+
+def check_sources(context ∈ dict[str,str], pins ∈ object) → list[object]:
+    identities ∈ list[object] ← []
+    source_rows ∈ list[list[str]] ← rows(pins)
+    for row in source_rows:
+        role ∈ str ← row[0]
+        root ∈ str ← context[role]
+        observed ∈ str ← run(['git','-C',root,'rev-parse','HEAD'],{'capture_output':True,'text':True}).stdout.strip()
+        origin ∈ str ← run(['git','-C',root,'remote','get-url','origin'],{'capture_output':True,'text':True}).stdout.strip()
+        if observed != row[2] or origin != row[1]:
+            raise ValueError('source revision or origin mismatch: ' + role)
+        run(['git','-C',root,'diff','--quiet','HEAD','--'],{'text':True})
+        identities.append([role,origin,observed])
+    return identities
+
+def produce(context ∈ dict[str,str], directory ∈ object, output ∈ object, identities ∈ list[object]) → None:
+    timeline ∈ dict[str,object] ← load(directory)
+    output.mkdir(parents=True,exist_ok=False)
+    output.joinpath('frames').mkdir()
+    output.joinpath('inputs').mkdir()
+    hashes ∈ list[object] ← []
+    for name in ['manifest.tsv','controls.tsv','events.tsv','motion-plan.tsv']:
+        source ∈ object ← Path(directory).joinpath(name)
+        hashes.append([name,digest(source)])
+        shutil.copyfile(source,output.joinpath('inputs',name))
+    write_rows(output.joinpath('input-sha256.tsv'),hashes)
+    write_rows(output.joinpath('sources.tsv'),identities)
+    trace ∈ list[object] ← []
+    cursor ∈ int ← 0
+    for index in range(int(timeline['count'])):
+        frame ∈ dict[str,object] ← sample(timeline,index,cursor)
+        cursor ← int(frame['cursor'])
+        state ∈ dict[str,object] ← dict(frame['state'])
+        for path in state:
+            trace.append([index,str(index) + '/' + str(timeline['fps']),path,value_text(state[path])])
+    write_rows(output.joinpath('resolved.tsv'),trace)
+    result ∈ list[str] ← render(context,timeline,output)
+    frame_hashes ∈ list[object] ← []
+    for index in range(int(timeline['count'])):
+        name ∈ str ← 'frame-{:06d}.ppm'.format(index)
+        frame_path ∈ object ← output.joinpath('frames',name)
+        frame_hashes.append([index,name,digest(frame_path)])
+    write_rows(output.joinpath('frames-sha256.tsv'),frame_hashes)
+    if len(result[0]) > 0:
+        shutil.copyfile(result[0],output.joinpath('audio.flac'))
+        shutil.copyfile(context['audio_pcm'],output.joinpath('audio.s16'))
+        shutil.copyfile(context['audio_original'],output.joinpath('source.ogg'))
+    builder ∈ object ← Path(context['kitchen']).joinpath('tasks/movie-from-stills/build.sh')
+    arguments ∈ list[object] ← ['/bin/sh',builder,output.joinpath('frames/frame-%06d.ppm'),timeline['fps'],output.joinpath('movie.candidate.mp4')]
+    if len(result[0]) > 0:
+        arguments.append(output.joinpath('audio.flac'))
+    run(arguments,{'text':True})
+    manifest ∈ dict[str,str] ← dict(timeline['manifest'])
+    receipt ∈ list[object] ← [['schema','wiggle-production-v1'],['producer',manifest['producer']],['input_kind',manifest['input_kind']],['render_backend',result[1]],['offline','CANDIDATE'],['physical_device','NOT_RUN'],['movie_sha256',digest(output.joinpath('movie.candidate.mp4'))],['checkpoint_sha256',digest(output.joinpath('checkpoints.tsv'))],['resolved_sha256',digest(output.joinpath('resolved.tsv'))]]
+    if len(result[0]) > 0:
+        receipt.extend([['audio_sha256',digest(output.joinpath('audio.flac'))],['pcm_sha256',digest(output.joinpath('audio.s16'))],['original_sha256',digest(output.joinpath('source.ogg'))]])
+    write_rows(output.joinpath('production.tsv'),receipt)
+
+def main() → None:
+    arguments ∈ list[str] ← list(sys.argv)
+    if len(arguments) != 5:
+        raise ValueError('usage: drive.pi produce|seal CONTEXT.tsv INPUTS OUTPUT')
+    phase ∈ str ← arguments[1]
+    context ∈ dict[str,str] ← pairs(arguments[2])
+    inputs ∈ object ← Path(arguments[3]).resolve()
+    output ∈ object ← Path(arguments[4]).resolve()
+    source_pins ∈ object ← Path(context['adapters']).joinpath('../../../tasks/wiggle-video/source-pins.tsv').resolve()
+    identities ∈ list[object] ← check_sources(context,source_pins)
+    if phase == 'produce':
+        if bool(output.exists()):
+            raise ValueError('refusing existing output, including interrupted runs')
+        output.mkdir(parents=True)
+        tools ∈ list[object] ← []
+        for role in ['ick','ithon','java']:
+            tools.append([role,context[role],digest(context[role])])
+        write_rows(output.joinpath('tools.tsv'),tools)
+        for producer in ['mathieu','florence','surfer','wegert']:
+            print('PRODUCE ' + producer,flush=True)
+            produce(context,inputs.joinpath(producer),output.joinpath(producer),identities)
+    elif phase == 'seal':
+        for producer in ['mathieu','florence','surfer','wegert']:
+            leaf ∈ object ← output.joinpath(producer)
+            verdict ∈ dict[str,str] ← pairs(leaf.joinpath('acceptance.tsv'))
+            candidate ∈ object ← leaf.joinpath('movie.candidate.mp4')
+            candidate_hash ∈ str ← digest(candidate)
+            verifier_hash ∈ str ← digest(Path(context['aici']).joinpath('wiggle/verify.pi'))
+            production_hash ∈ str ← digest(leaf.joinpath('production.tsv'))
+            if verdict['offline'] != 'PASS' or verdict['movie_sha256'] != candidate_hash or verdict['verifier_sha256'] != verifier_hash or verdict['production_sha256'] != production_hash:
+                raise ValueError('independent verdict does not bind this candidate')
+        for producer in ['mathieu','florence','surfer','wegert']:
+            output.joinpath(producer,'movie.candidate.mp4').rename(output.joinpath(producer,'movie.mp4'))
+        write_rows(output.joinpath('completion.tsv'),[['offline_examples','PASS'],['physical_device','NOT_RUN'],['flower','BLOCKED_REAL_ENGINE_RENDER_ADAPTER_NOT_QUALIFIED']])
+    else:
+        raise ValueError('unknown phase')
+
+main()

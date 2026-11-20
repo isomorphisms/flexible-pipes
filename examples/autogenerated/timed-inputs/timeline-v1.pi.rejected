@@ -1,0 +1,134 @@
+"""Typed rational-time producer boundary; no rendering or encoding semantics."""
+import csv
+import hashlib
+from fractions import Fraction
+from pathlib import Path
+
+def digest(path):
+    with Path(path).open('rb') as source:
+        result ← hashlib.sha256()
+        for block in iter(lambda: source.read(1024 * 1024), b''):
+            result.update(block)
+        return result.hexdigest()
+
+def rows(path):
+    with Path(path).open(newline='', encoding='utf-8') as source:
+        return [row for row in csv.reader(source, delimiter='\t') if row and not row[0].startswith('#')]
+
+def pairs(path):
+    result ← {}
+    for row in rows(path):
+        if len(row) != 2 or row[0] in result:
+            raise ValueError('duplicate or malformed manifest key')
+        result[row[0]] ← row[1]
+    return result
+
+def write_rows(path, values):
+    with Path(path).open('w', newline='', encoding='utf-8') as target:
+        csv.writer(target, delimiter='\t', lineterminator='\n').writerows(values)
+
+def number(value):
+    result ← Fraction(value)
+    if abs(result) > 10 ** 12:
+        raise ValueError('numeric input exceeds bound')
+    return result
+
+def value_for(control, text):
+    kind, law, units, lower, upper, initial ← control
+    if kind == 'event':
+        if not text or any(character in text for character in '\r\n\t'):
+            raise ValueError('invalid event value')
+        return text
+    result ← tuple(number(part) for part in text.split(','))
+    if (kind != 'vector' and len(result) != 1) or not 1 <= len(result) <= 16:
+        raise ValueError('wrong value shape')
+    if kind == 'sample' and result[0].denominator != 1:
+        raise ValueError('sample position must be an integer')
+    if any(part < number(lower) or part > number(upper) for part in result):
+        raise ValueError('control outside declared range')
+    return result
+
+def text_value(value):
+    if isinstance(value, str):
+        return value
+    return ','.join(str(part) for part in value)
+
+class Timeline:
+    def __init__(self, directory):
+        self.directory ← Path(directory).resolve()
+        self.manifest ← pairs(self.directory / 'manifest.tsv')
+        required ← {'schema', 'producer', 'input_kind', 'fps', 'frames', 'width', 'height'}
+        if set(self.manifest) != required or self.manifest['schema'] != 'wiggle-v1':
+            raise ValueError('wrong manifest schema or keys')
+        if self.manifest['input_kind'] not in ('scripted', 'recorded-human', 'external-samples'):
+            raise ValueError('input provenance kind required')
+        self.fps ← number(self.manifest['fps'])
+        self.count ← int(self.manifest['frames'])
+        self.width ← int(self.manifest['width'])
+        self.height ← int(self.manifest['height'])
+        if not 0 < self.fps <= 120 or not 2 <= self.count <= 1000000:
+            raise ValueError('invalid frame clock')
+        if not all(2 <= side <= 4096 and side % 2 == 0 for side in (self.width, self.height)):
+            raise ValueError('invalid even frame dimensions')
+        self.controls ← {}
+        for row in rows(self.directory / 'controls.tsv'):
+            if len(row) != 7 or row[0] in self.controls:
+                raise ValueError('duplicate or malformed control')
+            path, kind, law, units, lower, upper, initial ← row
+            if not path or any(part in ('', '.', '..') for part in path.split('/')):
+                raise ValueError('unsafe control path')
+            if (kind, law) not in (('scalar','linear'), ('scalar','hold'), ('vector','linear'), ('vector','hold'), ('event','event'), ('sample','source')):
+                raise ValueError('invalid interpolation for control kind')
+            control ← (kind, law, units, lower, upper, initial)
+            value_for(control, initial)
+            self.controls[path] ← control
+        if not self.controls:
+            raise ValueError('no controls')
+        self.events ← []
+        previous ← (Fraction(-1), -1)
+        for row in rows(self.directory / 'events.tsv'):
+            if len(row) != 4:
+                raise ValueError('malformed event')
+            time, order, path, text ← row
+            clock ← (number(time), int(order))
+            if clock <= previous or clock[0] < 0 or clock[1] < 0 or clock[0] > Fraction(self.count - 1, 1) / self.fps:
+                raise ValueError('event order or time outside frame interval')
+            if path not in self.controls:
+                raise ValueError('unknown typed control path')
+            parsed ← value_for(self.controls[path], text)
+            initial_value ← value_for(self.controls[path], self.controls[path][-1])
+            if not isinstance(parsed, str) and len(parsed) != len(initial_value):
+                raise ValueError('vector shape changed')
+            self.events.append((clock[0], clock[1], path, parsed))
+            previous ← clock
+        self.hashes ← [(name, digest(self.directory / name)) for name in ('manifest.tsv', 'controls.tsv', 'events.tsv')]
+
+    def frames(self):
+        event_cursor ← 0
+        state ← {path: value_for(control, control[-1]) for path, control in self.controls.items()}
+        knots ← {path: [(Fraction(0), state[path])] for path in self.controls}
+        for time, order, path, value in self.events:
+            if self.controls[path][0] != 'event':
+                if time == knots[path][-1][0]:
+                    knots[path][-1] ← (time, value)
+                else:
+                    knots[path].append((time, value))
+        for index in range(self.count):
+            time ← Fraction(index, 1) / self.fps
+            delivered ← []
+            while event_cursor < len(self.events) and self.events[event_cursor][0] <= time:
+                event ← self.events[event_cursor]
+                delivered.append(event)
+                state[event[2]] ← event[3]
+                event_cursor ← event_cursor + 1
+            sampled ← dict(state)
+            for path, control in self.controls.items():
+                if control[1] != 'linear':
+                    continue
+                track ← knots[path]
+                for left, right in zip(track, track[1:]):
+                    if left[0] <= time < right[0]:
+                        weight ← (time - left[0]) / (right[0] - left[0])
+                        sampled[path] ← tuple(a + (b - a) * weight for a, b in zip(left[1], right[1]))
+                        break
+            yield index, time, sampled, delivered
