@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-capture-response",
+  "description": "Capture one bounded HTTP response with the installed pinned ICU probe. A command PASS is transport capture only; inspect its actual HTTP status and document bytes separately.",
+  "parameters": {
+    "probe": {"required": true},
+    "application": {"required": true},
+    "native-library": {"required": true},
+    "url": {"required": true, "pattern": "https://[^\\n]+"},
+    "output-directory": {"required": true},
+    "output": {"required": true}
+  },
+  "required_stages": ["executable-identity", "prepare-owned-output", "capture-response"],
+  "stages": [
+    {"kind": "command", "name": "executable-identity", "argv": ["sha256sum", "{{probe}}", "{{application}}", "{{native-library}}"]},
+    {"kind": "command", "name": "prepare-owned-output", "argv": ["mkdir", "-p", "{{output-directory}}"]},
+    {"kind": "command", "name": "capture-response", "argv": ["{{probe}}", "bytes", "{{url}}", "{{output}}"]}
+  ]
+}

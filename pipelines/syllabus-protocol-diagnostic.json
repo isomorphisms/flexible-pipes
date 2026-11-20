@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-protocol-diagnostic",
+  "description": "Diagnose the actual HTTP 426 using a request-version-only Idriç probe and the same ICU provider. Diagnostic, not public-client or syllabus acceptance.",
+  "parameters": {
+    "idric": {"required": true},
+    "package": {"required": true},
+    "chez-setting": {"required": true},
+    "prefix-setting": {"required": true},
+    "probe": {"required": true},
+    "library": {"required": true},
+    "library-directory": {"required": true},
+    "url": {"required": true},
+    "body": {"required": true},
+    "metadata": {"required": true}
+  },
+  "stages": [
+    {"kind": "command", "name": "compile-idric-probe", "argv": ["env", "{{chez-setting}}", "{{prefix-setting}}", "{{idric}}", "--build", "{{package}}"]},
+    {"kind": "command", "name": "bind-same-icu-provider", "argv": ["cp", "{{library}}", "{{library-directory}}"]},
+    {"kind": "command", "name": "diagnose-source-response", "argv": ["{{probe}}", "{{url}}", "{{body}}", "{{metadata}}"]}
+  ]
+}
