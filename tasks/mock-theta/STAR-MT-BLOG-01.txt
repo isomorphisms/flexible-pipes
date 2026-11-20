@@ -1,0 +1,37 @@
+STAR MT-BLOG-01 — Finish the 2017 combinatorial Mock Theta illustration as a whole-panel Android interaction.
+
+Authority
+The user authorized implementation and requested STAR → SUN → EARTH/MOON execution through Flexible Pipes. This checked-in envelope is the human-visible source of truth. It authorizes source recovery, deterministic verification, implementation, pull requests, CI, and device-test preparation. It does not authorize merges, releases, or claims of physical-device execution without physical-device evidence.
+
+Source
+Canonical post: https://isomorphismes.tumblr.com/post/159666429718/equation-1-of
+Tumblr post ID: 159666429718
+Published: 2017-04-17 05:00:16 GMT
+Recovered display order: o1, o2, o3, o6, o4, o5, o9, o8, o7.
+The exact byte identities, dimensions, URLs, and observed roles are in assets/mock-theta-blog/source-manifest.tsv and assets/mock-theta-blog/checksums.sha256.
+
+Required behavior
+Implement the blog's two red-arrow transitions: separated color-coded panels become one intact vertical stack; the intact stack then becomes signed cells merged by q-degree. A gesture moves one complete panel and commits one complete prefix. Do not introduce generic Tetris gravity, rotation, collisions, line clearing, independently movable cells, or unrelated game state.
+
+Mathematics
+For n from 5 down to 1, derive B_n = n - sum_{j=1}^{n-1} q^j and A_n = B_n - q^n B_n. Preserve panel, sign, seed-origin, and shifted/unshifted-branch provenance. Verify every prefix and the final coefficients 15,-5,-5,-4,-4,-3,2,2,1,1 for degrees 0 through 9.
+
+Source observations that must remain explicit
+The handwritten source annotation shows -4q^5, while the signed cells and the polynomial derivation give -3q^5. The source labels the final picture with product from n=1 through 5, while the displayed signed sum has constant coefficient 15 and degree 9; that finite product has constant coefficient 1 and degree 15. Preserve the recovered source image and record the distinctions. Do not silently turn this interaction into multiplication.
+
+Repositories and tracking
+Control plane: isomorphisms/flexible-pipes issue #162, with SUN issues #163 through #166.
+Implementation: isomorphismes/mock-theta PR #3, “Qualify whole-panel interaction and prepare maintained-build handoff”, exact candidate head 50b8ee6f8c9fa24e7b20eb777372ad1079fcde2f.
+Implementation EARTH issues: isomorphisms/flexible-pipes #167 through #173.
+Independent acceptance MOON issues: isomorphisms/flexible-pipes #174 through #177.
+Independent policy source: isomorphisms/ai-ci exact revision 2843a804fea1bbc4e3e40b6c236064bb1d41f316.
+Observed dependency revisions: isomorphisms/Kitchen 32c3bf2d7c6268b50f1e48395dc972cfbafec7a9; isomorphisms/ike 93f9eb0aee9094757414df8a7929c89b6a294b0c. Revision identity alone is not qualification evidence.
+
+Evidence boundaries
+Flexible Pipes owns ordered execution and immutable stage receipts. ICK compilation evidence must come from the qualified isomorphisms/ai-ci/ick-host action. The independent oracle must not include or call the leaf implementation. AI-CI verifies the leaf build-toolchain declaration independently. Host viewport renders establish deterministic software output only. Android artifacts establish packaging only. A1, C67, and tablet claims require separately identified physical-device receipts.
+
+Current bounded slice
+Run source-byte verification, independent arithmetic/provenance oracle with hostile mutations, AI-CI toolchain-policy verification, exact leaf host regressions, and A1/C67-sized host renders under one checked-in Flexible Pipes pipeline. The repository currently has no admitted adapter that dispatches model workers to SUN tasks, so this slice does not claim SUN model execution. Direct model dispatch outside Flexible Pipes cannot qualify this job.
+
+Completion
+The work is complete only when the two source transitions are implemented, every prefix and provenance contract passes, exact-head CI is green, independent acceptance is attached, and requested physical-device evidence is recorded. Documentation, issue creation, source recovery, or a host-only pass is not completion.
