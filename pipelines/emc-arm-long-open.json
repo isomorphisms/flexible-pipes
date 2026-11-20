@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "emc-arm-long-open",
+  "description": "Record the existing human assignment and observed host before ARM parser repair; no model dispatch or acceptance claim.",
+  "required_stages": ["job-envelope", "host-identity"],
+  "stages": [
+    {"kind":"command","name":"job-envelope","argv":["sha256sum","tasks/emc-arm-long/SUN-EMC-ARM-LONG-01.txt"],"cwd":"."},
+    {"kind":"command","name":"host-identity","argv":["uname","-srm"],"cwd":"."}
+  ]
+}
