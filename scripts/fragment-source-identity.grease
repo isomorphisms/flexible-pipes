@@ -1,0 +1,14 @@
+#!/usr/bin/env grease
+# Identity collection for the explicit local build-host profile only.
+for repo in /workspace/scratch/3e1c4c6b7433/idris-shader-backend /workspace/scratch/3e1c4c6b7433/Idric /workspace/scratch/3e1c4c6b7433/ai-ci {
+  var dirty = "$(git -C "$repo" status --porcelain)"
+  if (dirty !== '') { echo "FAIL dirty producer/checker source: $repo" >&2; exit 1 }
+  echo "source-repository=$repo"
+  git -C "$repo" rev-parse HEAD 'HEAD^{tree}'
+}
+git -C /tmp/jobicy-idric-source rev-parse HEAD
+git -C /workspace/scratch/30b0a80117bc/ick rev-parse HEAD
+git -C /workspace/scratch/3e1c4c6b7433/ike rev-parse HEAD
+git -C /workspace/scratch/3e1c4c6b7433/EGL-Registry rev-parse HEAD
+git -C /workspace/scratch/3e1c4c6b7433/OpenGL-Registry rev-parse HEAD
+sha256sum /tmp/jobicy-idric-source/_/build/exec/idris2 /tmp/jobicy-idric-source/_/build/exec/idris2_app/idris2.so /tmp/jobicy-ick-stage/bin/ick /workspace/scratch/3e1c4c6b7433/ike/ike /workspace/scratch/30b0a80117bc/tool-bin/grease /workspace/scratch/30b0a80117bc/grease-runtime/_bin/cxx-asan/ysh

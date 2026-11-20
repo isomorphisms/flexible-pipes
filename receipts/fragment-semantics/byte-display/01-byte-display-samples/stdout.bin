@@ -1,0 +1,24 @@
+EGL 1.5
+GL_VENDOR: Mesa
+GL_RENDERER: llvmpipe (LLVM 20.1.2, 256 bits)
+GL_VERSION: OpenGL ES 3.2 Mesa 25.2.8-0ubuntu0.24.04.2
+GLSL: OpenGL ES GLSL ES 3.20
+
+1 shader_compile_link: PASS (generated/set-pixel-3-rgb-52-39-182.frag)
+2 shader_compile_link: PASS (generated/set-block-32x32-rgb-52-39-182.frag)
+3 shader_compile_link: PASS (generated/coordinate-pairing4-grayscale.frag)
+4 shader_compile_link: PASS (generated/coordinate-pairing32-grayscale.frag)
+5 shader_compile_link: PASS (generated/subtract-vector8-norm.frag)
+6 shader_compile_link: PASS (generated/rotate-difference8-to-e1.frag)
+
+1 set_pixel_3_to_rgb_52_39_182: PASS
+2 set_block_32x32_to_rgb_52_39_182: PASS
+3 coordinate_pairing4_grayscale: PASS (0.4578)
+4 coordinate_pairing32_grayscale: PASS (0.4731445)
+5 subtract_vector8_norm: PASS (0.7031358)
+6 rotate_difference8_to_e1: PASS
+
+4096-draw wall-time probe (includes driver/submission + GPU completion):
+  4x1 pixel-selection draw: 1.080 us/draw
+  32x32 block-fill draw:    3.504 us/draw
+  block/pixel ratio:         3.244x

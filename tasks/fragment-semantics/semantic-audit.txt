@@ -1,0 +1,390 @@
+STAR FRAGMENT-GENERATORS-01 — Mandatory semantic naming audit
+Source review dated 2026-10-14 UTC / 2026-10-13 America/Detroit
+
+DECISION
+
+The concrete 32D defect is confirmed. The source interface does not establish a vector/covector pair in a 32-dimensional space. It computes a sum of eight four-component products and puts the result in three colour channels. Repair the checked mathematical interface and retain packing only below that boundary.
+
+This is not only a naming problem. The rotation example has a mathematical counterexample in its small-input path. Precision labels and verification labels also require narrower contracts.
+
+Reuse the existing Idriç semantic work. Do not build another unrelated geometry hierarchy in the shader backend. Do not make aliases of rejected names part of the permanent interface.
+
+EVIDENCE AND COVERAGE
+
+Primary backend snapshot: fuego-ironworks/idris-shader-backend
+https://github.com/fuego-ironworks/idris-shader-backend
+main = 4a29362e580df393e4d64a9929e4c1e592ac4c53.
+Retrieved and searched 92 files covering src, tools, generated, docs, README, AGENTS, Makefile and backend package configuration. Relevant definitions, lowering, emission, numerical checks and native upload/readback paths were inspected directly.
+
+Additional source:
+- isomorphisms/Idric, Idriç branch e8b9173ab2d840ef0cf212698ea2fee97bd9e807: MathematicalSpaces.idric, EuclideanGeometry.idric, HIGH_DIMENSIONAL_VERIFICATION.md and verify_r128.py.
+- Optional NVIDIA/AMD follower a6d56c1203afa2ca502967463fb327bfb762bcdb: PTX, LLVM, numerical formats, specific proof terms, and Givens source.
+- Wegert 873d03e86ec2e4a9236bb2d253fee3c8fde83b6c: source tree, shader template, host GLES path and asset assembly.
+- Fourier-sound a71c9d37f47154ba7b66d7c0d5c912477c71f23c: source tree, complex value, sparse-series ABI, Android rendering description, and voice application source.
+- Holomorphic ce9d15e1c5cb2363201a61bbaa8eb10750ea1268: source tree, mathematical contract and shader template; checked-source candidate 3cfcf71a2949e453c679a99b2cc165e7dfbf425f: HolomorphicLive.idr and its contract.
+- Algebraic-variety-explorer-mobile, surfer branch 74cef6df685dbd823c3901697cceb671d49009fa: source tree, native renderer contract/header, polynomial-vector interface and affine decomposition.
+- Shared ai-ci instructions, failure ledger, evaluation research and current README.
+
+Repository identity was checked: isomorphismes/analytic-continuation redirects to repository ID 1341815300, currently isomorphismes/holomorphic. Do not count these as two independently migrated repositories.
+
+This is a source audit with an independently derived mathematical counterexample and an acceptance specification. No compiler, numerical test executable, shader, or physical device was run in this audit. Test cases below are specified, NOT_RUN. No code migration, merge, release, or job dispatch is claimed.
+
+Coverage limits: all historical branches, external forks, downstream private consumers, and the complete bodies of all application files were not exhaustively audited. Active relevant PR metadata and selected follower source were inspected; PR descriptions are not fresh test receipts. Whole-stack migration remains open until job 05 inventories and qualifies every maintained consumer. A search with no match is not evidence that no consumer exists.
+
+ACTIVE WORK TO RECONCILE
+
+- fuego-ironworks/idris-shader-backend PR #68, “Compile shader runner ÷ and restore structured-IR acceptance”
+  https://github.com/fuego-ironworks/idris-shader-backend/pull/68
+  e7556cdb948f8ed039d612e703ce1b0c6030ee68
+- fuego-ironworks/idris-shader-backend PR #69, “Expose typed Wegert measure-to-colour API for Holomorphic”
+  https://github.com/fuego-ironworks/idris-shader-backend/pull/69
+  f32f27a37a176a7b2c580aa703c5d33df9511728
+- fuego-ironworks/idris-shader-backend PR #70, “Lower checked scalar exponential to GLSL for whole-plane Fock probes”
+  https://github.com/fuego-ironworks/idris-shader-backend/pull/70
+  2a9365096dc296824637a56cbf99a1cb3566f184
+- fuego-ironworks/idris-shader-backend PR #71, “Qualify optional NVIDIA PTX and AMDGPU followers”
+  https://github.com/fuego-ironworks/idris-shader-backend/pull/71
+  a6d56c1203afa2ca502967463fb327bfb762bcdb
+- isomorphismes/holomorphic PR #63, “Generate the live Holomorphic fragment from checked Idris source”
+  https://github.com/isomorphismes/holomorphic/pull/63
+  3cfcf71a2949e453c679a99b2cc165e7dfbf425f
+- isomorphismes/holomorphic PR #64, “Compile the normalized Bargmann–Fock value direction from checked Idris”
+  https://github.com/isomorphismes/holomorphic/pull/64
+  71a0a4784e0320091cb492c25dcbfeee14f7c3b2
+
+These are inspection landmarks, not recommendations to integrate their current heads. Refresh them before changing or accepting any migration.
+
+INVENTORY: CONFIRMED PROBLEMS AND PRECISE REPAIRS
+
+N01 — DotVector32Covector32 / dot_vector32_covector32.
+Actual: sixteen SVec 4 inputs; eight dot calls summed; output vec4(result,result,result,1). No 32D type, named space, basis, scalar-field declaration, or dual-role distinction in the signature.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Example/DotVector32Covector32.idr
+Repair: one checked vector operand and one checked covector operand of the same 32D space; canonical pairing returns a scalar. A separate rendering wrapper maps a numerical result to RGBA. Preserve the 8×4 packing as a derived target interface.
+If retained solely as a low-level primitive, use a name such as sum_32_paired_products_packed_8x4_to_rgba. Such an accurately named primitive does not itself implement the missing mathematical abstraction.
+
+N02 — DotVector4Covector4, u_vector/u_covector, vector32/covector32.
+Actual: the 4D example also takes two SVec 4 values. Native GLfloat arrays carry no dual-role contract. Variable names in the runner do not establish the relationship.
+Evidence: src/Example/DotVector4Covector4.idr; tools/powervr_primitives.c, especially uniform uploads and readback labels.
+Repair: migrate both examples, native bindings, benchmark labels, generated filenames and checks. A numerical packet can have accurate fields such as vector_coordinates or covector_coordinates only when it is produced/validated through the corresponding semantic interface; otherwise use left_components/right_components.
+
+N03 — SVec, TVec, SomeVector, vectorDot, RDot.
+Actual: opaque source shader values with component counts, lowered to GLSL vec2/3/4. The API offers component arithmetic, but neither field/space identity nor dual/metric roles. The same carrier also holds complex numbers, colours, phase/log-modulus pairs and diagnostic records. Signature parsing restricts component count to 2–4.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Shader/Source.idr
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Backend/GLSLES/IR.idr
+Repair: expose ShaderFloatTuple(component_count) or another explicitly numerical carrier at this layer. Mathematical Vector and Covector live above it. Rename low-level RDot to a component-product reduction unless it carries the necessary semantic distinction. Keep GLSL's required vecN token unchanged. Do not replace “vector” with “register” here: GLSL values do not establish physical register allocation.
+
+N04 — RotateDifference8ToE1.
+Actual: subtracts two packed 8-component operands, constructs a Householder-style expression using a clamped divisor, conditionally flips coordinate two, and returns an axis ratio and residual encoded as RGBA. It does not return a rotation object or the complete transformed vector.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Example/RotateDifference8ToE1.idr
+Confirmed functional defect: below the cutoff the normal is not unit length, so I−2uuᵀ is not generally a reflection. See the exact counterexample below.
+Repair: construct and apply an actual orientation-preserving orthogonal map under a stated numerical contract. Separate input-dependent alignment selection from application of the resulting fixed linear map. A remaining diagnostic wrapper must say it returns alignment diagnostics.
+
+N05 — “8D Givens rotation to e1” in native acceptance.
+Actual: the runner loads the Householder-composition shader and compares one RGBA8 result to red with tolerance 3. This is neither a Givens algorithm check nor a test of the full rotation operator.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/tools/powervr_primitives.c
+Repair: label the actual algorithm and checked observation. Replace rotation acceptance with full-map tests; retain display readback as a separate display test.
+
+N06 — F16/F32 “semantic” names versus effective arithmetic.
+Actual: ValueTy has TFloat and TVec n without per-value format. A whole-shader FloatWidth setting labels dumps F16/F32 and chooses a precision qualifier. Precision overrides can request F32 with lowp or F16 with highp while retaining the old label. The code correctly records portableExactF16=False, but dump labels alone are not evidence of the effective arithmetic.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Backend/GLSLES/FloatSemantics.idr
+src/Backend/GLSLES/Codegen.idr; src/Backend/GLSLES/Emit.idr; tools/check_f16.py.
+Repair: separate requested format, effective arithmetic contract, and GLSL precision class. Reject a configuration that cannot meet an exact requested contract, or expose a separately named relaxed mode. Do not advertise a format-preserving typecheck when the check only confirms labels/directives.
+
+N07 — Double / int_to_double.
+Actual: source Double becomes TFloat, emitted as GLSL float; int_to_double becomes float(...). This is not an ordinary binary64-preserving translation.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/src/Backend/GLSLES/Signature.idr
+src/Backend/GLSLES/Lower.idr; src/Backend/GLSLES/Emit.idr.
+Repair: a source-visible shader scalar contract and accurately named conversion. Specify conversion, rounding and exceptional-value behavior. Never claim that the source host type establishes the target's precision.
+
+N08 — “typed indexing” of SArray.
+Actual: array_at : SArray n a → Double → a; IR accepts a floating index; GLSL casts it to int. Element type and array capacity are represented, but this operation does not itself prove integral or in-range indexing.
+Evidence: src/Shader/Source.idr; Lower.arrayIndex; Emit.rhsText RArrayIndex.
+Repair: bounded integer indexing or explicit checked conversion. If a deliberately unchecked operation remains necessary, name it unchecked and state truncation/out-of-range behavior. Audit bounded-loop proofs separately; do not infer all accesses are safe from the existence of a loop bound.
+
+N09 — Primitive/type recognition from nameRoot.
+Actual: Signature.parseValueTy recognizes unqualified SVec/SArray names; Lower.lowerExtPrim dispatches unqualified dot, normalize, vec4, etc. Spelling is used in a semantic dispatch decision.
+Evidence: src/Backend/GLSLES/Signature.idr and src/Backend/GLSLES/Lower.idr.
+Risk established by source inspection, not an executed spoofing demonstration.
+Repair: resolve canonical qualified declarations or stable intrinsic identities. Add unrelated same-spelling declarations as negative compiler fixtures. Renaming must migrate the registry and its checks, not add broad alternate spellings.
+
+N10 — “typed linear shader representation” and stale lowering descriptions.
+Actual: current IR includes SIf and SBoundedLoop. README still describes a linear representation and warns that both branch bodies are eagerly computed; docs/structured-control-flow.md also contains earlier implementation-state prose.
+Evidence: README.md; docs/structured-control-flow.md; IR.Statement; Lower; Emit.
+Repair: distinguish historical notes from current architecture. Use typed structured shader IR. “Linear” in compiler scheduling prose must not imply a mathematical linear transformation.
+
+N11 — Sem / “reference semantics” in the older evaluator.
+Actual: Shader.Types.Sem maps shader floats to host Double and tuple values to Data.Vect of Double. This is useful reference evaluation, not a complete specification of numerical GPU behavior.
+Evidence: src/Shader/Types.idr; src/Shader/Eval.idr.
+Repair: qualify host/reference numerical semantics and tolerances. Reuse exact mathematical specifications independently; do not count host evaluator success as target-format, target-backend, or GPU acceptance. A length-indexed linked representation may represent coordinates, but is not thereby an array or a complete vector-space interface.
+
+N12 — Unqualified Quaternion and UnitQuaternion in the Idriç exact sample layer.
+Actual: Quaternion is Q ±Number ±Number ±Number ±Number; UnitQuaternion requires the integer sum of squares to equal one. This realizes integer quaternion samples; its unit subset consists only of the eight signed coordinate units. The source section correctly says “Exact quaternion samples.”
+Evidence:
+https://github.com/isomorphisms/Idric/blob/e8b9173ab2d840ef0cf212698ea2fee97bd9e807/_/examples/unified-higher-mathematics/EuclideanGeometry.idric
+Repair: make the public name as specific as the implementation, for example ExactIntegerQuaternionSample / UnitIntegerQuaternionSample, or generalize through an explicit scalar-carrier contract. Do not present its existing QuaternionRotationTransform as all unit-quaternion rotations. This is a naming/scope defect, not a finding that its integer multiplication formula is wrong.
+
+N13 — Application carrier-role collisions.
+Actual: HolomorphicLive.idr uses SVec 2 for complex values, points, resolution and phase/log-modulus records, and SVec 3 for RGB. Surfer's native header uses surfer_vec3 for origins, directions, light positions, hit points and normals; a matrix is named surface_normal_to_camera.
+Evidence:
+https://github.com/isomorphismes/holomorphic/blob/3cfcf71a2949e453c679a99b2cc165e7dfbf425f/gpu/Example/HolomorphicLive.idr
+https://github.com/isomorphismes/algebraic-variety-explorer-mobile/blob/74cef6df685dbd823c3901697cceb671d49009fa/native/surfer_raytracer.h
+Repair: identify semantic roles at the application boundary, retaining compact shared storage below it. A point is not a displacement; a differential covector becomes a normal vector through a metric. Add frame-aware active/passive transform contracts. This inspection does not establish that Surfer's numerical normal transform is incorrect.
+
+N14 — Verification by shader text shape.
+Actual: check_powervr_primitives.py checks eight dot calls, sixteen uniforms, counts of roots/products and a conditional. These are generated-code structural checks. Native readback covers a small set of quantized outputs.
+Evidence:
+https://github.com/fuego-ironworks/idris-shader-backend/blob/4a29362e580df393e4d64a9929e4c1e592ac4c53/tools/check_powervr_primitives.py
+Repair: retain structural checks under their actual names, and add independent semantic tests. Never turn the label PASS into an unqualified mathematical proof or an all-input correctness claim.
+
+USEFUL DISTINCTIONS ALREADY PRESENT — PRESERVE THEM
+
+- MathematicalSpaces separates ExactVectorSample and ExactCovectorSample by named space and rank. contract takes a covector and vector; EuclideanGeometry.dot requires EuclideanStructure. Raw/Unsafe coordinate constructors are explicit. These are good foundations, with limited integer-coordinate coverage accurately documented.
+- EuclideanGeometry distinguishes OrthogonalTransform orientation and SpecialOrthogonal; its closed constructors are connected to an evaluator. HIGH_DIMENSIONAL_VERIFICATION.md distinguishes particular normalization proofs, exact signed-permutation checks, and historical numerical transcripts.
+- SArray is an actual fixed shader-array interface; it need not be renamed merely because indexing needs repair.
+- FragmentMock and MaliMock paths explicitly call themselves mocks. Keep that distinction from real GLSL/PTX/LLVM producers and actual hardware.
+- The optional follower's six Proofs.idr declarations are specific equalities established by Refl. Preserve them as particular definitional proofs; they prove neither general floating arithmetic nor GPU execution.
+- Fourier's complex_value explicitly names real/imaginary components; sparse_series names coefficient and exponent arrays. Do not rename them mathematical vectors merely because an implementation may pack them into GPU tuples.
+- WGSL/Metal-like mock output does not count as an implemented vendor backend. The actual PTX/LLVM follower is separate and must retain its own acceptance boundary.
+
+COHERENT VOCABULARY AND TYPE REQUIREMENTS
+
+Layer | Name/meaning | Required content
+Mathematical | Vector(space) | scalar field, dimension, space identity, vector operations and their mathematical laws
+Mathematical | Covector(space) | linear functional to that space's scalar field; evaluation/dual pairing
+Mathematical | InnerProduct(space, metric) | explicitly chosen real or Hermitian structure; complex convention stated
+Mathematical | Rotation(space, metric, orientation) | isometry with orientation +1 in the intended real Euclidean setting
+Mathematical | Reflection | the stated reflection construction, including orientation reversal
+Mathematical | LinearMap(source_space,target_space) | map preserving addition/scaling; no implied isometry
+Mathematical | CoordinateChange(old_basis,new_basis) | passive re-expression, distinct from an active transformation
+Numerical | Coordinates(object_role,basis,format) | role and basis of represented values; error/rounding contract
+Numerical | PairingApproximation / RotationApproximation | approximation to the identified mathematical operation with explicit domain/error policy
+Shader IR | ShaderFloatTuple(component_count) | logical target-value components; no geometric role inferred
+Storage | FixedArray(length,element), LinkedList(element) | distinct storage/data structures
+Packing | PackedComponents(layout) | component order, valid count, padding, scalar encoding, stride/alignment
+Target | GLSL vec4, PTX scalar registers, LLVM float | actual target-language constructs; hardware allocation only when observed
+Evidence | Typecheck / DefinitionalProof(statement) / NumericalComparison(cases,tolerance) | exact check and scope
+Evidence | ShaderCompileLink / VendorAssembly / LiveShaderSelection / DeviceReadback | distinct stages, identities and outcomes
+
+These are vocabulary proposals, not claims of compiled new identifiers. Choose actual Idriç spelling from current language conventions. Do not encode every mathematical abstraction into the language core: use the existing mathematical library and narrow typed compiler interfaces.
+
+A finite-precision encoding is not a field. Mathematical laws belong to the semantic object; numerical operations approximate them under a stated contract. Tests must not falsely demand exact associativity of ordinary floating addition.
+
+A low-level GLSL dot can implement either a coordinate contraction or an inner product after the semantic decision is settled. Its identical emitted formula does not erase the distinction in the source contract.
+
+For complex scalars, explicitly distinguish the linear dual from a Hermitian inner product, including which argument is conjugate-linear. Do not assume that a real-coordinate dot on two component tuples is complex dual pairing.
+
+EXACT COUNTEREXAMPLE TO THE CURRENT ROTATION CLAIM
+
+Let ε be the literal clamp threshold, and choose difference d=(0,ε/4,0,…,0). Write r=ε/4.
+
+The target is (r,0,…), so the raw Householder normal is (−r,r,0,…). Its norm is √2 r, below ε. The implementation therefore uses u=(−1/4,1/4,0,…) instead of a unit normal.
+
+The computed reflected vector is:
+d − 2u(u·d) = (r/8,7r/8,0,…) = (ε/32,7ε/32,0,…).
+
+The branch condition is false, so no coordinate-two reflection follows. The squared output norm is (25/32)r², not r². The norm ratio is √(25/32), approximately 0.884.
+
+This is an exact algebraic failure in the algorithm, independent of floating rounding. It neither aligns the chosen input with the first axis nor preserves its norm. A rename alone cannot repair a rotation API.
+
+The source also exposes a more general distinction: d ↦ R(d)d chooses a different R from each d. That overall alignment operation is not one fixed linear transformation. Construct R from a reference input, then test application of that same R to other vectors.
+
+INDEPENDENT ACCEPTANCE CORPUS — SPECIFIED, NOT EXECUTED
+
+T01: 32D basis pairing.
+For every i,j from 1 to 32, evaluate the i-th dual basis covector on the j-th basis vector. Expect 1 when i=j and 0 otherwise. Include off-diagonal cases across each 4-component packing boundary. A dropped chunk, duplicate chunk or independent permutation of only one operand must fail. Pairing the final coordinate is mandatory.
+
+T02: Nonorthogonal basis change.
+In old coordinates take vector (2,3), covector row (5,7), and new basis columns B=[[1,1],[0,1]].
+Old pairing = 31.
+New vector coordinates B⁻¹v = (−1,3).
+New covector coordinates αB = (5,12).
+New pairing remains 31.
+Treating the covector as another vector gives (−2,7), producing 23 instead: reject.
+Embed this block in 32 dimensions. Do not use only orthogonal basis changes, which can conceal the dual-role error.
+
+T03: Metric is separate from pairing.
+For the same basis change, old Euclidean squared norm is 13.
+New Gram matrix BᵀB=[[1,1],[1,2]] gives 13.
+An ordinary component-square sum in the new coordinates gives 10: reject that as the same metric.
+Wrong basis/space/metric combinations must require an explicit transformation rather than implicit reinterpretation.
+
+T04: Complex distinction, when complex scalar support is enabled.
+A complex linear functional with coefficient 1+i evaluated at 1+i gives 2i. A Hermitian squared norm gives 2. Require the declared operation and conjugation convention; a shared two-real tuple must not make these interchangeable.
+Until enabled, unsupported complex contracts must be explicitly rejected rather than treated as accepted real tuples.
+
+T05: Negative checked interfaces.
+Wrong dimension, different named spaces with equal dimension, covector passed as vector, vector passed as covector, absent metric, wrong coordinate frame, and unrelated declarations named SVec/SArray/dot/normalize. Each needs a passing neighbour and the intended diagnostic.
+Explicit unsafe extraction/reconstruction remains an explicitly unsafe operation, not evidence that the checked interface failed.
+
+T06: Rotation operator.
+Positive 2D block R=[[3/5,4/5],[-4/5,3/5]], identity on other coordinates: R(3,4)=(5,0), determinant +1 and exact Gram identity.
+Negative H=[[3/5,4/5],[4/5,−3/5]] also aligns (3,4), but has determinant −1. Reject H as a rotation.
+Test basis images and arbitrary additional vectors with a single previously constructed map. Check inverse/composition, inner products and last coordinates. An alignment-result-only test cannot distinguish the two maps.
+
+T07: Small-input rotation.
+Preserve the ε/4 counterexample above, plus zero, positive/negative first axis, near-axis cancellation, scale changes and nonfinite inputs. Exact fixtures establish mathematics; floating runs use justified absolute/relative/ULP bounds. Do not derive tolerances merely by observing a passing implementation.
+If a tiny-input identity policy is chosen, test its explicitly limited alignment promise separately.
+
+T08: Packing and storage.
+Compare unpack(pack(coordinates)) against independent coordinates, and pairing results across 4-wide chunks and another supported packing.
+Use a dimension requiring padding, such as five components in two 4-wide tuples. Poison padding and prove it cannot enter the mathematical result.
+Reject wrong order, stride, byte length, scalar encoding, schema version and mismatched operand roles. Distinguish fixed arrays from linked containers.
+
+T09: Indexing.
+Test 0 and length−1 as valid. Reject or explicitly diagnose −1, length, fractional values, NaN and infinity at the declared indexing/conversion boundary. Exercise conditional/loop access without evaluating rejected out-of-range paths.
+
+T10: Effective precision.
+Test numeric behavior at representable boundaries rather than IR label spelling. For example, under an explicitly declared binary16 round-to-nearest-even addition, 1+2⁻¹¹ rounds to 1; binary32 can represent that exact sum.
+State rounding, subnormal, overflow and contraction policies, and use enough independently selected cases to distinguish them. One sample does not prove full format conformance.
+An incompatible precision override must fail or produce a honestly different relaxed contract.
+
+T11: Verification labels and implementation provenance.
+Feed real generated artifacts and targeted constant-colour, handwritten-fallback, wrong-source-hash, stale-device, wrong-renderer, mislabeled mock and assembly-only receipts.
+A receipt claiming physical execution must fail when only assembly is present. A numerical comparison must name cases and tolerance. A proof must name its proposition and exact proof checker/revision.
+A source-level proof does not automatically survive an unverified compiler transformation.
+
+T12: Full numerical observation.
+Read the actual scalar or all transformed coordinates before colour quantization. Use a qualified floating readback path or an independently specified encoding whose range/error is sufficient. Existing RGBA8 clamps/quantizes values and cannot establish exact arithmetic, all-coordinate behavior or orientation.
+Keep ordinary colour-readback checks as colour-readback checks.
+
+These checks belong in the reusable ai-ci acceptance boundary, with consumer fixtures. Every required assertion needs a good case and a targeted bad implementation that fails for the intended reason. Job 04 must implement and execute this corpus before it can be called an independent test suite.
+
+MIGRATION SURFACES AND CLOSURE
+
+1. Source and mathematical library.
+   Types, constructors, operations, intrinsic declaration identities, module/file names, exports, examples and negative fixtures. Carry the exact integer-sample scope into public quaternion names. Avoid inventing general real-number execution merely to satisfy a label.
+
+2. Compiler and optimization.
+   Signature interpretation, typed IR, instruction names, lowering tables, role-preserving conversions, mathematical-to-numerical boundary, structured branches/loops, optimizers and dump formats. Check identities before erasure. A recoverable source-to-layout record can carry meaning after safe erasure; every low-level instruction need not reproduce the full mathematical type.
+
+3. Generated targets.
+   GLSL, typed IR dumps, mocks, real PTX and LLVM/AMDGPU followers. Regenerate from the migrated producer. Target-language keywords remain target-language keywords. Distinguish scalarization from mathematical dimension and hardware scheduling.
+
+4. Host interfaces.
+   Native headers, arrays/records, uniform locations, component order, offsets, stride, alignment, padding, upload/readback, error channels, serialized schemas and cache keys. Increment/reject incompatible schema versions rather than silently accepting the old shape.
+   A generated sixteen-uniform ABI can be valid beneath a checked 32D operation; the defect is the missing semantic ownership, not the count sixteen by itself.
+
+5. Backend examples and build/check machinery.
+   Makefile/Ikefile and package manifests, six primitive generators, generated filenames, acceptance scripts, GLSL text checks, mock interpreters, byte-readback tests, docs and performance labels. Remove permanent aliases. Preserve old raw receipts as immutable historical evidence, clearly superseded.
+
+6. Consumers.
+   Wegert: shader template/colour core, host uniform uploads, source roots code/, _/build/ and root copies, asset assembly and actual selected renderer. The inspected assemble-shader.sh substitutes a colour-core text marker; it is not checked Idris source compilation.
+   Fourier-sound: complex-field/polynomial ABI, coefficient and exponent order, scalar precision, voice renderer and independent colour mapping. The inspected rendering path includes CPU-rendered RGB24 and a window sink; it cannot be counted as a migrated generated-fragment consumer without an actual new selected path.
+   Holomorphic: checked candidate gpu/Example/HolomorphicLive.idr, coefficients, points, phase/log-modulus measures, RGB, host bindings, generated shader provenance and actual selection. Reconcile its active polynomial/Fock stack. Analytic-continuation is its old repository identity.
+   Surfer: native prepared-surface contract, polynomial derivatives, ray origins/directions, frames, normal transformation, material colours, and rendering consumers. The polynomial-vector Java interface represents a parameterized geometric output; do not condemn its name solely because it uses a storage tuple. Inspect usage before changing its semantics.
+   Search Cat Food package records, ai-ci contracts, Flexible Pipes/Kitchen/Ike manifests and any newly discovered maintained consumers during job 05. These package/control-plane records were not exhaustively retrieved in this audit and remain an explicit coverage obligation.
+
+7. Transition and completion.
+   Record old identity → new semantic identity → new representation/schema → consumer owner → acceptance evidence.
+   Use one-time data conversion only when an actual retained serialized consumer needs it. No permanent compatibility aliases. Distinguish immutable history from active public API and docs; do not falsify old receipts by renaming their contents.
+   Completion requires all maintained consumers migrated, regenerated artifacts current, incompatible old schemas rejected, all required semantic mutants rejected, and the actual source-to-output path accepted. Missing physical evidence stays incomplete for the exact affected target.
+   No performance gain, typecheck, text scan, benchmark label or green screenshot closes this migration alone.
+
+DEPENDENCY ORDER
+
+01 establishes semantic source contracts.
+02 consumes 01 and implements lowering/packing/precision/indexing.
+03 consumes 01 for the rotation contract and 02 for final generated acceptance.
+04 may design its independent fixtures immediately, but final acceptance depends on 01–03.
+05 completes consumers and artifacts against accepted 01–04 outputs.
+
+STAR decision work for this inspected scope is complete. Whole-stack closure and all implementation remain open. The five requested SUN jobs are below. SUN may produce bounded EARTH implementation and MOON propagation handoffs after it resolves remaining concrete design questions; no such handoff is represented here as already verified.
+
+PRIMARY LANGUAGE REFERENCE
+
+Khronos, OpenGL ES Shading Language 3.00 revision 6, sections 4.1.5, 4.1.9 and 4.5:
+https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf
+Use its actual precision requirements; qualifier selection alone does not certify exact binary16 behavior. No hardware register assignment is inferred from the spelling vec4.
+
+READY-TO-PASTE SUN JOBS
+
+SUN FRAGMENT-SEMANTICS-01 — Establish the checked mathematical interface
+Model: SUN — extra-high reasoning
+Repositories: https://github.com/isomorphisms/Idric and https://github.com/fuego-ironworks/idris-shader-backend
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: https://github.com/isomorphisms/ai-ci
+Prerequisite: STAR-FRAGMENT-GENERATORS-01-SEMANTIC-AUDIT.txt; refresh current source and active work before editing. Audit baselines: Idriç e8b9173ab2d840ef0cf212698ea2fee97bd9e807; backend 4a29362e580df393e4d64a9929e4c1e592ac4c53.
+
+Repair the source-level semantic boundary. Reuse MathematicalSpaces.idric and EuclideanGeometry.idric; their exact integer-coordinate samples are not the full real scalar field. Establish space identity, dimension, scalar field, dual role, basis, and metric where needed. Separate mathematical vectors from shader tuples, complex coordinates, colours, and indexed storage.
+
+Provide a checked 32D vector/covector pairing with one coherent input of each role and a scalar result. Keep RGBA presentation separate. A renamed raw packed sum may remain as an explicitly low-level operation, but cannot satisfy this outcome. Remove the old misleading program name without a compatibility alias.
+
+Bind compiler recognition to canonical declarations rather than nameRoot spelling alone. Require wrong dimension, wrong named space, vector-as-covector, missing metric, and spoofed primitive/type names to fail at the responsible boundary. Supply passing controls. Establish honest approximate arithmetic contracts; binary floats are not a mathematical scalar field.
+
+Preserve existing exact sample tests and refusal cases. Record exact commits and compiler checks separately from proofs and runtime evidence. This job finishes at the accepted source contract; GPU lowering follows job 02. Save its decision, changed interfaces, and precise bounded implementation handoffs. No merge or release is authorized.
+
+
+SUN FRAGMENT-SEMANTICS-02 — Preserve semantics through numerical lowering and packing
+Model: SUN — extra-high reasoning
+Repository: https://github.com/fuego-ironworks/idris-shader-backend
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: https://github.com/isomorphisms/ai-ci
+Prerequisite: accepted exact source/contract receipt from SUN FRAGMENT-SEMANTICS-01. Refresh current branches; preserve qualified structured-control-flow and optional NVIDIA/AMD work.
+
+Implement the real checked-source → numerical IR → packed target path for the accepted 32D pairing. Preserve semantic identity until validated lowering; permit explicit erasure afterward with a recoverable packing map. Eight vec4 values may implement one operand. Independently specify component order, padding, scalar encoding, alignment, stride, and host upload bindings.
+
+Distinguish requested arithmetic format, effective arithmetic contract, target precision qualifier, logical component count, and machine register allocation. An F16-labelled IR dump or mediump qualifier cannot establish exact binary16. Reject unsatisfied exact-format requests or expose a separately named relaxed mode. Preserve explicit rounding/reassociation/contraction rules.
+
+Repair array indexing: integer/bounded indices or an explicitly checked conversion with documented failure behavior. A Double-to-int cast alone is not a bound check.
+
+Regenerate maintained GLSL and applicable target outputs. Test every coordinate, cross-chunk boundaries, padded dimensions, alternate legal packings, wrong strides, and stale schema versions through the actual compiler. Retain branch/loop scope during optimization. Test canonical-name spoofing and semantic-role erasure mutants. Vendor assembly is separate from device execution.
+
+Finish with exact generated hashes, ABI/schema migration mapping, refusal diagnostics, and unresolved target evidence. No permanent aliases, merge, or release.
+
+
+SUN FRAGMENT-SEMANTICS-03 — Repair the alignment rotation and its numerical contract
+Model: SUN — extra-high reasoning
+Repository: https://github.com/fuego-ironworks/idris-shader-backend
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: https://github.com/isomorphisms/ai-ci
+Prerequisites: job 01 mathematical contract; job 02 lowering for final generated acceptance. Inspect RotateDifference8ToE1.idr at audit baseline 4a29362e580df393e4d64a9929e4c1e592ac4c53 and any successor before editing.
+
+The existing epsilon-clamped Householder path is not always orthogonal. With ε=10⁻⁶ and difference (0,ε/4,0,…), exact evaluation gives (ε/32,7ε/32,0,…) before display, whose norm is not ε/4. Preserve this counterexample.
+
+Construct a rotation once, then apply that same map to independent vectors. Separate rotation, reflection, linear map, passive coordinate change, and the nonlinear operation that chooses an alignment from its input. Choose a stable representation and explicit policies for zero, near-axis, tiny, huge, and nonfinite inputs. Tiny-input identity is acceptable only under an explicitly limited alignment contract; it cannot claim alignment it does not perform.
+
+Test the full operator: basis images, inner-product preservation, orientation +1, inverse/composition, and distant coordinates. Include a single reflection that aligns the chosen input but must fail rotation acceptance. Use the exact rational rotation [[3/5,4/5],[-4/5,3/5]] with identity on remaining coordinates as a positive control.
+
+Replace the misleading Givens diagnostic on the Householder path. Separate numerical output from RGBA display; one red pixel cannot prove rotation. Record numerical errors against explicit bounds and exact producer identity. No merge or release.
+
+
+SUN FRAGMENT-SEMANTICS-04 — Implement independent semantic acceptance
+Model: SUN — extra-high reasoning
+Repository: https://github.com/isomorphisms/ai-ci
+Consumers: https://github.com/fuego-ironworks/idris-shader-backend and https://github.com/isomorphisms/Idric
+Execution: Flexible Pipes → Kitchen / Ike
+Prerequisites: job 01 contract; jobs 02–03 exact outputs for final acceptance. Oracle design may begin immediately from the audit's independently derived cases.
+
+Implement reusable semantic checks with project-specific fixtures in consumers. Do not derive expected results from emitted GLSL, the producer's packing helper, or its own matrix construction. Prefer Idriç; preserve generated attempts. Use checked Ithon only where the established verifier boundary requires it, and Grease for shell orchestration.
+
+Require: all 32×32 basis pairings; wrong-role/space/dimension compile failures; the nonorthogonal basis-change case yielding pairing 31 and squared norm 13; complete packing/ABI checks; reflection rejection; the epsilon counterexample; effective-precision checks; and negative stale/forged evidence cases. Compare actual compiler output and full numerical readback, with stated numerical tolerances.
+
+Every assertion needs a valid control and a targeted mutant that fails for the intended reason. Include constant-colour, dropped/reordered chunk, wrong covector transformation, normalization clamp, inaccurate format label, spoofed primitive, and handwritten-fallback mutants.
+
+Name receipt stages separately: source typecheck, particular proof, numerical comparison, shader compile/link, vendor assembly, live selection, and named-device readback. Preserve NOT_RUN/UNKNOWN. Mutation-test this distinction. Fail when a material source or schema change bypasses the gate.
+
+Deliver exact-head results and consumer wiring requirements. Final acceptance cannot close until jobs 02–03 have been exercised. No merge or release.
+
+
+SUN FRAGMENT-SEMANTICS-05 — Complete every maintained consumer migration
+Model: SUN — extra-high reasoning
+Primary: https://github.com/fuego-ironworks/idris-shader-backend
+Consumers: https://github.com/isomorphismes/wegert ; https://github.com/isomorphismes/Fourier-sound ; https://github.com/isomorphismes/holomorphic ; https://github.com/isomorphismes/algebraic-variety-explorer-mobile
+Execution: Flexible Pipes → Kitchen / Ike. Independent acceptance: https://github.com/isomorphisms/ai-ci
+Prerequisites: accepted exact interfaces/artifacts from jobs 01–03 and executable job 04 gate.
+
+Refresh repository identities, branches, consumers, package records, and active PRs. analytic-continuation redirects to holomorphic: treat the old name as a historical locator, not another independent current repository.
+
+Migrate owned names and behavior together across mathematical source, IR, lowering, emitters, GLSL/PTX/LLVM outputs, native headers, uniform bindings, memory layouts, serialized schemas, cache keys, tests, benchmarks, documentation, packages, and actual maintained applications. Regenerate artifacts; never edit generated text as a substitute for repairing its producer.
+
+Preserve distinctions already present: Fourier complex values and exponent schedules; Holomorphic complex coefficients versus phase/log-modulus records and colours; Surfer points, displacement vectors, differential covectors, normals and coordinate frames. Identify maintained duplicate asset roots and update their producer or remove obsolete copies through an explicit migration.
+
+Reject old incompatible schemas; provide one-time conversion only where needed. Keep historical receipts immutable and mark them superseded. No permanent old-name aliases or silent fallback.
+
+Prove input → semantic object → packing → generated shader selection → numerical output for each actual GPU consumer. Do not count Fourier's CPU renderer or Wegert template substitution as checked-source GPU generation. Keep physical targets separate and build off-device. Unavailable required device evidence remains incomplete.
+
+Close the migration only after every inventoried maintained consumer passes, stale generated artifacts are gone, and all old misleading active names are removed. Report exact remaining blockers. No merge, publication, or release without separate authority.
+
