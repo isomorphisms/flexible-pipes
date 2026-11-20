@@ -1,0 +1,17 @@
+SUN IB-C67-ICU-ARENA-PFD-ACCEPT-01 — source-bound host acceptance
+
+Authority: user requested continuing ICU #35 integration and asked why the passing implementation candidates were not merged. Treat existing direct-authored IB #152/#153 and ICU #35 source as candidates to stage and independently accept, NOT as already FP-generated code.
+
+Exact candidate sources:
+ICU #35 0da041fbe906657f4f705da45a842d96832e5ee1
+IB #152 d6c74283fa6bc41462a5af53c022894fe66cad90
+IB #153 d9f18955801864cce2e8c8ac02df853772b271ac
+AI-CI #277 634626a14834e14b776616440e0a9071708f81b7
+Ike 93f9eb0aee9094757414df8a7929c89b6a294b0c
+Canonical appendfat 05a0cb7246c5a9f46abfbe92925812e7b607f454
+
+Target: GitHub Ubuntu x86_64 host for this acceptance only. Retain distinct NOT_RUN for Android app_process DEX, true Shizuku, cross-UID Arena ingress, physical Binder/PFD, real Idriç screen and C67 APK.
+
+Required results: resolve and hash exact sources; use pinned qualified ICK compiler and native Ike with a real receipt; compile actual ICU transport and canonical appendfat; exercise native HTTP/TLS and Shizuku host surrogate; independently re-open Arena committed bytes and reject malformed metadata using the pinned AI-CI verifier; compile/test PFD source-owner, stale epochs and native byte integrity. Record ICK/Ike/AI-CI/build SHA and exact workflow head.
+
+Do not silently fall back to GCC/Clang/C++ or call mock device tests physical acceptance. Human-visible job text is this file; job delivery to a separate human surface has not been verified and cannot be invented. Do not merge/release without separately satisfying exact-head AI-CI and authorization policy.
