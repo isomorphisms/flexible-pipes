@@ -340,10 +340,24 @@ def admit_candidate(stage ∈ dict[str, object], source ∈ bytes, gate ∈ obje
     elif record.__contains__("operation"):
         raise ValueError("HANDOFF_OPERATION_GATE_REQUIRED")
 
+def is_apk(attachment ∈ dict[str, object], payload ∈ bytes) → bool:
+    if str(attachment["file_name"]).lower().endswith(".apk") or str(attachment["mime_type"]) == "application/vnd.android.package-archive":
+        return True
+    if not bool(zipfile.is_zipfile(io.BytesIO(payload))):
+        return False
+    with zipfile.ZipFile(io.BytesIO(payload), "r") as archive:
+        return list(archive.namelist()).__contains__("AndroidManifest.xml")
+
 def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str, presentation ∈ str = "plain") → dict[str, object]:
     admit_candidate(stage, payload, gate, b"")
     handoff ∈ dict[str, object] ← identity(stage, payload)
     delivered ∈ bytes ← materialize(stage, payload)
+    if int(handoff["version"]) == 2 and is_apk(dict(handoff["attachment"]), delivered):
+        if not hasattr(gate, "check_android_release_delivery"):
+            raise ValueError("HANDOFF_ANDROID_RELEASE_GATE_REQUIRED")
+        accepted ∈ object ← gate.check_android_release_delivery(handoff, delivered)
+        if not isinstance(accepted, bool) or not bool(accepted):
+            raise ValueError("HANDOFF_ANDROID_RELEASE_REFUSED")
     result ∈ dict[str, object] ← dict(stage)
     events ∈ list[dict[str, object]] ← list(handoff["events"])
     mode ∈ str ← str(handoff["delivery_mode"])
@@ -543,7 +557,11 @@ def deliver_controlled(stage ∈ dict[str, object], source ∈ bytes, expected �
     wrapped_dispatcher ∈ object ← SimpleNamespace(send=dispatch_once)
     def accept_candidate(current ∈ dict[str, object], payload ∈ bytes, response ∈ bytes = b"") → None:
         admit_candidate(current, payload, gate, response)
-    wrapped_gate ∈ object ← SimpleNamespace(check=accept_text, check_attachment=accept_attachment, check_candidate=accept_candidate)
+    def accept_android_release(record ∈ dict[str, object], payload ∈ bytes) → object:
+        if not hasattr(gate, "check_android_release_delivery"):
+            raise ValueError("HANDOFF_ANDROID_RELEASE_GATE_REQUIRED")
+        return gate.check_android_release_delivery(record, payload)
+    wrapped_gate ∈ object ← SimpleNamespace(check=accept_text, check_attachment=accept_attachment, check_candidate=accept_candidate, check_android_release_delivery=accept_android_release)
     result ∈ dict[str, object] ← deliver(state, source, wrapped_sink, wrapped_dispatcher, wrapped_gate, "", presentation)
     result["delivery_status"] ← "FIXTURE_PASS"
     record ∈ dict[str, object] ← dict(result["handoff"])

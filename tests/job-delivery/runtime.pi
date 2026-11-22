@@ -228,6 +228,13 @@ attachment_name ∈ str ← "young-tableaux-arm64-v8a.apk"
 attachment_mime ∈ str ← "application/vnd.android.package-archive"
 provenance ∈ dict[str, object] ← {"provider": "github-actions", "resource": "functorial-games/young-tableaux", "revision": "20e075021b743909bc5c28764f787bae20381bc4", "reference": "artifact:11429847456"}
 
+def fixture_apk_release(record ∈ dict[str, object], payload ∈ bytes) → bool:
+    observed ∈ str ← str(record["payload_sha256"])
+    expected ∈ str ← str(handoff.digest(payload))
+    return payload == attachment_bytes and observed == expected
+
+apk_gate ∈ object ← SimpleNamespace(check=job_delivery.check, check_attachment=job_delivery.check_attachment, check_android_release_delivery=fixture_apk_release)
+
 def attachment_stage(source ∈ bytes, source_name ∈ str, member ∈ str) → dict[str, object]:
     attachment ∈ dict[str, object] ← {"file_name": attachment_name, "mime_type": attachment_mime, "sha256": handoff.digest(attachment_bytes), "source_name": source_name, "source_sha256": handoff.digest(source), "provenance": provenance}
     if member != "":
@@ -250,7 +257,8 @@ for source_kind in ["direct", "archive"]:
         member ← "c67/" + attachment_name
     mutation ← "none"
     effects.clear()
-    delivered ← handoff.deliver(attachment_stage(source, source_name, member), source, sink, dispatcher, gate, "")
+    apk_stage ∈ dict[str, object] ← attachment_stage(source, source_name, member)
+    delivered ← handoff.deliver(apk_stage, source, sink, dispatcher, apk_gate, "")
     delivered_handoff ∈ dict[str, object] ← dict(delivered["handoff"])
     if effects != ["visible"]:
         raise AssertionError("attachment delivery effects failed")
@@ -261,16 +269,44 @@ for source_kind in ["direct", "archive"]:
     if actual_sha != expected_sha:
         raise AssertionError("attachment delivery failed")
     passed("attachment " + source_kind + " exact visible bytes")
+    effects.clear()
+    caught_message ∈ str ← ""
+    try:
+        handoff.deliver(apk_stage, source, sink, dispatcher, gate, "")
+    except ValueError as error:
+        caught_message ← str(error)
+    if caught_message != "HANDOFF_ANDROID_RELEASE_GATE_REQUIRED" or len(effects) != 0:
+        raise AssertionError("APK reached a sink without release validation")
+    passed("attachment " + source_kind + " requires release validation before effects")
     for bad in ["attachment-bytes", "attachment-name", "attachment-mime"]:
         mutation ← bad
         caught ← False
         try:
-            handoff.deliver(attachment_stage(source, source_name, member), source, sink, dispatcher, gate, "")
+            handoff.deliver(apk_stage, source, sink, dispatcher, apk_gate, "")
         except ValueError:
             caught ← True
         if not caught:
             raise AssertionError("bad attachment reached acceptance")
         passed("attachment " + source_kind + " rejects " + bad)
+
+stream ← io.BytesIO()
+archive ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+archive.writestr("AndroidManifest.xml", b"fixture Android manifest")
+archive.close()
+renamed ∈ bytes ← stream.getvalue()
+renamed_attachment ∈ dict[str, object] ← {"file_name": "candidate.zip", "mime_type": "application/zip", "sha256": handoff.digest(renamed), "source_name": "candidate.zip", "source_sha256": handoff.digest(renamed), "provenance": provenance}
+renamed_spec ∈ dict[str, object] ← {"audience": "human", "model": "fixture", "source_context": "APK release gate", "request": {"id": "renamed-apk", "text": "Give me the APK"}, "attachment": renamed_attachment}
+renamed_stage ∈ dict[str, object] ← {"name": "apk", "kind": "command", "exit_code": 0, "stdout_sha256": handoff.digest(renamed)}
+renamed_stage ← handoff.compose(renamed_stage, renamed, renamed_spec)
+effects.clear()
+caught_message ← ""
+try:
+    handoff.deliver(renamed_stage, renamed, sink, dispatcher, apk_gate, "")
+except ValueError as error:
+    caught_message ← str(error)
+if caught_message != "HANDOFF_ANDROID_RELEASE_REFUSED" or len(effects) != 0:
+    raise AssertionError("APK with changed filename and MIME bypassed release validation")
+passed("APK body requires release validation despite misleading name and MIME")
 
 mutation ← "none"
 caught ← False
@@ -415,7 +451,7 @@ def controlled_lookup(identity_value ∈ str) → dict[str, object]:
 
 reader ∈ object ← SimpleNamespace(read_text=read_text, read_attachment=read_attachment)
 controlled_dispatcher ∈ object ← SimpleNamespace(send=controlled_dispatch, lookup=controlled_lookup)
-controlled_gate ∈ object ← SimpleNamespace(check_authority=job_delivery.check_authority, check_actual=job_delivery.check_actual)
+controlled_gate ∈ object ← SimpleNamespace(check_authority=job_delivery.check_authority, check_actual=job_delivery.check_actual, check_android_release_delivery=fixture_apk_release)
 payload ← Path(str(root) + "/regressions/job-delivery/young-tableaux.txt").read_bytes()
 with tempfile.TemporaryDirectory(prefix="delivery-controller-") as temporary:
     for mode in ["display-only", "display-and-dispatch", "dispatch-only"]:

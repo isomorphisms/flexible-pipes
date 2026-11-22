@@ -154,6 +154,16 @@ attempt; that limitation is retained as
 `artifact_attempt_binding=NOT_PROVIDED_BY_ARTIFACT_METADATA`, rather than
 inventing an artifact-to-attempt attestation.
 
+Before either the attachment sink or dispatcher sees an APK, the controller
+must provide `check_android_release_delivery(handoff, payload)`. The check
+receives the exact extracted bytes and must approve them against trusted
+product, target, source and release-signing policy. A successful workflow or
+matching archive digest cannot authorize this step. APK filename, APK MIME
+type, or an Android manifest at the root of the payload ZIP triggers the
+check. Missing approval stops delivery before any send. The runtime fixture
+checks this ordering with an isolated fake approval, while composition still
+supports inspection of historical APKs.
+
 The maintained `fp35-delivery-acceptance` pipeline captures the implementation
 envelope, FP runtime/effect tests and independent AI-CI cases as separate stage
 artifacts. Required inputs name verified absolute source/runtime locations.
