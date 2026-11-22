@@ -35,6 +35,13 @@ jobs:
           ref: d6e83969f82512e920fb17b44326cb54f31d015c
           path: _ithon
           persist-credentials: false
+      - name: Check attachment ordering before native Grease acquisition
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/attachment-ordering-checked.jsonl
+        run: |
+          "$GITHUB_WORKSPACE/_ithon/ithon" tests/job-delivery/runtime.pi \
+            "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_ithon/ithon"
       - name: Acquire exact native Grease runtime for command-byte comparison
         env:
           GH_TOKEN: ${{ github.token }}
@@ -82,6 +89,7 @@ jobs:
         with:
           name: job-delivery-runtime-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
+            ${{ runner.temp }}/attachment-ordering-checked.jsonl
             ${{ runner.temp }}/job-delivery-checked.jsonl
             ${{ runner.temp }}/fp35-delivery-results/
             ${{ runner.temp }}/fp35-delivery-runs/
