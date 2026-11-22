@@ -10,6 +10,8 @@ import sys
 import re
 import zipfile
 import os
+import subprocess
+import tempfile
 from types import SimpleNamespace
 from pathlib import Path
 from builtins import dict, list, ValueError, KeyError, RuntimeError, isinstance, Exception, hasattr
@@ -346,7 +348,40 @@ def is_apk(attachment ∈ dict[str, object], payload ∈ bytes) → bool:
     if not bool(zipfile.is_zipfile(io.BytesIO(payload))):
         return False
     with zipfile.ZipFile(io.BytesIO(payload), "r") as archive:
-        return list(archive.namelist()).__contains__("AndroidManifest.xml")
+        members ∈ list[str] ← archive.namelist()
+        for member in members:
+            if member == "AndroidManifest.xml" or member.lower().endswith(".apk"):
+                return True
+    return False
+
+def catfood_release_check(record ∈ dict[str, object], payload ∈ bytes, catfood ∈ str, catfood_sha ∈ str, aici ∈ str, repository ∈ str, revision ∈ str, target ∈ str) → bool:
+    """Use controller-selected policy and request coordinates for the exact payload."""
+    attachment ∈ dict[str, object] ← dict(record["attachment"])
+    provenance ∈ dict[str, object] ← dict(attachment["provenance"])
+    if str(provenance["resource"]) != repository or str(provenance["revision"]) != revision:
+        return False
+    with tempfile.TemporaryDirectory(prefix="fp-apk-delivery-") as staging:
+        command ∈ list[str] ← ["sh", catfood + "/catfood", "acquire-android-apk", repository, revision, target, aici, str(staging)]
+        result ∈ object ← subprocess.run(command, capture_output=True)
+        if int(result.returncode) != 0:
+            return False
+        fields ∈ dict[str, str] ← {}
+        receipt ∈ str ← bytes(result.stdout).decode("utf-8")
+        lines ∈ list[str] ← receipt.splitlines()
+        for line in lines:
+            pair ∈ list[str] ← line.split("\t")
+            if len(pair) != 2 or fields.__contains__(pair[0]):
+                return False
+            fields[pair[0]] ← pair[1]
+        expected ∈ dict[str, str] ← {"schema": "aici-android-release-delivery-v1", "result": "PASS", "signing_lane": "release", "catfood_sha": catfood_sha, "repository": repository, "source_sha": revision, "target": target, "apk_sha256": digest(payload), "apk_bytes": str(len(payload))}
+        for field in expected:
+            if str(fields.get(field, "")) != expected[field]:
+                return False
+        selected ∈ Path ← Path(str(fields.get("apk_path", ""))).resolve()
+        local_folder ∈ Path ← Path(str(staging)).resolve()
+        if not selected.is_relative_to(local_folder) or not selected.is_file():
+            return False
+        return bytes(selected.read_bytes()) == payload
 
 def deliver(stage ∈ dict[str, object], payload ∈ bytes, sink ∈ object, dispatcher ∈ object, gate ∈ object, summary ∈ str, presentation ∈ str = "plain") → dict[str, object]:
     admit_candidate(stage, payload, gate, b"")
