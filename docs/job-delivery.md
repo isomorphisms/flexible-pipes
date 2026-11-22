@@ -164,6 +164,14 @@ check. Missing approval stops delivery before any send. The runtime fixture
 checks this ordering with an isolated fake approval, while composition still
 supports inspection of historical APKs.
 
+For device delivery, bind that callback to `catfood_release_check` with the
+controller's approved Cat Food checkout and commit, AICI checkout, and the
+requested repository, source revision, and device target. It runs
+`catfood acquire-android-apk` in a fresh directory, compares the receipt with
+those coordinates, and requires the returned file to equal the payload to be
+sent. The caller remains responsible for choosing the trusted checkouts and
+installing the platform attachment adapter.
+
 The maintained `fp35-delivery-acceptance` pipeline captures the implementation
 envelope, FP runtime/effect tests and independent AI-CI cases as separate stage
 artifacts. Required inputs name verified absolute source/runtime locations.

@@ -308,6 +308,34 @@ if caught_message != "HANDOFF_ANDROID_RELEASE_REFUSED" or len(effects) != 0:
     raise AssertionError("APK with changed filename and MIME bypassed release validation")
 passed("APK body requires release validation despite misleading name and MIME")
 
+with tempfile.TemporaryDirectory(prefix="catfood-release-admission-") as catfood_fixture:
+    catfood_checkout ∈ str ← str(catfood_fixture)
+    catfood_program ∈ Path ← Path(catfood_checkout).joinpath("catfood")
+    catfood_revision ∈ str ← "1111111111111111111111111111111111111111"
+    apk_revision ∈ str ← str(provenance["revision"])
+    apk_repository ∈ str ← str(provenance["resource"])
+    catfood_result ∈ str ← "schema\taici-android-release-delivery-v1\nresult\tPASS\nsigning_lane\trelease\n" + "catfood_sha\t" + catfood_revision + "\nrepository\t" + apk_repository + "\nsource_sha\t" + apk_revision + "\ntarget\tc67\napk_sha256\t" + str(handoff.digest(attachment_bytes)) + "\napk_bytes\t" + str(len(attachment_bytes)) + "\n"
+    Path(catfood_checkout).joinpath("release.apk").write_bytes(attachment_bytes)
+    apk_record ∈ dict[str, object] ← dict(attachment_stage(attachment_bytes, attachment_name, "")["handoff"])
+    for resolver_case in ["approved", "mismatched-policy", "substitution", "missing", "escaped-path"]:
+        shell ∈ str ← "#!/bin/sh\nset -eu\n[ \"$1\" = acquire-android-apk ]\n[ \"$4\" = c67 ]\n"
+        if resolver_case == "missing":
+            shell ← shell + "exit 2\n"
+        elif resolver_case == "escaped-path":
+            shell ← shell + "printf 'apk_path\\t%s\\n' \"${0%/*}/release.apk\"\n"
+        else:
+            if resolver_case == "substitution":
+                shell ← shell + "printf changed > \"$6/release.apk\"\n"
+            else:
+                shell ← shell + "cp \"${0%/*}/release.apk\" \"$6/release.apk\"\n"
+            shell ← shell + "printf 'apk_path\\t%s\\n' \"$6/release.apk\"\n"
+        catfood_program.write_text(shell + "cat <<'RECEIPT'\n" + catfood_result + "RECEIPT\n")
+        policy_revision ∈ str ← "2222222222222222222222222222222222222222" if resolver_case == "mismatched-policy" else catfood_revision
+        approved ∈ bool ← bool(handoff.catfood_release_check(apk_record, attachment_bytes, catfood_checkout, policy_revision, catfood_checkout, apk_repository, apk_revision, "c67"))
+        if approved != (resolver_case == "approved"):
+            raise AssertionError("Cat Food release adapter result: " + resolver_case)
+        passed("Cat Food release adapter " + resolver_case)
+
 mutation ← "none"
 caught ← False
 try:
