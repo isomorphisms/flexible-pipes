@@ -348,7 +348,11 @@ def is_apk(attachment ∈ dict[str, object], payload ∈ bytes) → bool:
     if not bool(zipfile.is_zipfile(io.BytesIO(payload))):
         return False
     with zipfile.ZipFile(io.BytesIO(payload), "r") as archive:
-        return list(archive.namelist()).__contains__("AndroidManifest.xml")
+        members ∈ list[str] ← archive.namelist()
+        for member in members:
+            if member == "AndroidManifest.xml" or member.lower().endswith(".apk"):
+                return True
+    return False
 
 def catfood_release_check(record ∈ dict[str, object], payload ∈ bytes, catfood ∈ str, catfood_sha ∈ str, aici ∈ str, repository ∈ str, revision ∈ str, target ∈ str) → bool:
     """Use controller-selected policy and request coordinates for the exact payload."""

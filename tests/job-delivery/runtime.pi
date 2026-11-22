@@ -308,6 +308,14 @@ if caught_message != "HANDOFF_ANDROID_RELEASE_REFUSED" or len(effects) != 0:
     raise AssertionError("APK with changed filename and MIME bypassed release validation")
 passed("APK body requires release validation despite misleading name and MIME")
 
+stream ← io.BytesIO()
+archive ← zipfile.ZipFile(stream, "w", zipfile.ZIP_STORED)
+archive.writestr("candidate/" + attachment_name, attachment_bytes)
+archive.close()
+if not bool(handoff.is_apk(renamed_attachment, stream.getvalue())):
+    raise AssertionError("ZIP containing an APK bypassed release classification")
+passed("APK archive requires release validation before delivery")
+
 with tempfile.TemporaryDirectory(prefix="catfood-release-admission-") as catfood_fixture:
     catfood_checkout ∈ str ← str(catfood_fixture)
     catfood_program ∈ Path ← Path(catfood_checkout).joinpath("catfood")

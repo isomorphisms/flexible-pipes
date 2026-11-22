@@ -159,8 +159,8 @@ must provide `check_android_release_delivery(handoff, payload)`. The check
 receives the exact extracted bytes and must approve them against trusted
 product, target, source and release-signing policy. A successful workflow or
 matching archive digest cannot authorize this step. APK filename, APK MIME
-type, or an Android manifest at the root of the payload ZIP triggers the
-check. Missing approval stops delivery before any send. The runtime fixture
+type, an Android manifest at the root of the payload ZIP, or an APK inside
+that ZIP triggers the check. Missing approval stops delivery before any send. The runtime fixture
 checks this ordering with an isolated fake approval, while composition still
 supports inspection of historical APKs.
 
