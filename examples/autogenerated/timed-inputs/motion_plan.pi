@@ -1,0 +1,20 @@
+"""Authored movie sections, bound to the same exact frame clock as typed inputs."""
+from builtins import list, ValueError
+
+def validate(plan ∈ list[list[str]], count ∈ int) → None:
+    cursor ∈ int ← 0
+    moving ∈ bool ← False
+    for section in plan:
+        if len(section) != 4:
+            raise ValueError('motion plan row requires start, end, kind, intent')
+        start ∈ int ← int(section[0])
+        end ∈ int ← int(section[1])
+        if start != cursor or end <= start + 1 or end > count:
+            raise ValueError('motion plan must cover every frame exactly once with sections of at least two frames')
+        if not bool(['hold','move','source'].__contains__(section[2])) or len(section[3].strip()) == 0:
+            raise ValueError('motion plan kind and intent required')
+        if section[2] != 'hold':
+            moving ← True
+        cursor ← end
+    if cursor != count or not moving:
+        raise ValueError('motion plan must cover movie and include movement')

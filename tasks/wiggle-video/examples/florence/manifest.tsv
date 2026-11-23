@@ -1,0 +1,8 @@
+schema	wiggle-v1
+producer	florence
+input_kind	external-samples
+fps	5
+frames	154
+width	96
+height	192
+controls_visible	false

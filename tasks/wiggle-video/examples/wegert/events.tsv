@@ -1,0 +1,5 @@
+500000000	0	function/zero	-1,0
+2000000000	0	function/zero	0,1
+2000000000	1	function/pole	0,-1
+2916666666	0	function/zero	0,1
+2916666666	1	function/pole	0,-1

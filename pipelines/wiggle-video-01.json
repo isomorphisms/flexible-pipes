@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "wiggle-video-01",
+  "parameters": {
+    "control": {"required": true, "pattern": "^/[^\\n]+$"},
+    "context": {"required": true, "pattern": "^/[^\\n]+$"},
+    "inputs": {"required": true, "pattern": "^/[^\\n]+$"},
+    "output": {"required": true, "pattern": "^/[^\\n]+$"}
+  },
+  "required_stages": ["timeline-tests", "produce", "independent", "adversarial", "seal"],
+  "stages": [
+    {"kind":"command", "name":"timeline-tests", "argv":["grease","tasks/wiggle-video/run.grease","timeline-tests","{{control}}","{{context}}","{{inputs}}","{{output}}"], "cwd":"."},
+    {"kind":"command", "name":"produce", "argv":["grease","tasks/wiggle-video/run.grease","produce","{{control}}","{{context}}","{{inputs}}","{{output}}"], "cwd":"."},
+    {"kind":"command", "name":"independent", "argv":["grease","tasks/wiggle-video/run.grease","independent","{{control}}","{{context}}","{{inputs}}","{{output}}"], "cwd":"."},
+    {"kind":"command", "name":"adversarial", "argv":["grease","tasks/wiggle-video/run.grease","adversarial","{{control}}","{{context}}","{{inputs}}","{{output}}"], "cwd":"."},
+    {"kind":"command", "name":"seal", "argv":["grease","tasks/wiggle-video/run.grease","seal","{{control}}","{{context}}","{{inputs}}","{{output}}"], "cwd":"."}
+  ]
+}
