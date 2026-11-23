@@ -1,0 +1,21 @@
+A32_IDRIC_SOURCE_HEAD 588d6d385d2d8f66851b0d50eb6e9b6a6d6e8af9
+✔ all 23 original dqrls A32 words match independently checked typed operands (71.109078ms)
+✔ source headers, symbol declarations and relocation rows are not instructions (64.977385ms)
+✔ physical alias sl identifies register r10 and ip identifies r12 (60.949923ms)
+✔ an incorrect printed source operand cannot survive a correct machine word (120.349912ms)
+✔ register type restrictions reject PC and SP when disallowed (211.093425ms)
+✔ reject incorrect opcode, flag variant, unknown shift and bad immediate (317.414237ms)
+✔ reject duplicate push registers and malformed machine word (127.317726ms)
+✔ unknown branch-and-save-return relocation remains unsupported rather than silently parsed (124.973583ms)
+✔ all classified rows preserve exact source text and line numbers on request (68.457268ms)
+✔ unknown rows and malformed noninstruction records cannot hide machine bytes (307.914805ms)
+✔ each saved prefix word independently decodes to the same typed form without assembly text (1539.947661ms)
+✔ word-only decoder rejects changed conditions flags writeback roles and shift fields (800.09362ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3907.473083
