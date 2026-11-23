@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "name": "ib-c67-source-acceptance",
+  "required_stages": [
+    "job-envelope",
+    "check-input-revisions",
+    "independent-source-oracle",
+    "ike-compiled-source-path"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/ib-c67-source-acceptance/JOB.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "check-input-revisions",
+      "argv": [
+        "sh",
+        "tasks/ib-c67-source-acceptance/check-pins.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-source-oracle",
+      "argv": [
+        "sh",
+        ".deps/ai-ci/ib-source/self-test.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "ike-compiled-source-path",
+      "argv": [
+        "sh",
+        "tasks/ib-c67-source-acceptance/run-ike.sh"
+      ],
+      "cwd": "."
+    }
+  ]
+}
