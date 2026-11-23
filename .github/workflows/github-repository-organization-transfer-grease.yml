@@ -2,12 +2,11 @@ name: Grease GitHub repository organization transfer
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
-  actions: read
 jobs:
   checked-organization-transfer:
     name: ${{ github.event_name == 'pull_request' && 'checked-organization-transfer' || format('checked-organization-transfer-{0}', github.event_name) }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -27,29 +26,30 @@ jobs:
       - name: Reject the C67-failing generator readability predicate
         run: sh tests/c67-generator-readability-regression.sh
         working-directory: flexible-pipes
-      - name: Acquire exact native Grease runtime (not a shell mock)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -eu
-          gh api repos/dilapidated-shed/grease/actions/artifacts/12192502970/zip > "$RUNNER_TEMP/grease.zip"
-          printf '%s  %s\n' 295329ec3bb419d90364fcb5937eafe4306b03f68b7aaa63089dadde8082ffb5 "$RUNNER_TEMP/grease.zip" | sha256sum -c -
-          unzip -q "$RUNNER_TEMP/grease.zip" '_bin/cxx-asan/ysh' -d "$RUNNER_TEMP/grease"
-          chmod 755 "$RUNNER_TEMP/grease/_bin/cxx-asan/ysh"
+      - name: Build the scoped Grease runtime for transfer fixtures
+        id: grease
+        uses: isomorphisms/ai-ci/grease-fixtures@9b608a1c6b6db5e9f293dbb562dd261f4bd6cd64
       - name: Test Kitchen generation under native Grease
         env:
-          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
+          GREASE_BINARY: ${{ steps.grease.outputs.executable }}
         run: sh tests/github-repository-transfer-grease.sh
         working-directory: kitchen
       - name: Test FP, generated program, identity and rerun under native Grease
         env:
           KITCHEN_ROOT: ${{ github.workspace }}/kitchen
-          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
+          GREASE_BINARY: ${{ steps.grease.outputs.executable }}
         run: sh tests/github-repository-organization-transfer-grease.sh
         working-directory: flexible-pipes
       - name: Test the exact ten-repository batch and idempotent rerun
         env:
           KITCHEN_ROOT: ${{ github.workspace }}/kitchen
-          GREASE_BINARY: ${{ runner.temp }}/grease/_bin/cxx-asan/ysh
+          GREASE_BINARY: ${{ steps.grease.outputs.executable }}
         run: sh tests/github-new-math-batch-transfer-grease.sh
         working-directory: flexible-pipes
+      - name: Retain the Grease build receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: organization-transfer-grease-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ steps.grease.outputs.receipt }}
+          if-no-files-found: warn
