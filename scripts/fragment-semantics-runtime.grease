@@ -1,0 +1,15 @@
+#!/usr/bin/env grease
+# Verified existing build-host runtime, distinct from device consumers.
+# Compiler checkout observed at 2734ac5a86610eddfab73b1644d72b4ac85a65ee.
+setglobal ENV.IDRIS2_PREFIX = '/tmp/jobicy-idric-source/_/bootstrap-build'
+setglobal ENV.CHEZ = '/tmp/jobicy-idric-tools/bin/scheme'
+setglobal ENV.SCHEMEHEAPDIRS = '/tmp/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/chez-10.4.1/lib/csv10.4.1/ta6le'
+setglobal ENV.GREASE = '/workspace/scratch/30b0a80117bc/tool-bin/grease'
+setglobal ENV.FP_RUNTIME = '/workspace/scratch/3e1c4c6b7433/flexible-pipes/scripts/fragment-semantics-runtime.grease'
+setglobal ENV.IDRIC_COMPILER = '/tmp/jobicy-idric-source/_/build/exec/idris2'
+setglobal ENV.BACKEND_ROOT = '/workspace/scratch/3e1c4c6b7433/idris-shader-backend'
+setglobal ENV.IKE_RECIPE_RUNNER = '/workspace/scratch/30b0a80117bc/tool-bin/grease'
+setglobal ENV.IKE_RECEIPT = '/workspace/scratch/3e1c4c6b7433/coordinate-pairing.ike.tsv'
+cd "$1"
+shift
+exec "$@"

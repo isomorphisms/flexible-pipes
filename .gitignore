@@ -12,6 +12,7 @@ __pycache__/
 
 # These are captured UTF-8 command streams, not executable/model binaries.
 !receipts/jobicy-cli/**/*.bin
+!receipts/fragment-semantics/**/*.bin
 
 # Optional local cache roots.
 models/cache/

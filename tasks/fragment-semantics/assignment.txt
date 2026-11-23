@@ -1,0 +1,11 @@
+FRAGMENT-SEMANTICS — Repair mathematical naming, types and generated consumers
+Control envelope: https://github.com/isomorphisms/flexible-pipes/issues/116
+Human authorization: “Go”, continuing the five displayed SUN FRAGMENT-SEMANTICS jobs.
+Origin: mandatory semantic naming audit of STAR FRAGMENT-GENERATORS-01.
+
+First outcome: checked 32D Vector/Covector abstraction, scalar-field and space identity, appropriate operations, metric-dependent inner products, and canonical intrinsic recognition. Lower packing explicitly without claiming hardware-register identity.
+Next outcomes: actual generated shader path, proper rotation contract, independent semantic controls/mutants, and complete maintained consumer migration.
+Preserve the source/numerical/machine/layout distinction. Repair defective functionality or use an accurate low-level name. No permanent misleading aliases.
+No merge or release authority.
+All later outcomes remain pending until their exact-source and acceptance boundaries are exercised.
+
