@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-source-recovery",
+  "description": "Build the existing pinned ICU binary response probe through Kitchen before original syllabus acquisition. Candidate local execution, not protected production admission.",
+  "parameters": {
+    "grease": {"required": true},
+    "idric-root-setting": {"required": true, "pattern": "IDRIC_ROOT=/[^\\n]+"},
+    "idric-setting": {"required": true, "pattern": "IDRIC=/[^\\n]+"},
+    "chez-setting": {"required": true, "pattern": "CHEZ=/[^\\n]+"},
+    "prefix-setting": {"required": true, "pattern": "IDRIS2_PREFIX=/[^\\n]+"},
+    "net-root-setting": {"required": true, "pattern": "IDRIC_NET_ROOT=/[^\\n]+"},
+    "ick-root-setting": {"required": true, "pattern": "ICK_SOURCE_ROOT=/[^\\n]+"},
+    "ick-setting": {"required": true, "pattern": "ICK=/[^\\n]+"},
+    "recipe": {"required": true},
+    "icu": {"required": true},
+    "aici": {"required": true},
+    "installed": {"required": true},
+    "evidence": {"required": true}
+  },
+  "required_stages": ["runtime-identity", "kitchen-build-install"],
+  "stages": [
+    {"kind": "command", "name": "runtime-identity", "argv": ["env", "ASAN_OPTIONS=detect_leaks=0", "{{grease}}", "--version"]},
+    {"kind": "command", "name": "kitchen-build-install", "argv": [
+      "env", "ASAN_OPTIONS=detect_leaks=0",
+      "{{idric-root-setting}}", "{{idric-setting}}", "{{chez-setting}}", "{{prefix-setting}}",
+      "{{net-root-setting}}", "{{ick-root-setting}}", "{{ick-setting}}",
+      "{{grease}}", "{{recipe}}",
+      "{{icu}}", "{{installed}}", "{{aici}}", "{{evidence}}"
+    ]}
+  ]
+}

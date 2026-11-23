@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-range-diagnostic",
+  "description": "Fetch an exact Common Crawl compressed range through the actual ICU provider with explicit HTTP/1.1 and fail-closed metadata checks. Candidate diagnostic; public ICU range API admission remains separate.",
+  "parameters": {
+    "idric": {"required": true}, "package": {"required": true},
+    "chez-setting": {"required": true}, "prefix-setting": {"required": true},
+    "probe": {"required": true}, "library": {"required": true},
+    "library-directory": {"required": true}, "url": {"required": true},
+    "body": {"required": true}, "metadata": {"required": true},
+    "offset": {"required": true, "pattern": "^[0-9]+$"},
+    "length": {"required": true, "pattern": "^[1-9][0-9]*$"}
+  },
+  "stages": [
+    {"kind": "command", "name": "compile-idric-probe", "argv": ["env", "{{chez-setting}}", "{{prefix-setting}}", "{{idric}}", "--build", "{{package}}"]},
+    {"kind": "command", "name": "bind-same-icu-provider", "argv": ["cp", "{{library}}", "{{library-directory}}"]},
+    {"kind": "command", "name": "fetch-and-verify-range", "argv": ["{{probe}}", "{{url}}", "{{body}}", "{{metadata}}", "{{offset}}", "{{length}}"]}
+  ]
+}
