@@ -28,7 +28,7 @@ jobs:
         working-directory: flexible-pipes
       - name: Build the scoped Grease runtime for transfer fixtures
         id: grease
-        uses: isomorphisms/ai-ci/grease-fixtures@76983db8e89eba874189baccad90c4aaca5cf6fd
+        uses: isomorphisms/ai-ci/grease-fixtures@fb9ee30c9b5499e3ed2773d5691f0e75608437b5
       - name: Test Kitchen generation under native Grease
         env:
           GREASE_BINARY: ${{ steps.grease.outputs.executable }}
