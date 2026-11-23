@@ -1,0 +1,51 @@
+{
+  "finished_at": "2026-10-21T17:57:54.506100+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "compiler_digest": "45805e3295f2709737fcc87985a8a2341aa8663ff8e4e398d2a9d78dc1283e10",
+    "driver": "/workspace/scratch/a5ad60ae831f/kitchen/tasks/mathieu-build/1.grease",
+    "evidence": "/workspace/scratch/a5ad60ae831f/d-host-fresh",
+    "grease": "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+    "head": "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+    "ick": "/workspace/scratch/b8ece546d46f/ick-host/bin/gcc",
+    "ike": "/workspace/scratch/a17a779c0b0f/ike-runtime/ike",
+    "source": "/workspace/scratch/a5ad60ae831f/mathieu"
+  },
+  "pipeline": "mathieu-host",
+  "pipeline_path": "pipelines/mathieu-host.json",
+  "pipeline_sha256": "eda5c048962efcfddf2c57b90eb576154f2e83266d4397adf8ece324249e847f",
+  "repository_commit": "8f38cb8980f4ea88f4737b080d80fbdb9a51835c",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+        "/workspace/scratch/a5ad60ae831f/kitchen/tasks/mathieu-build/1.grease",
+        "/workspace/scratch/a5ad60ae831f/mathieu",
+        "b338e3c9c92b7c8c32804b63c02dd15f600a79fd",
+        "/workspace/scratch/b8ece546d46f/ick-host/bin/gcc",
+        "/workspace/scratch/a17a779c0b0f/ike-runtime/ike",
+        "/workspace/scratch/6931447f484f/oils-d-continue/ysh/d/.build/ysh-d",
+        "/workspace/scratch/a5ad60ae831f/d-host-fresh",
+        "45805e3295f2709737fcc87985a8a2341aa8663ff8e4e398d2a9d78dc1283e10"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-21T17:57:54.506029+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "mathieu-kitchen-ike",
+      "started_at": "2026-10-21T17:57:43.384993+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "0d23266a69552bdcb7c2eee1542196460ccf1d1126dba6feb2a89f497dd1b1bb"
+    }
+  ],
+  "started_at": "2026-10-21T17:57:43.384847+00:00",
+  "status": "PASS"
+}

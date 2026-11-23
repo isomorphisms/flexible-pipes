@@ -1,0 +1,5 @@
+source_head	b338e3c9c92b7c8c32804b63c02dd15f600a79fd
+abi	x86_64
+c_frontend	ick
+assembler_linker	ndk
+Android_execution	NOT_RUN

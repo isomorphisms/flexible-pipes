@@ -1,0 +1,10 @@
+schema	mathieu-gap-v1
+source_head	b338e3c9c92b7c8c32804b63c02dd15f600a79fd
+reference_lines	5009
+GAP_vs_native	PASS
+word_corruption	REJECTED
+design_corruption	REJECTED
+code_corruption	REJECTED
+Android	NOT_RUN
+physical_A1	NOT_RUN
+physical_C67	NOT_RUN

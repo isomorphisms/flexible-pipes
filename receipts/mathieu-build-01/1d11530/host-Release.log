@@ -1,0 +1,12 @@
+mkdir -p build/Release
+/workspace/scratch/b8ece546d46f/ick-host/bin/gcc -fno-link-libatomic -std=c11 -Wall -Wextra -Werror -O2 -DNDEBUG native/mathieu.c tests/engine.c -o build/Release/engine-test
+mkdir -p build/Release
+/workspace/scratch/b8ece546d46f/ick-host/bin/gcc -fno-link-libatomic -std=c11 -Wall -Wextra -Werror -O2 -DNDEBUG native/mathieu.c native/session.c native/checkpoint.c native/render.c tests/session.c -lm -o build/Release/session-test
+build/Release/engine-test
+PASS M12: order=95040 strong-generators=9 blocks=132 every five-subset unique; inverses, words, stabilizers, five-transitivity
+PASS M24: order=244823040 strong-generators=13 blocks=759 every five-subset unique; inverses, words, stabilizers, five-transitivity; Golay [24,12,8] weights and invariance
+build/Release/session-test
+PASS M12 portable checkpoint: paused motion, undo/redo, 400 continuation ticks, truncation and corruption rejection
+PASS M12 touch → exact state → cycle-staged dancer endpoints; distinct suit/form markers transport pixel-for-pixel; selection equivariance, pause, undo/redo/reset and both layouts; 576x1152 raster stride guards
+PASS M24 portable checkpoint: paused motion, undo/redo, 400 continuation ticks, truncation and corruption rejection
+PASS M24 touch → exact state → cycle-staged dancer endpoints; distinct suit/form markers transport pixel-for-pixel; selection equivariance, pause, undo/redo/reset and both layouts; 576x1152 raster stride guards

@@ -1,0 +1,11 @@
+case	AI_CI_head	actual_FP_status	receipt
+wrong_launcher_label	0200258f5c9367c9c0cad8245be26151d0ae1422	FAIL	d-diagnostic-runs/mathieu-apk-accept-20261021T181053.325782Z/receipt.json
+wrong_packager_revision		FAIL	d-diagnostic-runs/mathieu-package-20261021T180432.785881Z/receipt.json
+existing_output		FAIL	d-diagnostic-runs/mathieu-package-20261021T180432.741288Z/receipt.json
+wrong_launcher_label	9a95beac802d1ba6c52399073e61456b18beee19	FAIL	d-diagnostic-runs/mathieu-apk-accept-20261021T180401.832995Z/receipt.json
+missing_or_wrong_signer	0200258f5c9367c9c0cad8245be26151d0ae1422	FAIL	d-diagnostic-runs/mathieu-apk-accept-20261021T181053.257030Z/receipt.json
+wrong_source_head		FAIL	d-diagnostic-runs/mathieu-package-20261021T180432.948352Z/receipt.json
+missing_SDK		FAIL	d-diagnostic-runs/mathieu-package-20261021T180432.720222Z/receipt.json
+missing_or_wrong_signer	9a95beac802d1ba6c52399073e61456b18beee19	FAIL	d-diagnostic-runs/mathieu-apk-accept-20261021T180401.778915Z/receipt.json
+superseded_gate_field_assumption	a977ef3e83958db21b05635ebd40277871d25bd7	FAIL	d-diagnostic-runs/mathieu-apk-accept-20261021T175746.332522Z/receipt.json
+missing_or_wrong_signer		FAIL	d-diagnostic-runs/mathieu-package-20261021T181434.171911Z/receipt.json

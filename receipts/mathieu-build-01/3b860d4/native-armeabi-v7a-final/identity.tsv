@@ -1,0 +1,5 @@
+source_head	3b860d41841209b62433be80be76b62ecfdfbfcf
+abi	armeabi-v7a
+c_frontend	ick
+assembler_linker	ndk
+Android_execution	NOT_RUN
