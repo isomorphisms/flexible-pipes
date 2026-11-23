@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "operation": "rmr-signing-restore-host",
+  "operation_version": "1",
+  "pipeline": "pipelines/rmr-signing-restore-host.json",
+  "origin": "https://github.com/isomorphisms/flexible-pipes/issues/238",
+  "consumer": "https://github.com/isomorphisms/remind-me-to-read/pull/4",
+  "independent": "https://github.com/isomorphisms/ai-ci/pull/313",
+  "target_context": "linux-x86_64-host-synthetic-legacy-v3",
+  "sources": {
+    "producer": {
+      "repository": "isomorphisms/remind-me-to-read",
+      "commit": "15033b9188c7367d2cc0a627f6c0991af074fa23",
+      "converter": "ci/legacy-to-portable.py"
+    },
+    "aici": {
+      "repository": "isomorphisms/ai-ci",
+      "commit": "586c0c68be50b456e194dad8e386113c82846b68",
+      "zip_oracle": "reading-backup/verify.py",
+      "source_comparator": "reading-backup/compare_legacy.py"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "source-preflight",
+    "producer-host-tests",
+    "producer-portable-artifact",
+    "independent-zip-oracle",
+    "independent-legacy-comparator",
+    "independent-hostile-tests",
+    "seal"
+  ],
+  "outputs": [
+    "_reading/evidence/old.tar",
+    "_reading/evidence/portable.zip",
+    ".flexible-pipes/runs/rmr-signing-restore-host-*/receipt.json"
+  ],
+  "authority": "host-qualification-candidate",
+  "production_admission": "NOT_ACCEPTED",
+  "protected_signer_status": "NOT_VERIFIED",
+  "model_dispatch": "NOT_IMPLEMENTED",
+  "fp_platform_dispatch": "NOT_VERIFIED",
+  "physical_A1_C67": "NOT_RUN"
+}
