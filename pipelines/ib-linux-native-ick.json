@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "name": "ib-linux-native-ick",
+  "description": "Explicitly build and qualify the pinned AI-CI native ICK producer through Kitchen/pinned Ike/native Grease. Package provisioning is separate; bootstrap host compilers are not consumer fallbacks.",
+  "parameters": {
+    "grease": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ike": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "producer": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "ick-source": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "build": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "stage": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "output": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "kitchen-task": {
+      "required": true,
+      "pattern": "/[^\\t\\r\\n]+"
+    },
+    "jobs": {
+      "required": true,
+      "pattern": "[1-8]"
+    }
+  },
+  "required_stages": [
+    "job-envelope",
+    "recipe-identities",
+    "kitchen-ike-bootstrap"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "job-envelope",
+      "argv": [
+        "sha256sum",
+        "tasks/ib-desktop/first-wave.txt"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "recipe-identities",
+      "argv": [
+        "sha256sum",
+        "{{grease}}",
+        "{{ike}}",
+        "{{kitchen-task}}"
+      ],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "kitchen-ike-bootstrap",
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "timeout",
+        "3600",
+        "{{grease}}",
+        "{{kitchen-task}}",
+        "{{producer}}",
+        "{{ick-source}}",
+        "{{build}}",
+        "{{stage}}",
+        "{{output}}",
+        "{{grease}}",
+        "{{ike}}",
+        "{{jobs}}"
+      ],
+      "cwd": "."
+    }
+  ]
+}

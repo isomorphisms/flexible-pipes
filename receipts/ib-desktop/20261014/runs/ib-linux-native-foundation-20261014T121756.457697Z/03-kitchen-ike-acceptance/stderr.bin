@@ -1,0 +1,13 @@
+    test -x "$executable"
+    ^~~~
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/6.grease:89: errexit PID 26: Command failed with status 1
+  u'/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease' u'/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/6.grease' native u'/workspace/scratch/65d93ecc1fc0/ib' u'/workspace/scratch/65d93ecc1fc0/ai-ci' u'/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0' u'/workspace/scratch/65d93ecc1fc0/quoted native it\'s 東京' u'/workspace/scratch/65d93ecc1fc0/ick-stage'
+   ^
+/tmp/ike-recipe-56KrUQ:1: errexit PID 23: Command failed with status 1
+ike: recipe for 'native-foundation' failed with status 1
+    env IKE_RECIPE_RUNNER="$grease" IKE_RECEIPT="$output/ike.tsv" IKE_IKEFILE_IDENTITY="sha256:$identity" "$ike" native-foundation
+    ^~~
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/6.grease:54: errexit PID 14: Command failed with status 1
+    env GREASE="$grease" IKE="$ike" KITCHEN_ROOT="$kitchen" "$grease" "$task/6.grease" run "$ib" "$aici" "$bundle" "$output" "$stage"
+    ^~~
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/pipeline.grease:21: errexit PID 8: Command failed with status 1

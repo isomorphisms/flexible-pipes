@@ -1,0 +1,2 @@
+/workspace/scratch/65d93ecc1fc0/ib/native/linux/ib_platform.c:7:2: error: #error IB_LINUX_X86_64_REQUIRED
+    7 | #error IB_LINUX_X86_64_REQUIRED

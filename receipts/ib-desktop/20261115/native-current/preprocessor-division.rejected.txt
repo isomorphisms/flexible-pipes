@@ -1,0 +1,1 @@
+/workspace/scratch/2990a35631ac/qualification/ick-probe/assignment-arrow.c:11:7: error: token '÷' is not valid in preprocessor expressions

@@ -1,0 +1,77 @@
+{
+  "failed_stage": "compiler-bootstrap-packages",
+  "finished_at": "2026-10-14T11:20:49.840304+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "ib-linux-build-dependencies-root-context",
+  "pipeline_path": "pipelines/ib-linux-build-dependencies-root-context.json",
+  "pipeline_sha256": "18028938c6fc37fdf7e5a18e8684c60dcb7075c53cf1a15f883f1a1a083f3518",
+  "repository_commit": "2bafcec71e7a73ff3d6d341690c294340a2a7493",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "id"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:15:06.312461+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "host-user",
+      "started_at": "2026-10-14T11:15:06.309466+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5ef391d886d04116cf84b584ae37ef136f83950ab69b7bfb2a6da7506f7b3a57"
+    },
+    {
+      "argv": [
+        "apt-get",
+        "-o",
+        "APT::Sandbox::User=root",
+        "update"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T11:15:23.930496+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "bootstrap-package-index",
+      "started_at": "2026-10-14T11:15:06.312532+00:00",
+      "stderr_sha256": "df745ee5be61569d4b2d6d6dbe3df86ccc68e91e0de53c2c9548485eb2b858fb",
+      "stdout_sha256": "79bf60d0b1264af78923612b34f7ce65b59f995526628bdc03e32515fababe3f"
+    },
+    {
+      "argv": [
+        "apt-get",
+        "-o",
+        "APT::Sandbox::User=root",
+        "install",
+        "-y",
+        "build-essential",
+        "flex",
+        "bison",
+        "texinfo",
+        "libgmp-dev",
+        "libmpfr-dev",
+        "libmpc-dev"
+      ],
+      "cwd": ".",
+      "exit_code": 100,
+      "finished_at": "2026-10-14T11:20:49.840157+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "compiler-bootstrap-packages",
+      "started_at": "2026-10-14T11:15:23.930695+00:00",
+      "stderr_sha256": "3d453487af87e7d44f9efb83c2a8659003848acdd0e440accbdbb01f8059a579",
+      "stdout_sha256": "d9bcc7a4017ab9de2ba217af98d20718a1d7d074323157fdc7f7830071e3a4f9"
+    }
+  ],
+  "started_at": "2026-10-14T11:15:06.309217+00:00",
+  "status": "FAIL"
+}

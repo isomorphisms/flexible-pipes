@@ -1,0 +1,10 @@
+  '/workspace/scratch/65d93ecc1fc0/.build/grease-native/bin/grease' '/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/4.grease' check '/workspace/scratch/65d93ecc1fc0/ib' '/workspace/scratch/65d93ecc1fc0/ai-ci' '/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0' '/workspace/scratch/65d93ecc1fc0/published core it'\''s spaced'
+                                                                                                                                                                                                                                                                                                                                                                                      ^
+/tmp/ike-recipe-wopzTs:1: Invalid quoted word part in YSH (OILS-ERR-17)
+ike: recipe for 'shared-core' failed with status 2
+    env IKE_RECIPE_RUNNER="$grease" IKE_RECEIPT="$output/ike.tsv" IKE_IKEFILE_IDENTITY="sha256:$identity" "$ike" shared-core
+    ^~~
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/4.grease:96: errexit PID 14: Command failed with status 1
+    env GREASE="$grease" IKE="$ike" KITCHEN_ROOT="$kitchen" "$grease" "$task/4.grease" run "$ib" "$aici" "$bundle" "$output"
+    ^~~
+/workspace/scratch/65d93ecc1fc0/kitchen/tasks/ib-desktop/pipeline.grease:19: errexit PID 8: Command failed with status 1

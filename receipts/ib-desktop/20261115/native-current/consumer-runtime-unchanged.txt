@@ -1,0 +1,6 @@
+/lib/x86_64-linux-gnu/libc.so.6: OK
+/lib/x86_64-linux-gnu/libgmp.so.10: OK
+/lib/x86_64-linux-gnu/libm.so.6: OK
+/lib/x86_64-linux-gnu/libmpc.so.3: OK
+/lib/x86_64-linux-gnu/libmpfr.so.6: OK
+/lib64/ld-linux-x86-64.so.2: OK
