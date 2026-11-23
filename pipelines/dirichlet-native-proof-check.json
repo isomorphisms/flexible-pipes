@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "dirichlet-native-proof-check",
+  "parameters": {
+    "dirichlet": {"required": true, "pattern": "/.+"},
+    "kitchen-task": {"required": true, "pattern": "/.+"},
+    "compiler": {"required": true, "pattern": "/.+"},
+    "grease": {"required": true, "pattern": "/.+"},
+    "ike": {"required": true, "pattern": "/.+"},
+    "output": {"required": true, "pattern": "/.+"},
+    "source-head": {"required": true, "pattern": "[0-9a-f]{40}"},
+    "source-sha256": {"required": true, "pattern": "[0-9a-f]{64}"}
+  },
+  "required_stages": ["assignment", "kitchen-ike-native-check"],
+  "stages": [
+    {"kind": "command", "name": "assignment", "argv": ["sha256sum", "tasks/DIR-13-opening.txt"]},
+    {"kind": "command", "name": "kitchen-ike-native-check", "argv": ["env", "ASAN_OPTIONS=detect_leaks=0", "{{grease}}", "{{kitchen-task}}", "run", "{{dirichlet}}", "{{compiler}}", "{{output}}", "{{grease}}", "{{ike}}", "{{source-head}}", "{{source-sha256}}"]}
+  ]
+}

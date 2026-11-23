@@ -1,0 +1,70 @@
+{
+  "failed_stage": "kitchen-ike-native-check",
+  "finished_at": "2026-10-14T17:12:35.604876+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "compiler": "/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/bin/idric",
+    "dirichlet": "/workspace/scratch/b4dad5d7e224/dirichlet",
+    "grease": "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+    "ike": "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+    "kitchen-task": "/workspace/scratch/b4dad5d7e224/kitchen-candidate/tasks/dirichlet-native-proof/1.grease",
+    "output": "/workspace/scratch/b4dad5d7e224/native-original-run",
+    "source-head": "9458368792003be88a9499db676279b359e5ddf9",
+    "source-sha256": "2595b69fca1d8990a6ffe0a4c352b7296db77e591de9280bbe05240c6955da82"
+  },
+  "pipeline": "dirichlet-native-proof-check",
+  "pipeline_path": "pipelines/dirichlet-native-proof-check.json",
+  "pipeline_sha256": "523a6d657e2b73adf9eeb1b02b71444c575a1961408504a3931eb4ba56813488",
+  "repository_commit": null,
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/DIR-13-opening.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T17:12:23.965069+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "assignment",
+      "started_at": "2026-10-14T17:12:23.961994+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d6ed70729d6005b2af7607ee5b938745207ca66dc1a5c1a49eb793634122f289"
+    },
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+        "/workspace/scratch/b4dad5d7e224/kitchen-candidate/tasks/dirichlet-native-proof/1.grease",
+        "run",
+        "/workspace/scratch/b4dad5d7e224/dirichlet",
+        "/workspace/scratch/65d93ecc1fc0/runtime/idric-linux-x86_64-94dfd99bd3e376507fedc8611053b7173b2519f0/bin/idric",
+        "/workspace/scratch/b4dad5d7e224/native-original-run",
+        "/workspace/scratch/4742a1c942e7/native-runtime/bin/grease",
+        "/workspace/scratch/65d93ecc1fc0/ike-download/ike",
+        "9458368792003be88a9499db676279b359e5ddf9",
+        "2595b69fca1d8990a6ffe0a4c352b7296db77e591de9280bbe05240c6955da82"
+      ],
+      "cwd": ".",
+      "exit_code": 1,
+      "finished_at": "2026-10-14T17:12:35.604835+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "kitchen-ike-native-check",
+      "started_at": "2026-10-14T17:12:23.965158+00:00",
+      "stderr_sha256": "32db6a06b8fcd2cd1c13251f5eb3b0b0536004f55b5c31c77be833cd74d64c86",
+      "stdout_sha256": "d5c1d93cd3ac6f84bbcba01df67e8d3b922e81930f4eb6497e48de79bea9caf2"
+    }
+  ],
+  "started_at": "2026-10-14T17:12:23.961835+00:00",
+  "status": "FAIL"
+}

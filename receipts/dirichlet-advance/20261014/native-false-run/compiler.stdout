@@ -1,0 +1,15 @@
+1/1: Building GeometricFalse (GeometricFalse.idric)
+Error: While processing right hand side of false_witness. When unifying:
+    5 = 5
+and:
+    geometric_sum 1 4 = 5
+Mismatch between: S (assert_total (integerToNat 0)) and 0.
+
+GeometricFalse:14:17--14:21
+ 10 | geometric_sum ratio (S length) =
+ 11 |   geometric_sum ratio length + natural_power ratio length
+ 12 |
+ 13 | false_witness : geometric_sum 1 4 = 5
+ 14 | false_witness = Refl
+                      ^^^^
+

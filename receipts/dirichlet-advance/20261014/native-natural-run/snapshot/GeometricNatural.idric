@@ -1,0 +1,20 @@
+module GeometricNatural
+
+natural_power : Number → Number → Number
+natural_power ratio Z = 1
+natural_power ratio (S exponent) = ratio × natural_power ratio exponent
+
+geometric_sum : Number → Number → Number
+geometric_sum ratio Z = 0
+geometric_sum ratio (S length) =
+  geometric_sum ratio length + natural_power ratio length
+
+one_four : geometric_sum 1 4 = 4
+one_four = Refl
+
+two_four : geometric_sum 2 4 = 15
+two_four = Refl
+
+closed_semiring_identity :
+  geometric_sum 2 4 + natural_power 2 4 = 1 + 2 × geometric_sum 2 4
+closed_semiring_identity = Refl
