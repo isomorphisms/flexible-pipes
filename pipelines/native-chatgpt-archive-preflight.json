@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "name": "native-chatgpt-archive-preflight",
+  "required_stages": [
+    "authorization",
+    "workspace",
+    "clone",
+    "pin",
+    "source-identity",
+    "system-dependencies",
+    "native-dependencies",
+    "native-request-contract",
+    "private-store-contract",
+    "synthetic-tls-to-object",
+    "typescript-dependencies",
+    "typescript-check",
+    "evidence-hashes"
+  ],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "authorization",
+      "argv": [
+        "sha256sum",
+        "tasks/native-chatgpt-archive/authorization.txt"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "workspace",
+      "argv": [
+        "mkdir",
+        "-p",
+        ".flexible-pipes/native-chatgpt-archive"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "clone",
+      "argv": [
+        "git",
+        "clone",
+        "--quiet",
+        "--no-checkout",
+        "https://github.com/dilapidated-shed/ChatGPTExporter.git",
+        ".flexible-pipes/native-chatgpt-archive/exporter"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "pin",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-archive/exporter",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "f655c10d3f13af41c410c41b7c3502f8d295525e"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "source-identity",
+      "argv": [
+        "git",
+        "-C",
+        ".flexible-pipes/native-chatgpt-archive/exporter",
+        "rev-parse",
+        "HEAD"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "system-dependencies",
+      "argv": [
+        "sudo",
+        "apt-get",
+        "update"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "native-dependencies",
+      "argv": [
+        "sudo",
+        "apt-get",
+        "install",
+        "-y",
+        "--no-install-recommends",
+        "libcurl4-openssl-dev",
+        "libssl-dev",
+        "openssl"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "native-request-contract",
+      "argv": [
+        "make",
+        "-C",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native",
+        "check"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "private-store-contract",
+      "argv": [
+        "make",
+        "-C",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native",
+        "check-store"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "synthetic-tls-to-object",
+      "argv": [
+        "make",
+        "-C",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native",
+        "check-https"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "typescript-dependencies",
+      "argv": [
+        "npm",
+        "--prefix",
+        ".flexible-pipes/native-chatgpt-archive/exporter",
+        "ci"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "typescript-check",
+      "argv": [
+        "npm",
+        "--prefix",
+        ".flexible-pipes/native-chatgpt-archive/exporter",
+        "run",
+        "check"
+      ]
+    },
+    {
+      "kind": "command",
+      "name": "evidence-hashes",
+      "argv": [
+        "sha256sum",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native/cgw_web.c",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native/cgw_https.c",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native/cgw_object_store.c",
+        ".flexible-pipes/native-chatgpt-archive/exporter/native/cgw_object_store.h"
+      ]
+    }
+  ]
+}
