@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "test-gpt-oss-understanding-of-github-repository-commands",
+  "description": "Prepare the command/paraphrase matrix, obtain actual GPT-OSS responses, then grade with AICI. No repository mutation.",
+  "parameters": {},
+  "required_stages": ["prepare-infer-grade"],
+  "stages": [{
+    "kind": "command",
+    "name": "prepare-infer-grade",
+    "argv": ["grease", "scripts/test-gpt-oss-understanding-of-github-repository-commands.ysh"],
+    "cwd": "."
+  }],
+  "environment_contract": {
+    "required_paths": ["FLEXIBLE_PIPES_ROOT", "AICI_ROOT", "ITHON_ENTRYPOINT", "MODEL_EVAL_OUTPUT"],
+    "inference": ["MODEL_EVAL_BASE_URL", "MODEL_EVAL_SERVED_MODEL", "MODEL_EVAL_API_KEY"],
+    "model_selection": "MODEL_EVAL_MODEL defaults to gpt-oss-120b",
+    "note": "This describes required caller-provided environment. The legacy controller does not validate this extra field; missing variables are rejected by Grease/AICI. The prepared manifest records actual model and prompt inputs."
+  },
+  "acceptance_scope": "model routing responses only; not Kitchen execution, Grease runtime qualification, or live transfer"
+}
