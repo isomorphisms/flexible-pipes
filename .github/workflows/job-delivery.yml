@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: fb9ee30c9b5499e3ed2773d5691f0e75608437b5
+          ref: 9b608a1c6b6db5e9f293dbb562dd261f4bd6cd64
           path: _aici
           persist-credentials: false
       - name: Check out exact Kitchen generator
@@ -44,7 +44,7 @@ jobs:
             "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/_ithon/ithon"
       - name: Build the scoped Grease runtime for command-byte comparison
         id: grease
-        uses: isomorphisms/ai-ci/grease-fixtures@fb9ee30c9b5499e3ed2773d5691f0e75608437b5
+        uses: isomorphisms/ai-ci/grease-fixtures@9b608a1c6b6db5e9f293dbb562dd261f4bd6cd64
       - name: Exercise real delivery ordering and runner hold
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts:${{ github.workspace }}/_aici/validators
