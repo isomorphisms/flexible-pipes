@@ -1,0 +1,36 @@
+SUN FC-CONTROL-01 — Model and agent controller
+
+Authoritative registered assignment: https://github.com/isomorphisms/flexible-pipes/issues/223
+Original issue title: SUN FC-CONTROL-01 — Complete model conversation and typed FP watcher/responder interface
+Original issue body follows verbatim.
+
+## Request, dependency and control
+Human request (2026-10-17): “How is fast chat coming can a couple Sun jobs push it through”. This is **SUN 2 of 2** for the first genuinely usable FastChat agent controller; its first stage may run in parallel with [SUN FC-UI-01](https://github.com/isomorphisms/flexible-pipes/issues/222) where no physical UI is required. Issue publication is not FP model-job dispatch.
+
+**Mandatory path:** registered `isomorphisms/flexible-pipes` envelope and actual captured/visible handoff → maintained `isomorphisms/kitchen` / pinned `dilapidated-shed/ike` implementation → independent `isomorphisms/ai-ci` acceptance. Job text must remain human-visible. Do **not** use direct Github edits/leaf CI as substitutes for the required FP stage/receipt/delivery path.
+
+## Sources and prerequisites
+- FastChat main `442e8135c018ee003021f1c3f681686c80be9fd0` ([merged #11](https://github.com/isomorphisms/fastchat/pull/11)) with durable disk streaming, Idriç lifecycle, HTTP/2 and native APK. Refresh all source heads before work and retain actual source refs.
+- Draft [FastChat #13](https://github.com/isomorphisms/fastchat/pull/13) contains basic native reading and Chat Completions/Responses response-format tests; its hosted tests do **not** prove true multi-turn provider conversations, physical operation or live credentials.
+- [SUN CGW-FC-01](https://github.com/isomorphisms/flexible-pipes/issues/153) owns the current Grease producer fixes (FastChat [#15](https://github.com/isomorphisms/fastchat/pull/15) and stacked [#16](https://github.com/isomorphisms/fastchat/pull/16)); at observed #16 head `7d70c331862e36cdf26981aa8c2558a5d0758eb4` A1, H2 and Idriç CI pass while Icky C producer/core workflow FAILS. Treat #153 as predecessor, not closed/green.
+- [FastChat #14](https://github.com/isomorphisms/fastchat/pull/14) / [FP #147](https://github.com/isomorphisms/flexible-pipes/issues/147) are separate **read-only ChatGPT web history** work; ChatGPT session credentials are not OpenAI API credentials. Do not accidentally combine those interfaces.
+
+## Deliverable A: actually converse with a model
+1. Keep a configurable transport/provider boundary below `ModelRequest → Transport → ModelEvent`; support a caller-supplied OpenAI-compatible endpoint (including an open-weights backend such as GPT-OSS) without hardcoding model/vendor or credentials in the APK. Retain native C, Idriç semantics, Icky Lua where already owned. Public API authentication is a private runtime capability, never embedded, logged, committed or derived from ChatGPT cookies.
+2. Correctly assemble **bounded multi-turn** conversation context from durable canonical history, retaining ordering, explicit failure/uncertainty, cancellation, tools as *data* (never silently executed), provider model identity and no automatic resend. Make Chat Completions and Responses request schemas explicit; never send a Chat Completions body to a Responses endpoint and claim compatibility.
+3. Verify the complete flow with actual local TLS fixture: compose → POST → streaming UTF-8 answer → terminal durable journal → close/relaunch → history replay → follow-up turn → correct previous context. Test auth refusal, timeout, malformed JSON, disconnect, stale attempt, cancellation, backpressure and overbound context. Publish exact provider/request/attempt receipts without secrets. Make a guarded real-provider smoke procedure available, but mark it NOT_RUN until an authorized user-supplied model endpoint/credential is exercised.
+
+## Deliverable B: typed FP job controller with first watcher/responder
+1. Implement a narrow, inspectable chat-to-work intent boundary for a concrete `STAR/SUN/EARTH/MOON` job and status replies. Separate **drafted/requested** from **accepted FP dispatch** and from **ai-ci completion**. The app must not run raw shell commands or claim issue creation / a chat reply is a job dispatch. Preserve original full job text, work identity and source hash.
+2. First watcher/responder **fixture**: accept one explicitly authorized watched source/event, compare durable cursors, construct exactly one bounded typed response/job proposal, require appropriate user authorization for effects, and deduplicate after restart/replay. Use FP's existing identities and delivery/dispatch gates. Never build a second scheduler, a bypass route, or an always-on phone daemon without measured need.
+3. Present unambiguous user-facing states for model chat, job request, handoff awaiting visible delivery, authorized dispatch, acceptance and failure. The UI from SUN 1 must remain responsive and useful on A1/C67. Real externally hosted watchers, production callback/notification delivery and broad generalized responder permissions are **not** implied by local fixture PASS; list unqualified stages.
+
+## Production closure and acceptance
+- Preserve A1 primary `armeabi-v7a`; Cat Food owns distinct C67 `arm64-v8a` companion. Do not call C67 compatibility execution native ARM64 success. Reuse mainline stable dev signer and exact-source reproducible package path.
+- External paired-production prerequisite currently fails missing approved S2 immutable plan, S4 shared decision, S5 Kitchen procedure, S3 independent AICI acceptance. Resolve through owner and measured actual stages; no fabricated closure. If prerequisites remain, report BLOCKED with first missing object.
+- Emit one or more **draft** FastChat/FP candidate PRs, exact-head repeat tests, adversarial fixture/mutation oracles, sample complete visible job handoff, hashes/receipts and detailed HOST/DEVICE/PROVIDER/DISPATCHED/ACCEPTED statuses. Never merge/release without admitted FP path and independent ai-ci authorization.
+- Minimum useful version: physical editable composer, one real two-turn model conversation, durable replay and one **observable FP-submitted job with genuine dispatch acknowledgement** (if production controller/visible sink becomes qualified). Otherwise explicitly distinguish functional chat from mocked controller.
+- Leave full ChatGPT account/history export, live watchers across arbitrary services and frontend LoRA training as later projects; report follow-on EARTH/MOON jobs where exact blockers require them.
+
+Current user invocation (2026-10-18): Fc-control-01
+Current direction: one GPT-OSS on SDF.org is the primary intended target; prioritize interception of gh scripts and automated work calls with direct repository access. SDF service availability, machine capability, endpoint and credentials have not been verified. Do not substitute Hetzner or infer that SDF currently serves a model.
