@@ -1,0 +1,5 @@
+SUN M004-VIEW-01
+Origin: https://github.com/isomorphisms/flexible-pipes/issues/134
+Dependency: accepted exact M004-ATLAS-01 candidate.
+Implement a marked intrinsic scene with camera/frame/ray travel through identified faces. First-object vs first-face ordering, intrinsic distance budgets, unresolved results and display-independent authority must be exercised. CPU image and trace acceptance do not establish GPU or mobile deployment. No generic renderer rewrite. No merge/release.
+
