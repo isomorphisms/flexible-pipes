@@ -1,0 +1,16 @@
+key	value
+status	BLOCKED
+blocker	compatible_cpp_free_grease_not_independently_accepted
+runtime_owner	dilapidated-shed/grease
+acquisition_owner	isomorphisms/catfood
+acceptance_owner	isomorphisms/ai-ci
+required_target	x86_64-linux-gnu
+required_acceptance	exact C++-free runtime and closure; Grease qualification and consumer positive/negative suites
+historical_runtime_acquisition	removed; vanished historical artifact and disallowed C++ implementation are not eligible
+compiler_artifact_observation	11468256648 remained available on 2026-10-19; availability is not current compiler witness qualification
+source_candidate	PENDING
+interpreter_semantics	NOT_RUN
+embedded_semantics	NOT_RUN
+real_consumer_semantics	NOT_RUN
+android_build	NOT_RUN
+physical_device	NOT_RUN
