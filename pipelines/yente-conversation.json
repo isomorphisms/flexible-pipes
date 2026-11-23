@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "yente-conversation",
+  "parameters": {
+    "candidate": {"required": true, "pattern": "^/[^\\n]+$"},
+    "state": {"required": true, "pattern": "^/[^\\n]+$"},
+    "materials": {"required": true, "pattern": "^/[^\\n]+$"},
+    "commands": {"required": true, "pattern": "^/[^\\n]+$"},
+    "session": {"required": true, "pattern": "^[A-Za-z0-9_-]+$"},
+    "request": {"required": true, "pattern": "^/[^\\n]+$"},
+    "response": {"required": true, "pattern": "^/[^\\n]+$"},
+    "oracle": {"required": true, "pattern": "^/[^\\n]+$"}
+  },
+  "required_stages": ["fictional-conversation", "permitted-model-request", "recorded-response-admission", "independent-aici-acceptance"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "fictional-conversation",
+      "argv": ["{{candidate}}", "script", "{{state}}", "{{materials}}", "{{commands}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "permitted-model-request",
+      "argv": ["{{candidate}}", "request", "{{state}}", "{{materials}}", "{{session}}", "{{request}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "recorded-response-admission",
+      "argv": ["{{candidate}}", "accept", "{{state}}", "{{materials}}", "{{session}}", "{{request}}", "{{response}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-aici-acceptance",
+      "argv": ["{{oracle}}", "{{candidate}}", "{{materials}}", "{{commands}}"],
+      "cwd": "."
+    }
+  ]
+}

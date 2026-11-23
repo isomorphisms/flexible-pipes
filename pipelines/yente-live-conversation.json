@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "name": "yente-live-conversation",
+  "parameters": {
+    "ithon": {"required": true, "pattern": "^/[^\\n]+$"},
+    "trial": {"required": true, "pattern": "^/[^\\n]+$"},
+    "candidate": {"required": true, "pattern": "^/[^\\n]+$"},
+    "materials": {"required": true, "pattern": "^/[^\\n]+$"},
+    "evidence": {"required": true, "pattern": "^/[^\\n]+$"},
+    "oracle": {"required": true, "pattern": "^/[^\\n]+$"}
+  },
+  "required_stages": ["fresh-fictional-conversation", "independent-live-observations"],
+  "stages": [
+    {
+      "kind": "command",
+      "name": "fresh-fictional-conversation",
+      "argv": ["{{ithon}}", "{{trial}}", "trial", "{{candidate}}", "{{materials}}", "{{evidence}}"],
+      "cwd": "."
+    },
+    {
+      "kind": "command",
+      "name": "independent-live-observations",
+      "argv": ["{{oracle}}", "{{evidence}}"],
+      "cwd": "."
+    }
+  ]
+}
