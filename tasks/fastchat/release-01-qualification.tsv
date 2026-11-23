@@ -1,0 +1,40 @@
+schema	fastchat-release-source-receipt-v1
+application	isomorphisms/fastchat
+source_commit	3b1286cefb49485ec337c56e278bd831518f2ae7
+source_tree	af949c0a36b340158ff138609845eae33cc9f7f3
+main_at_inspection	442e8135c018ee003021f1c3f681686c80be9fd0
+source_pr	https://github.com/isomorphisms/fastchat/pull/17
+implementation	composer/provider/context work reused; in-app provider setup, private settings, durable drafts, paired producer and installation documentation added
+core_and_hostile_mutations	PASS https://github.com/isomorphisms/fastchat/actions/runs/40148855672
+credential_free_http2_provider_fixtures	PASS https://github.com/isomorphisms/fastchat/actions/runs/40148855635
+pinned_idric_semantics_and_setup_typecheck	PASS https://github.com/isomorphisms/fastchat/actions/runs/40148855633
+a1_compile_sign_repeat_package	PASS https://github.com/isomorphisms/fastchat/actions/runs/40148855631
+a1_artifact	12581466332
+a1_artifact_zip_sha256	ef377609a7c1ce3baad81eb940eab940e86a8df758e1be9308318bf04f602ca4
+a1_apk_sha256	8a42e894e53fa7268e4f3564d1d7514b2518439eef3b49112347fe0623de178d
+a1_apk_bytes	2261788
+c67_compile_sign_repeat_package	PASS https://github.com/isomorphisms/fastchat/actions/runs/40148855631
+c67_artifact	12582232089
+c67_artifact_zip_sha256	69185ab3c2112fce4e0eb35f52c32a0cf3e333efce1bf8f4971844110acac79b
+c67_apk_sha256	ddf7791379070977e714cbca603684a1231d03905909bea7f7e863fe90cbfb30
+c67_apk_bytes	2310938
+artifact_source_binding	both APK receipts and downloaded APK digests match source 3b1286cefb49485ec337c56e278bd831518f2ae7
+application_dex	ABSENT in both inspected APK file lists
+package	org.isomorphisms.fastchat.diskstreaming.arena
+version_code	6
+version_name	0.6-candidate
+public_test_signer_sha256	aa9151e3922fa4795987c3655bc7aa4712620f1d94c24a2075acd7b29d8ac86e
+physical_a1	NOT_RUN
+physical_c67	NOT_RUN
+live_provider_and_restart	NOT_RUN
+device_update_retention	NOT_RUN
+handset_ram_and_latency	NOT_MEASURED
+screenshots_from_application	NOT_RUN
+github_topics	NOT_CHANGED
+integrated_main	NOT_RUN; source remains draft while required acceptance is absent
+shared_fp_registration	SOURCE_PREPARED https://github.com/isomorphisms/flexible-pipes/pull/259
+shared_production	BLOCKED; no source-bound Kitchen/Ike/independent ai-ci production receipt
+catfood_approved_launcher	BLOCKED at eafd7fa9e61138a664b205bf8ba82ec6837bbbb9; actual planner refuses missing or duplicate approved launcher identity; reuse https://github.com/isomorphisms/catfood/pull/136
+aici_approved_test_signer	BLOCKED; current identities.tsv blob 42d44dca0d1f75f66c77fb09be9d34140cb4c8d5 contains no FastChat row
+grease_source_producer	FAIL https://github.com/isomorphisms/fastchat/actions/runs/39267339971 builtin-trap reference 4 failures versus allowance 2; unqualified repair not integrated
+release	BLOCKED

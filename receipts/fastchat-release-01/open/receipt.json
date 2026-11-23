@@ -1,0 +1,70 @@
+{
+  "finished_at": "2026-10-25T00:30:05.146501+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "APPLICATION_ROOT": "/workspace/scratch/203f532a4213/fastchat"
+  },
+  "pipeline": "fastchat-mechanical-open",
+  "pipeline_path": "pipelines/fastchat-mechanical-open.json",
+  "pipeline_sha256": "4b81362b284071e460a5509f18c73ce8a39cf81389606cc53fbf333ea8c885df",
+  "repository_commit": "d70159ff1dddefb163eb32fdd1c51335b9128fdc",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "sha256sum",
+        "tasks/fastchat/fc-m1-m5.txt"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-25T00:30:05.141676+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "job-envelope",
+      "started_at": "2026-10-25T00:30:05.138897+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "07cd20cbd4b31bcaab873e5b08d99c5d9feb89c04b7795e0b4599487296115a4"
+    },
+    {
+      "argv": [
+        "uname",
+        "-srm"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-25T00:30:05.143929+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "host-identity",
+      "started_at": "2026-10-25T00:30:05.141733+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "1cfa62c473397bd4b082e84f331e90fd9461104b3ec3ea3190ecd6c551a57f77"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/scratch/203f532a4213/fastchat",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-25T00:30:05.146486+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "application-revision",
+      "started_at": "2026-10-25T00:30:05.143992+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4d5a590909bc0474511f7c924b49fc5f069fc52fcdaa764f68ae806beb295e76"
+    }
+  ],
+  "started_at": "2026-10-25T00:30:05.138797+00:00",
+  "status": "PASS"
+}
