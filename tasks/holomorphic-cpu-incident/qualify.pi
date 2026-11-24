@@ -1,0 +1,71 @@
+"""Run the owner's independent CPU oracle through the hosted FP qualifier."""
+from pathlib import Path
+from subprocess import CompletedProcess
+from builtins import dict, list, RuntimeError
+import hashlib
+import os
+import subprocess
+import sys
+
+subject_revision ∈ str ← "7041b262c553e295b9769ebb84b7cb626e2ce50e"
+oracle_revision ∈ str ← "191f85739ea9f965f6f65ed0be68dd2986b4f116"
+compiler_revision ∈ str ← "c61e448251744a2f40ad743ebef1a027bdcd2f9d"
+
+def revision(checkout ∈ Path) → str:
+    selected ∈ bytes ← subprocess.check_output(["/usr/bin/git", "-C", str(checkout), "rev-parse", "HEAD"])
+    return selected.decode().strip()
+
+def digest(file ∈ Path) → str:
+    return hashlib.sha256(file.read_bytes()).hexdigest()
+
+def observe(stage ∈ str, program ∈ list[str], directory ∈ Path, environment ∈ dict[str, str]) → None:
+    result ∈ CompletedProcess ← subprocess.run(program, env=environment, capture_output=True, timeout=120)
+    status ∈ int ← result.returncode
+    directory.joinpath(stage + ".stdout").write_bytes(result.stdout)
+    directory.joinpath(stage + ".stderr").write_bytes(result.stderr)
+    directory.joinpath(stage + ".exit").write_text(str(status) + "\n")
+    if status != 0:
+        raise RuntimeError(stage + " returned " + str(status))
+
+def main() → None:
+    argv ∈ list[str] ← sys.argv
+    if len(argv) != 7:
+        raise RuntimeError("expected FP_HEAD HOLOMORPHIC AICI ICK_DRIVER ICK_LINK_FLAGS OUTPUT")
+    source ∈ Path ← Path(sys._getframe().f_code.co_filename).resolve().parents.__getitem__(2)
+    subject ∈ Path ← Path(argv[2]).resolve(strict=True)
+    oracle ∈ Path ← Path(argv[3]).resolve(strict=True)
+    compiler ∈ Path ← Path(argv[4]).resolve(strict=True)
+    receipt ∈ Path ← Path(argv[6]).resolve()
+    if revision(source) != argv[1] or revision(subject) != subject_revision or revision(oracle) != oracle_revision:
+        raise RuntimeError("the selected FP, Holomorphic or ai-ci checkout differs from its reviewed revision")
+    subprocess.run(["/usr/bin/git", "-C", str(oracle), "diff", "--quiet", "HEAD", "--",
+                    "tests/semantic-oracles/holomorphic-t1", "validators/verify_semantic_mutants.sh"], check=True)
+    receipt.mkdir(mode=448, exist_ok=False)
+    compiler_digest ∈ str ← digest(compiler)
+    environment ∈ dict[str, str] ← {
+        "PATH": "/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "AICI_SEMANTIC_RECEIPT_DIR": str(receipt),
+        "AICI_C_COMPILER": str(compiler),
+        "AICI_C_LINK_FLAGS": argv[5],
+        "AICI_ICK_REVISION": compiler_revision,
+    }
+    programs ∈ Path ← oracle.joinpath("tests", "semantic-oracles", "holomorphic-t1")
+    observe("execute", ["/usr/bin/sh", str(programs.joinpath("run.sh")), str(subject), subject_revision], receipt, environment)
+    observe("reject-altered-evidence", ["/usr/bin/sh", str(programs.joinpath("receipt_meta_tests.sh")), str(receipt),
+                                       subject_revision, oracle_revision, compiler_revision, compiler_digest],
+            receipt, environment)
+    observations ∈ Path ← receipt.joinpath("aici-holomorphic-t1.tsv")
+    observation_bytes ∈ bytes ← observations.read_bytes()
+    if len(observation_bytes) == 0:
+        raise RuntimeError("the independent oracle produced no observations")
+    if digest(compiler) != compiler_digest:
+        raise RuntimeError("the compiler changed during qualification")
+    verdict ∈ str ← "scope\thost-cpu-polynomial-mutation\nresult\tPASS\n"
+    verdict ← verdict + "control_commit\t" + argv[1] + "\nsubject_commit\t" + subject_revision + "\n"
+    verdict ← verdict + "oracle_commit\t" + oracle_revision + "\ncompiler_commit\t" + compiler_revision + "\n"
+    verdict ← verdict + "compiler_sha256\t" + compiler_digest + "\nobservations_sha256\t" + digest(observations) + "\n"
+    receipt.joinpath("host-cpu-verdict.tsv").write_text(verdict)
+    print(verdict)
+
+main()

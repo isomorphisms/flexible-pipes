@@ -1,0 +1,65 @@
+name: Holomorphic CPU incident qualification
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/holomorphic-cpu-incident.yml"
+      - "tasks/holomorphic-cpu-incident/**"
+
+permissions:
+  contents: read
+
+jobs:
+  independent-cpu-oracle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Materialize the exact Flexible Pipes control revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: fp
+          persist-credentials: false
+      - name: Materialize the checked Ithon host
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: ithon
+          persist-credentials: false
+      - name: Materialize the Holomorphic specimen
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphismes/holomorphic
+          ref: 7041b262c553e295b9769ebb84b7cb626e2ce50e
+          path: holomorphic
+          persist-credentials: false
+      - name: Materialize the independent verifier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 191f85739ea9f965f6f65ed0be68dd2986b4f116
+          path: aici
+          persist-credentials: false
+      - name: Qualify the selected ICK C compiler
+        uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+        id: ick
+      - name: Execute the preserved incident and its receipt rejection cases
+        env:
+          FP_HEAD: ${{ github.event.pull_request.head.sha }}
+          ICK_DRIVER: ${{ steps.ick.outputs.compiler }}
+          ICK_LINK_FLAGS: ${{ steps.ick.outputs.link_flags }}
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/holomorphic-cpu-checked.jsonl
+        run: >-
+          ithon/ithon fp/tasks/holomorphic-cpu-incident/qualify.pi "$FP_HEAD"
+          "$GITHUB_WORKSPACE/holomorphic" "$GITHUB_WORKSPACE/aici"
+          "$ICK_DRIVER" "$ICK_LINK_FLAGS" "$RUNNER_TEMP/holomorphic-cpu"
+      - name: Retain the scoped evidence and any failed stages
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: holomorphic-cpu-incident-${{ github.event.pull_request.head.sha }}
+          path: |
+            ${{ runner.temp }}/holomorphic-cpu/
+            ${{ runner.temp }}/holomorphic-cpu-checked.jsonl
+          if-no-files-found: error
